@@ -27,6 +27,18 @@ Expected source problems are data, not exceptions. Each stage returns the best p
 
 Parser cannot import providers; providers cannot import parser, layout, or renderer; layout and renderer cannot interpret source; reusable packages cannot import React or Monaco. Automated boundary tests enforce this matrix.
 
+## Internal Package Structure Conventions
+
+To ensure scalable growth and ease of contribution:
+
+- `@cloudmer/aws`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
+- `@cloudmer/parser`: `src/lexer/`, `src/cst/`, `src/visitor/`, `src/recovery/`, `src/index.ts`.
+- `@cloudmer/layout-elk`: `src/adapter/`, `src/worker/`, `src/cache/`, `src/index.ts`.
+- `@cloudmer/renderer-svg`: `src/serializer/`, `src/theme/`, `src/accessibility/`, `src/index.ts`.
+- `@cloudmer/core`: `src/pipeline/`, `src/browser.ts`, `src/index.ts`.
+
+See [Contribution & Extension Guide](contribution-guide.md) for step-by-step developer workflows.
+
 ## Data ownership
 
 - Parser owns a CloudMer AST; Chevrotain CST types never leave its package.
