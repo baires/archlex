@@ -74,3 +74,6 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 - [ ] Complete all CI gates and confirm npm scope ownership.
 - [ ] Configure prerelease, provenance, changelogs, and release dry-run.
 - [ ] Deploy playground and publish verified `0.1.0`.
+
+## Phase 6 - Fixes
+- [ ] ELK currently produces a large browser bundle (~552 KB gzip). It works correctly, but code splitting/worker packaging should be addressed during the production-layout phase.
