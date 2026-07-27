@@ -38,7 +38,7 @@ Official AWS architecture icons form a separately versioned catalog because AWS 
 
 ## Repository Architecture
 
-The project is a TypeScript monorepo with the following packages:
+The project is a strict TypeScript, ESM-only monorepo managed with pnpm workspaces and Turborepo. Vite library mode builds distributable packages, TypeScript project references validate boundaries, and Node.js 22 is the supported non-browser runtime. The monorepo has the following packages:
 
 ### `@cloudmer/model`
 
@@ -58,7 +58,7 @@ Adapts a semantic `CloudGraph` to ELK.js and converts ELK output into a position
 
 ### `@cloudmer/renderer-svg`
 
-Transforms a positioned graph into deterministic, accessible SVG using standard DOM/SVG APIs. It has no Mermaid or React dependency and does not perform semantic validation.
+Transforms a positioned graph into a deterministic, accessible SVG string without DOM globals. It has no Mermaid or React dependency and does not perform semantic validation.
 
 ### `@cloudmer/core`
 
@@ -83,7 +83,7 @@ const result = await cloudmer.render(source, {
   theme: "light",
 });
 
-container.replaceChildren(result.svg);
+mountSvg(container, result.svg);
 console.log(result.diagnostics);
 ```
 
@@ -105,7 +105,7 @@ layout(graph, options): Promise<LayoutGraph>
 render(layout, theme): SvgResult
 ```
 
-No stage silently throws for expected user-source errors. Expected errors appear as diagnostics and partial results. Unexpected internal failures reject the operation with a typed internal error.
+`SvgResult` contains a deterministic SVG string so the pipeline works in Node.js 22 without browser globals. The browser-only `mountSvg(container, svg)` helper mounts that output. No stage silently throws for expected user-source errors. Expected errors appear as diagnostics and partial results. Unexpected internal failures reject the operation with a typed internal error.
 
 ## Language Design
 
@@ -276,7 +276,7 @@ The layout adapter caches results using a stable fingerprint of geometry-relevan
 
 ## SVG Rendering
 
-The renderer creates SVG with deterministic element ordering and stable identifiers. Nodes and edges expose `data-*` attributes containing graph IDs and diagnostic IDs so editor consumers can correlate the diagram with source ranges.
+The renderer creates an SVG string with deterministic element ordering and stable identifiers. Nodes and edges expose `data-*` attributes containing graph IDs and diagnostic IDs so editor consumers can correlate the diagram with source ranges. A browser-only helper safely parses and mounts CloudMer-generated SVG.
 
 The SVG includes an accessible title and description, textual node labels, navigable interactive elements, and visible focus states. Themes control the canvas, containers, text, edge treatments, diagnostic colors, spacing, and typography. Themes do not recolor official provider assets in ways that conflict with their usage guidance.
 
@@ -284,7 +284,7 @@ SVG is the only core output in the first milestone. The playground may later ras
 
 ## Playground
 
-The playground is a small React/Vite application with:
+The playground is a small React/Vite application with Monaco Editor. Chevrotain provides recoverable parsing, ELK.js runs behind the layout adapter, Vitest and Playwright provide test coverage, Biome formats and lints, and Changesets manages package releases. The playground includes:
 
 - Monaco source editor and CloudMer syntax highlighting.
 - Debounced parse, analysis, layout, and render cycles.
