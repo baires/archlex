@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    { "path": "../model" },
+    { "path": "../parser" },
+    { "path": "../aws" },
+    { "path": "../layout-elk" },
+    { "path": "../renderer-svg" }
+  ],
+  "include": ["src/**/*"]
+}

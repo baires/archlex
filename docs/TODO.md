@@ -4,13 +4,13 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 0 — Architecture and toolchain baseline
 
-- [ ] Scaffold pnpm, Turborepo, strict TypeScript references, and root scripts.
-- [ ] Configure Vite ESM builds, Biome, Vitest projects, Changesets, and CI.
-- [ ] Create all library package shells and the playground; enforce dependency boundaries.
-- [ ] Spike Chevrotain recovery/source spans and private CST conversion.
-- [ ] Spike ELK worker/inline parity, protocol, and cancellation.
-- [ ] Spike DOM-free serialization and browser `mountSvg`.
-- [ ] Verify Node 22/Chromium imports and record bundle/worker baselines.
+- [x] Scaffold pnpm, Turborepo, strict TypeScript references, and root scripts.
+- [x] Configure Vite ESM builds, Biome, Vitest projects, Changesets, and CI.
+- [x] Create all library package shells and the playground; enforce dependency boundaries.
+- [x] Spike Chevrotain recovery/source spans and private CST conversion.
+- [x] Spike ELK worker/inline parity, protocol, and cancellation.
+- [x] Spike DOM-free serialization and browser `mountSvg`.
+- [x] Verify Node 22/Chromium imports and record bundle/worker baselines.
 
 ## Phase 1 — Minimal vertical slice
 

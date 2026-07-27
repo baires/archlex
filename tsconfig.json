@@ -1,0 +1,12 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/model" },
+    { "path": "./packages/parser" },
+    { "path": "./packages/aws" },
+    { "path": "./packages/layout-elk" },
+    { "path": "./packages/renderer-svg" },
+    { "path": "./packages/core" },
+    { "path": "./apps/playground" }
+  ]
+}
