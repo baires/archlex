@@ -14,14 +14,14 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 1 — Minimal vertical slice
 
-- [ ] Define span, diagnostic, AST, graph, layout, mapping, and result types. (Phase 0)
-- [ ] Parse implicit resources and `>`/`->` chains.
-- [ ] Add RDS Proxy, RDS, and ECS catalog entries and sanitized icons.
-- [ ] Resolve implicit identities into a structural graph.
-- [ ] Implement ELK LR layout and deterministic accessible SVG.
-- [ ] Implement `createCloudMer` and source-to-SVG orchestration.
-- [ ] Build the minimal playground through public exports.
-- [ ] Add Node/Chromium canonical-example integration tests.
+- [x] Define span, diagnostic, AST, graph, layout, mapping, and result types. (Phase 0)
+- [x] Parse implicit resources and `>`/`->` chains.
+- [x] Add RDS Proxy, RDS, and ECS catalog entries and sanitized icons.
+- [x] Resolve implicit identities into a structural graph.
+- [x] Implement ELK LR layout and deterministic accessible SVG.
+- [x] Implement `createCloudMer` and source-to-SVG orchestration.
+- [x] Build the minimal playground through public exports.
+- [x] Add Node/Chromium canonical-example integration tests.
 
 ## Phase 2 — Language, recovery, and graph
 

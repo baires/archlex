@@ -34,7 +34,21 @@ export function serializeSvgGraph(
     const svgId = `node-${node.id}`;
     nodeSvgContent += `  <g id="${svgId}" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})">\n`;
     nodeSvgContent += `    <rect width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="2"/>\n`;
-    nodeSvgContent += `    <text x="${(node.width / 2).toFixed(1)}" y="${(node.height / 2 + 5).toFixed(1)}" fill="${theme.textFill}" font-family="sans-serif" font-size="14" text-anchor="middle">${escapeXml(node.label)}</text>\n`;
+    if (node.icon && node.iconKey) {
+      const iconKey = node.iconKey;
+      const positionedIcon = node.icon.replace(/^<svg\b[^>]*>/, (opening) => {
+        const withoutIntrinsicSize = opening.replace(
+          /\s(?:width|height)="[^"]*"/g,
+          "",
+        );
+        return withoutIntrinsicSize.replace(
+          "<svg",
+          `<svg x="${(node.width / 2 - 24).toFixed(1)}" y="10" width="48" height="48" data-cloudmer-icon="${escapeXml(iconKey)}"`,
+        );
+      });
+      nodeSvgContent += `    ${positionedIcon}\n`;
+    }
+    nodeSvgContent += `    <text x="${(node.width / 2).toFixed(1)}" y="${(node.height - 12).toFixed(1)}" fill="${theme.textFill}" font-family="sans-serif" font-size="14" text-anchor="middle">${escapeXml(node.label)}</text>\n`;
     nodeSvgContent += "  </g>\n";
 
     mappings.push({

@@ -7,6 +7,8 @@ node_modules/
 dist/
 **/dist/
 .turbo/
+test-results/
+playwright-report/
 **/.turbo/
 .vite/
 **/.vite/

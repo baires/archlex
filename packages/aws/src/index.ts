@@ -1,5 +1,5 @@
 import type { CloudGraph, CloudProvider, Diagnostic } from "@cloudmer/model";
-import { AWS_SERVICE_CATALOG } from "./catalog/index.js";
+import { resolveAwsService } from "./catalog/index.js";
 import { evaluateAwsRules } from "./rules/index.js";
 
 export * from "./builder.js";
@@ -12,7 +12,10 @@ export function awsProvider(): CloudProvider {
     id: "aws",
     name: "Amazon Web Services",
     supports(serviceKind: string): boolean {
-      return AWS_SERVICE_CATALOG.has(serviceKind.toLowerCase());
+      return Boolean(resolveAwsService(serviceKind));
+    },
+    resolveService(serviceKind) {
+      return resolveAwsService(serviceKind);
     },
     validateGraph(graph: CloudGraph): readonly Diagnostic[] {
       return evaluateAwsRules(graph);

@@ -6,11 +6,11 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "references": [
-    { "path": "../model" },
-    { "path": "../parser" },
-    { "path": "../aws" },
-    { "path": "../layout-elk" },
-    { "path": "../renderer-svg" }
+    { "path": "../model/tsconfig.json" },
+    { "path": "../parser/tsconfig.json" },
+    { "path": "../aws/tsconfig.json" },
+    { "path": "../layout-elk/tsconfig.json" },
+    { "path": "../renderer-svg/tsconfig.json" }
   ],
   "include": ["src/**/*"]
 }

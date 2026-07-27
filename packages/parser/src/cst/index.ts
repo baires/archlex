@@ -27,12 +27,14 @@ export class CloudMerCstParser extends CstParser {
   });
 
   public relationship = this.RULE("relationship", () => {
-    this.SUBRULE1(this.chainNode, { LABEL: "left" });
-    this.OR([
-      { ALT: () => this.CONSUME(GreaterThan, { LABEL: "op" }) },
-      { ALT: () => this.CONSUME(Arrow, { LABEL: "op" }) },
-    ]);
-    this.SUBRULE2(this.chainNode, { LABEL: "right" });
+    this.SUBRULE(this.chainNode, { LABEL: "node" });
+    this.AT_LEAST_ONE(() => {
+      this.OR([
+        { ALT: () => this.CONSUME(GreaterThan, { LABEL: "op" }) },
+        { ALT: () => this.CONSUME(Arrow, { LABEL: "op" }) },
+      ]);
+      this.SUBRULE2(this.chainNode, { LABEL: "node" });
+    });
   });
 
   public chainNode = this.RULE("chainNode", () => {

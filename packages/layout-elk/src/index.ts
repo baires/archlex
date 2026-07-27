@@ -5,7 +5,7 @@ import type {
   LayoutResult,
 } from "@cloudmer/model";
 import { CloudMerAbortError, CloudMerInternalError } from "@cloudmer/model";
-import ELK from "elkjs";
+import ELK from "elkjs/lib/elk.bundled.js";
 import {
   type ElkLayoutResult,
   buildElkGraph,

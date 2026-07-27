@@ -66,6 +66,7 @@ export interface CloudNode {
   serviceKind: string;
   name?: string;
   label: string;
+  iconKey?: string;
   icon?: string;
   span: SourceSpan;
   attributes?: Record<string, string>;
@@ -100,6 +101,7 @@ export interface LayoutNode {
   width: number;
   height: number;
   label: string;
+  iconKey?: string;
   icon?: string;
   children?: readonly LayoutNode[];
 }
@@ -164,7 +166,15 @@ export interface CloudProvider {
   id: string;
   name: string;
   supports(serviceKind: string): boolean;
+  resolveService(serviceKind: string): ServiceMetadata | undefined;
   validateGraph(graph: CloudGraph): readonly Diagnostic[];
+}
+
+export interface ServiceMetadata {
+  id: string;
+  displayName: string;
+  iconKey?: string;
+  iconSvg?: string;
 }
 
 export interface LayoutEngine {

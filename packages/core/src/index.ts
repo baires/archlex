@@ -75,6 +75,20 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       const nodesMap = new Map<string, CloudNode>();
       const edges: CloudEdge[] = [];
       const diagnostics: Diagnostic[] = [];
+      const provider = providerMap.get(defaultProvider);
+
+      const createNode = (kind: string, span: CloudNode["span"]): CloudNode => {
+        const service = provider?.resolveService(kind);
+        return {
+          id: kind,
+          provider: defaultProvider,
+          serviceKind: service?.id ?? kind,
+          label: service?.displayName ?? kind,
+          iconKey: service?.iconKey,
+          icon: service?.iconSvg,
+          span,
+        };
+      };
 
       for (const stmt of ast.statements) {
         if (stmt.type === "relationship") {
@@ -83,23 +97,11 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           const rightKind = rel.right.kind;
 
           if (!nodesMap.has(leftKind)) {
-            nodesMap.set(leftKind, {
-              id: leftKind,
-              provider: defaultProvider,
-              serviceKind: leftKind,
-              label: leftKind,
-              span: rel.left.span,
-            });
+            nodesMap.set(leftKind, createNode(leftKind, rel.left.span));
           }
 
           if (!nodesMap.has(rightKind)) {
-            nodesMap.set(rightKind, {
-              id: rightKind,
-              provider: defaultProvider,
-              serviceKind: rightKind,
-              label: rightKind,
-              span: rel.right.span,
-            });
+            nodesMap.set(rightKind, createNode(rightKind, rel.right.span));
           }
 
           edges.push({
@@ -118,7 +120,6 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         scopes: [],
       };
 
-      const provider = providerMap.get(defaultProvider);
       if (provider) {
         diagnostics.push(...provider.validateGraph(graph));
       }

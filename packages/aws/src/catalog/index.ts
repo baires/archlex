@@ -1,4 +1,5 @@
 import { defineService } from "../builder.js";
+import { AWS_PHASE_ONE_ICONS } from "../icons/index.js";
 
 export const initialServices = [
   defineService({
@@ -6,18 +7,24 @@ export const initialServices = [
     displayName: "Amazon RDS Proxy",
     category: "database",
     aliases: ["proxy"],
+    iconKey: "aws.rds-proxy",
+    iconSvg: AWS_PHASE_ONE_ICONS["aws.rds-proxy"],
   }),
   defineService({
     id: "rds",
     displayName: "Amazon RDS",
     category: "database",
     aliases: ["database"],
+    iconKey: "aws.rds",
+    iconSvg: AWS_PHASE_ONE_ICONS["aws.rds"],
   }),
   defineService({
     id: "ecs",
     displayName: "Amazon ECS",
     category: "compute",
     aliases: ["container"],
+    iconKey: "aws.ecs",
+    iconSvg: AWS_PHASE_ONE_ICONS["aws.ecs"],
   }),
   defineService({
     id: "lambda",
@@ -76,3 +83,12 @@ export const initialServices = [
 export const AWS_SERVICE_CATALOG = new Map(
   initialServices.map((s) => [s.id, s]),
 );
+
+export function resolveAwsService(serviceKind: string) {
+  const normalized = serviceKind.toLowerCase();
+  const direct = AWS_SERVICE_CATALOG.get(normalized);
+  if (direct) return direct;
+  return initialServices.find((service) =>
+    service.aliases.some((alias) => alias.toLowerCase() === normalized),
+  );
+}

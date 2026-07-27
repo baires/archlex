@@ -19,7 +19,9 @@
       "**/.turbo/**",
       "**/dist/**",
       "**/node_modules/**",
-      "**/coverage/**"
+      "**/coverage/**",
+      "**/test-results/**",
+      "**/playwright-report/**"
     ]
   }
 }

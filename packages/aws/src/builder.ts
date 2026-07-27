@@ -6,6 +6,7 @@ export interface ServiceDefinitionInput {
   category: string;
   aliases?: string[];
   iconKey?: string;
+  iconSvg?: string;
 }
 
 export interface ServiceDefinition extends ServiceDefinitionInput {

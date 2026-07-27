@@ -1,12 +1,12 @@
 {
   "files": [],
   "references": [
-    { "path": "./packages/model" },
-    { "path": "./packages/parser" },
-    { "path": "./packages/aws" },
-    { "path": "./packages/layout-elk" },
-    { "path": "./packages/renderer-svg" },
-    { "path": "./packages/core" },
-    { "path": "./apps/playground" }
+    { "path": "./packages/model/tsconfig.json" },
+    { "path": "./packages/parser/tsconfig.json" },
+    { "path": "./packages/aws/tsconfig.json" },
+    { "path": "./packages/layout-elk/tsconfig.json" },
+    { "path": "./packages/renderer-svg/tsconfig.json" },
+    { "path": "./packages/core/tsconfig.json" },
+    { "path": "./apps/playground/tsconfig.json" }
   ]
 }

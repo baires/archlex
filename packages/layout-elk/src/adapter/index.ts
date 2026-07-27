@@ -27,9 +27,11 @@ export function buildElkGraph(
     },
     children: graph.nodes.map((n) => ({
       id: n.id,
-      width: 120,
-      height: 60,
+      width: 180,
+      height: 92,
       labels: [{ text: n.label }],
+      iconKey: n.iconKey,
+      icon: n.icon,
     })),
     edges: graph.edges.map((e) => ({
       id: e.id,
@@ -46,6 +48,8 @@ export interface ElkChildNode {
   width?: number;
   height?: number;
   labels?: { text: string }[];
+  iconKey?: string;
+  icon?: string;
 }
 
 export interface ElkEdgeSection {
@@ -75,9 +79,11 @@ export function convertElkResultToLayoutGraph(
     id: child.id,
     x: child.x ?? 0,
     y: child.y ?? 0,
-    width: child.width ?? 120,
-    height: child.height ?? 60,
+    width: child.width ?? 180,
+    height: child.height ?? 92,
     label: child.labels?.[0]?.text ?? child.id,
+    iconKey: child.iconKey,
+    icon: child.icon,
   }));
 
   const edges: LayoutEdge[] = (elkResult.edges || []).map((edge) => {

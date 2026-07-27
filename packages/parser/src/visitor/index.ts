@@ -14,6 +14,10 @@ export interface TokenLocation {
   image?: string;
 }
 
+interface ChainNodeCst {
+  children?: { name?: TokenLocation[] };
+}
+
 export function tokenToSpan(token: TokenLocation): SourceSpan {
   return {
     start: {
@@ -43,22 +47,22 @@ export function convertCstToAst(cst: unknown): StatementAst[] {
         | Record<string, unknown>
         | undefined;
       const relChildren = relCst?.children as
-        | Record<string, TokenLocation[]>
+        | { node?: ChainNodeCst[]; op?: TokenLocation[] }
         | undefined;
 
       if (relChildren) {
-        const leftNode = relChildren.left?.[0];
-        const opToken = relChildren.op?.[0];
-        const rightNode = relChildren.right?.[0];
+        const nodes = (relChildren.node ?? [])
+          .map((node) => node.children?.name?.[0])
+          .filter((token): token is TokenLocation => Boolean(token?.image));
+        const operators = relChildren.op ?? [];
 
-        if (
-          leftNode &&
-          opToken &&
-          rightNode &&
-          leftNode.image &&
-          rightNode.image &&
-          opToken.image
-        ) {
+        for (let index = 0; index < operators.length; index += 1) {
+          const leftNode = nodes[index];
+          const opToken = operators[index];
+          const rightNode = nodes[index + 1];
+          if (!leftNode?.image || !opToken?.image || !rightNode?.image)
+            continue;
+
           const relAst: RelationshipAst = {
             type: "relationship",
             span: {
