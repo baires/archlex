@@ -1,12 +1,17 @@
 # Dependencies
 node_modules/
+**/node_modules/
 .pnpm-store/
 
 # Build outputs & caches
 dist/
+**/dist/
 .turbo/
+**/.turbo/
 .vite/
+**/.vite/
 coverage/
+**/coverage/
 *.tsbuildinfo
 
 # Operating system files
