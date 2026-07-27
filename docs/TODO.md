@@ -25,13 +25,13 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 2 — Language, recovery, and graph
 
-- [ ] Implement directives and option precedence.
-- [ ] Implement named/qualified resources and lexical scope.
-- [ ] Implement every relationship form, kind, label, and chain.
-- [ ] Implement account/region/VPC/subnet scopes and stable IDs.
-- [ ] Implement invalid nodes, missing endpoints/braces, and exact diagnostics.
-- [ ] Implement unknown resource/relationship fallbacks.
-- [ ] Execute documented examples as fixtures and add fast-check properties.
+- [x] Implement directives and option precedence.
+- [x] Implement named/qualified resources and lexical scope.
+- [x] Implement every relationship form, kind, label, and chain.
+- [x] Implement account/region/VPC/subnet scopes and stable IDs.
+- [x] Implement invalid nodes, missing endpoints/braces, and exact diagnostics.
+- [x] Implement unknown resource/relationship fallbacks.
+- [x] Execute documented examples as fixtures and add fast-check properties.
 
 ## Phase 3 — AWS catalog and semantics
 

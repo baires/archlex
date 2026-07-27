@@ -25,7 +25,7 @@ export interface AstNode {
 }
 
 export interface StatementAst extends AstNode {
-  type: "relationship" | "resource" | "scope" | "directive";
+  type: "relationship" | "resource" | "scope" | "directive" | "invalid";
 }
 
 export interface ResourceAst extends StatementAst {
@@ -46,6 +46,7 @@ export interface RelationshipAst extends StatementAst {
   left: ChainNodeAst;
   right: ChainNodeAst;
   arrow: string;
+  kind?: string;
   label?: string;
 }
 
@@ -53,6 +54,26 @@ export interface DirectiveAst extends StatementAst {
   type: "directive";
   name: string;
   value: string;
+}
+
+export interface ScopeAst extends StatementAst {
+  type: "scope";
+  kind: "account" | "region" | "vpc" | "subnet";
+  name: string;
+  statements: readonly StatementAst[];
+  recovered?: boolean;
+}
+
+export interface InvalidStatementAst extends StatementAst {
+  type: "invalid";
+  raw: string;
+  recovered: true;
+  reason: string;
+  partialRelationship?: {
+    left?: ChainNodeAst;
+    right?: ChainNodeAst;
+    arrow: string;
+  };
 }
 
 export interface DocumentAst extends AstNode {
@@ -77,6 +98,7 @@ export interface CloudEdge {
   source: string;
   target: string;
   arrow: string;
+  kind?: string;
   label?: string;
   span: SourceSpan;
 }
@@ -111,6 +133,8 @@ export interface LayoutEdge {
   source: string;
   target: string;
   points: readonly { x: number; y: number }[];
+  arrow: string;
+  kind?: string;
   label?: string;
 }
 

@@ -65,7 +65,7 @@ a -[writes]->|PostgreSQL/TLS| b
 
 ## AST and recovery
 
-The public AST is a discriminated union of document, directive, resource, group, relationship, and invalid statement nodes. Every node carries zero-based UTF-16 offsets and one-based line/column positions. Synthesized tokens are marked `recovered: true`.
+The public AST is a discriminated union of document, directive, resource, group, relationship, and invalid statement nodes. Every node carries zero-based, end-exclusive UTF-16 offsets and one-based, end-exclusive line/column positions. Synthesized tokens are marked `recovered: true`.
 
 Chevrotain produces a private CST; a visitor constructs the public AST, expands shorthand, and preserves source spans. Recovery rules are:
 

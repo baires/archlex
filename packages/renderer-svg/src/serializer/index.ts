@@ -78,7 +78,10 @@ export function serializeSvgGraph(
     } else {
       pathD = "M 0 0 L 100 0";
     }
-    edgeSvgContent += `  <path id="${svgId}" data-cloudmer-id="${escapeXml(edge.id)}" d="${pathD}" stroke="${theme.edgeStroke}" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>\n`;
+    const markerStart = edge.arrow === "<->" ? "url(#arrowhead-start)" : "none";
+    const markerEnd = edge.arrow === "--" ? "none" : "url(#arrowhead)";
+    const dash = edge.arrow === "-.->" ? ' stroke-dasharray="6 5"' : "";
+    edgeSvgContent += `  <path id="${svgId}" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${theme.edgeStroke}" stroke-width="2" fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${dash}/>\n`;
 
     mappings.push({
       elementId: edge.id,
@@ -96,6 +99,9 @@ export function serializeSvgGraph(
     "  <defs>",
     '    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">',
     `      <polygon points="0 0, 10 3.5, 0 7" fill="${theme.arrowFill}"/>`,
+    "    </marker>",
+    '    <marker id="arrowhead-start" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">',
+    `      <polygon points="10 0, 0 3.5, 10 7" fill="${theme.arrowFill}"/>`,
     "    </marker>",
     "  </defs>",
     edgeSvgContent,

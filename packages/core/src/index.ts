@@ -7,8 +7,10 @@ import type {
   CloudNode,
   CloudProvider,
   Diagnostic,
+  DirectiveAst,
   DocumentAst,
   GraphRenderer,
+  InvalidStatementAst,
   LayoutEngine,
   LayoutGraph,
   LayoutOptions,
@@ -16,6 +18,9 @@ import type {
   ParseResult,
   RelationshipAst,
   RenderResult,
+  ResourceAst,
+  ScopeAst,
+  StatementAst,
   SvgResult,
 } from "@cloudmer/model";
 import { parse as parseSource } from "@cloudmer/parser";
@@ -35,9 +40,14 @@ export interface RenderPipelineOptions {
   signal?: AbortSignal;
 }
 
+export interface AnalyzeOptions {
+  validation?: "normal" | "strict" | "off";
+  provider?: string;
+}
+
 export interface CloudMer {
   parse(source: string): ParseResult;
-  analyze(ast: DocumentAst): AnalysisResult;
+  analyze(ast: DocumentAst, options?: AnalyzeOptions): AnalysisResult;
   layout(graph: CloudGraph, options?: LayoutOptions): Promise<LayoutResult>;
   renderGraph(
     graph: LayoutGraph,
@@ -47,6 +57,67 @@ export interface CloudMer {
     source: string,
     options?: RenderPipelineOptions,
   ): Promise<RenderResult>;
+}
+
+function collectDirectives(
+  statements: readonly StatementAst[],
+  diagnostics: Diagnostic[],
+): Partial<Record<"provider" | "direction" | "validation", string>> {
+  const values: Partial<
+    Record<"provider" | "direction" | "validation", string>
+  > = {};
+  let declarationsStarted = false;
+  for (const statement of statements) {
+    if (statement.type !== "directive") {
+      declarationsStarted = true;
+      continue;
+    }
+    const directive = statement as DirectiveAst;
+    const name = directive.name as "provider" | "direction" | "validation";
+    if (declarationsStarted || values[name] !== undefined) {
+      diagnostics.push({
+        code: declarationsStarted
+          ? "CM-STRUCT-LATE-DIRECTIVE"
+          : "CM-STRUCT-DUPLICATE-DIRECTIVE",
+        severity: "error",
+        message: `${declarationsStarted ? "Late" : "Duplicate"} '${name}' directive is ignored.`,
+        span: directive.span,
+        elements: [],
+      });
+      continue;
+    }
+    const allowed =
+      name === "direction"
+        ? ["LR", "RL", "TB", "BT"]
+        : name === "validation"
+          ? ["normal", "strict", "off"]
+          : undefined;
+    if (allowed && !allowed.includes(directive.value)) {
+      diagnostics.push({
+        code: "CM-STRUCT-INVALID-DIRECTIVE",
+        severity: "error",
+        message: `Invalid value '${directive.value}' for '${name}'.`,
+        span: directive.span,
+        elements: [],
+        remediation: `Use one of: ${allowed.join(", ")}.`,
+      });
+      continue;
+    }
+    values[name] = directive.value;
+  }
+  return values;
+}
+
+function getDirective(ast: DocumentAst, name: string): string | undefined {
+  const directive = ast.statements.find(
+    (statement) =>
+      statement.type === "directive" &&
+      "name" in statement &&
+      statement.name === name,
+  );
+  return directive && "value" in directive
+    ? (directive.value as string)
+    : undefined;
 }
 
 export function createCloudMer(options: CloudMerOptions): CloudMer {
@@ -71,57 +142,271 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       return parseSource(source);
     },
 
-    analyze(ast: DocumentAst): AnalysisResult {
+    analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
       const nodesMap = new Map<string, CloudNode>();
       const edges: CloudEdge[] = [];
+      const scopes: CloudGraph["scopes"][number][] = [];
       const diagnostics: Diagnostic[] = [];
-      const provider = providerMap.get(defaultProvider);
+      const directives = collectDirectives(ast.statements, diagnostics);
+      const providerId =
+        analyzeOptions?.provider ?? directives.provider ?? defaultProvider;
+      const provider = providerMap.get(providerId);
+      const validation =
+        analyzeOptions?.validation ?? directives.validation ?? "normal";
+      const knownRelationships = new Set([
+        "connects",
+        "reads",
+        "writes",
+        "publishes",
+        "subscribes",
+        "invokes",
+        "routes",
+        "replicates",
+        "assumes-role",
+      ]);
+      const globalNames = new Map<string, string[]>();
 
-      const createNode = (kind: string, span: CloudNode["span"]): CloudNode => {
-        const service = provider?.resolveService(kind);
-        return {
-          id: kind,
-          provider: defaultProvider,
-          serviceKind: service?.id ?? kind,
-          label: service?.displayName ?? kind,
+      const createNode = (
+        id: string,
+        kind: string,
+        name: string | undefined,
+        span: CloudNode["span"],
+      ): CloudNode => {
+        const [qualifiedProvider, qualifiedKind] = kind.includes(".")
+          ? kind.split(".", 2)
+          : [providerId, kind];
+        const nodeProvider = providerMap.get(qualifiedProvider ?? providerId);
+        const serviceKind = qualifiedKind ?? kind;
+        const service = nodeProvider?.resolveService(serviceKind);
+        const node = {
+          id,
+          provider: qualifiedProvider ?? providerId,
+          serviceKind: service?.id ?? serviceKind,
+          name,
+          label: service?.displayName ?? name ?? serviceKind,
           iconKey: service?.iconKey,
           icon: service?.iconSvg,
           span,
         };
-      };
-
-      for (const stmt of ast.statements) {
-        if (stmt.type === "relationship") {
-          const rel = stmt as RelationshipAst;
-          const leftKind = rel.left.kind;
-          const rightKind = rel.right.kind;
-
-          if (!nodesMap.has(leftKind)) {
-            nodesMap.set(leftKind, createNode(leftKind, rel.left.span));
-          }
-
-          if (!nodesMap.has(rightKind)) {
-            nodesMap.set(rightKind, createNode(rightKind, rel.right.span));
-          }
-
-          edges.push({
-            id: `${leftKind}-${rel.arrow}-${rightKind}`,
-            source: leftKind,
-            target: rightKind,
-            arrow: rel.arrow,
-            span: rel.span,
+        if (!service) {
+          diagnostics.push({
+            code: "CM-SEM-UNKNOWN-RESOURCE",
+            severity: "info",
+            message: `Unknown resource type '${kind}' is rendered generically.`,
+            span,
+            elements: [id],
           });
         }
-      }
+        return node;
+      };
+
+      type Environment = {
+        path: string;
+        parent?: Environment;
+        names: Map<string, string>;
+      };
+      const root: Environment = { path: "", names: new Map() };
+      const makeId = (path: string, local: string) =>
+        path ? `${path}/${local}` : local;
+      const rememberGlobal = (name: string, id: string) => {
+        const ids = globalNames.get(name) ?? [];
+        ids.push(id);
+        globalNames.set(name, ids);
+      };
+      const resolve = (name: string, env: Environment): string | undefined => {
+        for (
+          let current: Environment | undefined = env;
+          current;
+          current = current.parent
+        ) {
+          const id = current.names.get(name);
+          if (id) return id;
+        }
+        const global = globalNames.get(name);
+        return global?.length === 1 ? global[0] : undefined;
+      };
+
+      const declare = (resource: ResourceAst, env: Environment) => {
+        const local = resource.name ?? resource.kind;
+        const id = makeId(env.path, local);
+        const existing = env.names.get(local);
+        if (existing) {
+          diagnostics.push({
+            code: "CM-STRUCT-DUPLICATE-ID",
+            severity: "error",
+            message: `Duplicate resource ID '${local}'.`,
+            span: resource.span,
+            related: [
+              {
+                message: "First declaration owns this ID.",
+                span: nodesMap.get(existing)?.span ?? resource.span,
+              },
+            ],
+            elements: [existing],
+          });
+          return;
+        }
+        env.names.set(local, id);
+        rememberGlobal(local, id);
+        nodesMap.set(
+          id,
+          createNode(id, resource.kind, resource.name, resource.span),
+        );
+      };
+
+      const buildDeclarations = (
+        statements: readonly StatementAst[],
+        env: Environment,
+      ) => {
+        for (const statement of statements) {
+          if (statement.type === "resource")
+            declare(statement as ResourceAst, env);
+          if (statement.type === "scope") {
+            const scope = statement as ScopeAst;
+            const scopeId = makeId(env.path, `${scope.kind}:${scope.name}`);
+            const child: Environment = {
+              path: scopeId,
+              parent: env,
+              names: new Map(),
+            };
+            buildDeclarations(scope.statements, child);
+            scopes.push({
+              id: scopeId,
+              kind: scope.kind,
+              name: scope.name,
+              childrenNodeIds: Array.from(nodesMap.keys()).filter((id) =>
+                id.startsWith(`${scopeId}/`),
+              ),
+            });
+          }
+        }
+      };
+      buildDeclarations(ast.statements, root);
+
+      const processRelationships = (
+        statements: readonly StatementAst[],
+        env: Environment,
+      ) => {
+        for (const statement of statements) {
+          if (statement.type === "scope") {
+            const scope = statement as ScopeAst;
+            const scopeId = makeId(env.path, `${scope.kind}:${scope.name}`);
+            const child: Environment = {
+              path: scopeId,
+              parent: env,
+              names: new Map(),
+            };
+            for (const nested of scope.statements) {
+              if (nested.type === "resource") {
+                const resource = nested as ResourceAst;
+                child.names.set(
+                  resource.name ?? resource.kind,
+                  makeId(scopeId, resource.name ?? resource.kind),
+                );
+              }
+            }
+            processRelationships(scope.statements, child);
+            continue;
+          }
+          if (statement.type === "invalid") {
+            const invalid = statement as InvalidStatementAst;
+            const partial = invalid.partialRelationship;
+            const validEndpoint = partial?.left ?? partial?.right;
+            if (!partial || !validEndpoint) continue;
+            const validId =
+              resolve(validEndpoint.kind, env) ??
+              makeId(env.path, validEndpoint.kind);
+            if (!nodesMap.has(validId)) {
+              nodesMap.set(
+                validId,
+                createNode(
+                  validId,
+                  validEndpoint.kind,
+                  undefined,
+                  validEndpoint.span,
+                ),
+              );
+            }
+            const placeholderId = makeId(
+              env.path,
+              `__missing_endpoint_${edges.length + 1}`,
+            );
+            nodesMap.set(placeholderId, {
+              id: placeholderId,
+              provider: providerId,
+              serviceKind: "unknown",
+              label: "Missing endpoint",
+              span: invalid.span,
+            });
+            const reverse = partial.arrow === "<-";
+            let source = partial.left ? validId : placeholderId;
+            let target = partial.left ? placeholderId : validId;
+            if (reverse) [source, target] = [target, source];
+            edges.push({
+              id: `${source}-${partial.arrow}-${target}`,
+              source,
+              target,
+              arrow: partial.arrow,
+              span: invalid.span,
+            });
+            continue;
+          }
+          if (statement.type !== "relationship") continue;
+          const rel = statement as RelationshipAst;
+          const endpoint = (kind: string, span: CloudNode["span"]) => {
+            const resolved = resolve(kind, env);
+            if (resolved) return resolved;
+            const id = makeId(env.path, kind);
+            if (!nodesMap.has(id)) {
+              env.names.set(kind, id);
+              rememberGlobal(kind, id);
+              nodesMap.set(id, createNode(id, kind, undefined, span));
+            }
+            return id;
+          };
+          let source = endpoint(rel.left.kind, rel.left.span);
+          let target = endpoint(rel.right.kind, rel.right.span);
+          if (rel.arrow === "<-") [source, target] = [target, source];
+          const edgeId = `${source}-${rel.arrow}-${target}`;
+          edges.push({
+            id: edgeId,
+            source,
+            target,
+            arrow: rel.arrow,
+            kind: rel.kind,
+            label: rel.label,
+            span: rel.span,
+          });
+          if (rel.kind && !knownRelationships.has(rel.kind)) {
+            diagnostics.push({
+              code: "CM-SEM-UNKNOWN-RELATIONSHIP",
+              severity: "info",
+              message: `Unknown relationship kind '${rel.kind}' is preserved.`,
+              span: rel.span,
+              elements: [edgeId],
+            });
+          }
+        }
+      };
+      processRelationships(ast.statements, root);
 
       const graph: CloudGraph = {
         nodes: Array.from(nodesMap.values()),
         edges,
-        scopes: [],
+        scopes: scopes.sort(
+          (a, b) => a.id.split("/").length - b.id.split("/").length,
+        ),
       };
 
-      if (provider) {
-        diagnostics.push(...provider.validateGraph(graph));
+      if (provider && validation !== "off") {
+        const providerDiagnostics = provider.validateGraph(graph);
+        diagnostics.push(
+          ...providerDiagnostics.map((diagnostic) =>
+            validation === "strict" && diagnostic.severity === "warning"
+              ? { ...diagnostic, severity: "error" as const }
+              : diagnostic,
+          ),
+        );
       }
 
       return { graph, diagnostics };
@@ -146,10 +431,16 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       renderOptions?: RenderPipelineOptions,
     ): Promise<RenderResult> {
       const parseRes = this.parse(source);
-      const analysisRes = this.analyze(parseRes.ast);
+      const analysisRes = this.analyze(parseRes.ast, {
+        validation: renderOptions?.validation,
+      });
 
       const layoutRes = await this.layout(analysisRes.graph, {
-        direction: renderOptions?.direction,
+        direction: (renderOptions?.direction ??
+          getDirective(
+            parseRes.ast,
+            "direction",
+          )) as LayoutOptions["direction"],
         signal: renderOptions?.signal,
       });
 

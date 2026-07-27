@@ -37,6 +37,9 @@ export function buildElkGraph(
       id: e.id,
       sources: [e.source],
       targets: [e.target],
+      arrow: e.arrow,
+      kind: e.kind,
+      label: e.label,
     })),
   };
 }
@@ -63,6 +66,9 @@ export interface ElkEdge {
   sources: string[];
   targets: string[];
   sections?: ElkEdgeSection[];
+  arrow?: string;
+  kind?: string;
+  label?: string;
 }
 
 export interface ElkLayoutResult {
@@ -100,6 +106,9 @@ export function convertElkResultToLayoutGraph(
       source: edge.sources[0],
       target: edge.targets[0],
       points,
+      arrow: edge.arrow ?? "->",
+      kind: edge.kind,
+      label: edge.label,
     };
   });
 
