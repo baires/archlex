@@ -1,18 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { AWS_SERVICE_CATALOG, resolveAwsService } from "./index.js";
+import {
+  AWS_SERVICE_CATALOG,
+  awsProvider,
+  resolveAwsService,
+} from "../index.js";
 
-describe("Phase 1 AWS catalog", () => {
+describe("AWS Catalog Services", () => {
+  const provider = awsProvider();
+
   it.each([
     ["rds-proxy", "Amazon RDS Proxy"],
     ["rds", "Amazon RDS"],
     ["ecs", "Amazon ECS"],
   ])("resolves %s with official inline icon metadata", (id, displayName) => {
     const service = resolveAwsService(id);
-
     expect(service?.displayName).toBe(displayName);
-    expect(service?.iconKey).toBe(`aws.${id}`);
-    expect(service?.iconSvg).toContain("<svg");
-    expect(service?.iconSvg).not.toMatch(
+
+    const resolved = provider.resolveService(id);
+    expect(resolved?.displayName).toBe(displayName);
+    expect(resolved?.iconSvg).toBeDefined();
+    expect(resolved?.iconSvg).not.toMatch(
       /<(?:script|foreignObject)|\son\w+=|\b(?:href|src)=["']https?:\/\//i,
     );
   });

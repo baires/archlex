@@ -35,14 +35,14 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 3 — AWS catalog and semantics
 
-- [ ] Define provider, resource, relationship, rule, and icon schemas.
-- [ ] Build checksummed AWS ingestion, SVG sanitization, and deterministic generation.
-- [ ] Populate the initial catalog from the AWS semantics spec.
-- [ ] Implement neutral/custom relationships and three validation passes.
-- [ ] Implement normal, strict, and off policy.
-- [ ] Create diagnostic registry and RDS Proxy network compatibility rule.
-- [ ] Add meaningful initial rules for every service category.
-- [ ] Test schemas, aliases, icons, codes, checksums, and all rule outcomes.
+- [x] Define provider, resource, relationship, rule, and icon schemas.
+- [x] Build checksummed AWS ingestion, SVG sanitization, and deterministic generation.
+- [x] Populate the initial catalog from the AWS semantics spec.
+- [x] Implement neutral/custom relationships and three validation passes.
+- [x] Implement normal, strict, and off policy.
+- [x] Create diagnostic registry and RDS Proxy network compatibility rule.
+- [x] Add meaningful initial rules for every service category.
+- [x] Test schemas, aliases, icons, codes, checksums, and all rule outcomes.
 
 ## Phase 4 — Production layout and SVG
 

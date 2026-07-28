@@ -22,6 +22,7 @@ import type {
   ScopeAst,
   StatementAst,
   SvgResult,
+  ValidationMode,
 } from "@cloudmer/model";
 import { parse as parseSource } from "@cloudmer/parser";
 import { createSvgRenderer } from "@cloudmer/renderer-svg";
@@ -399,14 +400,11 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       };
 
       if (provider && validation !== "off") {
-        const providerDiagnostics = provider.validateGraph(graph);
-        diagnostics.push(
-          ...providerDiagnostics.map((diagnostic) =>
-            validation === "strict" && diagnostic.severity === "warning"
-              ? { ...diagnostic, severity: "error" as const }
-              : diagnostic,
-          ),
+        const providerDiagnostics = provider.validateGraph(
+          graph,
+          validation as ValidationMode,
         );
+        diagnostics.push(...providerDiagnostics);
       }
 
       return { graph, diagnostics };

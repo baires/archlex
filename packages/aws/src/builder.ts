@@ -7,6 +7,7 @@ export interface ServiceDefinitionInput {
   aliases?: string[];
   iconKey?: string;
   iconSvg?: string;
+  allowedContainment?: readonly string[];
 }
 
 export interface ServiceDefinition extends ServiceDefinitionInput {

@@ -1,13 +1,32 @@
-import type { CloudGraph, Diagnostic } from "@cloudmer/model";
-import { AWS_SERVICE_CATALOG } from "../catalog/index.js";
+import type { CloudGraph, Diagnostic, ValidationMode } from "@cloudmer/model";
+import { resolveAwsService } from "../catalog/index.js";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
 
-export function evaluateAwsRules(graph: CloudGraph): readonly Diagnostic[] {
-  const diagnostics: Diagnostic[] = [];
+import { lambdaVpcPlacementRule } from "./compute.js";
+import { s3PublicAccessGuidanceRule } from "./data.js";
+import { rdsProxyNetworkRule, subnetContainmentRule } from "./networking.js";
+import { unattachedIamRoleRule } from "./security.js";
 
+export * from "./compute.js";
+export * from "./data.js";
+export * from "./networking.js";
+export * from "./security.js";
+
+export function evaluateAwsRules(
+  graph: CloudGraph,
+  mode: ValidationMode = "normal",
+): readonly Diagnostic[] {
+  if (mode === "off") {
+    return [];
+  }
+
+  const rawDiagnostics: Diagnostic[] = [];
+
+  // Pass 2: Catalog & Provider Validation
   for (const node of graph.nodes) {
-    if (!AWS_SERVICE_CATALOG.has(node.serviceKind.toLowerCase())) {
-      diagnostics.push({
+    const serviceDef = resolveAwsService(node.serviceKind);
+    if (!serviceDef) {
+      rawDiagnostics.push({
         code: AWS_DIAGNOSTIC_CODES.UNKNOWN_RESOURCE,
         severity: "info",
         message: `Unknown AWS service '${node.serviceKind}'`,
@@ -18,5 +37,24 @@ export function evaluateAwsRules(graph: CloudGraph): readonly Diagnostic[] {
     }
   }
 
-  return diagnostics;
+  // Pass 2: Provider Validation Rules
+  rawDiagnostics.push(...rdsProxyNetworkRule.validate(graph));
+  rawDiagnostics.push(...subnetContainmentRule.validate(graph));
+
+  // Pass 3: Architecture Guidance Rules
+  rawDiagnostics.push(...lambdaVpcPlacementRule.validate(graph));
+  rawDiagnostics.push(...s3PublicAccessGuidanceRule.validate(graph));
+  rawDiagnostics.push(...unattachedIamRoleRule.validate(graph));
+
+  // Policy Mode Handling: strict promotes warnings to errors
+  if (mode === "strict") {
+    return rawDiagnostics.map((d) => {
+      if (d.severity === "warning") {
+        return { ...d, severity: "error" as const };
+      }
+      return d;
+    });
+  }
+
+  return rawDiagnostics;
 }

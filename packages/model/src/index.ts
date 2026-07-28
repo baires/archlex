@@ -186,12 +186,58 @@ export interface RenderResult extends SvgResult {
   layout: LayoutGraph;
 }
 
+export type ValidationMode = "normal" | "strict" | "off";
+export type ValidationPass = "structural" | "provider" | "guidance";
+
+export interface ResourceDefinition {
+  id: string;
+  displayName: string;
+  category: string;
+  aliases: readonly string[];
+  iconKey?: string;
+  allowedContainment?: readonly string[];
+}
+
+export interface RelationshipDefinition {
+  kind: string;
+  displayName: string;
+  allowedSources?: readonly string[];
+  allowedTargets?: readonly string[];
+}
+
+export interface SemanticRule {
+  code: string;
+  pass: ValidationPass;
+  severity: "error" | "warning" | "info";
+  summary: string;
+  validate(graph: CloudGraph): readonly Diagnostic[];
+}
+
+export interface SanitizedIcon {
+  key: string;
+  checksum: string;
+  svgFragment: string;
+  viewBox: string;
+}
+
+export interface CatalogManifest {
+  releaseId: string;
+  retrievedAt: string;
+  checksum: string;
+  services: readonly ResourceDefinition[];
+  icons: Record<string, SanitizedIcon>;
+}
+
 export interface CloudProvider {
   id: string;
   name: string;
+  catalogVersion: string;
   supports(serviceKind: string): boolean;
   resolveService(serviceKind: string): ServiceMetadata | undefined;
-  validateGraph(graph: CloudGraph): readonly Diagnostic[];
+  validateGraph(
+    graph: CloudGraph,
+    mode?: ValidationMode,
+  ): readonly Diagnostic[];
 }
 
 export interface ServiceMetadata {
