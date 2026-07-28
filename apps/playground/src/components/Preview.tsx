@@ -47,6 +47,9 @@ export function Preview({
     }
   }, [svg, selectedId, onSelectElement]);
 
+  const hasNodes =
+    svg.includes("data-cloudmer-id") || svg.includes("cloudmer-scope");
+
   return (
     <section className="preview-pane" aria-label="Architecture Diagram Preview">
       <div className="pane-header">
@@ -55,7 +58,18 @@ export function Preview({
       </div>
 
       <div className="preview-viewport">
-        <div ref={containerRef} className="svg-container" />
+        {!hasNodes && !isRendering ? (
+          <div className="empty-state">
+            <div className="empty-icon">📐</div>
+            <p className="empty-title">No resources declared</p>
+            <p className="empty-hint">
+              Add resources or relationships below to render a diagram:
+            </p>
+            <code className="empty-code">rds-proxy &gt; rds &gt; ecs</code>
+          </div>
+        ) : (
+          <div ref={containerRef} className="svg-container" />
+        )}
       </div>
     </section>
   );

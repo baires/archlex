@@ -399,6 +399,22 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         ),
       };
 
+      if (graph.nodes.length === 0) {
+        diagnostics.push({
+          code: "CM-SEM-EMPTY-GRAPH",
+          severity: "info",
+          message:
+            "Document contains no resource or relationship declarations.",
+          span: {
+            start: { line: 1, column: 1, offset: 0 },
+            end: { line: 1, column: 1, offset: 0 },
+          },
+          elements: [],
+          remediation:
+            "Add a resource (e.g., rds) or relationship (e.g., rds-proxy > rds > ecs).",
+        });
+      }
+
       if (provider && validation !== "off") {
         const providerDiagnostics = provider.validateGraph(
           graph,
