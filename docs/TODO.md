@@ -56,13 +56,13 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 5 — Reference playground
 
-- [ ] Build responsive editor/preview/diagnostics UI.
-- [ ] Configure Monaco syntax, completion, and markers.
-- [ ] Implement 150 ms debounce, cancellation, and prior-preview preservation.
-- [ ] Synchronize source, SVG, and diagnostics selection.
-- [ ] Add override controls, examples, versioned persistence, and corruption fallback.
-- [ ] Add clean SVG copy/download.
-- [ ] Add Playwright responsive, accessibility, persistence, sync, and export tests.
+- [x] Build responsive editor/preview/diagnostics UI.
+- [x] Configure Monaco syntax, completion, and markers.
+- [x] Implement 150 ms debounce, cancellation, and prior-preview preservation.
+- [x] Synchronize source, SVG, and diagnostics selection.
+- [x] Add override controls, examples, versioned persistence, and corruption fallback.
+- [x] Add clean SVG copy/download.
+- [x] Add Playwright responsive, accessibility, persistence, sync, and export tests.
 
 ## Phase 6 — Hardening and release
 
