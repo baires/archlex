@@ -15,3 +15,31 @@ export interface WorkerLayoutResponse {
   result?: LayoutResult;
   error?: string;
 }
+
+let nextRequestId = 1;
+
+export function createWorkerRequest(
+  graph: CloudGraph,
+  options?: LayoutOptions,
+): { requestId: number; request: WorkerLayoutRequest } {
+  const requestId = nextRequestId++;
+  return {
+    requestId,
+    request: {
+      protocolVersion: PROTOCOL_VERSION,
+      requestId,
+      graph,
+      options,
+    },
+  };
+}
+
+export function isStaleResponse(
+  response: WorkerLayoutResponse,
+  expectedRequestId: number,
+): boolean {
+  return (
+    response.protocolVersion !== PROTOCOL_VERSION ||
+    response.requestId !== expectedRequestId
+  );
+}

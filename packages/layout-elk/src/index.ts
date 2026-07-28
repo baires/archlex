@@ -11,16 +11,16 @@ import {
   buildElkGraph,
   convertElkResultToLayoutGraph,
 } from "./adapter/index.js";
+import { LayoutCache, computeGeometryFingerprint } from "./cache/index.js";
 import {
   PROTOCOL_VERSION,
-  type WorkerLayoutRequest,
-  type WorkerLayoutResponse,
+  createWorkerRequest,
+  isStaleResponse,
 } from "./worker/index.js";
 
 export * from "./adapter/index.js";
+export * from "./cache/index.js";
 export * from "./worker/index.js";
-
-let requestIdCounter = 0;
 
 interface ELKLike {
   layout(graph: unknown): Promise<unknown>;
@@ -30,6 +30,7 @@ export function createInlineLayoutEngine(): LayoutEngine {
   const elkCtor = ((ELK as unknown as { default: new () => ELKLike }).default ||
     ELK) as unknown as new () => ELKLike;
   const elk = new elkCtor();
+  const cache = new LayoutCache();
 
   return {
     id: "elk-inline",
@@ -43,6 +44,20 @@ export function createInlineLayoutEngine(): LayoutEngine {
         throw new CloudMerAbortError("Layout aborted before execution");
       }
 
+      const fingerprint = computeGeometryFingerprint(graph, options);
+      const cached = cache.get(fingerprint);
+      if (cached) {
+        return {
+          graph: cached,
+          diagnostics: [],
+          metadata: {
+            engine: "elk-inline",
+            fingerprint,
+            durationMs: 0,
+          },
+        };
+      }
+
       try {
         const elkGraph = buildElkGraph(graph, options?.direction);
         const elkResult = (await elk.layout(elkGraph)) as ElkLayoutResult;
@@ -54,12 +69,14 @@ export function createInlineLayoutEngine(): LayoutEngine {
         const layoutGraph = convertElkResultToLayoutGraph(elkResult);
         const durationMs = performance.now() - startTime;
 
+        cache.set(fingerprint, layoutGraph);
+
         return {
           graph: layoutGraph,
           diagnostics: [],
           metadata: {
             engine: "elk-inline",
-            fingerprint: `elk-${graph.nodes.length}-${graph.edges.length}-${options?.direction ?? "LR"}`,
+            fingerprint,
             durationMs,
           },
         };
@@ -94,7 +111,7 @@ export function createWorkerLayoutEngine(
         throw new CloudMerAbortError("Layout aborted before worker execution");
       }
 
-      const requestId = ++requestIdCounter;
+      const { requestId, request } = createWorkerRequest(graph, options);
       const worker = workerFactory();
 
       return new Promise<LayoutResult>((resolve, reject) => {
@@ -107,19 +124,19 @@ export function createWorkerLayoutEngine(
           options.signal.addEventListener("abort", onAbort, { once: true });
         }
 
-        worker.onmessage = (event: MessageEvent<WorkerLayoutResponse>) => {
+        worker.onmessage = (event) => {
           if (options?.signal) {
             options.signal.removeEventListener("abort", onAbort);
           }
           worker.terminate();
 
-          const data = event.data;
-          if (data.requestId !== requestId) return;
+          const response = event.data;
+          if (isStaleResponse(response, requestId)) return;
 
-          if (data.error) {
-            reject(new CloudMerInternalError("layout", data.error));
-          } else if (data.result) {
-            resolve(data.result);
+          if (response.error) {
+            reject(new CloudMerInternalError("layout", response.error));
+          } else if (response.result) {
+            resolve(response.result);
           }
         };
 
@@ -131,14 +148,7 @@ export function createWorkerLayoutEngine(
           reject(new CloudMerInternalError("layout", "Worker error", err));
         };
 
-        const msg: WorkerLayoutRequest = {
-          protocolVersion: PROTOCOL_VERSION,
-          requestId,
-          graph,
-          options,
-        };
-
-        worker.postMessage(msg);
+        worker.postMessage(request);
       });
     },
   };

@@ -46,13 +46,13 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 4 — Production layout and SVG
 
-- [ ] Implement compound groups, measured nodes, ports, routing, and four directions.
-- [ ] Version worker protocol; implement abort, stale-result handling, and inline parity.
-- [ ] Implement canonical geometry fingerprints and cache.
-- [ ] Implement stable SVG IDs/order, numbers, arrows, labels, groups, and icons.
-- [ ] Implement themes and error/warning/unknown/focus treatments.
-- [ ] Implement accessible names/navigation and safe mounting.
-- [ ] Add geometry, parity, snapshot, safety, axe-core, and keyboard tests.
+- [x] Implement compound groups, measured nodes, ports, routing, and four directions.
+- [x] Version worker protocol; implement abort, stale-result handling, and inline parity.
+- [x] Implement canonical geometry fingerprints and cache.
+- [x] Implement stable SVG IDs/order, numbers, arrows, labels, groups, and icons.
+- [x] Implement themes and error/warning/unknown/focus treatments.
+- [x] Implement accessible names/navigation and safe mounting.
+- [x] Add geometry, parity, snapshot, safety, axe-core, and keyboard tests.
 
 ## Phase 5 — Reference playground
 
