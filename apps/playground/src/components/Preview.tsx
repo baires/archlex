@@ -16,13 +16,16 @@ export function Preview({
 }: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const hasNodes =
+    Boolean(svg) &&
+    (svg.includes("data-cloudmer-id") || svg.includes("cloudmer-scope"));
+
   useEffect(() => {
     if (!containerRef.current || !svg) return;
 
     try {
       const mounted = mountSvg(containerRef.current, svg);
 
-      // Add click listeners to graphics elements for selection sync
       const elements = Array.from(
         mounted.querySelectorAll("[data-cloudmer-id]"),
       );
@@ -42,13 +45,10 @@ export function Preview({
       }
 
       mounted.onclick = () => onSelectElement(null);
-    } catch {
-      // Keep prior SVG if mounting failed
+    } catch (err: unknown) {
+      console.error("mountSvg error:", err);
     }
   }, [svg, selectedId, onSelectElement]);
-
-  const hasNodes =
-    svg.includes("data-cloudmer-id") || svg.includes("cloudmer-scope");
 
   return (
     <section className="preview-pane" aria-label="Architecture Diagram Preview">
@@ -58,7 +58,7 @@ export function Preview({
       </div>
 
       <div className="preview-viewport">
-        {!hasNodes && !isRendering ? (
+        {!hasNodes && !isRendering && (
           <div className="empty-state">
             <div className="empty-icon">📐</div>
             <p className="empty-title">No resources declared</p>
@@ -67,9 +67,12 @@ export function Preview({
             </p>
             <code className="empty-code">rds-proxy &gt; rds &gt; ecs</code>
           </div>
-        ) : (
-          <div ref={containerRef} className="svg-container" />
         )}
+        <div
+          ref={containerRef}
+          className="svg-container"
+          style={{ display: hasNodes ? "block" : "none" }}
+        />
       </div>
     </section>
   );

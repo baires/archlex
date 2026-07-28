@@ -15,7 +15,7 @@ const STORAGE_OPTIONS_KEY = "cloudmer_options_v1";
 function loadPersistedSource(): string {
   try {
     const saved = localStorage.getItem(STORAGE_SOURCE_KEY);
-    if (saved?.trim()) return saved;
+    if (saved && saved.trim().length > 0) return saved;
   } catch {
     // LocalStorage corrupted or disabled fallback
   }
