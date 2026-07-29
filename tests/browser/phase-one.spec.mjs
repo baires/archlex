@@ -43,10 +43,64 @@ async function setTheme(page, theme) {
 
 async function expectLegacyEffectsAbsent(svg) {
   await expect(
-    svg.locator("filter, linearGradient, radialGradient"),
+    svg.locator(
+      ":scope > defs filter, :scope > defs linearGradient, :scope > defs radialGradient",
+    ),
+  ).toHaveCount(0);
+  await expect(
+    svg.locator("animate, animateMotion, animateTransform, set"),
   ).toHaveCount(0);
   await expect(svg.locator('[class*="pill"], [id*="glass"]')).toHaveCount(0);
+
+  const unsafeReferences = await svg.locator("*").evaluateAll((elements) => {
+    const findings = [];
+    for (const element of elements) {
+      for (const attribute of element.attributes) {
+        const name = attribute.name.toLowerCase();
+        const value = attribute.value.trim();
+        if (
+          (name === "href" || name === "xlink:href") &&
+          !value.startsWith("#")
+        ) {
+          findings.push(`${name}=${value}`);
+        }
+        for (const match of value.matchAll(/url\(\s*(['"]?)(.*?)\1\s*\)/gi)) {
+          if (!match[2]?.startsWith("#")) findings.push(`${name}=${value}`);
+        }
+      }
+    }
+    return findings;
+  });
+  expect(unsafeReferences).toEqual([]);
+
+  const styleText = (await svg.locator("style").allTextContents()).join("\n");
+  expect(styleText).not.toMatch(/\b(?:animation|animation-name)\s*:/i);
 }
+
+test("permits inert provider-owned gradients and filters", async ({ page }) => {
+  await page.setContent(`
+    <svg xmlns="http://www.w3.org/2000/svg" data-cloudmer-version="0.1.0">
+      <defs><marker id="arrowhead"/></defs>
+      <g class="cloudmer-node">
+        <svg data-cloudmer-icon="aws.fixture" viewBox="0 0 4 4">
+          <defs>
+            <linearGradient id="provider-paint"><stop offset="0" stop-color="#fff"/></linearGradient>
+            <filter id="provider-soft"><feGaussianBlur stdDeviation="0.25"/></filter>
+          </defs>
+          <rect width="4" height="4" fill="url(#provider-paint)" filter="url(#provider-soft)"/>
+        </svg>
+      </g>
+    </svg>
+  `);
+
+  const svg = page.locator("svg[data-cloudmer-version]");
+  await expectLegacyEffectsAbsent(svg);
+  await expect(
+    svg.locator(
+      "[data-cloudmer-icon] linearGradient, [data-cloudmer-icon] filter",
+    ),
+  ).toHaveCount(2);
+});
 
 async function expectCompactIconLabelGeometry(node) {
   const icon = node.locator("[data-cloudmer-icon]");

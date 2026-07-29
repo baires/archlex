@@ -1,4 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { visualSnapshotsSupported } from "./visual-platform.mjs";
+
+test.skip(
+  !visualSnapshotsSupported(process.platform),
+  "Visual baselines are tracked and reviewed on Darwin only",
+);
 
 const CHAIN_SOURCE = `direction LR
 provider aws
