@@ -190,3 +190,71 @@ test("repeated provider icons mount with unique local IDs and resolved reference
     expect(result.providerIds).toContain(id);
   }
 });
+
+test("keeps a two-line label below the icon and inside a 128 by 92 card", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const geometry = await page.evaluate(
+    async ({ browserUrl, rendererUrl }) => {
+      const { mountSvg } = await import(browserUrl);
+      const { serializeSvgGraph } = await import(rendererUrl);
+      const graph = {
+        width: 148,
+        height: 112,
+        nodes: [
+          {
+            id: "compact",
+            x: 10,
+            y: 10,
+            width: 128,
+            height: 92,
+            label: "Amazon RDS Primary",
+            icon: '<svg viewBox="0 0 4 4"><rect width="4" height="4" fill="#c925d1"/></svg>',
+            iconKey: "aws.fixture",
+          },
+        ],
+        edges: [],
+      };
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      try {
+        const mounted = mountSvg(container, serializeSvgGraph(graph).svg);
+        const icon = mounted.querySelector("[data-cloudmer-icon]");
+        const label = mounted.querySelector(".cloudmer-node-label");
+        const surface = mounted.querySelector(".cloudmer-node-surface");
+        if (!(icon instanceof SVGGraphicsElement))
+          throw new Error("missing icon");
+        if (!(label instanceof SVGGraphicsElement))
+          throw new Error("missing label");
+        if (!(surface instanceof SVGGraphicsElement)) {
+          throw new Error("missing surface");
+        }
+
+        const iconBox = icon.getBoundingClientRect();
+        const labelBox = label.getBoundingClientRect();
+        const surfaceBox = surface.getBoundingClientRect();
+        return {
+          iconBottom: iconBox.bottom,
+          labelTop: labelBox.top,
+          labelBottom: labelBox.bottom,
+          surfaceBottom: surfaceBox.bottom,
+          surfaceWidth: surface.getBBox().width,
+          surfaceHeight: surface.getBBox().height,
+          lineCount: label.querySelectorAll("tspan").length,
+        };
+      } finally {
+        container.remove();
+      }
+    },
+    { browserUrl: browserModuleUrl, rendererUrl: rendererModuleUrl },
+  );
+
+  expect(geometry.surfaceWidth).toBe(128);
+  expect(geometry.surfaceHeight).toBe(92);
+  expect(geometry.lineCount).toBe(2);
+  expect(geometry.iconBottom).toBeLessThanOrEqual(geometry.labelTop);
+  expect(geometry.labelBottom).toBeLessThanOrEqual(geometry.surfaceBottom);
+});

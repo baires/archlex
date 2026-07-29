@@ -7,6 +7,12 @@ import type {
 import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
 
+const NODE_ICON_SIZE = 48;
+const NODE_ICON_TOP = 10;
+const NODE_LABEL_LINE_HEIGHT = 15;
+const NODE_LABEL_SINGLE_LINE_BOTTOM_INSET = 10;
+const NODE_LABEL_MULTILINE_BOTTOM_INSET = 5;
+
 function escapeXml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -237,9 +243,13 @@ function renderNodeLabel(
   if (lines.length === 0) return "";
 
   const centerX = (nodeWidth / 2).toFixed(1);
-  const lineHeight = 15;
+  const lineHeight = NODE_LABEL_LINE_HEIGHT;
+  const labelBottomInset =
+    lines.length > 1
+      ? NODE_LABEL_MULTILINE_BOTTOM_INSET
+      : NODE_LABEL_SINGLE_LINE_BOTTOM_INSET;
   const firstBaseline = hasIcon
-    ? nodeHeight - 10 - (lines.length - 1) * lineHeight
+    ? nodeHeight - labelBottomInset - (lines.length - 1) * lineHeight
     : nodeHeight / 2 + 4 - ((lines.length - 1) * lineHeight) / 2;
 
   let labelSvg = `    <text class="cloudmer-node-label" x="${centerX}" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">\n`;
@@ -444,9 +454,9 @@ export function serializeSvgGraph(
       const iconKeyAttr = node.iconKey
         ? ` data-cloudmer-icon="${escapeXml(node.iconKey)}"`
         : "";
-      const iconSize = 48;
+      const iconSize = NODE_ICON_SIZE;
       const iconX = (node.width / 2 - iconSize / 2).toFixed(1);
-      const iconY = 10;
+      const iconY = NODE_ICON_TOP;
 
       if (node.icon.startsWith("<svg")) {
         const namespacedIcon = namespaceIconIds(node.icon, node.id);
