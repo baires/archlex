@@ -42,6 +42,41 @@ provider aws
 api-gateway -[invokes]-> lambda -[writes]-> dynamodb`,
   },
   {
+    id: "serverless-web-app",
+    title: "Full-Stack Serverless Web Application",
+    category: "Serverless",
+    description:
+      "Route 53 DNS, CloudFront CDN, S3 static assets, API Gateway, Lambda, and DynamoDB",
+    source: `direction LR
+provider aws
+
+dns: route53
+cdn: cloudfront
+static_site: s3
+api: api-gateway
+fn: lambda
+db: dynamodb
+
+dns > cdn
+cdn -[origin]-> static_site
+cdn -[api_route]-> api
+api -[invokes]-> fn -[queries]-> db`,
+  },
+  {
+    id: "container-cache-db",
+    title: "Containerized App with In-Memory Cache",
+    category: "Web & Compute",
+    description:
+      "ALB distributing traffic to ECS microservices cached by ElastiCache and backed by RDS",
+    source: `direction LR
+provider aws
+validation normal
+
+alb -[routes]-> ecs
+ecs -[caches]-> elasticache
+ecs -[queries]-> rds`,
+  },
+  {
     id: "event-driven",
     title: "Event-Driven Microservices",
     category: "Messaging",
@@ -50,6 +85,30 @@ api-gateway -[invokes]-> lambda -[writes]-> dynamodb`,
 provider aws
 
 eventbridge -[publishes]-> sqs -[invokes]-> lambda`,
+  },
+  {
+    id: "async-fanout-messaging",
+    title: "Async Fan-Out Event Processing",
+    category: "Messaging",
+    description:
+      "API Gateway triggering SNS Topic fan-out to parallel SQS Queues for Email workers and Analytics S3 Data Lake",
+    source: `direction LR
+provider aws
+
+apigw: api-gateway
+publisher: lambda
+topic: sns
+
+queue_email: sqs
+worker_email: lambda
+
+queue_analytics: sqs
+worker_analytics: lambda
+data_lake: s3
+
+apigw > publisher > topic
+topic -[fanout]-> queue_email > worker_email
+topic -[fanout]-> queue_analytics > worker_analytics > data_lake`,
   },
   {
     id: "vpc-hierarchy",
@@ -72,6 +131,57 @@ account production {
     }
   }
 }`,
+  },
+  {
+    id: "secure-vpc-network",
+    title: "Secure Multi-Subnet VPC Infrastructure",
+    category: "Networking",
+    description:
+      "Production Account with Public Subnet ALB/Security Group and isolated Private Subnets for ECS and RDS Database",
+    source: `direction LR
+provider aws
+validation normal
+
+account production {
+  region us-east-1 {
+    vpc main-vpc {
+      subnet public-subnet {
+        load_balancer: alb
+        firewall: security-group
+      }
+      subnet private-app-subnet {
+        api_cluster: ecs
+      }
+      subnet private-db-subnet {
+        db_cluster: rds
+      }
+    }
+  }
+}
+
+load_balancer > firewall > api_cluster > db_cluster`,
+  },
+  {
+    id: "ai-ml-inference",
+    title: "AI/ML Model Inference Pipeline",
+    category: "AI & Machine Learning",
+    description:
+      "CloudFront and API Gateway feeding Lambda preprocessor to EKS GPU inference cluster backed by ElastiCache and S3",
+    source: `direction LR
+provider aws
+validation normal
+
+cdn: cloudfront
+gateway: api-gateway
+preprocessor: lambda
+inference_cluster: eks
+feature_store: elasticache
+model_bucket: s3
+
+cdn > gateway > preprocessor
+preprocessor -[submits]-> inference_cluster
+inference_cluster -[fetches]-> feature_store
+inference_cluster -[loads]-> model_bucket`,
   },
   {
     id: "enterprise-cloud",
