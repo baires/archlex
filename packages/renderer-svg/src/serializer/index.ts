@@ -20,9 +20,10 @@ function buildRoundedPath(
   points: readonly { x: number; y: number }[],
   cornerRadius = 8,
 ): string {
-  if (!points || points.length === 0) return "";
-  if (points.length === 1)
-    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  if (!points || points.length === 0) return "M 0.0 0.0 L 100.0 0.0";
+  if (points.length === 1) {
+    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  }
   if (points.length === 2) {
     return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[1].x.toFixed(1)} ${points[1].y.toFixed(1)}`;
   }
@@ -205,30 +206,53 @@ export function serializeSvgGraph(
 
   // 1. Scopes container SVG content
   let scopeSvgContent = "";
-  for (const scope of scopeNodes) {
+  for (const [scopeIndex, scope] of scopeNodes.entries()) {
     const style = resolveScopeStyle(scope.label, theme);
+    const isError = errorElements.has(scope.id);
+    const isWarning = warningElements.has(scope.id);
+    const strokeColor = isError
+      ? theme.errorStroke
+      : isWarning
+        ? theme.warningMarker
+        : style.stroke;
+    const dashArray = isError ? "4 3" : isWarning ? "2 2" : style.dashArray;
     const svgId = `scope-${scope.id}`;
     const dashAttr =
-      style.dashArray !== "none"
-        ? ` stroke-dasharray="${style.dashArray}"`
-        : "";
+      dashArray !== "none" ? ` stroke-dasharray="${dashArray}"` : "";
+    const elementDiagnostics = diagnostics.filter((diagnostic) =>
+      diagnostic.elements.includes(scope.id),
+    );
+    const diagnosticId =
+      isError || isWarning ? `cloudmer-scope-diagnostic-${scopeIndex}` : "";
+    const describedByAttr = diagnosticId
+      ? ` aria-describedby="${diagnosticId}"`
+      : "";
 
-    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})">\n`;
-    scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${style.stroke}" stroke-width="1.5"${dashAttr}/>\n`;
+    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
+    scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${strokeColor}" stroke-width="1.5"${dashAttr}/>\n`;
     scopeSvgContent += `      <text class="cloudmer-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
     scopeSvgContent += `        <tspan fill="${theme.textMuted}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
     scopeSvgContent += `        <tspan dx="6" fill="${theme.scopeTextFill}" font-size="11" font-weight="600">${escapeXml(style.name)}</tspan>\n`;
     scopeSvgContent += "      </text>\n";
+    if (diagnosticId) {
+      const description = elementDiagnostics
+        .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
+        .join("; ");
+      scopeSvgContent += renderStatusMarker(
+        diagnosticId,
+        scope.width - 9,
+        9,
+        strokeColor,
+        description,
+        theme,
+      );
+    }
     scopeSvgContent += "    </g>\n";
   }
 
   // 2. Edges SVG content
   let edgeSvgContent = "";
   for (const [edgeIndex, edge] of sortedEdges.entries()) {
-    if (!edge.points || edge.points.length < 2) {
-      continue;
-    }
-
     const isError = errorElements.has(edge.id);
     const isWarning = warningElements.has(edge.id);
     const isDotted = edge.arrow.includes(".");
@@ -264,7 +288,10 @@ export function serializeSvgGraph(
 
     edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${describedByAttr}/>\n`;
     if (diagnosticId) {
-      const markerPoint = edge.points[Math.floor(edge.points.length / 2)];
+      const markerPoint = edge.points[Math.floor(edge.points.length / 2)] ?? {
+        x: 50,
+        y: 0,
+      };
       const description = elementDiagnostics
         .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
         .join("; ");

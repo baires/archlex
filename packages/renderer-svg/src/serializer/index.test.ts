@@ -77,6 +77,43 @@ describe("relationship rendering", () => {
     const result = serializeSvgGraph(graph);
     expect(result.svg).toContain("Q 100.0 10.0");
   });
+
+  it("serializes and maps deterministic fallback paths for empty and one-point edges", () => {
+    const graph: LayoutGraph = {
+      width: 300,
+      height: 200,
+      nodes: [],
+      edges: [
+        {
+          id: "empty",
+          source: "a",
+          target: "b",
+          arrow: "->",
+          points: [],
+        },
+        {
+          id: "single",
+          source: "a",
+          target: "b",
+          arrow: "->",
+          points: [{ x: 12, y: 34 }],
+        },
+      ],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).toMatch(
+      /data-cloudmer-id="empty"[^>]+d="M 0\.0 0\.0 L 100\.0 0\.0"/,
+    );
+    expect(result.svg).toMatch(
+      /data-cloudmer-id="single"[^>]+d="M 12\.0 34\.0 L 12\.0 34\.0"/,
+    );
+    expect(result.mappings.map((mapping) => mapping.elementId)).toEqual([
+      "empty",
+      "single",
+    ]);
+  });
 });
 
 describe("Mermaid-aligned rendering", () => {
@@ -96,6 +133,15 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).not.toContain("cloudmer-glow");
     expect(result.svg).not.toContain("cloudmer-scope-header");
     expect(result.svg).not.toContain("transition:");
+    expect(result.svg).not.toContain("animation:");
+    expect(result.svg).not.toContain("<linearGradient");
+    expect(result.svg).not.toContain("<filter");
+    expect(result.svg).not.toMatch(
+      /<(?:animate|animateMotion|animateTransform|set)\b/i,
+    );
+    expect(result.svg).not.toMatch(
+      /\b(?:href|xlink:href)=["'](?:https?:|\/\/)/i,
+    );
   });
 
   it("renders a neutral node surface, official 48px artwork, and two-line labels", () => {
@@ -221,5 +267,71 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).toContain(">!</text>");
     expect(result.svg).toContain("Invalid error node");
     expect(result.svg).toContain("Review warning node");
+  });
+
+  it("renders scope diagnostics with color, patterns, markers, and accessible associations", () => {
+    const graph: LayoutGraph = {
+      width: 700,
+      height: 300,
+      nodes: [
+        {
+          id: "error-scope",
+          x: 20,
+          y: 20,
+          width: 300,
+          height: 220,
+          label: "region: us-east-1",
+          children: [
+            { id: "n1", x: 30, y: 50, width: 80, height: 50, label: "App" },
+          ],
+        },
+        {
+          id: "warning-scope",
+          x: 360,
+          y: 20,
+          width: 300,
+          height: 220,
+          label: "subnet: public-a",
+          children: [
+            { id: "n2", x: 370, y: 50, width: 80, height: 50, label: "DB" },
+          ],
+        },
+      ],
+      edges: [],
+    };
+    const diagnostics: Diagnostic[] = [
+      {
+        code: "ERR-SCOPE",
+        severity: "error",
+        message: "Invalid region scope",
+        span: {
+          start: { line: 1, column: 1, offset: 0 },
+          end: { line: 1, column: 1, offset: 0 },
+        },
+        elements: ["error-scope"],
+      },
+      {
+        code: "WARN-SCOPE",
+        severity: "warning",
+        message: "Subnet containment warning",
+        span: {
+          start: { line: 1, column: 1, offset: 0 },
+          end: { line: 1, column: 1, offset: 0 },
+        },
+        elements: ["warning-scope"],
+      },
+    ];
+
+    const result = serializeSvgGraph(graph, diagnostics);
+
+    expect(result.svg).toMatch(
+      /id="scope-error-scope"[^>]+aria-describedby="cloudmer-scope-diagnostic-0"[\s\S]+?stroke="#ef4444"[^>]+stroke-dasharray="4 3"/,
+    );
+    expect(result.svg).toMatch(
+      /id="scope-warning-scope"[^>]+aria-describedby="cloudmer-scope-diagnostic-1"[\s\S]+?stroke="#f59e0b"[^>]+stroke-dasharray="2 2"/,
+    );
+    expect(result.svg.match(/class="cloudmer-status-marker"/g)).toHaveLength(2);
+    expect(result.svg).toContain("Invalid region scope");
+    expect(result.svg).toContain("Subnet containment warning");
   });
 });
