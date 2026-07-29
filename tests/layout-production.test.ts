@@ -2,8 +2,91 @@ import {
   computeGeometryFingerprint,
   createInlineLayoutEngine,
 } from "@cloudmer/layout-elk";
-import type { CloudGraph } from "@cloudmer/model";
+import type { CloudGraph, LayoutEdge, LayoutNode } from "@cloudmer/model";
 import { describe, expect, it } from "vitest";
+
+function distanceFromRectangleBoundary(
+  point: { x: number; y: number },
+  rectangle: LayoutNode,
+) {
+  const right = rectangle.x + rectangle.width;
+  const bottom = rectangle.y + rectangle.height;
+  const outsideX = Math.max(rectangle.x - point.x, 0, point.x - right);
+  const outsideY = Math.max(rectangle.y - point.y, 0, point.y - bottom);
+
+  if (outsideX > 0 || outsideY > 0) return Math.hypot(outsideX, outsideY);
+
+  return Math.min(
+    point.x - rectangle.x,
+    right - point.x,
+    point.y - rectangle.y,
+    bottom - point.y,
+  );
+}
+
+function findRequiredNode(nodes: readonly LayoutNode[], id: string) {
+  const node = nodes.find((candidate) => candidate.id === id);
+  expect(node, `missing node ${id}`).toBeDefined();
+  if (!node) throw new Error(`missing node ${id}`);
+  return node;
+}
+
+function expectCompactNestedGeometry(
+  nodes: readonly LayoutNode[],
+  edges: readonly LayoutEdge[],
+  resourceIds: readonly string[],
+  scopeId: string,
+) {
+  const resources = resourceIds.map((id) => findRequiredNode(nodes, id));
+  const scope = findRequiredNode(nodes, scopeId);
+
+  for (const resource of resources) {
+    expect(resource.width).toBe(128);
+    expect(resource.height).toBe(92);
+  }
+
+  const children = scope.children ?? [];
+  expect(children).toHaveLength(resourceIds.length);
+  expect(
+    Math.min(...children.map((child) => child.y - scope.y)),
+  ).toBeGreaterThanOrEqual(36);
+
+  for (let index = 0; index < resources.length; index += 1) {
+    for (
+      let otherIndex = index + 1;
+      otherIndex < resources.length;
+      otherIndex += 1
+    ) {
+      const left = resources[index];
+      const right = resources[otherIndex];
+      const overlapX =
+        Math.min(left.x + left.width, right.x + right.width) -
+        Math.max(left.x, right.x);
+      const overlapY =
+        Math.min(left.y + left.height, right.y + right.height) -
+        Math.max(left.y, right.y);
+      expect(overlapX <= 0 || overlapY <= 0).toBe(true);
+    }
+  }
+
+  for (const edge of edges) {
+    const source = findRequiredNode(nodes, edge.source);
+    const target = findRequiredNode(nodes, edge.target);
+    expect(edge.points).not.toHaveLength(0);
+    const startPoint = edge.points[0];
+    const endPoint = edge.points.at(-1);
+    expect(startPoint).toBeDefined();
+    expect(endPoint).toBeDefined();
+    if (!startPoint || !endPoint)
+      throw new Error(`missing edge points ${edge.id}`);
+    expect(
+      distanceFromRectangleBoundary(startPoint, source),
+    ).toBeLessThanOrEqual(1);
+    expect(distanceFromRectangleBoundary(endPoint, target)).toBeLessThanOrEqual(
+      1,
+    );
+  }
+}
 
 describe("Phase 4: Production Layout Engine", () => {
   const inlineEngine = createInlineLayoutEngine();
@@ -93,5 +176,16 @@ describe("Phase 4: Production Layout Engine", () => {
     await expect(
       inlineEngine.layout(sampleGraph, { signal: controller.signal }),
     ).rejects.toThrow("aborted");
+  });
+
+  it("lays out nested compact resource cards below scope headers", async () => {
+    const res = await inlineEngine.layout(sampleGraph, { direction: "LR" });
+
+    expectCompactNestedGeometry(
+      res.graph.nodes,
+      res.graph.edges,
+      ["vpc1/sub1/app", "vpc1/sub1/db"],
+      "vpc1/sub1",
+    );
   });
 });

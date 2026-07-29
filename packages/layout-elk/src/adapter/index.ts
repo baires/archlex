@@ -6,6 +6,10 @@ import type {
   LayoutNode,
 } from "@cloudmer/model";
 
+const COMPACT_RESOURCE_WIDTH = 128;
+const COMPACT_RESOURCE_HEIGHT = 92;
+const SCOPE_HEADER_CLEARANCE = 36;
+
 export interface ElkNodeInput {
   id: string;
   width?: number;
@@ -73,8 +77,8 @@ export function buildElkGraph(
           claimedNodeIds.add(nodeId);
           childNodes.push({
             id: n.id,
-            width: 180,
-            height: 92,
+            width: COMPACT_RESOURCE_WIDTH,
+            height: COMPACT_RESOURCE_HEIGHT,
             labels: [{ text: n.label }],
             iconKey: n.iconKey,
             icon: n.icon,
@@ -87,7 +91,7 @@ export function buildElkGraph(
       id: scope.id,
       labels: [{ text: `${scope.kind}: ${scope.name}` }],
       layoutOptions: {
-        "elk.padding": "[top=40,left=20,bottom=20,right=20]",
+        "elk.padding": `[top=${SCOPE_HEADER_CLEARANCE},left=20,bottom=20,right=20]`,
         "elk.spacing.nodeNode": "40",
       },
       children: childNodes,
@@ -106,8 +110,8 @@ export function buildElkGraph(
       claimedNodeIds.add(n.id);
       topLevelChildren.push({
         id: n.id,
-        width: 180,
-        height: 92,
+        width: COMPACT_RESOURCE_WIDTH,
+        height: COMPACT_RESOURCE_HEIGHT,
         labels: [{ text: n.label }],
         iconKey: n.iconKey,
         icon: n.icon,
@@ -159,6 +163,7 @@ export interface ElkEdge {
   sources: string[];
   targets: string[];
   sections?: ElkEdgeSection[];
+  container?: string;
   arrow?: string;
   kind?: string;
   label?: string;
@@ -190,8 +195,8 @@ export function convertElkResultToLayoutGraph(
         id: child.id,
         x: absX,
         y: absY,
-        width: child.width ?? 180,
-        height: child.height ?? 92,
+        width: child.width ?? COMPACT_RESOURCE_WIDTH,
+        height: child.height ?? COMPACT_RESOURCE_HEIGHT,
         label: child.labels?.[0]?.text ?? child.id,
         iconKey: child.iconKey,
         icon: child.icon,
@@ -203,8 +208,8 @@ export function convertElkResultToLayoutGraph(
           id: c.id,
           x: absX + (c.x ?? 0),
           y: absY + (c.y ?? 0),
-          width: c.width ?? 180,
-          height: c.height ?? 92,
+          width: c.width ?? COMPACT_RESOURCE_WIDTH,
+          height: c.height ?? COMPACT_RESOURCE_HEIGHT,
           label: c.labels?.[0]?.text ?? c.id,
           iconKey: c.iconKey,
           icon: c.icon,
@@ -217,13 +222,37 @@ export function convertElkResultToLayoutGraph(
 
   extractNodes(elkResult.children);
 
+  const nodePositions = new Map(flatNodes.map((node) => [node.id, node]));
+
   const edges: LayoutEdge[] = (elkResult.edges || []).map((edge) => {
     const points: { x: number; y: number }[] = [];
+    const container = edge.container
+      ? nodePositions.get(edge.container)
+      : undefined;
+    const containerX = container?.x ?? 0;
+    const containerY = container?.y ?? 0;
     if (edge.sections) {
       for (const sec of edge.sections) {
-        if (sec.startPoint) points.push(sec.startPoint);
-        if (sec.bendPoints) points.push(...sec.bendPoints);
-        if (sec.endPoint) points.push(sec.endPoint);
+        if (sec.startPoint) {
+          points.push({
+            x: sec.startPoint.x + containerX,
+            y: sec.startPoint.y + containerY,
+          });
+        }
+        if (sec.bendPoints) {
+          points.push(
+            ...sec.bendPoints.map((point) => ({
+              x: point.x + containerX,
+              y: point.y + containerY,
+            })),
+          );
+        }
+        if (sec.endPoint) {
+          points.push({
+            x: sec.endPoint.x + containerX,
+            y: sec.endPoint.y + containerY,
+          });
+        }
       }
     }
     return {
