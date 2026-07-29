@@ -117,6 +117,67 @@ describe("relationship rendering", () => {
 });
 
 describe("Mermaid-aligned rendering", () => {
+  it("namespaces every provider artwork ID and local reference per node instance", () => {
+    const sharedIcon =
+      '<svg viewBox="0 0 4 4"><defs><linearGradient id="paint"><stop offset="0" stop-color="#fff"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="1"/></filter><clipPath id="crop"><rect width="4" height="4"/></clipPath></defs><title id="name">Shared icon</title><path id="shape" fill="url(#paint)" filter="url(#soft)" clip-path="url(#crop)" aria-labelledby="name" d="M0 0h4v4z"/><use href="#shape"/></svg>';
+    const graph: LayoutGraph = {
+      width: 300,
+      height: 120,
+      nodes: [
+        {
+          id: "left/icon",
+          x: 10,
+          y: 10,
+          width: 128,
+          height: 92,
+          label: "Left",
+          icon: sharedIcon,
+        },
+        {
+          id: "right:icon",
+          x: 160,
+          y: 10,
+          width: 128,
+          height: 92,
+          label: "Right",
+          icon: sharedIcon,
+        },
+      ],
+      edges: [],
+    };
+
+    const first = serializeSvgGraph(graph).svg;
+    const second = serializeSvgGraph(graph).svg;
+    const ids = [...first.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+    const providerIds = ids.filter((id) => id.startsWith("cloudmer-icon-"));
+
+    expect(second).toBe(first);
+    expect(providerIds).toHaveLength(10);
+    expect(new Set(providerIds).size).toBe(providerIds.length);
+    expect(first).not.toMatch(/\sid="(?:paint|soft|crop|name|shape)"/);
+    for (const id of providerIds) {
+      expect(id).toMatch(/^cloudmer-icon-[a-f0-9]+-[a-f0-9]+$/);
+    }
+
+    const urlReferences = [...first.matchAll(/url\(#([^\)]+)\)/g)].map(
+      (match) => match[1],
+    );
+    const hrefReferences = [...first.matchAll(/\shref="#([^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    const ariaReferences = [
+      ...first.matchAll(/\saria-labelledby="([^"]+)"/g),
+    ].flatMap((match) => match[1].split(/\s+/));
+
+    for (const reference of [
+      ...urlReferences,
+      ...hrefReferences,
+      ...ariaReferences,
+    ]) {
+      expect(providerIds).toContain(reference);
+    }
+  });
+
   it("omits CloudMer glass chrome while preserving inert provider effects", () => {
     const graph: LayoutGraph = {
       width: 100,
@@ -148,8 +209,12 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).not.toContain("transition:");
     expect(result.svg).not.toContain("animation:");
     expect(result.svg).not.toContain("animation-name:");
-    expect(result.svg).toContain('<radialGradient id="provider-gradient">');
-    expect(result.svg).toContain('<filter id="provider-filter">');
+    expect(result.svg).toMatch(
+      /<radialGradient id="cloudmer-icon-[a-f0-9]+-[a-f0-9]+">/,
+    );
+    expect(result.svg).toMatch(
+      /<filter id="cloudmer-icon-[a-f0-9]+-[a-f0-9]+">/,
+    );
     expect(result.svg).not.toMatch(
       /<(?:animate|animateMotion|animateTransform|set)\b/i,
     );

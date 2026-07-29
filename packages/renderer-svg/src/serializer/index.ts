@@ -16,6 +16,68 @@ function escapeXml(str: string): string {
     .replace(/'/g, "&apos;");
 }
 
+function encodeSvgId(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  if (bytes.length === 0) return "0";
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+function createInternalSvgId(kind: string, value: string): string {
+  return `cloudmer-${kind}-${encodeSvgId(value)}`;
+}
+
+function namespaceIconIds(iconSvg: string, nodeId: string): string {
+  const namespace = createInternalSvgId("icon", nodeId);
+  const idMap = new Map<string, string>();
+
+  for (const match of iconSvg.matchAll(/\sid\s*=\s*(["'])([^"']+)\1/g)) {
+    const localId = match[2];
+    if (!idMap.has(localId)) {
+      idMap.set(localId, `${namespace}-${encodeSvgId(localId)}`);
+    }
+  }
+  if (idMap.size === 0) return iconSvg;
+
+  let namespaced = iconSvg.replace(
+    /(\s)id\s*=\s*(["'])([^"']+)\2/g,
+    (attribute, whitespace: string, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement
+        ? `${whitespace}id=${quote}${replacement}${quote}`
+        : attribute;
+    },
+  );
+  namespaced = namespaced.replace(
+    /url\(\s*(["']?)#([^\s#"'()<>]+)\1\s*\)/gi,
+    (reference, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement ? `url(${quote}#${replacement}${quote})` : reference;
+    },
+  );
+  namespaced = namespaced.replace(
+    /(\s(?:href|xlink:href)\s*=\s*)(["'])#([^"']+)\2/gi,
+    (reference, prefix: string, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement
+        ? `${prefix}${quote}#${replacement}${quote}`
+        : reference;
+    },
+  );
+  namespaced = namespaced.replace(
+    /(\s(?:aria-activedescendant|aria-controls|aria-describedby|aria-details|aria-errormessage|aria-flowto|aria-labelledby|aria-owns)\s*=\s*)(["'])([^"']*)\2/gi,
+    (reference, prefix: string, quote: string, idRefs: string) => {
+      const rewritten = idRefs
+        .split(/\s+/)
+        .map((localId) => idMap.get(localId) ?? localId)
+        .join(" ");
+      return `${prefix}${quote}${rewritten}${quote}`;
+    },
+  );
+  return namespaced;
+}
+
 function buildRoundedPath(
   points: readonly { x: number; y: number }[],
   cornerRadius = 8,
@@ -272,7 +334,7 @@ export function serializeSvgGraph(
     const pathD = buildRoundedPath(edge.points, 8);
     if (!pathD) continue;
 
-    const svgId = `edge-${edge.id}`;
+    const svgId = createInternalSvgId("edge", edge.id);
     const markerEnd = edge.arrow.includes(">") ? "url(#arrowhead)" : "none";
     const markerStart = edge.arrow.includes("<")
       ? "url(#arrowhead-start)"
@@ -355,16 +417,20 @@ export function serializeSvgGraph(
       const iconY = 10;
 
       if (node.icon.startsWith("<svg")) {
-        const positionedIcon = node.icon.replace(/^<svg\b[^>]*>/, (opening) => {
-          const withoutIntrinsicSize = opening.replace(
-            /\s(?:width|height)="[^"]*"/g,
-            "",
-          );
-          return withoutIntrinsicSize.replace(
-            "<svg",
-            `<svg x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}"${iconKeyAttr} aria-hidden="true" focusable="false"`,
-          );
-        });
+        const namespacedIcon = namespaceIconIds(node.icon, node.id);
+        const positionedIcon = namespacedIcon.replace(
+          /^<svg\b[^>]*>/,
+          (opening) => {
+            const withoutIntrinsicSize = opening.replace(
+              /\s(?:width|height)="[^"]*"/g,
+              "",
+            );
+            return withoutIntrinsicSize.replace(
+              "<svg",
+              `<svg x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}"${iconKeyAttr} aria-hidden="true" focusable="false"`,
+            );
+          },
+        );
         nodeSvgContent += `    ${positionedIcon}\n`;
       } else {
         nodeSvgContent += `    <g transform="translate(${iconX}, ${iconY})"${iconKeyAttr}>\n`;

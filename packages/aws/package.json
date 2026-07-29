@@ -23,6 +23,7 @@
     "@cloudmer/model": "workspace:^"
   },
   "devDependencies": {
+    "@xmldom/xmldom": "0.9.10",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
     "vitest": "^3.0.5"

@@ -92,7 +92,7 @@ for (const theme of ["dark", "light"]) {
       ).toHaveCount(1);
       if (iconKey !== "aws.rds-proxy") {
         const artworkBackground = node.locator(
-          `[data-cloudmer-icon="${iconKey}"] #Rectangle`,
+          `[data-cloudmer-icon="${iconKey}"] rect[width="64"][height="64"]`,
         );
         await expect(artworkBackground).toHaveAttribute("width", "64");
         await expect(artworkBackground).toHaveAttribute("height", "64");

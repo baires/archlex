@@ -67,6 +67,51 @@ describe("sanitizeAwsSvg", () => {
     expect(result.svg).toContain('filter="url(#provider-filter)"');
   });
 
+  it("rejects prefixed foreign content after XML namespace resolution", () => {
+    const unsafe = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xht&#x6d;l" viewBox="0 0 1 1"><s:foreignObject><x:iframe srcdoc="&lt;script>parent.compromised=true&lt;/script>"/></s:foreignObject></svg>`;
+
+    expect(() => sanitizeAwsSvg(unsafe, "prefixed-foreign.svg")).toThrow(
+      /prefixed-foreign\.svg.*(?:namespace|foreignObject|iframe)/i,
+    );
+  });
+
+  it("rejects document type and custom entity declarations before expansion", () => {
+    const unsafe = `<!DOCTYPE svg [<!ENTITY xhtml "http://www.w3.org/1999/xhtml">]><svg xmlns="http://www.w3.org/2000/svg" xmlns:x="&xhtml;" viewBox="0 0 1 1"><x:iframe/></svg>`;
+
+    expect(() => sanitizeAwsSvg(unsafe, "entity-obfuscated.svg")).toThrow(
+      /entity-obfuscated\.svg.*(?:DOCTYPE|entity)/i,
+    );
+  });
+
+  it("rejects XML base URLs and entity-decoded non-fragment IRIs", () => {
+    expect(() =>
+      sanitizeAwsSvg(
+        '<svg xmlns="http://www.w3.org/2000/svg" xml:base="https://attacker.invalid/" viewBox="0 0 1 1"><use href="#shape"/></svg>',
+        "xml-base.svg",
+      ),
+    ).toThrow(/xml-base\.svg.*xml:base/i);
+
+    expect(() =>
+      sanitizeAwsSvg(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><use href="jav&#x61;script:alert(1)"/></svg>',
+        "decoded-iri.svg",
+      ),
+    ).toThrow(/decoded-iri\.svg.*(?:reference|href|IRI)/i);
+  });
+
+  it("canonically serializes equivalent safe SVG trees", () => {
+    const first = sanitizeAwsSvg(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"><path fill="#C925D1" d="M0 0h2v2z"/></svg>',
+      "first.svg",
+    );
+    const second = sanitizeAwsSvg(
+      '<svg viewBox="0 0 2 2" xmlns="http://www.w3.org/2000/svg">\n  <path d="M0 0h2v2z" fill="#C925D1"></path>\n</svg>',
+      "second.svg",
+    );
+
+    expect(second.svg).toBe(first.svg);
+  });
+
   it.each([
     {
       name: "rejects scripts",
@@ -100,7 +145,7 @@ describe("sanitizeAwsSvg", () => {
     },
     {
       name: "rejects parent-relative xlink references",
-      svg: '<svg viewBox="0 0 1 1"><use xlink:href="../x.svg#id"/></svg>',
+      svg: '<svg viewBox="0 0 1 1" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="../x.svg#id"/></svg>',
       sourceName: "parent-relative.svg",
       error: /parent-relative\.svg.*external/i,
     },
