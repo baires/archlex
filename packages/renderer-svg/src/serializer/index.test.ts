@@ -134,14 +134,16 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).not.toContain("cloudmer-scope-header");
     expect(result.svg).not.toContain("transition:");
     expect(result.svg).not.toContain("animation:");
+    expect(result.svg).not.toContain("animation-name:");
     expect(result.svg).not.toContain("<linearGradient");
+    expect(result.svg).not.toContain("<radialGradient");
     expect(result.svg).not.toContain("<filter");
     expect(result.svg).not.toMatch(
       /<(?:animate|animateMotion|animateTransform|set)\b/i,
     );
-    expect(result.svg).not.toMatch(
-      /\b(?:href|xlink:href)=["'](?:https?:|\/\/)/i,
-    );
+    expect(result.svg).not.toMatch(/\b(?:animation|animation-name)\s*:/i);
+    expect(result.svg).not.toMatch(/\b(?:href|xlink:href)=["']data:/i);
+    expect(result.svg).not.toMatch(/\b(?:href|xlink:href)=["'](?!#)[^"']+/i);
   });
 
   it("renders a neutral node surface, official 48px artwork, and two-line labels", () => {
