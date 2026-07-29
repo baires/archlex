@@ -257,6 +257,7 @@ export interface GraphRenderer {
   render(
     layoutGraph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
+    themeName?: "light" | "dark",
   ): SvgResult;
 }
 

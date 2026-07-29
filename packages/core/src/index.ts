@@ -53,6 +53,7 @@ export interface CloudMer {
   renderGraph(
     graph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
+    theme?: "light" | "dark",
   ): SvgResult;
   render(
     source: string,
@@ -436,8 +437,9 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
     renderGraph(
       graph: LayoutGraph,
       diagnostics?: readonly Diagnostic[],
+      theme?: "light" | "dark",
     ): SvgResult {
-      return renderer.render(graph, diagnostics);
+      return renderer.render(graph, diagnostics, theme);
     },
 
     async render(
@@ -464,7 +466,11 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         ...layoutRes.diagnostics,
       ];
 
-      const svgRes = this.renderGraph(layoutRes.graph, combinedDiagnostics);
+      const svgRes = this.renderGraph(
+        layoutRes.graph,
+        combinedDiagnostics,
+        renderOptions?.theme,
+      );
 
       return {
         ...svgRes,

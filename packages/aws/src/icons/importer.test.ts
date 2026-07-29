@@ -43,6 +43,18 @@ describe("sanitizeAwsSvg", () => {
     expect(sanitizeAwsSvg(svg, sourceName)).toEqual(expected);
   });
 
+  it("removes root sizing metadata while preserving nested artwork geometry", () => {
+    const result = sanitizeAwsSvg(
+      '<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1"><rect width="64" height="64" fill="#C925D1"/></svg>',
+      "architecture-icon.svg",
+    );
+
+    expect(result).toEqual({
+      viewBox: "0 0 64 64",
+      svg: '<svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#C925D1"/></svg>',
+    });
+  });
+
   it.each([
     {
       name: "rejects scripts",

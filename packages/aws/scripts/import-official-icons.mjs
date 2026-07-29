@@ -51,7 +51,9 @@ export function sanitizeAwsSvg(svg, sourceName) {
   const normalized = svg
     .replace(/<\?xml[^>]*>\s*/g, "")
     .replace(/<title>[\s\S]*?<\/title>\s*/g, "")
-    .replace(/\s(?:width|height|version|xmlns:xlink)="[^"]*"/g, "")
+    .replace(/<svg\b[^>]*>/i, (openingTag) =>
+      openingTag.replace(/\s(?:width|height|version|xmlns:xlink)="[^"]*"/g, ""),
+    )
     .replace(/>\s+</g, "><")
     .trim();
   return { viewBox, svg: normalized };

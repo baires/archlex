@@ -29,6 +29,24 @@ describe("Phase 1 canonical rendering", () => {
 
     expect(second.svg).toBe(first.svg);
   });
+
+  it("forwards the selected light and dark themes to the SVG renderer", async () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+
+    const light = await cloudmer.render("rds-proxy > rds > ecs", {
+      theme: "light",
+    });
+    const dark = await cloudmer.render("rds-proxy > rds > ecs", {
+      theme: "dark",
+    });
+
+    expect(light.svg).toContain(
+      '<rect class="cloudmer-canvas" width="100%" height="100%" fill="#ffffff"',
+    );
+    expect(dark.svg).toContain(
+      '<rect class="cloudmer-canvas" width="100%" height="100%" fill="#111827"',
+    );
+  });
 });
 
 describe("Phase 2 semantic graph", () => {
