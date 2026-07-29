@@ -60,8 +60,8 @@ describe("Phase 4: Production SVG Renderer", () => {
 
     expect(darkRes.svg).toContain('fill="#1f2937"');
     expect(lightRes.svg).toContain('fill="#ffffff"');
-    expect(darkRes.svg).toContain('stroke="#526174"');
-    expect(lightRes.svg).toContain('stroke="#aeb7c4"');
+    expect(darkRes.svg).toContain('stroke="#64748b"');
+    expect(lightRes.svg).toContain('stroke="#84909f"');
   });
 
   it("applies accessibility attributes graphics-document and tabindex=0", () => {
