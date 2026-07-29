@@ -35,21 +35,29 @@ function expectCompactNestedGeometry(
   nodes: readonly LayoutNode[],
   edges: readonly LayoutEdge[],
   resourceIds: readonly string[],
-  scopeId: string,
+  scopeIds: readonly string[],
 ) {
   const resources = resourceIds.map((id) => findRequiredNode(nodes, id));
-  const scope = findRequiredNode(nodes, scopeId);
 
   for (const resource of resources) {
     expect(resource.width).toBe(128);
     expect(resource.height).toBe(92);
   }
 
-  const children = scope.children ?? [];
-  expect(children).toHaveLength(resourceIds.length);
-  expect(
-    Math.min(...children.map((child) => child.y - scope.y)),
-  ).toBeGreaterThanOrEqual(36);
+  for (const scopeId of scopeIds) {
+    const scope = findRequiredNode(nodes, scopeId);
+    const children = scope.children ?? [];
+    expect(children.length).toBeGreaterThan(0);
+
+    for (const child of children) {
+      expect(child.x).toBeGreaterThanOrEqual(scope.x);
+      expect(child.y - scope.y).toBeGreaterThanOrEqual(36);
+      expect(child.x + child.width).toBeLessThanOrEqual(scope.x + scope.width);
+      expect(child.y + child.height).toBeLessThanOrEqual(
+        scope.y + scope.height,
+      );
+    }
+  }
 
   for (let index = 0; index < resources.length; index += 1) {
     for (
@@ -178,14 +186,17 @@ describe("Phase 4: Production Layout Engine", () => {
     ).rejects.toThrow("aborted");
   });
 
-  it("lays out nested compact resource cards below scope headers", async () => {
-    const res = await inlineEngine.layout(sampleGraph, { direction: "LR" });
+  it.each(["LR", "RL", "TB", "BT"] as const)(
+    "lays out nested compact resource cards within scope boundaries in %s",
+    async (direction) => {
+      const res = await inlineEngine.layout(sampleGraph, { direction });
 
-    expectCompactNestedGeometry(
-      res.graph.nodes,
-      res.graph.edges,
-      ["vpc1/sub1/app", "vpc1/sub1/db"],
-      "vpc1/sub1",
-    );
-  });
+      expectCompactNestedGeometry(
+        res.graph.nodes,
+        res.graph.edges,
+        ["vpc1/sub1/app", "vpc1/sub1/db"],
+        ["vpc1", "vpc1/sub1"],
+      );
+    },
+  );
 });
