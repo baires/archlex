@@ -6,9 +6,11 @@ const FORBIDDEN = [
   [/<script\b/i, "script"],
   [/<foreignObject\b/i, "foreignObject"],
   [/<(?:animate|animateMotion|animateTransform|set)\b/i, "active animation"],
+  [/<style\b/i, "style element"],
+  [/\sstyle\s*=/i, "style attribute"],
   [/\son[a-z]+\s*=/i, "event attribute"],
   [
-    /(?:href|xlink:href)\s*=\s*["'](?:https?:|\/\/|data:|javascript:)/i,
+    /\b(?:href|xlink:href)\s*=\s*(?:["'](?!#)[^"']*["']|(?!#)[^\s>]+)/i,
     "external reference",
   ],
   [/@import|url\s*\(/i, "external style reference"],

@@ -9,6 +9,18 @@ import {
 
 const fixtureEntries = [
   {
+    key: "aws.rds-proxy",
+    sourcePath: fileURLToPath(
+      new URL("../../assets/official/rds-proxy.svg", import.meta.url),
+    ),
+  },
+  {
+    key: "aws.ecs",
+    sourcePath: fileURLToPath(
+      new URL("../../assets/official/ecs.svg", import.meta.url),
+    ),
+  },
+  {
     key: "aws.rds",
     sourcePath: fileURLToPath(
       new URL("../../assets/official/rds.svg", import.meta.url),
@@ -45,6 +57,42 @@ describe("sanitizeAwsSvg", () => {
       error: /external\.svg.*external/i,
     },
     {
+      name: "rejects relative external references",
+      svg: '<svg viewBox="0 0 1 1"><use href="other.svg#symbol"/></svg>',
+      sourceName: "relative.svg",
+      error: /relative\.svg.*external/i,
+    },
+    {
+      name: "rejects root-relative external references",
+      svg: '<svg viewBox="0 0 1 1"><image href="/asset.svg"/></svg>',
+      sourceName: "root-relative.svg",
+      error: /root-relative\.svg.*external/i,
+    },
+    {
+      name: "rejects parent-relative xlink references",
+      svg: '<svg viewBox="0 0 1 1"><use xlink:href="../x.svg#id"/></svg>',
+      sourceName: "parent-relative.svg",
+      error: /parent-relative\.svg.*external/i,
+    },
+    {
+      name: "rejects entity-encoded external references",
+      svg: '<svg viewBox="0 0 1 1"><use href="jav&#x61;script:alert(1)"/></svg>',
+      sourceName: "encoded.svg",
+      error: /encoded\.svg.*external/i,
+    },
+    {
+      name: "rejects CSS keyframe animation",
+      svg: '<svg viewBox="0 0 1 1"><style>@keyframes spin { to { transform: rotate(1turn); } }</style></svg>',
+      sourceName: "animated.css.svg",
+      error: /animated\.css\.svg.*style/i,
+    },
+    {
+      name: "rejects inline CSS animation",
+      svg: '<svg viewBox="0 0 1 1"><path style="animation: spin 1s infinite"/></svg>',
+      sourceName: "inline-animated.svg",
+      error: /inline-animated\.svg.*style/i,
+    },
+    {
       name: "rejects event attributes",
       svg: '<svg viewBox="0 0 1 1" onload="x()"/>',
       sourceName: "event.svg",
@@ -62,7 +110,7 @@ describe("sanitizeAwsSvg", () => {
 });
 
 describe("generateIconModule", () => {
-  it("generates byte-identical modules with stable SHA-256 checksums", async () => {
+  it("sorts a shuffled icon set into byte-identical modules with stable SHA-256 checksums", async () => {
     const first = await generateIconModule(fixtureEntries);
     const second = await generateIconModule(fixtureEntries);
 
@@ -72,5 +120,9 @@ describe("generateIconModule", () => {
     expect(second).toBe(first);
     expect(secondChecksum).toBe(firstChecksum);
     expect(firstChecksum).toMatch(/^[a-f0-9]{64}$/);
+    expect(first).toMatch(
+      /"aws\.ecs": \{[\s\S]*"aws\.rds": \{[\s\S]*"aws\.rds-proxy": \{/,
+    );
+    expect(first.match(/"checksum": "[a-f0-9]{64}"/g)).toHaveLength(3);
   });
 });
