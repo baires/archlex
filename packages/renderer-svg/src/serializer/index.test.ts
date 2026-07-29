@@ -114,6 +114,62 @@ describe("relationship rendering", () => {
       "single",
     ]);
   });
+
+  it.each([
+    {
+      name: "a two-point route",
+      points: [
+        { x: 10, y: 20 },
+        { x: 110, y: 20 },
+      ],
+      expectedTransform: "translate(60.0, 20.0)",
+    },
+    {
+      name: "an unequal-segment polyline",
+      points: [
+        { x: 0, y: 0 },
+        { x: 80, y: 0 },
+        { x: 80, y: 40 },
+      ],
+      expectedTransform: "translate(60.0, 0.0)",
+    },
+  ])(
+    "places an edge diagnostic halfway along $name by cumulative distance",
+    ({ points, expectedTransform }) => {
+      const graph: LayoutGraph = {
+        width: 160,
+        height: 100,
+        nodes: [],
+        edges: [
+          {
+            id: "diagnostic-edge",
+            source: "a",
+            target: "b",
+            arrow: "->",
+            points,
+          },
+        ],
+      };
+      const diagnostics: Diagnostic[] = [
+        {
+          code: "EDGE-WARNING",
+          severity: "warning",
+          message: "Review route",
+          span: {
+            start: { line: 1, column: 1, offset: 0 },
+            end: { line: 1, column: 1, offset: 0 },
+          },
+          elements: ["diagnostic-edge"],
+        },
+      ];
+
+      const result = serializeSvgGraph(graph, diagnostics);
+
+      expect(result.svg).toContain(
+        `id="cloudmer-edge-diagnostic-0" class="cloudmer-status-marker" transform="${expectedTransform}"`,
+      );
+    },
+  );
 });
 
 describe("Mermaid-aligned rendering", () => {
@@ -254,6 +310,31 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).toContain(">Amazon RDS &amp;</tspan>");
     expect(result.svg).toContain(">Primary</tspan>");
     expect(result.svg).toContain('aria-label="Amazon RDS &amp; Primary"');
+  });
+
+  it("ellipsizes an overlong visible label while preserving its full accessible name", () => {
+    const graph: LayoutGraph = {
+      width: 200,
+      height: 120,
+      nodes: [
+        {
+          id: "long-label",
+          x: 20,
+          y: 20,
+          width: 128,
+          height: 92,
+          label: "Supercalifragilistic Service Name",
+        },
+      ],
+      edges: [],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).toContain(">Supercalifragil…</tspan>");
+    expect(result.svg).toContain(
+      'aria-label="Supercalifragilistic Service Name"',
+    );
   });
 
   it("renders quiet scope boundaries with inline kind and name labels", () => {

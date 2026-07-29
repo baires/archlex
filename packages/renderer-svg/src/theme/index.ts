@@ -6,9 +6,9 @@ export interface ThemeTokens {
   nodeFill: string;
   nodeStroke: string;
   textFill: string;
-  textMuted: string;
+  textMuted?: string;
   edgeStroke: string;
-  edgeHoverStroke: string;
+  edgeHoverStroke?: string;
   arrowFill: string;
   errorStroke: string;
   warningMarker: string;
@@ -18,10 +18,10 @@ export interface ThemeTokens {
 export const lightTheme: ThemeTokens = {
   background: "#ffffff",
   scopeFill: "#f7f8fa",
-  scopeStroke: "#9aa6b6",
+  scopeStroke: "#84909f",
   scopeTextFill: "#344054",
   nodeFill: "#ffffff",
-  nodeStroke: "#aeb7c4",
+  nodeStroke: "#84909f",
   textFill: "#101828",
   textMuted: "#667085",
   edgeStroke: "#667085",
@@ -38,7 +38,7 @@ export const darkTheme: ThemeTokens = {
   scopeStroke: "#64748b",
   scopeTextFill: "#e2e8f0",
   nodeFill: "#1f2937",
-  nodeStroke: "#526174",
+  nodeStroke: "#64748b",
   textFill: "#f8fafc",
   textMuted: "#cbd5e1",
   edgeStroke: "#94a3b8",

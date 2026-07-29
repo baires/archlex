@@ -5,12 +5,24 @@ export interface NodeLabelLayout {
 
 const DEFAULT_MAX_CHARACTERS_PER_LINE = 16;
 
+function ellipsize(value: string, maxCharacters: number): string {
+  if (maxCharacters <= 0) return "";
+  if (maxCharacters === 1) return "…";
+  return `${value.slice(0, maxCharacters - 1)}…`;
+}
+
 export function layoutNodeLabel(
   label: string,
   maxCharactersPerLine = DEFAULT_MAX_CHARACTERS_PER_LINE,
 ): NodeLabelLayout {
   const words = label.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return { lines: [], truncated: false };
+  if (words[0].length > maxCharactersPerLine) {
+    return {
+      lines: [ellipsize(words[0], maxCharactersPerLine)],
+      truncated: true,
+    };
+  }
 
   let wordIndex = 0;
   let firstLine = "";
@@ -35,7 +47,7 @@ export function layoutNodeLabel(
       : words[wordIndex];
     if (candidate.length > maxCharactersPerLine) {
       return {
-        lines: [firstLine, `${candidate.slice(0, maxCharactersPerLine - 1)}…`],
+        lines: [firstLine, ellipsize(candidate, maxCharactersPerLine)],
         truncated: true,
       };
     }

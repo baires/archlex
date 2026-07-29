@@ -130,6 +130,41 @@ function buildRoundedPath(
   return pathD;
 }
 
+function routeMidpoint(points: readonly { x: number; y: number }[]): {
+  x: number;
+  y: number;
+} {
+  if (points.length === 0) return { x: 50, y: 0 };
+  if (points.length === 1) return points[0];
+
+  let totalLength = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    totalLength += Math.hypot(
+      points[index].x - points[index - 1].x,
+      points[index].y - points[index - 1].y,
+    );
+  }
+  if (totalLength < 1e-9) return points[0];
+
+  let remainingDistance = totalLength / 2;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    const segmentLength = Math.hypot(end.x - start.x, end.y - start.y);
+    if (segmentLength < 1e-9) continue;
+    if (remainingDistance <= segmentLength) {
+      const progress = remainingDistance / segmentLength;
+      return {
+        x: start.x + (end.x - start.x) * progress,
+        y: start.y + (end.y - start.y) * progress,
+      };
+    }
+    remainingDistance -= segmentLength;
+  }
+
+  return points[points.length - 1];
+}
+
 interface ScopeStyle {
   fill: string;
   stroke: string;
@@ -293,7 +328,7 @@ export function serializeSvgGraph(
     scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
     scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${strokeColor}" stroke-width="1.5"${dashAttr}/>\n`;
     scopeSvgContent += `      <text class="cloudmer-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
-    scopeSvgContent += `        <tspan fill="${theme.textMuted}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
+    scopeSvgContent += `        <tspan fill="${theme.textMuted ?? theme.scopeTextFill}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
     scopeSvgContent += `        <tspan dx="6" fill="${theme.scopeTextFill}" font-size="11" font-weight="600">${escapeXml(style.name)}</tspan>\n`;
     scopeSvgContent += "      </text>\n";
     if (diagnosticId) {
@@ -350,10 +385,7 @@ export function serializeSvgGraph(
 
     edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${describedByAttr}/>\n`;
     if (diagnosticId) {
-      const markerPoint = edge.points[Math.floor(edge.points.length / 2)] ?? {
-        x: 50,
-        y: 0,
-      };
+      const markerPoint = routeMidpoint(edge.points);
       const description = elementDiagnostics
         .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
         .join("; ");
@@ -486,7 +518,7 @@ export function serializeSvgGraph(
       <path d="M 7 0 L 0 3.5 L 7 7 Z" fill="${theme.arrowFill}"/>
     </marker>
     <style>
-      g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke}; stroke-width: 2; }
+      g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
     </style>
   </defs>
   <rect class="cloudmer-canvas" width="100%" height="100%" fill="${theme.background}"/>

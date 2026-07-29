@@ -32,11 +32,18 @@ describe("layoutNodeLabel", () => {
       false,
     ],
     [
-      "keeps an overlong first word intact rather than truncating it",
+      "ellipsizes an overlong first token",
       "Supercalifragilistic",
       12,
-      ["Supercalifragilistic"],
-      false,
+      ["Supercalifr…"],
+      true,
+    ],
+    [
+      "ellipsizes an overlong first token when more words follow",
+      "Supercalifragilistic Service Name",
+      12,
+      ["Supercalifr…"],
+      true,
     ],
   ] as const)("%s", (_name, label, maxCharactersPerLine, lines, truncated) => {
     expect(layoutNodeLabel(label, maxCharactersPerLine)).toEqual({
