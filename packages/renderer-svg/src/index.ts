@@ -15,8 +15,9 @@ export function createSvgRenderer(): GraphRenderer {
     render(
       layoutGraph: LayoutGraph,
       diagnostics: readonly Diagnostic[] = [],
+      themeName?: "light" | "dark",
     ): SvgResult {
-      return serializeSvgGraph(layoutGraph, diagnostics);
+      return serializeSvgGraph(layoutGraph, diagnostics, themeName);
     },
   };
 }

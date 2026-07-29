@@ -217,7 +217,6 @@ git commit -m "feat(aws): serve generated official icon artwork"
 **Files:**
 - Create: `packages/renderer-svg/src/serializer/labels.ts`
 - Create: `packages/renderer-svg/src/serializer/labels.test.ts`
-- Modify: `packages/renderer-svg/src/serializer/index.ts`
 
 **Interfaces:**
 - Produces: `layoutNodeLabel(label: string, maxCharactersPerLine?: number): { lines: readonly string[]; truncated: boolean }`.
@@ -246,29 +245,16 @@ Expected: FAIL because `layoutNodeLabel` does not exist.
 
 Normalize whitespace, greedily fill the first line, fill the second line, and truncate only the second line with a single Unicode ellipsis. Do not measure browser fonts or mutate node geometry.
 
-- [ ] **Step 4: Render labels as one or two `<tspan>` lines**
+- [ ] **Step 4: Run label tests to verify GREEN**
 
-In the serializer, keep the complete escaped label in `aria-label` and render:
+Run: `pnpm vitest run packages/renderer-svg/src/serializer/labels.test.ts`
 
-```xml
-<text class="cloudmer-node-label" x="64" y="70" text-anchor="middle">
-  <tspan x="64" dy="0">Amazon RDS</tspan>
-  <tspan x="64" dy="14">Proxy</tspan>
-</text>
-```
+Expected: all label tests PASS.
 
-Use a fixed label region below the icon and use the helper for both icon and text-only nodes.
-
-- [ ] **Step 5: Run label and serializer tests to verify GREEN**
-
-Run: `pnpm vitest run packages/renderer-svg/src/serializer/labels.test.ts packages/renderer-svg/src/serializer/index.test.ts`
-
-Expected: label tests PASS; any serializer failures must be limited to old glassmorphism expectations intentionally replaced in Task 4.
-
-- [ ] **Step 6: Commit label layout**
+- [ ] **Step 5: Commit label layout**
 
 ```bash
-git add packages/renderer-svg/src/serializer/labels.ts packages/renderer-svg/src/serializer/labels.test.ts packages/renderer-svg/src/serializer/index.ts
+git add packages/renderer-svg/src/serializer/labels.ts packages/renderer-svg/src/serializer/labels.test.ts
 git commit -m "feat(renderer): add deterministic two-line labels"
 ```
 
@@ -333,7 +319,7 @@ Parse scope kind/name as today, but return only fill, stroke, dash array, upperc
 
 - [ ] **Step 5: Render compact nodes and official artwork**
 
-Render a 1px neutral surface with `rx=6`. For icon nodes, position official nested SVG at 48×48, centered horizontally in a fixed top region. Preserve its `viewBox`, remove only intrinsic width/height during positioning, and add `aria-hidden="true" focusable="false"`. Render label tspans below it. Text-only nodes center their label region vertically.
+Render a 1px neutral surface with `rx=6`. For icon nodes, position official nested SVG at 48×48, centered horizontally in a fixed top region. Preserve its `viewBox`, remove only intrinsic width/height during positioning, and add `aria-hidden="true" focusable="false"`. Use `layoutNodeLabel` to render one or two escaped `<tspan>` lines below it while keeping the complete label in `aria-label`. Text-only nodes use the same helper and center their label region vertically.
 
 - [ ] **Step 6: Simplify markers and diagnostics**
 

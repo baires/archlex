@@ -4,7 +4,14 @@ import type {
   LayoutGraph,
   SvgResult,
 } from "@cloudmer/model";
-import { darkTheme, lightTheme } from "../theme/index.js";
+import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
+import { layoutNodeLabel } from "./labels.js";
+
+const NODE_ICON_SIZE = 48;
+const NODE_ICON_TOP = 10;
+const NODE_LABEL_LINE_HEIGHT = 15;
+const NODE_LABEL_SINGLE_LINE_BOTTOM_INSET = 10;
+const NODE_LABEL_MULTILINE_BOTTOM_INSET = 5;
 
 function escapeXml(str: string): string {
   return str
@@ -13,6 +20,261 @@ function escapeXml(str: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
+}
+
+function encodeSvgId(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  if (bytes.length === 0) return "0";
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+function createInternalSvgId(kind: string, value: string): string {
+  return `cloudmer-${kind}-${encodeSvgId(value)}`;
+}
+
+function namespaceIconIds(iconSvg: string, nodeId: string): string {
+  const namespace = createInternalSvgId("icon", nodeId);
+  const idMap = new Map<string, string>();
+
+  for (const match of iconSvg.matchAll(/\sid\s*=\s*(["'])([^"']+)\1/g)) {
+    const localId = match[2];
+    if (!idMap.has(localId)) {
+      idMap.set(localId, `${namespace}-${encodeSvgId(localId)}`);
+    }
+  }
+  if (idMap.size === 0) return iconSvg;
+
+  let namespaced = iconSvg.replace(
+    /(\s)id\s*=\s*(["'])([^"']+)\2/g,
+    (attribute, whitespace: string, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement
+        ? `${whitespace}id=${quote}${replacement}${quote}`
+        : attribute;
+    },
+  );
+  namespaced = namespaced.replace(
+    /url\(\s*(["']?)#([^\s#"'()<>]+)\1\s*\)/gi,
+    (reference, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement ? `url(${quote}#${replacement}${quote})` : reference;
+    },
+  );
+  namespaced = namespaced.replace(
+    /(\s(?:href|xlink:href)\s*=\s*)(["'])#([^"']+)\2/gi,
+    (reference, prefix: string, quote: string, localId: string) => {
+      const replacement = idMap.get(localId);
+      return replacement
+        ? `${prefix}${quote}#${replacement}${quote}`
+        : reference;
+    },
+  );
+  namespaced = namespaced.replace(
+    /(\s(?:aria-activedescendant|aria-controls|aria-describedby|aria-details|aria-errormessage|aria-flowto|aria-labelledby|aria-owns)\s*=\s*)(["'])([^"']*)\2/gi,
+    (reference, prefix: string, quote: string, idRefs: string) => {
+      const rewritten = idRefs
+        .split(/\s+/)
+        .map((localId) => idMap.get(localId) ?? localId)
+        .join(" ");
+      return `${prefix}${quote}${rewritten}${quote}`;
+    },
+  );
+  return namespaced;
+}
+
+function buildRoundedPath(
+  points: readonly { x: number; y: number }[],
+  cornerRadius = 8,
+): string {
+  if (!points || points.length === 0) return "M 0.0 0.0 L 100.0 0.0";
+  if (points.length === 1) {
+    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  }
+  if (points.length === 2) {
+    return `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)} L ${points[1].x.toFixed(1)} ${points[1].y.toFixed(1)}`;
+  }
+
+  let pathD = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+
+  for (let i = 1; i < points.length - 1; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const next = points[i + 1];
+
+    const dx1 = curr.x - prev.x;
+    const dy1 = curr.y - prev.y;
+    const dist1 = Math.hypot(dx1, dy1);
+
+    const dx2 = next.x - curr.x;
+    const dy2 = next.y - curr.y;
+    const dist2 = Math.hypot(dx2, dy2);
+
+    if (dist1 < 1e-3 || dist2 < 1e-3) {
+      pathD += ` L ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+      continue;
+    }
+
+    const r = Math.min(cornerRadius, dist1 / 2, dist2 / 2);
+    if (r < 1) {
+      pathD += ` L ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+      continue;
+    }
+
+    const startX = curr.x - (dx1 / dist1) * r;
+    const startY = curr.y - (dy1 / dist1) * r;
+    const endX = curr.x + (dx2 / dist2) * r;
+    const endY = curr.y + (dy2 / dist2) * r;
+
+    pathD += ` L ${startX.toFixed(1)} ${startY.toFixed(1)} Q ${curr.x.toFixed(1)} ${curr.y.toFixed(1)} ${endX.toFixed(1)} ${endY.toFixed(1)}`;
+  }
+
+  const last = points[points.length - 1];
+  pathD += ` L ${last.x.toFixed(1)} ${last.y.toFixed(1)}`;
+
+  return pathD;
+}
+
+function routeMidpoint(points: readonly { x: number; y: number }[]): {
+  x: number;
+  y: number;
+} {
+  if (points.length === 0) return { x: 50, y: 0 };
+  if (points.length === 1) return points[0];
+
+  let totalLength = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    totalLength += Math.hypot(
+      points[index].x - points[index - 1].x,
+      points[index].y - points[index - 1].y,
+    );
+  }
+  if (totalLength < 1e-9) return points[0];
+
+  let remainingDistance = totalLength / 2;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    const segmentLength = Math.hypot(end.x - start.x, end.y - start.y);
+    if (segmentLength < 1e-9) continue;
+    if (remainingDistance <= segmentLength) {
+      const progress = remainingDistance / segmentLength;
+      return {
+        x: start.x + (end.x - start.x) * progress,
+        y: start.y + (end.y - start.y) * progress,
+      };
+    }
+    remainingDistance -= segmentLength;
+  }
+
+  return points[points.length - 1];
+}
+
+interface ScopeStyle {
+  fill: string;
+  stroke: string;
+  kind: string;
+  name: string;
+  dashArray: string;
+}
+
+function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
+  let kind = "";
+  let name = label;
+  if (label.includes(": ")) {
+    const parts = label.split(": ");
+    kind = parts[0].trim().toLowerCase();
+    name = parts.slice(1).join(": ").trim();
+  }
+
+  switch (kind) {
+    case "account":
+      return {
+        fill: theme.scopeFill,
+        stroke: theme.scopeStroke,
+        kind: "ACCOUNT",
+        name,
+        dashArray: "6 4",
+      };
+    case "region":
+      return {
+        fill: theme.scopeFill,
+        stroke: theme.scopeStroke,
+        kind: "REGION",
+        name,
+        dashArray: "none",
+      };
+    case "vpc":
+      return {
+        fill: theme.scopeFill,
+        stroke: theme.scopeStroke,
+        kind: "VPC",
+        name,
+        dashArray: "5 4",
+      };
+    case "subnet":
+      return {
+        fill: theme.scopeFill,
+        stroke: theme.scopeStroke,
+        kind: "SUBNET",
+        name,
+        dashArray: "3 3",
+      };
+    default:
+      return {
+        fill: theme.scopeFill,
+        stroke: theme.scopeStroke,
+        kind: kind ? kind.toUpperCase() : "SCOPE",
+        name,
+        dashArray: "4 4",
+      };
+  }
+}
+
+function renderNodeLabel(
+  label: string,
+  nodeWidth: number,
+  nodeHeight: number,
+  hasIcon: boolean,
+  theme: ThemeTokens,
+): string {
+  const { lines } = layoutNodeLabel(label);
+  if (lines.length === 0) return "";
+
+  const centerX = (nodeWidth / 2).toFixed(1);
+  const lineHeight = NODE_LABEL_LINE_HEIGHT;
+  const labelBottomInset =
+    lines.length > 1
+      ? NODE_LABEL_MULTILINE_BOTTOM_INSET
+      : NODE_LABEL_SINGLE_LINE_BOTTOM_INSET;
+  const firstBaseline = hasIcon
+    ? nodeHeight - labelBottomInset - (lines.length - 1) * lineHeight
+    : nodeHeight / 2 + 4 - ((lines.length - 1) * lineHeight) / 2;
+
+  let labelSvg = `    <text class="cloudmer-node-label" x="${centerX}" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">\n`;
+  for (const [index, line] of lines.entries()) {
+    const position =
+      index === 0 ? ` y="${firstBaseline.toFixed(1)}"` : ` dy="${lineHeight}"`;
+    labelSvg += `      <tspan x="${centerX}"${position}>${escapeXml(line)}</tspan>\n`;
+  }
+  labelSvg += "    </text>\n";
+  return labelSvg;
+}
+
+function renderStatusMarker(
+  id: string,
+  x: number,
+  y: number,
+  color: string,
+  description: string,
+  theme: ThemeTokens,
+): string {
+  return `    <g id="${id}" class="cloudmer-status-marker" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})" role="img" aria-label="${escapeXml(description)}">
+      <circle r="7" fill="${theme.background}" stroke="${color}" stroke-width="1.5"/>
+      <text y="3.5" fill="${color}" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle" aria-hidden="true">!</text>
+    </g>
+`;
 }
 
 export function serializeSvgGraph(
@@ -51,44 +313,101 @@ export function serializeSvgGraph(
 
   // 1. Scopes container SVG content
   let scopeSvgContent = "";
-  for (const scope of scopeNodes) {
+  for (const [scopeIndex, scope] of scopeNodes.entries()) {
+    const style = resolveScopeStyle(scope.label, theme);
+    const isError = errorElements.has(scope.id);
+    const isWarning = warningElements.has(scope.id);
+    const strokeColor = isError
+      ? theme.errorStroke
+      : isWarning
+        ? theme.warningMarker
+        : style.stroke;
+    const dashArray = isError ? "4 3" : isWarning ? "2 2" : style.dashArray;
     const svgId = `scope-${scope.id}`;
-    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})">\n`;
-    scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${theme.scopeFill}" stroke="${theme.scopeStroke}" stroke-width="1.5" stroke-dasharray="4 4"/>\n`;
-    scopeSvgContent += `      <text x="12.0" y="24.0" fill="${theme.scopeTextFill}" font-family="sans-serif" font-size="12" font-weight="600">${escapeXml(scope.label)}</text>\n`;
+    const dashAttr =
+      dashArray !== "none" ? ` stroke-dasharray="${dashArray}"` : "";
+    const elementDiagnostics = diagnostics.filter((diagnostic) =>
+      diagnostic.elements.includes(scope.id),
+    );
+    const diagnosticId =
+      isError || isWarning ? `cloudmer-scope-diagnostic-${scopeIndex}` : "";
+    const describedByAttr = diagnosticId
+      ? ` aria-describedby="${diagnosticId}"`
+      : "";
+
+    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
+    scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${strokeColor}" stroke-width="1.5"${dashAttr}/>\n`;
+    scopeSvgContent += `      <text class="cloudmer-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
+    scopeSvgContent += `        <tspan fill="${theme.textMuted ?? theme.scopeTextFill}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
+    scopeSvgContent += `        <tspan dx="6" fill="${theme.scopeTextFill}" font-size="11" font-weight="600">${escapeXml(style.name)}</tspan>\n`;
+    scopeSvgContent += "      </text>\n";
+    if (diagnosticId) {
+      const description = elementDiagnostics
+        .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
+        .join("; ");
+      scopeSvgContent += renderStatusMarker(
+        diagnosticId,
+        scope.width - 9,
+        9,
+        strokeColor,
+        description,
+        theme,
+      );
+    }
     scopeSvgContent += "    </g>\n";
   }
 
   // 2. Edges SVG content
   let edgeSvgContent = "";
-  for (const edge of sortedEdges) {
+  for (const [edgeIndex, edge] of sortedEdges.entries()) {
     const isError = errorElements.has(edge.id);
+    const isWarning = warningElements.has(edge.id);
     const isDotted = edge.arrow.includes(".");
-    const strokeColor = isError ? theme.errorStroke : theme.edgeStroke;
+    const strokeColor = isError
+      ? theme.errorStroke
+      : isWarning
+        ? theme.warningMarker
+        : theme.edgeStroke;
     const strokeDash = isError
-      ? ' stroke-dasharray="4 4"'
-      : isDotted
-        ? ' stroke-dasharray="6 5"'
-        : "";
+      ? ' stroke-dasharray="4 3"'
+      : isWarning
+        ? ' stroke-dasharray="2 2"'
+        : isDotted
+          ? ' stroke-dasharray="6 5"'
+          : "";
 
-    let pathD = "";
-    if (edge.points.length > 0) {
-      const [start, ...rest] = edge.points;
-      pathD = `M ${start.x.toFixed(1)} ${start.y.toFixed(1)}`;
-      for (const p of rest) {
-        pathD += ` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
-      }
-    } else {
-      pathD = "M 0.0 0.0 L 100.0 0.0";
-    }
+    const pathD = buildRoundedPath(edge.points, 8);
+    if (!pathD) continue;
 
-    const svgId = `edge-${edge.id}`;
+    const svgId = createInternalSvgId("edge", edge.id);
     const markerEnd = edge.arrow.includes(">") ? "url(#arrowhead)" : "none";
     const markerStart = edge.arrow.includes("<")
       ? "url(#arrowhead-start)"
       : "none";
+    const elementDiagnostics = diagnostics.filter((diagnostic) =>
+      diagnostic.elements.includes(edge.id),
+    );
+    const diagnosticId =
+      isError || isWarning ? `cloudmer-edge-diagnostic-${edgeIndex}` : "";
+    const describedByAttr = diagnosticId
+      ? ` aria-describedby="${diagnosticId}"`
+      : "";
 
-    edgeSvgContent += `  <path id="${svgId}" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="2"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"/>\n`;
+    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${describedByAttr}/>\n`;
+    if (diagnosticId) {
+      const markerPoint = routeMidpoint(edge.points);
+      const description = elementDiagnostics
+        .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
+        .join("; ");
+      edgeSvgContent += renderStatusMarker(
+        diagnosticId,
+        markerPoint.x,
+        markerPoint.y,
+        strokeColor,
+        description,
+        theme,
+      );
+    }
 
     mappings.push({
       elementId: edge.id,
@@ -105,7 +424,7 @@ export function serializeSvgGraph(
 
   // 3. Leaf Nodes SVG content
   let nodeSvgContent = "";
-  for (const node of leafNodes) {
+  for (const [nodeIndex, node] of leafNodes.entries()) {
     const isError = errorElements.has(node.id);
     const isWarning = warningElements.has(node.id);
     const strokeColor = isError
@@ -113,36 +432,75 @@ export function serializeSvgGraph(
       : isWarning
         ? theme.warningMarker
         : theme.nodeStroke;
-    const strokeWidth = isError ? "3" : "2";
+    const strokeDash = isError
+      ? ' stroke-dasharray="4 3"'
+      : isWarning
+        ? ' stroke-dasharray="2 2"'
+        : "";
     const svgId = `node-${node.id}`;
+    const elementDiagnostics = diagnostics.filter((diagnostic) =>
+      diagnostic.elements.includes(node.id),
+    );
+    const diagnosticId =
+      isError || isWarning ? `cloudmer-diagnostic-${nodeIndex}` : "";
+    const describedByAttr = diagnosticId
+      ? ` aria-describedby="${diagnosticId}"`
+      : "";
 
-    nodeSvgContent += `  <g id="${svgId}" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.label)}">\n`;
-    nodeSvgContent += `    <rect width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${strokeColor}" stroke-width="${strokeWidth}"/>\n`;
+    nodeSvgContent += `  <g id="${svgId}" class="cloudmer-node" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.label)}"${describedByAttr}>\n`;
+    nodeSvgContent += `    <rect class="cloudmer-node-surface" width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${strokeColor}" stroke-width="1"${strokeDash}/>\n`;
 
     if (node.icon) {
       const iconKeyAttr = node.iconKey
         ? ` data-cloudmer-icon="${escapeXml(node.iconKey)}"`
         : "";
+      const iconSize = NODE_ICON_SIZE;
+      const iconX = (node.width / 2 - iconSize / 2).toFixed(1);
+      const iconY = NODE_ICON_TOP;
+
       if (node.icon.startsWith("<svg")) {
-        const positionedIcon = node.icon.replace(/^<svg\b[^>]*>/, (opening) => {
-          const withoutIntrinsicSize = opening.replace(
-            /\s(?:width|height)="[^"]*"/g,
-            "",
-          );
-          return withoutIntrinsicSize.replace(
-            "<svg",
-            `<svg x="${(node.width / 2 - 24).toFixed(1)}" y="10" width="48" height="48"${iconKeyAttr}`,
-          );
-        });
+        const namespacedIcon = namespaceIconIds(node.icon, node.id);
+        const positionedIcon = namespacedIcon.replace(
+          /^<svg\b[^>]*>/,
+          (opening) => {
+            const withoutIntrinsicSize = opening.replace(
+              /\s(?:width|height)="[^"]*"/g,
+              "",
+            );
+            return withoutIntrinsicSize.replace(
+              "<svg",
+              `<svg x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}"${iconKeyAttr} aria-hidden="true" focusable="false"`,
+            );
+          },
+        );
         nodeSvgContent += `    ${positionedIcon}\n`;
       } else {
-        nodeSvgContent += `    <g transform="translate(${(node.width / 2 - 32).toFixed(1)}, 10)"${iconKeyAttr}>\n`;
+        nodeSvgContent += `    <g transform="translate(${iconX}, ${iconY})"${iconKeyAttr}>\n`;
         nodeSvgContent += `      ${node.icon}\n`;
         nodeSvgContent += "    </g>\n";
       }
     }
 
-    nodeSvgContent += `    <text x="${(node.width / 2).toFixed(1)}" y="${(node.height - 12).toFixed(1)}" fill="${theme.textFill}" font-family="sans-serif" font-size="14" text-anchor="middle">${escapeXml(node.label)}</text>\n`;
+    nodeSvgContent += renderNodeLabel(
+      node.label,
+      node.width,
+      node.height,
+      Boolean(node.icon),
+      theme,
+    );
+    if (diagnosticId) {
+      const description = elementDiagnostics
+        .map((diagnostic) => `${diagnostic.severity}: ${diagnostic.message}`)
+        .join("; ");
+      nodeSvgContent += renderStatusMarker(
+        diagnosticId,
+        node.width - 9,
+        9,
+        strokeColor,
+        description,
+        theme,
+      );
+    }
     nodeSvgContent += "  </g>\n";
 
     mappings.push({
@@ -163,13 +521,17 @@ export function serializeSvgGraph(
 
   const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0">
   <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="${theme.arrowFill}"/>
+    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-start" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
-      <polygon points="10 0, 0 3.5, 10 7" fill="${theme.arrowFill}"/>
+    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 7 0 L 0 3.5 L 7 7 Z" fill="${theme.arrowFill}"/>
     </marker>
+    <style>
+      g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
+    </style>
   </defs>
+  <rect class="cloudmer-canvas" width="100%" height="100%" fill="${theme.background}"/>
   <g id="scopes">
 ${scopeSvgContent}  </g>
   <g id="edges">

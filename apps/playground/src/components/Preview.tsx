@@ -25,6 +25,9 @@ export function Preview({
 
     try {
       const mounted = mountSvg(containerRef.current, svg);
+      const viewBox = mounted.viewBox.baseVal;
+      mounted.setAttribute("width", String(viewBox.width));
+      mounted.setAttribute("height", String(viewBox.height));
 
       const elements = Array.from(
         mounted.querySelectorAll("[data-cloudmer-id]"),
@@ -51,7 +54,11 @@ export function Preview({
   }, [svg, selectedId, onSelectElement]);
 
   return (
-    <section className="preview-pane" aria-label="Architecture Diagram Preview">
+    <section
+      className="preview-pane"
+      aria-label="Architecture Diagram Preview"
+      data-testid="preview"
+    >
       <div className="pane-header">
         <h2>Architecture Diagram</h2>
         {isRendering && <span className="rendering-spinner">Updating...</span>}
@@ -71,7 +78,7 @@ export function Preview({
         <div
           ref={containerRef}
           className="svg-container"
-          style={{ display: hasNodes ? "block" : "none" }}
+          style={{ display: hasNodes ? "flex" : "none" }}
         />
       </div>
     </section>

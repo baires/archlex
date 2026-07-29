@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { AWS_PHASE_ONE_ICONS } from "../icons/index.js";
 import {
   AWS_SERVICE_CATALOG,
   awsProvider,
@@ -27,6 +28,18 @@ describe("AWS Catalog Services", () => {
   it("contains unique canonical identifiers", () => {
     expect(new Set(AWS_SERVICE_CATALOG.keys()).size).toBe(
       AWS_SERVICE_CATALOG.size,
+    );
+  });
+
+  it("uses the official phase-one icon artwork", () => {
+    expect(AWS_PHASE_ONE_ICONS["aws.rds"]).toContain("#C925D1");
+    expect(AWS_PHASE_ONE_ICONS["aws.ecs"]).toContain("#ED7100");
+    expect(AWS_PHASE_ONE_ICONS["aws.rds-proxy"]).toContain(
+      'viewBox="0 0 48 48"',
+    );
+    expect(AWS_PHASE_ONE_ICONS["aws.rds"]).not.toContain('<ellipse cx="32"');
+    expect(AWS_PHASE_ONE_ICONS["aws.ecs"]).not.toContain(
+      '<rect width="64" height="64" rx="8"',
     );
   });
 });

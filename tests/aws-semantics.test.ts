@@ -39,8 +39,8 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
       );
       expect(networkError).toBeDefined();
       expect(networkError?.severity).toBe("error");
-      expect(networkError?.elements).toContain("vpc1/proxy");
-      expect(networkError?.elements).toContain("vpc2/db");
+      expect(networkError?.elements).toContain("vpc:vpc1/proxy");
+      expect(networkError?.elements).toContain("vpc:vpc2/db");
     });
   });
 
@@ -84,5 +84,14 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
       expect(unknownDiag).toBeDefined();
       expect(unknownDiag?.severity).toBe("info");
     });
+  });
+
+  it("resolves official AWS icon fragments without unsafe SVG content", () => {
+    const provider = awsProvider();
+    const serializedIcons = ["rds-proxy", "rds", "ecs"]
+      .map((service) => provider.resolveService(service)?.iconSvg)
+      .join("");
+
+    expect(serializedIcons).not.toMatch(/https?:|<script|\son\w+=/i);
   });
 });
