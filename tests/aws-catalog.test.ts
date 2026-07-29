@@ -53,12 +53,17 @@ describe("Phase 3: AWS Catalog & Icon Manifest", () => {
     expect(AWS_CATALOG_MANIFEST.checksum).toBeDefined();
     expect(Object.keys(AWS_SANITIZED_ICONS).length).toBeGreaterThan(0);
 
+    expect(Object.keys(AWS_SANITIZED_ICONS)).toHaveLength(3);
+
     for (const [key, icon] of Object.entries(AWS_SANITIZED_ICONS)) {
       expect(icon.key).toBe(key);
-      expect(icon.checksum).toHaveLength(64);
+      expect(icon.checksum).toMatch(/^[a-f0-9]{64}$/);
       expect(icon.svgFragment).not.toContain("<script");
       expect(icon.svgFragment).not.toContain("foreignObject");
       expect(icon.svgFragment).not.toContain("onclick");
     }
+
+    const serializedCatalog = JSON.stringify(AWS_CATALOG_MANIFEST);
+    expect(serializedCatalog).not.toMatch(/https?:|<script|\son\w+=/i);
   });
 });
