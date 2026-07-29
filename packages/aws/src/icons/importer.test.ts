@@ -7,6 +7,9 @@ import {
   sanitizeAwsSvg,
 } from "../../scripts/import-official-icons.mjs";
 
+const EXPECTED_MANIFEST_CHECKSUM =
+  "35f1bdfb9f062ea0e026d5da78d20b2719b5607f18ff4b9264fc1df09c382060";
+
 const fixtureEntries = [
   {
     key: "aws.rds-proxy",
@@ -53,6 +56,22 @@ describe("sanitizeAwsSvg", () => {
       viewBox: "0 0 64 64",
       svg: '<svg viewBox="0 0 64 64"><rect width="64" height="64" fill="#C925D1"/></svg>',
     });
+  });
+
+  it.each([
+    ["too few numbers", "0 0 64"],
+    ["too many numbers", "0 0 64 64 1"],
+    ["non-numeric values", "0 0 nope 64"],
+    ["non-finite values", "0 0 1e309 64"],
+    ["zero width", "0 0 0 64"],
+    ["negative height", "0 0 64 -1"],
+  ])("rejects a viewBox with %s", (_name, viewBox) => {
+    expect(() =>
+      sanitizeAwsSvg(
+        `<svg viewBox="${viewBox}"><path d="M0 0h1"/></svg>`,
+        "invalid-viewbox.svg",
+      ),
+    ).toThrow(/invalid-viewbox\.svg.*viewBox/i);
   });
 
   it("preserves inert provider gradients and filters referenced by fragment IDs", () => {
@@ -199,5 +218,28 @@ describe("generateIconModule", () => {
       /"aws\.ecs": \{[\s\S]*"aws\.rds": \{[\s\S]*"aws\.rds-proxy": \{/,
     );
     expect(first.match(/"checksum": "[a-f0-9]{64}"/g)).toHaveLength(3);
+    expect(first).toContain(
+      `export const AWS_GENERATED_ICON_MANIFEST_CHECKSUM =\n  "${EXPECTED_MANIFEST_CHECKSUM}" as const;`,
+    );
+  });
+
+  it("includes the icon key and source path when reading an icon fails", async () => {
+    const missingPath = fileURLToPath(
+      new URL("../../assets/official/missing.svg", import.meta.url),
+    );
+
+    await expect(
+      generateIconModule([{ key: "aws.missing", sourcePath: missingPath }]),
+    ).rejects.toThrow(/aws\.missing.*missing\.svg/i);
+  });
+
+  it("includes the icon key and source path when sanitizing an icon fails", async () => {
+    const invalidPath = fileURLToPath(
+      new URL("../../package.json", import.meta.url),
+    );
+
+    await expect(
+      generateIconModule([{ key: "aws.invalid", sourcePath: invalidPath }]),
+    ).rejects.toThrow(/aws\.invalid.*package\.json/i);
   });
 });

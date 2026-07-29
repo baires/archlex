@@ -1,12 +1,12 @@
 import type { CatalogManifest, SanitizedIcon } from "@cloudmer/model";
-import { AWS_GENERATED_ICONS } from "./generated.js";
+import {
+  AWS_GENERATED_ICONS,
+  AWS_GENERATED_ICON_MANIFEST_CHECKSUM,
+} from "./generated.js";
 
 const generatedIcons = Object.values(AWS_GENERATED_ICONS);
 
-export const AWS_ICON_MANIFEST_CHECKSUM = generatedIcons
-  .map((icon) => icon.checksum)
-  .sort()
-  .join(":");
+export const AWS_ICON_MANIFEST_CHECKSUM = AWS_GENERATED_ICON_MANIFEST_CHECKSUM;
 
 export const AWS_SANITIZED_ICONS: Record<string, SanitizedIcon> =
   Object.fromEntries(
