@@ -13,7 +13,7 @@ const FORBIDDEN = [
     /\b(?:href|xlink:href)\s*=\s*(?:["'](?!#)[^"']*["']|(?!#)[^\s>]+)/i,
     "external reference",
   ],
-  [/@import|url\s*\(/i, "external style reference"],
+  [/@import|url\s*\(\s*(?!["']?#)/i, "external style reference"],
 ];
 
 const generatedIconPath = fileURLToPath(

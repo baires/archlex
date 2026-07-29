@@ -24,7 +24,7 @@ Public attributes are `data-cloudmer-id`, `data-cloudmer-kind`, `data-cloudmer-v
 
 The supported AWS icon subset is deliberately limited to Amazon RDS (`aws.rds`), Amazon RDS Proxy (`aws.rds-proxy`), and Amazon Elastic Container Service (`aws.ecs`). Their official Architecture Icon source SVGs are vendored under `packages/aws/assets/official/`; the renderer consumes only the generated, inline sanitized fragments. It never fetches artwork at render time. Unknown services retain the generic fallback glyph.
 
-Run `pnpm --filter @cloudmer/aws icons:check` to confirm that the checked-in generated fragments still match the official source files. Run `pnpm --filter @cloudmer/aws icons:generate` only when intentionally regenerating them. The importer validates view-box geometry, produces deterministic normalized fragments and checksums, and rejects unsafe or external content before it can enter the runtime catalog.
+Run `pnpm --filter @cloudmer/aws icons:check` to confirm that the checked-in generated fragments still match the official source files. Run `pnpm --filter @cloudmer/aws icons:generate` only when intentionally regenerating them. The importer validates view-box geometry, produces deterministic normalized fragments and checksums, rejects unsafe or external content, and preserves inert provider-artwork gradients and filters that use fragment-local references.
 
 ## Mermaid-aligned visual system
 
@@ -38,12 +38,12 @@ Edges are thin neutral orthogonal routes behind node and scope content. Compact 
 
 Sanitized provider icons are inline fragments; external URLs are forbidden. Unknown resources use a generic glyph. AWS artwork is not recolored. Built-in light/dark themes and validated custom themes control surfaces, text, edges, focus, warnings, and errors.
 
-Light and dark themes retain the same hierarchy with neutral surfaces and readable contrast, rather than gradients, sheen, cyan outlines, glow, or animation. Invalid edges are red/dashed with a marker; invalid nodes have an error border; warnings use amber with a distinct dash pattern; unknown semantics use a restrained information marker. Color is never the sole indicator: diagnostics include a compact status marker and/or stroke pattern.
+Light and dark themes retain the same hierarchy with neutral surfaces and readable contrast, rather than CloudMer-owned glass gradients, sheen, cyan outlines, glow filters, or animation. Inert gradients and filters inside sanitized official provider artwork are preserved for artwork fidelity. Invalid edges are red/dashed with a marker; invalid nodes have an error border; warnings use amber with a distinct dash pattern; unknown semantics use a restrained information marker. Color is never the sole indicator: diagnostics include a compact status marker and/or stroke pattern.
 
 Root SVG has title/description. Nodes, groups, and interactive edges have accessible names, keyboard focus, and visible focus. Navigation follows stable graph order rather than incidental coordinates. Decorative icon paths are hidden from accessibility APIs.
 
-SVG prohibits `script`, `foreignObject`, event attributes, external URLs (including HTTP(S), protocol-relative, relative, root-relative, and data references), imports, CSS animation declarations, and active animation elements. It contains no gradients or filters. `mountSvg` applies only to CloudMer-generated output.
+SVG prohibits `script`, `foreignObject`, event attributes, external URLs (including HTTP(S), protocol-relative, relative, root-relative, and data references), imports, CSS animation declarations, and active animation elements. CloudMer's own renderer chrome and definitions add no glass gradients or glow filters; sanitized provider artwork may retain inert, fragment-local gradients and filters. `mountSvg` applies only to CloudMer-generated output.
 
 ## Verification
 
-Test containment, ports, all directions, cycles, disconnected elements, invalid elements, and dense fan-in/out. Verify worker/inline parity, byte-identical repeated output, theme/diagnostic snapshots, SVG safety (including radial gradients, CSS animation names, and non-fragment external references), axe-core, and keyboard behavior. Browser acceptance covers the unscoped RDS Proxy → RDS → ECS chain and the nested account/region/VPC/subnet RDS Proxy → RDS scenario in both themes and at desktop and narrow widths.
+Test containment, ports, all directions, cycles, disconnected elements, invalid elements, and dense fan-in/out. Verify worker/inline parity, byte-identical repeated output, theme/diagnostic snapshots, SVG safety (including CSS animation names and non-fragment external references), preservation of inert provider gradients and filters, axe-core, and keyboard behavior. Browser acceptance covers the unscoped RDS Proxy → RDS → ECS chain and the nested account/region/VPC/subnet RDS Proxy → RDS scenario in both themes and at desktop and narrow widths.

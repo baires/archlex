@@ -117,11 +117,21 @@ describe("relationship rendering", () => {
 });
 
 describe("Mermaid-aligned rendering", () => {
-  it("uses compact neutral definitions without glass or active styling", () => {
+  it("omits CloudMer glass chrome while preserving inert provider effects", () => {
     const graph: LayoutGraph = {
       width: 100,
       height: 100,
-      nodes: [],
+      nodes: [
+        {
+          id: "provider-artwork",
+          x: 10,
+          y: 10,
+          width: 80,
+          height: 80,
+          label: "Provider artwork",
+          icon: '<svg viewBox="0 0 1 1"><defs><radialGradient id="provider-gradient"><stop offset="0" stop-color="#fff"/></radialGradient><filter id="provider-filter"><feGaussianBlur stdDeviation="1"/></filter></defs><path fill="url(#provider-gradient)" filter="url(#provider-filter)" d="M0 0h1"/></svg>',
+        },
+      ],
       edges: [],
     };
     const result = serializeSvgGraph(graph, [], "dark");
@@ -132,12 +142,14 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).not.toContain("cloudmer-sheen");
     expect(result.svg).not.toContain("cloudmer-glow");
     expect(result.svg).not.toContain("cloudmer-scope-header");
+    expect(result.svg).not.toMatch(
+      /<(?:linearGradient|radialGradient|filter)\b[^>]*\bid=["']cloudmer-(?:node-bg|sheen|glow)/i,
+    );
     expect(result.svg).not.toContain("transition:");
     expect(result.svg).not.toContain("animation:");
     expect(result.svg).not.toContain("animation-name:");
-    expect(result.svg).not.toContain("<linearGradient");
-    expect(result.svg).not.toContain("<radialGradient");
-    expect(result.svg).not.toContain("<filter");
+    expect(result.svg).toContain('<radialGradient id="provider-gradient">');
+    expect(result.svg).toContain('<filter id="provider-filter">');
     expect(result.svg).not.toMatch(
       /<(?:animate|animateMotion|animateTransform|set)\b/i,
     );

@@ -55,6 +55,18 @@ describe("sanitizeAwsSvg", () => {
     });
   });
 
+  it("preserves inert provider gradients and filters referenced by fragment IDs", () => {
+    const result = sanitizeAwsSvg(
+      '<svg viewBox="0 0 64 64"><defs><linearGradient id="provider-gradient"><stop offset="0" stop-color="#C925D1"/></linearGradient><filter id="provider-filter"><feGaussianBlur stdDeviation="1"/></filter></defs><path fill="url(#provider-gradient)" filter="url(#provider-filter)" d="M0 0h1"/></svg>',
+      "provider-effects.svg",
+    );
+
+    expect(result.svg).toContain('<linearGradient id="provider-gradient">');
+    expect(result.svg).toContain('<filter id="provider-filter">');
+    expect(result.svg).toContain('fill="url(#provider-gradient)"');
+    expect(result.svg).toContain('filter="url(#provider-filter)"');
+  });
+
   it.each([
     {
       name: "rejects scripts",
@@ -67,6 +79,12 @@ describe("sanitizeAwsSvg", () => {
       svg: '<svg viewBox="0 0 1 1"><use href="https://example.com/x.svg#x"/></svg>',
       sourceName: "external.svg",
       error: /external\.svg.*external/i,
+    },
+    {
+      name: "rejects data URL references",
+      svg: '<svg viewBox="0 0 1 1"><image href="data:image/svg+xml;base64,PHN2Zy8+"/></svg>',
+      sourceName: "data-url.svg",
+      error: /data-url\.svg.*external/i,
     },
     {
       name: "rejects relative external references",
