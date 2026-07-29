@@ -174,6 +174,7 @@ function routeMidpoint(points: readonly { x: number; y: number }[]): {
 interface ScopeStyle {
   fill: string;
   stroke: string;
+  accent: string;
   kind: string;
   name: string;
   dashArray: string;
@@ -193,6 +194,7 @@ function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
       return {
         fill: theme.scopeFill,
         stroke: theme.scopeStroke,
+        accent: theme.scopeAccents?.account ?? theme.scopeStroke,
         kind: "ACCOUNT",
         name,
         dashArray: "6 4",
@@ -201,6 +203,7 @@ function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
       return {
         fill: theme.scopeFill,
         stroke: theme.scopeStroke,
+        accent: theme.scopeAccents?.region ?? theme.scopeStroke,
         kind: "REGION",
         name,
         dashArray: "none",
@@ -209,6 +212,7 @@ function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
       return {
         fill: theme.scopeFill,
         stroke: theme.scopeStroke,
+        accent: theme.scopeAccents?.vpc ?? theme.scopeStroke,
         kind: "VPC",
         name,
         dashArray: "5 4",
@@ -217,6 +221,7 @@ function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
       return {
         fill: theme.scopeFill,
         stroke: theme.scopeStroke,
+        accent: theme.scopeAccents?.subnet ?? theme.scopeStroke,
         kind: "SUBNET",
         name,
         dashArray: "3 3",
@@ -225,6 +230,7 @@ function resolveScopeStyle(label: string, theme: ThemeTokens): ScopeStyle {
       return {
         fill: theme.scopeFill,
         stroke: theme.scopeStroke,
+        accent: theme.scopeStroke,
         kind: kind ? kind.toUpperCase() : "SCOPE",
         name,
         dashArray: "4 4",
@@ -335,8 +341,9 @@ export function serializeSvgGraph(
       ? ` aria-describedby="${diagnosticId}"`
       : "";
 
-    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
+    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" data-cloudmer-scope-kind="${escapeXml(style.kind.toLowerCase())}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
     scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${strokeColor}" stroke-width="1.5"${dashAttr}/>\n`;
+    scopeSvgContent += `      <path class="cloudmer-scope-accent" d="M 8 1.5 H ${(scope.width - 8).toFixed(1)}" stroke="${style.accent}" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>\n`;
     scopeSvgContent += `      <text class="cloudmer-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
     scopeSvgContent += `        <tspan fill="${theme.textMuted ?? theme.scopeTextFill}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
     scopeSvgContent += `        <tspan dx="6" fill="${theme.scopeTextFill}" font-size="11" font-weight="600">${escapeXml(style.name)}</tspan>\n`;
@@ -392,8 +399,20 @@ export function serializeSvgGraph(
     const describedByAttr = diagnosticId
       ? ` aria-describedby="${diagnosticId}"`
       : "";
+    const relationshipLabel = edge.label?.trim() || edge.kind?.trim() || "";
+    const ariaLabelAttr = relationshipLabel
+      ? ` aria-label="${escapeXml(relationshipLabel)}" role="graphics-object"`
+      : "";
 
-    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${describedByAttr}/>\n`;
+    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
+    if (relationshipLabel) {
+      const labelPoint = routeMidpoint(edge.points);
+      const labelWidth = Math.max(38, relationshipLabel.length * 6.6 + 14);
+      edgeSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
+      edgeSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
+      edgeSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
+      edgeSvgContent += "  </g>\n";
+    }
     if (diagnosticId) {
       const markerPoint = routeMidpoint(edge.points);
       const description = elementDiagnostics

@@ -104,7 +104,7 @@ account enterprise-prod {
       }
     }
 
-    apigw > web_app
+    apigw > ingress > web_app
     web_app > cache
     web_app > proxy > db_sql
     apigw > db_nosql

@@ -58,6 +58,15 @@ describe("sanitizeAwsSvg", () => {
     });
   });
 
+  it("preserves the inert clip-rule used by official architecture artwork", () => {
+    const result = sanitizeAwsSvg(
+      '<svg viewBox="0 0 48 48"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h48v48z"/></svg>',
+      "official-api-gateway.svg",
+    );
+
+    expect(result.svg).toContain('clip-rule="evenodd"');
+  });
+
   it.each([
     ["too few numbers", "0 0 64"],
     ["too many numbers", "0 0 64 64 1"],

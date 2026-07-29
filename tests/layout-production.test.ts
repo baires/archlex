@@ -1,4 +1,5 @@
 import {
+  buildElkGraph,
   computeGeometryFingerprint,
   createInlineLayoutEngine,
 } from "@cloudmer/layout-elk";
@@ -159,6 +160,21 @@ describe("Phase 4: Production Layout Engine", () => {
       expect(res.graph.nodes.length).toBeGreaterThan(0);
     },
   );
+
+  it("configures stable orthogonal routing for dense hierarchical graphs", () => {
+    const elkGraph = buildElkGraph(sampleGraph, "LR");
+
+    expect(elkGraph.layoutOptions).toMatchObject({
+      "elk.edgeRouting": "ORTHOGONAL",
+      "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "72",
+      "elk.spacing.edgeNode": "24",
+    });
+    expect(elkGraph.children[0]?.layoutOptions).toMatchObject({
+      "elk.direction": "RIGHT",
+      "elk.edgeRouting": "ORTHOGONAL",
+    });
+  });
 
   it("calculates deterministic geometry fingerprints", () => {
     const fp1 = computeGeometryFingerprint(sampleGraph, { direction: "LR" });

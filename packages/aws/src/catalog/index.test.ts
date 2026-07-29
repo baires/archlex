@@ -31,6 +31,20 @@ describe("AWS Catalog Services", () => {
     );
   });
 
+  it("provides official inline artwork for every non-boundary service", () => {
+    const services = [...AWS_SERVICE_CATALOG.values()].filter(
+      (service) => service.category !== "boundary",
+    );
+
+    expect(services).not.toHaveLength(0);
+    for (const service of services) {
+      expect(
+        provider.resolveService(service.id)?.iconSvg,
+        `missing icon for ${service.id}`,
+      ).toMatch(/^<svg\b/);
+    }
+  });
+
   it("uses the official phase-one icon artwork", () => {
     expect(AWS_PHASE_ONE_ICONS["aws.rds"]).toContain("#C925D1");
     expect(AWS_PHASE_ONE_ICONS["aws.ecs"]).toContain("#ED7100");

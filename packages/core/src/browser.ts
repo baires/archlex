@@ -55,6 +55,7 @@ const ALLOWED_ATTRIBUTES = new Set([
   "aria-labelledby",
   "class",
   "clip-path",
+  "clip-rule",
   "clipPathUnits",
   "color-interpolation-filters",
   "cx",

@@ -54,4 +54,13 @@ describe("neutral boundary contrast", () => {
   ])("keeps the %s boundary at 3:1 or higher", (_name, stroke, fill) => {
     expect(contrastRatio(stroke, fill)).toBeGreaterThanOrEqual(3);
   });
+
+  it.each([
+    ["light", lightTheme],
+    ["dark", darkTheme],
+  ])("gives each %s scope kind a distinct accent", (_name, theme) => {
+    const accents = theme.scopeAccents;
+    expect(accents).toBeDefined();
+    expect(new Set(Object.values(accents ?? {}))).toHaveLength(4);
+  });
 });

@@ -37,6 +37,12 @@ describe("Phase 4: SVG Mounting Safety", () => {
     expect(() => validateSvgSafety(safeSvg)).not.toThrow();
   });
 
+  it("allows the inert clip-rule used by sanitized official icons", () => {
+    const safeSvg = `<svg xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0 0h1"/></svg>`;
+
+    expect(() => validateSvgSafety(safeSvg)).not.toThrow();
+  });
+
   it("rejects prefixed foreign namespaces and entity-obfuscated XHTML", () => {
     const unsafeSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xht&#x6d;l"><s:foreignObject><x:iframe srcdoc="&lt;script>parent.compromised=true&lt;/script>"/></s:foreignObject></svg>`;
 

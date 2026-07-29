@@ -52,6 +52,7 @@ const ALLOWED_ELEMENTS = new Set([
 const ALLOWED_ATTRIBUTES = new Set([
   "class",
   "clip-path",
+  "clip-rule",
   "clipPathUnits",
   "color-interpolation-filters",
   "cx",
@@ -418,25 +419,34 @@ const generatedIconPath = fileURLToPath(
 );
 
 const officialIconEntries = [
-  {
-    key: "aws.ecs",
-    sourcePath: fileURLToPath(
-      new URL("../assets/official/ecs.svg", import.meta.url),
-    ),
-  },
-  {
-    key: "aws.rds",
-    sourcePath: fileURLToPath(
-      new URL("../assets/official/rds.svg", import.meta.url),
-    ),
-  },
-  {
-    key: "aws.rds-proxy",
-    sourcePath: fileURLToPath(
-      new URL("../assets/official/rds-proxy.svg", import.meta.url),
-    ),
-  },
-];
+  ["aws.alb", "elastic-load-balancing.svg"],
+  ["aws.api-gateway", "api-gateway.svg"],
+  ["aws.cloudfront", "cloudfront.svg"],
+  ["aws.dynamodb", "dynamodb.svg"],
+  ["aws.ec2", "ec2.svg"],
+  ["aws.ecs", "ecs.svg"],
+  ["aws.eks", "eks.svg"],
+  ["aws.elasticache", "elasticache.svg"],
+  ["aws.eventbridge", "eventbridge.svg"],
+  ["aws.iam-role", "iam-role.svg"],
+  ["aws.lambda", "lambda.svg"],
+  ["aws.nlb", "elastic-load-balancing.svg"],
+  ["aws.rds", "rds.svg"],
+  ["aws.rds-proxy", "rds-proxy.svg"],
+  ["aws.route-table", "route-table.svg"],
+  ["aws.route53", "route53.svg"],
+  ["aws.s3", "s3.svg"],
+  ["aws.security-group", "security-group.svg"],
+  ["aws.sns", "sns.svg"],
+  ["aws.sqs", "sqs.svg"],
+  ["aws.subnet", "subnet.svg"],
+  ["aws.vpc", "vpc.svg"],
+].map(([key, filename]) => ({
+  key,
+  sourcePath: fileURLToPath(
+    new URL(`../assets/official/${filename}`, import.meta.url),
+  ),
+}));
 
 export function sanitizeAwsSvg(svg, sourceName) {
   const document = parseSvgDocument(svg, sourceName);

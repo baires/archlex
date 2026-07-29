@@ -78,6 +78,36 @@ describe("relationship rendering", () => {
     expect(result.svg).toContain("Q 100.0 10.0");
   });
 
+  it("renders an escaped relationship label at the route midpoint", () => {
+    const graph: LayoutGraph = {
+      width: 240,
+      height: 120,
+      nodes: [],
+      edges: [
+        {
+          id: "labeled",
+          source: "api",
+          target: "worker",
+          arrow: "->",
+          kind: "invokes & awaits",
+          points: [
+            { x: 20, y: 40 },
+            { x: 180, y: 40 },
+          ],
+        },
+      ],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).toContain('class="cloudmer-edge-label"');
+    expect(result.svg).toContain('transform="translate(100.0, 40.0)"');
+    expect(result.svg).toContain(">invokes &amp; awaits</text>");
+    expect(result.svg).toMatch(
+      /data-cloudmer-id="labeled"[^>]+aria-label="invokes &amp; awaits"/,
+    );
+  });
+
   it("serializes and maps deterministic fallback paths for empty and one-point edges", () => {
     const graph: LayoutGraph = {
       width: 300,
@@ -359,6 +389,8 @@ describe("Mermaid-aligned rendering", () => {
 
     const result = serializeSvgGraph(graph);
     expect(result.svg).toContain('class="cloudmer-scope-label"');
+    expect(result.svg).toContain('data-cloudmer-scope-kind="vpc"');
+    expect(result.svg).toContain('class="cloudmer-scope-accent"');
     expect(result.svg).toContain('stroke-width="1.5"');
     expect(result.svg).toContain('stroke-dasharray="5 4"');
     expect(result.svg).toContain("<tspan");

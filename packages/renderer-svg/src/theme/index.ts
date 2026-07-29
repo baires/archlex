@@ -3,6 +3,12 @@ export interface ThemeTokens {
   scopeFill: string;
   scopeStroke: string;
   scopeTextFill: string;
+  scopeAccents?: {
+    account: string;
+    region: string;
+    vpc: string;
+    subnet: string;
+  };
   nodeFill: string;
   nodeStroke: string;
   textFill: string;
@@ -20,6 +26,12 @@ export const lightTheme: ThemeTokens = {
   scopeFill: "#f7f8fa",
   scopeStroke: "#84909f",
   scopeTextFill: "#344054",
+  scopeAccents: {
+    account: "#7c3aed",
+    region: "#2563eb",
+    vpc: "#0891b2",
+    subnet: "#059669",
+  },
   nodeFill: "#ffffff",
   nodeStroke: "#84909f",
   textFill: "#101828",
@@ -37,6 +49,12 @@ export const darkTheme: ThemeTokens = {
   scopeFill: "#172131",
   scopeStroke: "#64748b",
   scopeTextFill: "#e2e8f0",
+  scopeAccents: {
+    account: "#a78bfa",
+    region: "#60a5fa",
+    vpc: "#22d3ee",
+    subnet: "#34d399",
+  },
   nodeFill: "#1f2937",
   nodeStroke: "#64748b",
   textFill: "#f8fafc",

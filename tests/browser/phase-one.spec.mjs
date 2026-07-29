@@ -160,6 +160,41 @@ for (const theme of ["dark", "light"]) {
   });
 }
 
+test("offers accessible zoom, fit, actual-size, and drag-to-pan controls", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("svg[data-cloudmer-version]")).toBeVisible();
+
+  const zoomLevel = page.getByLabel("Zoom level");
+  await expect(page.getByRole("button", { name: "Zoom out" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Zoom in" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Fit diagram" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Actual size" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Actual size" }).click();
+  await expect(zoomLevel).toHaveText("100%");
+  await page.getByRole("button", { name: "Zoom in" }).click();
+  await expect(zoomLevel).toHaveText("110%");
+
+  const viewport = page.locator(".preview-viewport");
+  const stage = page.locator(".preview-stage");
+  const viewportBox = await viewport.boundingBox();
+  expect(viewportBox).not.toBeNull();
+  if (!viewportBox) throw new Error("preview viewport is not visible");
+
+  await page.mouse.move(viewportBox.x + 80, viewportBox.y + 80);
+  await page.mouse.down();
+  await page.mouse.move(viewportBox.x + 130, viewportBox.y + 110);
+  await page.mouse.up();
+  await expect(stage).toHaveAttribute("data-pan-x", "50");
+  await expect(stage).toHaveAttribute("data-pan-y", "30");
+
+  await page.getByRole("button", { name: "Fit diagram" }).click();
+  await expect(stage).toHaveAttribute("data-pan-x", "0");
+  await expect(stage).toHaveAttribute("data-pan-y", "0");
+});
+
 for (const theme of ["dark", "light"]) {
   test(`renders resources nested below plain scope labels in ${theme} theme`, async ({
     page,

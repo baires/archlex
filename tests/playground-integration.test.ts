@@ -123,4 +123,26 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
 
     expectCompactVpcGeometry(res.layout.nodes, res.layout.edges);
   });
+
+  it("routes enterprise traffic through the public load balancer", async () => {
+    const example = ARCHITECTURE_EXAMPLES.find(
+      (candidate) => candidate.id === "enterprise-cloud",
+    );
+    expect(example).toBeDefined();
+    if (!example) throw new Error("missing enterprise example");
+
+    const res = await cloudmer.render(example.source);
+    const loadBalancer = res.graph.nodes.find(
+      (node) => node.serviceKind === "alb",
+    );
+    expect(loadBalancer).toBeDefined();
+    if (!loadBalancer) throw new Error("missing enterprise load balancer");
+
+    expect(
+      res.graph.edges.some((edge) => edge.target === loadBalancer.id),
+    ).toBe(true);
+    expect(
+      res.graph.edges.some((edge) => edge.source === loadBalancer.id),
+    ).toBe(true);
+  });
 });
