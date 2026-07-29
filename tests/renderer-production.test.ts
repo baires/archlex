@@ -58,8 +58,10 @@ describe("Phase 4: Production SVG Renderer", () => {
     const darkRes = serializeSvgGraph(layoutGraph, [], "dark");
     const lightRes = serializeSvgGraph(layoutGraph, [], "light");
 
-    expect(darkRes.svg).toContain('fill="#1e293b"');
-    expect(lightRes.svg).toContain('fill="#f8fafc"');
+    expect(darkRes.svg).toContain('fill="#1f2937"');
+    expect(lightRes.svg).toContain('fill="#ffffff"');
+    expect(darkRes.svg).toContain('stroke="#526174"');
+    expect(lightRes.svg).toContain('stroke="#aeb7c4"');
   });
 
   it("applies accessibility attributes graphics-document and tabindex=0", () => {
@@ -85,5 +87,7 @@ describe("Phase 4: Production SVG Renderer", () => {
 
     const res = serializeSvgGraph(layoutGraph, diagnostics, "dark");
     expect(res.svg).toContain('stroke="#ef4444"');
+    expect(res.svg).toContain('stroke-dasharray="4 3"');
+    expect(res.svg).toContain('class="cloudmer-status-marker"');
   });
 });
