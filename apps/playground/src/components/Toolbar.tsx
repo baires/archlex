@@ -44,7 +44,7 @@ export function Toolbar({
 
       <div className="controls">
         <div className="control-group">
-          <label htmlFor="example-select">Example:</label>
+          <label htmlFor="example-select">Example</label>
           <select
             id="example-select"
             defaultValue=""
@@ -65,7 +65,7 @@ export function Toolbar({
         </div>
 
         <div className="control-group">
-          <label htmlFor="direction-select">Layout:</label>
+          <label htmlFor="direction-select">Layout</label>
           <select
             id="direction-select"
             value={direction}
@@ -73,15 +73,15 @@ export function Toolbar({
               onDirectionChange(e.target.value as "LR" | "RL" | "TB" | "BT")
             }
           >
-            <option value="LR">Left to Right (LR)</option>
-            <option value="RL">Right to Left (RL)</option>
-            <option value="TB">Top to Bottom (TB)</option>
-            <option value="BT">Bottom to Top (BT)</option>
+            <option value="LR">Left to Right</option>
+            <option value="RL">Right to Left</option>
+            <option value="TB">Top to Bottom</option>
+            <option value="BT">Bottom to Top</option>
           </select>
         </div>
 
         <div className="control-group">
-          <label htmlFor="validation-select">Validation:</label>
+          <label htmlFor="validation-select">Validation</label>
           <select
             id="validation-select"
             value={validation}
@@ -89,9 +89,9 @@ export function Toolbar({
               onValidationChange(e.target.value as ValidationMode)
             }
           >
-            <option value="normal">Normal (Default)</option>
-            <option value="strict">Strict (Warnings = Errors)</option>
-            <option value="off">Off (Disable Provider Pass)</option>
+            <option value="normal">Normal</option>
+            <option value="strict">Strict</option>
+            <option value="off">Off</option>
           </select>
         </div>
 
@@ -101,7 +101,7 @@ export function Toolbar({
           onClick={() => onThemeChange(theme === "dark" ? "light" : "dark")}
           title="Toggle Theme"
         >
-          {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
+          {theme === "dark" ? "☀️" : "🌙"}
         </button>
 
         <button
@@ -110,7 +110,7 @@ export function Toolbar({
           onClick={onCopySvg}
           title="Copy SVG to Clipboard"
         >
-          {copied ? "✓ Copied!" : "📋 Copy SVG"}
+          {copied ? "✓" : "📋"}
         </button>
 
         <button

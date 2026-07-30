@@ -155,7 +155,7 @@ export function Preview({
       data-testid="preview"
     >
       <div className="pane-header">
-        <h2>Architecture Diagram</h2>
+        <h2>Preview</h2>
         <div className="preview-header-actions">
           {hasNodes ? (
             <div
@@ -185,6 +185,7 @@ export function Preview({
                 type="button"
                 onClick={fitDiagram}
                 aria-label="Fit diagram"
+                title="Fit diagram to viewport"
               >
                 Fit
               </button>
@@ -195,6 +196,7 @@ export function Preview({
                   setPan({ x: 0, y: 0 });
                 }}
                 aria-label="Actual size"
+                title="Reset to 100%"
               >
                 100%
               </button>
@@ -202,7 +204,7 @@ export function Preview({
           ) : null}
           {isRendering ? (
             <span className="rendering-spinner" aria-live="polite">
-              Updating…
+              Rendering…
             </span>
           ) : null}
         </div>
@@ -220,11 +222,11 @@ export function Preview({
         {!hasNodes && !isRendering ? (
           <div className="empty-state">
             <div className="empty-icon">📐</div>
-            <p className="empty-title">No resources declared</p>
+            <p className="empty-title">Start Building</p>
             <p className="empty-hint">
-              Add resources or relationships below to render a diagram:
+              Write CloudMer DSL code to visualize your cloud architecture
             </p>
-            <code className="empty-code">rds-proxy &gt; rds &gt; ecs</code>
+            <code className="empty-code">account production → region us-east-1 → vpc main</code>
           </div>
         ) : null}
         <div

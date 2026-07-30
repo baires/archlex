@@ -1,4 +1,5 @@
 import type { Diagnostic } from "@cloudmer/model";
+import { useState } from "react";
 
 interface DiagnosticsProps {
   diagnostics: readonly Diagnostic[];
@@ -11,22 +12,37 @@ export function Diagnostics({
   selectedId,
   onSelectDiagnostic,
 }: DiagnosticsProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  // Only show panel when there are diagnostics
+  if (diagnostics.length === 0) {
+    return null;
+  }
+
   return (
     <section
-      className="diagnostics-pane"
+      className={`diagnostics-pane ${isExpanded ? "expanded" : "collapsed"}`}
       data-testid="diagnostics"
       aria-label="Diagnostics"
     >
-      <div className="pane-header">
-        <h2>Diagnostics ({diagnostics.length})</h2>
-      </div>
+      <button
+        className="pane-header diagnostics-toggle"
+        onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
+      >
+        <h2>
+          <span className="toggle-icon">{isExpanded ? "▼" : "▶"}</span>
+          Diagnostics ({diagnostics.length})
+        </h2>
+      </button>
 
-      <div className="diagnostics-content">
-        {diagnostics.length === 0 ? (
-          <p className="no-diagnostics">
-            ✓ Architecture validation clean — 0 diagnostics.
-          </p>
-        ) : (
+      {isExpanded && (
+        <div className="diagnostics-content">
+          {diagnostics.length === 0 ? (
+            <p className="no-diagnostics">
+              ✓ No issues — Architecture validation passed
+            </p>
+          ) : (
           <ul className="diagnostics-list">
             {diagnostics.map((d, index) => {
               const mainElement = d.elements[0];
@@ -64,6 +80,7 @@ export function Diagnostics({
           </ul>
         )}
       </div>
+      )}
     </section>
   );
 }

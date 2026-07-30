@@ -12,8 +12,8 @@ export function Editor({ source, onSourceChange, diagnostics }: EditorProps) {
   return (
     <section className="editor-pane" aria-label="CloudMer Source Editor">
       <div className="pane-header">
-        <h2>Source Code</h2>
-        {hasErrors && <span className="error-indicator">● Errors found</span>}
+        <h2>Code</h2>
+        {hasErrors && <span className="error-indicator">● Errors</span>}
       </div>
 
       <div className="editor-body">
@@ -23,7 +23,20 @@ export function Editor({ source, onSourceChange, diagnostics }: EditorProps) {
           spellCheck={false}
           value={source}
           onChange={(e) => onSourceChange(e.target.value)}
-          placeholder="Enter CloudMer DSL source code..."
+          placeholder="# Enter CloudMer DSL source code
+# Example:
+direction LR
+provider aws
+
+account production {
+  region us-east-1 {
+    vpc main-vpc {
+      subnet app-subnet {
+        app: ec2
+      }
+    }
+  }
+}"
         />
       </div>
     </section>
