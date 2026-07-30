@@ -573,6 +573,7 @@ export function serializeSvgGraph(
 
   // 2. Edges SVG content
   let edgeSvgContent = "";
+  let edgeLabelSvgContent = "";
   for (const [edgeIndex, edge] of sortedEdges.entries()) {
     const isError = errorElements.has(edge.id);
     const isWarning = warningElements.has(edge.id);
@@ -625,10 +626,10 @@ export function serializeSvgGraph(
         edge.target,
       );
 
-      edgeSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
-      edgeSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
-      edgeSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
-      edgeSvgContent += "  </g>\n";
+      edgeLabelSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
+      edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
+      edgeLabelSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
+      edgeLabelSvgContent += "  </g>\n";
     }
     if (diagnosticId) {
       const markerPoint = routeMidpoint(edge.points);
@@ -774,6 +775,8 @@ ${scopeSvgContent}  </g>
 ${edgeSvgContent}  </g>
   <g id="nodes">
 ${nodeSvgContent}  </g>
+  <g id="edge-labels">
+${edgeLabelSvgContent}  </g>
 </svg>`;
 
   return {
