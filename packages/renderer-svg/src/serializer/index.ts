@@ -2,6 +2,7 @@ import type {
   Diagnostic,
   ElementMapping,
   LayoutGraph,
+  LayoutNode,
   SvgResult,
 } from "@cloudmer/model";
 import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
@@ -166,6 +167,145 @@ function routeMidpoint(points: readonly { x: number; y: number }[]): {
       };
     }
     remainingDistance -= segmentLength;
+  }
+
+  return points[points.length - 1];
+}
+
+interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function rectanglesOverlap(a: Rect, b: Rect): boolean {
+  return !(
+    a.x + a.width < b.x ||
+    b.x + b.width < a.x ||
+    a.y + a.height < b.y ||
+    b.y + b.height < a.y
+  );
+}
+
+function findBestLabelPosition(
+  points: readonly { x: number; y: number }[],
+  labelWidth: number,
+  labelHeight: number,
+  nodes: readonly LayoutNode[],
+  sourceNodeId: string,
+  targetNodeId: string,
+  minClearance = 12,
+): { x: number; y: number } {
+  if (points.length === 0) return { x: 50, y: 0 };
+  if (points.length === 1) return points[0];
+
+  let totalLength = 0;
+  const segments: Array<{
+    start: { x: number; y: number };
+    end: { x: number; y: number };
+    length: number;
+  }> = [];
+
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    const length = Math.hypot(end.x - start.x, end.y - start.y);
+    segments.push({ start, end, length });
+    totalLength += length;
+  }
+
+  if (totalLength < 1e-9) return points[0];
+
+  // Filter to leaf nodes, excluding the source and target of this edge
+  const leafNodes = nodes.filter(
+    (node) =>
+      (!node.children || node.children.length === 0) &&
+      node.id !== sourceNodeId &&
+      node.id !== targetNodeId,
+  );
+
+  const testPosition = (distance: number): { x: number; y: number } | null => {
+    let remaining = distance;
+    for (const segment of segments) {
+      if (segment.length < 1e-9) continue;
+      if (remaining <= segment.length) {
+        const progress = remaining / segment.length;
+        const x =
+          segment.start.x + (segment.end.x - segment.start.x) * progress;
+        const y =
+          segment.start.y + (segment.end.y - segment.start.y) * progress;
+
+        const labelRect: Rect = {
+          x: x - labelWidth / 2 - minClearance,
+          y: y - labelHeight / 2 - minClearance,
+          width: labelWidth + minClearance * 2,
+          height: labelHeight + minClearance * 2,
+        };
+
+        const hasOverlap = leafNodes.some((node) => {
+          const nodeRect: Rect = {
+            x: node.x,
+            y: node.y,
+            width: node.width,
+            height: node.height,
+          };
+          return rectanglesOverlap(labelRect, nodeRect);
+        });
+
+        if (!hasOverlap) {
+          return { x, y };
+        }
+        return null;
+      }
+      remaining -= segment.length;
+    }
+    return null;
+  };
+
+  // Try midpoint first
+  const midpoint = testPosition(totalLength / 2);
+  if (midpoint) return midpoint;
+
+  // Try alternative positions along the route
+  // Sample at multiple granularities to find gaps between nodes
+  const candidates: number[] = [];
+
+  // Coarse sampling: every 10%
+  for (let percent = 10; percent <= 90; percent += 10) {
+    if (percent !== 50) {
+      candidates.push((totalLength * percent) / 100);
+    }
+  }
+
+  // Fine sampling near endpoints: 2%, 5%, 95%, 98%
+  for (const percent of [2, 5, 95, 98]) {
+    candidates.push((totalLength * percent) / 100);
+  }
+
+  // Sort candidates by distance from midpoint (prefer centered labels when possible)
+  const mid = totalLength / 2;
+  candidates.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
+
+  // Try each candidate
+  for (const distance of candidates) {
+    const candidate = testPosition(distance);
+    if (candidate) return candidate;
+  }
+
+  // If no position is free of overlaps, return midpoint anyway as fallback
+  // (better to have some overlap than to skip the label entirely)
+  let remainingDistance = totalLength / 2;
+  for (const segment of segments) {
+    if (segment.length < 1e-9) continue;
+    if (remainingDistance <= segment.length) {
+      const progress = remainingDistance / segment.length;
+      return {
+        x: segment.start.x + (segment.end.x - segment.start.x) * progress,
+        y: segment.start.y + (segment.end.y - segment.start.y) * progress,
+      };
+    }
+    remainingDistance -= segment.length;
   }
 
   return points[points.length - 1];
@@ -406,8 +546,16 @@ export function serializeSvgGraph(
 
     edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
     if (relationshipLabel) {
-      const labelPoint = routeMidpoint(edge.points);
       const labelWidth = Math.max(38, relationshipLabel.length * 6.6 + 14);
+      const labelHeight = 21;
+      const labelPoint = findBestLabelPosition(
+        edge.points,
+        labelWidth,
+        labelHeight,
+        leafNodes,
+        edge.source,
+        edge.target,
+      );
       edgeSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
       edgeSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
       edgeSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
