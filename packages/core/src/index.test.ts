@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { awsProvider, createCloudMer } from "./index.js";
+import { awsProvider, createCloudMer, gcpProvider } from "./index.js";
 
 describe("Phase 1 canonical rendering", () => {
   it("renders the complete RDS Proxy to RDS to ECS chain", async () => {
@@ -215,5 +215,39 @@ describe("Phase 2 semantic graph", () => {
       "CM-STRUCT-INVALID-DIRECTIVE",
       "CM-STRUCT-INVALID-DIRECTIVE",
     ]);
+  });
+});
+
+describe("Multi-provider dispatch", () => {
+  it("resolves qualified gcp kinds through the GCP provider in an aws document", async () => {
+    const cloudmer = createCloudMer({
+      providers: [awsProvider(), gcpProvider()],
+    });
+
+    const result = await cloudmer.render("provider aws\nrds > gcp.pubsub");
+
+    const pubsub = result.graph.nodes.find((node) => node.id === "gcp.pubsub");
+    expect(pubsub?.provider).toBe("gcp");
+    expect(pubsub?.serviceKind).toBe("pubsub");
+    expect(pubsub?.label).toBe("Pub/Sub");
+    expect(pubsub?.icon).toContain("<svg");
+    expect(result.svg).toContain('data-cloudmer-icon="gcp.pubsub"');
+  });
+
+  it("resolves unqualified kinds through the gcp document provider", async () => {
+    const cloudmer = createCloudMer({
+      providers: [awsProvider(), gcpProvider()],
+    });
+
+    const result = await cloudmer.render("provider gcp\ncloud-run > cloud-sql");
+
+    expect(result.graph.nodes.map((node) => node.provider)).toEqual([
+      "gcp",
+      "gcp",
+    ]);
+    expect(result.graph.nodes.every((node) => node.icon)).toBe(true);
+    expect(result.svg).toContain("Cloud Run");
+    expect(result.svg).toContain("Cloud SQL");
+    expect(result.svg).toContain('data-cloudmer-icon="gcp.cloud-run"');
   });
 });

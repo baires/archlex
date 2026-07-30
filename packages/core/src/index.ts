@@ -1,4 +1,5 @@
 import { awsProvider } from "@cloudmer/aws";
+import { gcpProvider } from "@cloudmer/gcp";
 import { createInlineLayoutEngine } from "@cloudmer/layout-elk";
 import type {
   AnalysisResult,
@@ -482,4 +483,4 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
   };
 }
 
-export { awsProvider };
+export { awsProvider, gcpProvider };

@@ -286,4 +286,54 @@ global_dns -[primary]-> app_primary
 global_dns -[failover]-> app_secondary
 db_primary -[replicates]-> db_replica`,
   },
+  {
+    id: "gcp-serverless-sql",
+    title: "GCP Serverless Cloud Run + Cloud SQL",
+    category: "Google Cloud",
+    description: "Cloud Run service connected to a Cloud SQL database",
+    source: `direction LR
+provider gcp
+validation normal
+
+cloud-run -[connects]->|Cloud SQL Auth Proxy| cloud-sql`,
+  },
+  {
+    id: "gcp-event-pipeline",
+    title: "GCP Event-Driven Data Pipeline",
+    category: "Google Cloud",
+    description:
+      "GKE publishing events to Pub/Sub, processed by Cloud Functions into BigQuery",
+    source: `direction LR
+provider gcp
+
+gke -[publishes]-> pubsub
+pubsub -[invokes]-> cloud-functions
+cloud-functions -[writes]-> bigquery`,
+  },
+  {
+    id: "gcp-vpc-architecture",
+    title: "GCP VPC Network Architecture",
+    category: "Google Cloud",
+    description:
+      "Cloud Load Balancing routing to Compute Engine and Memorystore inside a regional VPC with subnets",
+    source: `direction LR
+provider gcp
+validation normal
+
+account production {
+  region us-central1 {
+    vpc main-vpc {
+      subnet app-subnet {
+        app: compute-engine
+        cache: memorystore
+      }
+    }
+  }
+}
+
+lb: cloud-load-balancing
+lb -[routes]-> app
+app -[caches]-> cache
+app -[writes]-> cloud-storage`,
+  },
 ];

@@ -1,4 +1,4 @@
-import { awsProvider, createCloudMer } from "@cloudmer/core";
+import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
 import type { LayoutEdge, LayoutNode } from "@cloudmer/model";
 import { describe, expect, it } from "vitest";
 import { ARCHITECTURE_EXAMPLES } from "../apps/playground/src/examples.js";
@@ -84,7 +84,7 @@ function expectCompactVpcGeometry(
 
 describe("Phase 5: Playground Architecture Examples & Render Integration", () => {
   const cloudmer = createCloudMer({
-    providers: [awsProvider()],
+    providers: [awsProvider(), gcpProvider()],
   });
 
   it("renders all built-in architecture examples without structural errors", async () => {
@@ -108,7 +108,7 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
     for (const example of ARCHITECTURE_EXAMPLES) {
       expect(example.id).toBeDefined();
       expect(example.title).toBeDefined();
-      expect(example.source).toContain("provider aws");
+      expect(example.source).toMatch(/^provider (aws|gcp)$/m);
     }
   });
 

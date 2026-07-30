@@ -13,6 +13,7 @@ export default defineConfig({
       "@cloudmer/model": resolve(__dirname, "./packages/model/src/index.ts"),
       "@cloudmer/parser": resolve(__dirname, "./packages/parser/src/index.ts"),
       "@cloudmer/aws": resolve(__dirname, "./packages/aws/src/index.ts"),
+      "@cloudmer/gcp": resolve(__dirname, "./packages/gcp/src/index.ts"),
       "@cloudmer/layout-elk": resolve(
         __dirname,
         "./packages/layout-elk/src/index.ts",

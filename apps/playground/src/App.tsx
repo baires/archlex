@@ -1,4 +1,4 @@
-import { awsProvider, createCloudMer } from "@cloudmer/core";
+import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
 import type { Diagnostic, ValidationMode } from "@cloudmer/model";
 import { useEffect, useRef, useState } from "react";
 import { Diagnostics } from "./components/Diagnostics.js";
@@ -7,7 +7,7 @@ import { Preview } from "./components/Preview.js";
 import { Toolbar } from "./components/Toolbar.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 
-const cloudmer = createCloudMer({ providers: [awsProvider()] });
+const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
 
 const STORAGE_SOURCE_KEY = "cloudmer_source_v1";
 const STORAGE_OPTIONS_KEY = "cloudmer_options_v1";

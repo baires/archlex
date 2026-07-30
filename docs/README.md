@@ -1,6 +1,6 @@
 # CloudMer Documentation
 
-CloudMer is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS is the first provider; semantic validation is the main product capability.
+CloudMer is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS and GCP are the supported providers; semantic validation is the main product capability.
 
 ## Reading order
 
@@ -9,7 +9,7 @@ CloudMer is a browser-first TypeScript library that turns a concise, provider-aw
 3. [Technology stack](architecture/technology-stack.md) — locked tools and compatibility policy.
 4. [Contribution guide](architecture/contribution-guide.md) — package layout, rules, catalog, and extension workflows.
 5. [Language specification](specs/language.md) and [public API](specs/public-api.md).
-6. [AWS semantics](specs/aws-semantics.md), [layout/rendering](specs/layout-rendering.md), and [playground](specs/playground.md).
+6. [AWS semantics](specs/aws-semantics.md), [GCP semantics](specs/gcp-semantics.md), [layout/rendering](specs/layout-rendering.md), and [playground](specs/playground.md).
 7. [MVP roadmap](ROADMAP.md) and executable [TODO checklist](TODO.md).
 
 ## Authority and change policy

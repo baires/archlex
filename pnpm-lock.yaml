@@ -103,6 +103,9 @@ importers:
       '@cloudmer/aws':
         specifier: workspace:^
         version: link:../aws
+      '@cloudmer/gcp':
+        specifier: workspace:^
+        version: link:../gcp
       '@cloudmer/layout-elk':
         specifier: workspace:^
         version: link:../layout-elk
@@ -116,6 +119,25 @@ importers:
         specifier: workspace:^
         version: link:../renderer-svg
     devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.1.0
+        version: 6.4.3(@types/node@22.20.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.7(@types/node@22.20.1)(yaml@2.9.0)
+
+  packages/gcp:
+    dependencies:
+      '@cloudmer/model':
+        specifier: workspace:^
+        version: link:../model
+    devDependencies:
+      '@xmldom/xmldom':
+        specifier: 0.9.10
+        version: 0.9.10
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

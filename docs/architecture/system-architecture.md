@@ -20,6 +20,7 @@ Expected source problems are data, not exceptions. Each stage returns the best p
 | `@cloudmer/model` | AST, graph, diagnostics, provider, layout, render types | Runtime-free utilities |
 | `@cloudmer/parser` | Chevrotain lexer/CST and CST-to-AST conversion | `model`, Chevrotain |
 | `@cloudmer/aws` | AWS catalog, icons, aliases, containment, semantic rules | `model` |
+| `@cloudmer/gcp` | GCP catalog, icons, aliases, containment, semantic rules | `model` |
 | `@cloudmer/layout-elk` | ELK adapter, worker protocol, positioned graph | `model`, ELK.js |
 | `@cloudmer/renderer-svg` | Deterministic DOM-free SVG serialization | `model` |
 | `@cloudmer/core` | Orchestration, structural analysis, provider registry | Library packages through public exports |
@@ -32,6 +33,7 @@ Parser cannot import providers; providers cannot import parser, layout, or rende
 To ensure scalable growth and ease of contribution:
 
 - `@cloudmer/aws`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
+- `@cloudmer/gcp`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
 - `@cloudmer/parser`: `src/lexer/`, `src/cst/`, `src/visitor/`, `src/recovery/`, `src/index.ts`.
 - `@cloudmer/layout-elk`: `src/adapter/`, `src/worker/`, `src/cache/`, `src/index.ts`.
 - `@cloudmer/renderer-svg`: `src/serializer/`, `src/theme/`, `src/accessibility/`, `src/index.ts`.

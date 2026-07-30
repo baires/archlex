@@ -2,13 +2,19 @@
 
 ## Provider and catalog
 
+The AWS provider implements the `CloudProvider` interface from `@cloudmer/model`:
+
 ```ts
 interface CloudProvider {
   id: string;
+  name: string;
   catalogVersion: string;
-  resolveResource(type: string): ResourceDefinition | undefined;
-  resolveRelationship(kind: string): RelationshipDefinition | undefined;
-  validate(context: ProviderValidationContext): readonly Diagnostic[];
+  supports(serviceKind: string): boolean;
+  resolveService(serviceKind: string): ServiceMetadata | undefined;
+  validateGraph(
+    graph: CloudGraph,
+    mode?: ValidationMode,
+  ): readonly Diagnostic[];
 }
 ```
 

@@ -8,10 +8,12 @@ describe("Dependency Boundary Rules", () => {
     model: [],
     parser: ["@cloudmer/model", "chevrotain"],
     aws: ["@cloudmer/model"],
+    gcp: ["@cloudmer/model"],
     "layout-elk": ["@cloudmer/model", "elkjs"],
     "renderer-svg": ["@cloudmer/model"],
     core: [
       "@cloudmer/aws",
+      "@cloudmer/gcp",
       "@cloudmer/layout-elk",
       "@cloudmer/model",
       "@cloudmer/parser",

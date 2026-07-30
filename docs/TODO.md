@@ -77,3 +77,14 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 
 ## Phase 6 - Fixes
 - [ ] ELK currently produces a large browser bundle (~552 KB gzip). It works correctly, but code splitting/worker packaging should be addressed during the production-layout phase.
+
+## After MVP — GCP provider
+
+- [x] Scaffold `packages/gcp` mirroring the AWS package layout and boundary rules.
+- [x] Ingest official Google Cloud icons (2025 unique + legacy fallback) with CSS inlining, sanitization, and checksummed deterministic generation.
+- [x] Populate the initial GCP catalog (24 services) with aliases and containment metadata.
+- [x] Implement `gcpProvider` with catalog resolution, icons, and validation passes.
+- [x] Add GCP diagnostic registry and initial rules (subnet containment, Cloud SQL VPC placement).
+- [x] Wire GCP through core re-export, playground providers, and GCP examples.
+- [x] Test catalog, importer, aliases, codes, checksums, rule outcomes, and multi-provider dispatch.
+- [x] Document GCP semantics and update architecture/contribution guides.

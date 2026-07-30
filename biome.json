@@ -16,6 +16,10 @@
   },
   "files": {
     "ignore": [
+      "**/.claude/skills/**",
+      "**/.gemini/**",
+      "**/.github/skills/**",
+      "**/.opencode/skills/**",
       "**/.turbo/**",
       "**/dist/**",
       "**/node_modules/**",

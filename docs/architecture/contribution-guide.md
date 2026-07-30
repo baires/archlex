@@ -25,6 +25,20 @@ packages/aws/src/
 └── index.ts       # Public provider export (awsProvider)
 ```
 
+### `@cloudmer/gcp`
+
+```text
+packages/gcp/src/
+├── catalog/       # Service definitions, category lists, and aliases
+├── icons/         # Sanitized SVG icon fragments and metadata manifest
+├── rules/         # Modular semantic validation rules grouped by domain
+├── builder.ts     # Declarative defineService and defineRule helpers
+├── registry.ts    # Central registry of GCP diagnostic codes
+└── index.ts       # Public provider export (gcpProvider)
+```
+
+GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
+
 ### `@cloudmer/parser`
 
 ```text
@@ -111,25 +125,37 @@ export const rdsProxyNetworkRule = defineRule({
 
 ---
 
-### 3. Adding a New Cloud Provider (e.g. GCP)
+### 3. Adding a New Cloud Provider (e.g. Azure)
 
-Adding a new cloud provider requires **zero changes** to `@cloudmer/parser`, `@cloudmer/layout-elk`, or `@cloudmer/renderer-svg`.
+Adding a new cloud provider requires **zero changes** to `@cloudmer/parser`, `@cloudmer/layout-elk`, or `@cloudmer/renderer-svg`. GCP (`packages/gcp`) is the reference implementation of this workflow.
 
-1. Create a new package shell `packages/gcp`.
+1. Create a new package shell `packages/<provider>`.
 2. Implement the `CloudProvider` interface from `@cloudmer/model`:
 ```ts
-import type { CloudProvider, CloudGraph, Diagnostic } from "@cloudmer/model";
+import type {
+  CloudGraph,
+  CloudProvider,
+  Diagnostic,
+  ServiceMetadata,
+  ValidationMode,
+} from "@cloudmer/model";
 
-export function gcpProvider(): CloudProvider {
+export function azureProvider(): CloudProvider {
   return {
-    id: "gcp",
-    name: "Google Cloud Platform",
+    id: "azure",
+    name: "Microsoft Azure",
+    catalogVersion: "2026-07-29",
     supports(serviceKind: string): boolean { /* ... */ },
-    validateGraph(graph: CloudGraph): readonly Diagnostic[] { /* ... */ }
+    resolveService(serviceKind: string): ServiceMetadata | undefined { /* ... */ },
+    validateGraph(
+      graph: CloudGraph,
+      mode: ValidationMode = "normal",
+    ): readonly Diagnostic[] { /* ... */ }
   };
 }
 ```
-3. Register `gcpProvider()` in `createCloudMer({ providers: [awsProvider(), gcpProvider()] })`.
+3. Add `@cloudmer/<provider>` to `packages/core` dependencies, re-export the provider from `packages/core/src/index.ts`, and extend the matrix in `tests/boundary-rules.test.ts`.
+4. Register it in `createCloudMer({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`.
 
 ---
 
