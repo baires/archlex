@@ -595,9 +595,42 @@ export function serializeSvgGraph(
     if (!pathD) continue;
 
     const svgId = createInternalSvgId("edge", edge.id);
-    const markerEnd = edge.arrow.includes(">") ? "url(#arrowhead)" : "none";
+    const relationshipLabel = edge.label?.trim() || edge.kind?.trim() || "";
+
+    // Determine marker style based on relationship type
+    let markerType = "arrowhead";
+    let edgeStrokeStyle = "";
+    if (relationshipLabel) {
+      const labelLower = relationshipLabel.toLowerCase();
+      if (
+        labelLower.includes("write") ||
+        labelLower.includes("insert") ||
+        labelLower.includes("store") ||
+        labelLower.includes("save")
+      ) {
+        markerType = "arrowhead-write";
+        edgeStrokeStyle = ' stroke-width="2"';
+      } else if (
+        labelLower.includes("stream") ||
+        labelLower.includes("emit") ||
+        labelLower.includes("publish")
+      ) {
+        markerType = "arrowhead-stream";
+        edgeStrokeStyle = ' stroke-dasharray="4 2" stroke-width="1.5"';
+      } else if (
+        labelLower.includes("read") ||
+        labelLower.includes("fetch") ||
+        labelLower.includes("query") ||
+        labelLower.includes("get")
+      ) {
+        markerType = "arrowhead-read";
+        edgeStrokeStyle = ' stroke-width="1.5" stroke-dasharray="2 2"';
+      }
+    }
+
+    const markerEnd = edge.arrow.includes(">") ? `url(#${markerType})` : "none";
     const markerStart = edge.arrow.includes("<")
-      ? "url(#arrowhead-start)"
+      ? `url(#${markerType}-start)`
       : "none";
     const elementDiagnostics = diagnostics.filter((diagnostic) =>
       diagnostic.elements.includes(edge.id),
@@ -607,15 +640,14 @@ export function serializeSvgGraph(
     const describedByAttr = diagnosticId
       ? ` aria-describedby="${diagnosticId}"`
       : "";
-    const relationshipLabel = edge.label?.trim() || edge.kind?.trim() || "";
     const ariaLabelAttr = relationshipLabel
       ? ` aria-label="${escapeXml(relationshipLabel)}" role="graphics-object"`
       : "";
 
-    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}" stroke-width="1.5"${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
+    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}"${edgeStrokeStyle || ' stroke-width="1.5"'}${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
     if (relationshipLabel) {
-      const labelWidth = Math.max(38, relationshipLabel.length * 6.6 + 14);
-      const labelHeight = 21;
+      const labelWidth = Math.max(50, relationshipLabel.length * 6.6 + 24);
+      const labelHeight = 24;
 
       const labelPoint = findBestLabelPosition(
         edge.points,
@@ -627,8 +659,8 @@ export function serializeSvgGraph(
       );
 
       edgeLabelSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
-      edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
-      edgeLabelSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
+      edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-12" width="${labelWidth.toFixed(1)}" height="24" rx="6" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
+      edgeLabelSvgContent += `    <text y="4.5" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
       edgeLabelSvgContent += "  </g>\n";
     }
     if (diagnosticId) {
@@ -756,13 +788,22 @@ export function serializeSvgGraph(
   const width = Math.max(layoutGraph.width, 100);
   const height = Math.max(layoutGraph.height, 100);
 
-  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0">
+  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0" style="overflow: visible;">
   <defs>
-    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
       <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
       <path d="M 7 0 L 0 3.5 L 7 7 Z" fill="${theme.arrowFill}"/>
+    </marker>
+    <marker id="arrowhead-write" markerWidth="8" markerHeight="8" refX="7.5" refY="4" orient="auto" markerUnits="strokeWidth" overflow="visible">
+      <path d="M 0 0 L 8 4 L 0 8 Z" fill="${theme.arrowFill}" stroke="${theme.arrowFill}" stroke-width="0.5"/>
+    </marker>
+    <marker id="arrowhead-stream" markerWidth="7" markerHeight="9" refX="6.5" refY="4.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+      <path d="M 0 0 L 7 4.5 L 0 9" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrowhead-read" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+      <circle cx="3.5" cy="3.5" r="2.5" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
     <style>
       g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
