@@ -225,6 +225,24 @@ function findBestLabelPosition(
       node.id !== targetNodeId,
   );
 
+  const calculatePositionAtDistance = (
+    distance: number,
+  ): { x: number; y: number } | null => {
+    let remaining = distance;
+    for (const segment of segments) {
+      if (segment.length < 1e-9) continue;
+      if (remaining <= segment.length) {
+        const progress = remaining / segment.length;
+        return {
+          x: segment.start.x + (segment.end.x - segment.start.x) * progress,
+          y: segment.start.y + (segment.end.y - segment.start.y) * progress,
+        };
+      }
+      remaining -= segment.length;
+    }
+    return null;
+  };
+
   const testPosition = (distance: number): { x: number; y: number } | null => {
     let remaining = distance;
     for (const segment of segments) {
@@ -293,7 +311,56 @@ function findBestLabelPosition(
     if (candidate) return candidate;
   }
 
-  // If no position is free of overlaps, return midpoint anyway as fallback
+  // If no position is free of overlaps along the route,
+  // try positioning above/below the midpoint
+  const midpointCoords = calculatePositionAtDistance(totalLength / 2);
+  if (midpointCoords) {
+    // Try 30px above
+    const above = {
+      x: midpointCoords.x,
+      y: midpointCoords.y - 30,
+    };
+    const labelRectAbove: Rect = {
+      x: above.x - labelWidth / 2 - minClearance,
+      y: above.y - labelHeight / 2 - minClearance,
+      width: labelWidth + minClearance * 2,
+      height: labelHeight + minClearance * 2,
+    };
+    const hasOverlapAbove = leafNodes.some((node) => {
+      const nodeRect: Rect = {
+        x: node.x,
+        y: node.y,
+        width: node.width,
+        height: node.height,
+      };
+      return rectanglesOverlap(labelRectAbove, nodeRect);
+    });
+    if (!hasOverlapAbove) return above;
+
+    // Try 30px below
+    const below = {
+      x: midpointCoords.x,
+      y: midpointCoords.y + 30,
+    };
+    const labelRectBelow: Rect = {
+      x: below.x - labelWidth / 2 - minClearance,
+      y: below.y - labelHeight / 2 - minClearance,
+      width: labelWidth + minClearance * 2,
+      height: labelHeight + minClearance * 2,
+    };
+    const hasOverlapBelow = leafNodes.some((node) => {
+      const nodeRect: Rect = {
+        x: node.x,
+        y: node.y,
+        width: node.width,
+        height: node.height,
+      };
+      return rectanglesOverlap(labelRectBelow, nodeRect);
+    });
+    if (!hasOverlapBelow) return below;
+  }
+
+  // If everything overlaps, return midpoint anyway as fallback
   // (better to have some overlap than to skip the label entirely)
   let remainingDistance = totalLength / 2;
   for (const segment of segments) {
@@ -548,6 +615,7 @@ export function serializeSvgGraph(
     if (relationshipLabel) {
       const labelWidth = Math.max(38, relationshipLabel.length * 6.6 + 14);
       const labelHeight = 21;
+
       const labelPoint = findBestLabelPosition(
         edge.points,
         labelWidth,
@@ -556,6 +624,7 @@ export function serializeSvgGraph(
         edge.source,
         edge.target,
       );
+
       edgeSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
       edgeSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-10.5" width="${labelWidth.toFixed(1)}" height="21" rx="5" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
       edgeSvgContent += `    <text y="4" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
