@@ -788,21 +788,21 @@ export function serializeSvgGraph(
   const width = Math.max(layoutGraph.width, 100);
   const height = Math.max(layoutGraph.height, 100);
 
-  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0" style="overflow: visible;">
+  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0" class="cloudmer-svg">
   <defs>
-    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
       <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
       <path d="M 7 0 L 0 3.5 L 7 7 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-write" markerWidth="8" markerHeight="8" refX="7.5" refY="4" orient="auto" markerUnits="strokeWidth" overflow="visible">
+    <marker id="arrowhead-write" markerWidth="8" markerHeight="8" refX="7.5" refY="4" orient="auto" markerUnits="strokeWidth">
       <path d="M 0 0 L 8 4 L 0 8 Z" fill="${theme.arrowFill}" stroke="${theme.arrowFill}" stroke-width="0.5"/>
     </marker>
-    <marker id="arrowhead-stream" markerWidth="7" markerHeight="9" refX="6.5" refY="4.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+    <marker id="arrowhead-stream" markerWidth="7" markerHeight="9" refX="6.5" refY="4.5" orient="auto" markerUnits="strokeWidth">
       <path d="M 0 0 L 7 4.5 L 0 9" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
-    <marker id="arrowhead-read" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth" overflow="visible">
+    <marker id="arrowhead-read" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
       <circle cx="3.5" cy="3.5" r="2.5" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
     <style>
