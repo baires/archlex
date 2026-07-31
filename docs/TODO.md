@@ -70,7 +70,7 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 - [ ] Check links, public exports, diagnostic codes, and executable examples.
 - [ ] Add packed clean-consumer tests for Node 22 and Vite.
 - [ ] Define/enforce bundle, latency, and worker-start budgets.
-- [ ] Complete SVG security and AWS license/attribution audits.
+- [ ] Complete SVG security and AWS/GCP license/attribution audits.
 - [ ] Complete all CI gates and confirm npm scope ownership.
 - [ ] Configure prerelease, provenance, changelogs, and release dry-run.
 - [ ] Deploy playground and publish verified `0.1.0`.
