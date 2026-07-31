@@ -1,15 +1,18 @@
 import type { Diagnostic } from "@cloudmer/model";
 import type {
+  FocusEvent as ReactFocusEvent,
   KeyboardEvent as ReactKeyboardEvent,
   MouseEvent as ReactMouseEvent,
   RefObject,
 } from "react";
 import { useState } from "react";
+import type { RenderIssue } from "./diagnostics-state.js";
 
 export type DiagnosticFilter = "all" | Diagnostic["severity"];
 
 interface DiagnosticsDrawerProps {
   diagnostics: readonly Diagnostic[];
+  renderIssue: RenderIssue | null;
   filter: DiagnosticFilter;
   selectedId: string | null;
   triggerRef: RefObject<HTMLButtonElement | null>;
@@ -37,6 +40,7 @@ function diagnosticKey(diagnostic: Diagnostic, index: number): string {
 
 export function DiagnosticsDrawer({
   diagnostics,
+  renderIssue,
   filter,
   selectedId,
   triggerRef,
@@ -74,6 +78,17 @@ export function DiagnosticsDrawer({
     event.preventDefault();
     const offset = event.key === "ArrowDown" ? 1 : -1;
     options[(activeIndex + offset + options.length) % options.length]?.focus();
+  };
+
+  const handleListboxFocus = (event: ReactFocusEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    const options = Array.from(
+      event.currentTarget.querySelectorAll<HTMLElement>("[role='option']"),
+    );
+    const selected = options.find(
+      (option) => option.getAttribute("aria-selected") === "true",
+    );
+    (selected ?? options[0])?.focus();
   };
 
   const toggleRemediation = (
@@ -121,6 +136,18 @@ export function DiagnosticsDrawer({
         </button>
       </header>
 
+      {renderIssue && (filter === "all" || filter === "error") ? (
+        <output className="system-issue-row">
+          <span
+            className="diagnostic-severity-marker error"
+            aria-hidden="true"
+          />
+          <strong>{renderIssue.title}</strong>
+          <span className="system-issue-detail">{renderIssue.detail}</span>
+          <p>{renderIssue.recovery}</p>
+        </output>
+      ) : null}
+
       <div
         className="diagnostics-listbox"
         // A native select cannot contain the required rich diagnostic rows.
@@ -129,6 +156,7 @@ export function DiagnosticsDrawer({
         aria-label={`${labelForFilter(filter)} diagnostics`}
         aria-multiselectable="false"
         tabIndex={0}
+        onFocus={handleListboxFocus}
         onKeyDown={handleListboxKeyDown}
       >
         {visibleDiagnostics.map((diagnostic, index) => {
@@ -140,28 +168,32 @@ export function DiagnosticsDrawer({
           return (
             <div
               key={key}
-              className={`diagnostic-row ${diagnostic.severity}${isSelected ? " selected" : ""}`}
-              // A native option cannot contain the required remediation disclosure.
-              // biome-ignore lint/a11y/useSemanticElements: This rich option supports row actions and expanded content.
-              role="option"
-              aria-selected={isSelected}
-              tabIndex={index === 0 ? 0 : -1}
-              onClick={() => onSelectDiagnostic(diagnostic)}
-              onKeyDown={(event) => {
-                if (event.key !== "Enter" && event.key !== " ") return;
-                event.preventDefault();
-                onSelectDiagnostic(diagnostic);
-              }}
+              className={`diagnostic-row-wrapper${diagnostic.remediation ? " has-remediation" : ""}`}
             >
-              <span
-                className={`diagnostic-severity-marker ${diagnostic.severity}`}
-                aria-label={diagnostic.severity}
-              />
-              <span className="diagnostic-message">{diagnostic.message}</span>
-              <span className="diagnostic-code">{diagnostic.code}</span>
-              <span className="diagnostic-line">
-                Line {diagnostic.span.start.line}
-              </span>
+              <div
+                className={`diagnostic-row ${diagnostic.severity}${isSelected ? " selected" : ""}`}
+                // A native option cannot express the required compact diagnostic metadata.
+                // biome-ignore lint/a11y/useSemanticElements: This option participates in a composite listbox.
+                role="option"
+                aria-selected={isSelected}
+                tabIndex={-1}
+                onClick={() => onSelectDiagnostic(diagnostic)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" && event.key !== " ") return;
+                  event.preventDefault();
+                  onSelectDiagnostic(diagnostic);
+                }}
+              >
+                <span
+                  className={`diagnostic-severity-marker ${diagnostic.severity}`}
+                  aria-label={diagnostic.severity}
+                />
+                <span className="diagnostic-message">{diagnostic.message}</span>
+                <span className="diagnostic-code">{diagnostic.code}</span>
+                <span className="diagnostic-line">
+                  Line {diagnostic.span.start.line}
+                </span>
+              </div>
               {diagnostic.remediation ? (
                 <>
                   <button
@@ -169,11 +201,6 @@ export function DiagnosticsDrawer({
                     className="diagnostic-remediation-toggle"
                     aria-expanded={isExpanded}
                     onClick={(event) => toggleRemediation(event, key)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.stopPropagation();
-                      }
-                    }}
                   >
                     {isExpanded ? "Hide remediation" : "Show remediation"}
                   </button>

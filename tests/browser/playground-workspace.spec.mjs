@@ -14,6 +14,16 @@ subnet second {
 const ERROR_SOURCE = `provider gcp
 region broken {
   node: gke`;
+const SECOND_ERROR_SOURCE = `provider aws
+vpc incomplete {
+  api: ecs`;
+const CLEAN_SOURCE = `provider aws
+api: ecs`;
+const MIXED_SOURCE = `provider aws
+subnet orphan {
+  api: ecs
+}
+source -[streams]-> sink`;
 
 test("uses the operations-console visual foundation", async ({ page }) => {
   await page.goto("/");
@@ -169,9 +179,20 @@ test("keeps warnings quiet and opens diagnostics for errors", async ({
 
   await editor.fill(ERROR_SOURCE);
   await expect(page.getByRole("dialog", { name: "Diagnostics" })).toBeVisible();
+  await expect(editor).toBeFocused();
+
+  await page.getByRole("button", { name: "Close diagnostics" }).click();
+  await editor.fill(SECOND_ERROR_SOURCE);
+  await expect(page.getByRole("dialog", { name: "Diagnostics" })).toHaveCount(
+    0,
+  );
+
+  await editor.fill(CLEAN_SOURCE);
   await expect(
-    page.getByRole("dialog", { name: "Diagnostics" }),
-  ).not.toBeFocused();
+    page.getByRole("button", { name: /error.*open diagnostics/ }),
+  ).toHaveCount(0);
+  await editor.fill(ERROR_SOURCE);
+  await expect(page.getByRole("dialog", { name: "Diagnostics" })).toBeVisible();
 });
 
 test("filters and navigates compact diagnostic rows", async ({ page }) => {
@@ -185,7 +206,18 @@ test("filters and navigates compact diagnostic rows", async ({ page }) => {
   ).toBeVisible();
   const row = drawer.getByRole("option").first();
   await row.focus();
-  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  await expect(page.getByRole("textbox")).toBeFocused();
+  await expect
+    .poll(() =>
+      page.getByRole("textbox").evaluate((element) => ({
+        start: element.selectionStart,
+        end: element.selectionEnd,
+      })),
+    )
+    .toEqual({ start: 0, end: 0 });
+  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await row.focus();
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(page.getByRole("button", { name: /warning/ })).toBeFocused();
@@ -204,21 +236,65 @@ test("moves diagnostic focus and expands remediation without selecting", async (
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
   const rows = drawer.getByRole("option");
   await expect(rows).toHaveCount(2);
-  await rows.first().focus();
+  await page.getByRole("button", { name: "Close diagnostics" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(rows.first()).toBeFocused();
   await page.keyboard.press("ArrowDown");
   await expect(rows.nth(1)).toBeFocused();
 
-  const remediation = rows.nth(1).getByRole("button", {
-    name: "Show remediation",
-  });
+  await expect(rows.nth(1).getByRole("button")).toHaveCount(0);
+  const remediation = drawer
+    .getByRole("button", {
+      name: "Show remediation",
+    })
+    .nth(1);
   await remediation.click();
   await expect(rows.nth(1)).toHaveAttribute("aria-selected", "false");
   await expect(
-    rows.nth(1).getByText(/Nest the subnet block inside a vpc block/),
+    drawer.getByText(/Nest the subnet block inside a vpc block/),
   ).toBeVisible();
 
-  await rows.nth(1).getByRole("button", { name: "Hide remediation" }).focus();
+  await drawer.getByRole("button", { name: "Hide remediation" }).focus();
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
   await expect(trigger).toBeFocused();
+});
+
+test("changes diagnostic filters and synchronizes source-only diagnostics", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const editor = page.getByRole("textbox");
+  await editor.fill(MIXED_SOURCE);
+  await page
+    .getByRole("button", { name: /1 warning, open diagnostics/ })
+    .click();
+
+  const drawer = page.getByRole("dialog", { name: "Diagnostics" });
+  await expect(drawer.getByRole("option")).toHaveCount(1);
+  await drawer.getByRole("button", { name: "Info", exact: true }).click();
+  await expect(drawer.getByRole("option")).toHaveCount(4);
+  await expect(
+    drawer.getByText(/CM-SEM-UNKNOWN-RESOURCE/).first(),
+  ).toBeVisible();
+  await expect(
+    drawer.getByText(/AWS-NETWORKING-SUBNET-CONTAINMENT-001/),
+  ).toHaveCount(0);
+
+  await editor.fill(ERROR_SOURCE);
+  const errorDrawer = page.getByRole("dialog", { name: "Diagnostics" });
+  await expect(errorDrawer.getByText(/CM-PARSE-MISSING-BRACE/)).toBeVisible();
+  const sourceOnlyRow = errorDrawer.getByRole("option").first();
+  await sourceOnlyRow.focus();
+  await page.keyboard.press("Space");
+  await expect(editor).toBeFocused();
+  await expect
+    .poll(() =>
+      editor.evaluate((element) => ({
+        start: element.selectionStart,
+        end: element.selectionEnd,
+      })),
+    )
+    .toEqual({ start: 0, end: 0 });
+  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(0);
 });

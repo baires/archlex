@@ -6,15 +6,19 @@ import {
   type DiagnosticFilter,
   DiagnosticsDrawer,
 } from "./components/DiagnosticsDrawer.js";
-import { Editor } from "./components/Editor.js";
+import { Editor, type EditorSelection } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { Workspace } from "./components/Workspace.js";
 import {
+  type RenderIssue,
+  createRenderIssue,
+  summarizeStatusDiagnostics,
+} from "./components/diagnostics-state.js";
+import {
   DEFAULT_SPLIT_RATIO,
   clampSplitRatio,
   shouldAutoOpenDiagnostics,
-  summarizeDiagnostics,
 } from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 
@@ -90,16 +94,21 @@ export function App() {
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
   const [diagnosticFilter, setDiagnosticFilter] =
     useState<DiagnosticFilter>("all");
+  const [editorSelection, setEditorSelection] =
+    useState<EditorSelection | null>(null);
 
   const [currentSvg, setCurrentSvg] = useState<string>("");
   const [diagnostics, setDiagnostics] = useState<readonly Diagnostic[]>([]);
+  const [renderIssue, setRenderIssue] = useState<RenderIssue | null>(null);
   const [isRendering, setIsRendering] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [operationMessage, setOperationMessage] =
     useState<OperationMessage>(null);
   const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
   const renderStartedAtRef = useRef(0);
-  const previousSummaryRef = useRef(summarizeDiagnostics([]));
+  const previousSummaryRef = useRef(summarizeStatusDiagnostics([], null));
+  const lastSuccessfulDiagnosticsRef = useRef<readonly Diagnostic[]>([]);
+  const selectionRequestRef = useRef(0);
   const diagnosticsTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   // 1. Persist to LocalStorage
@@ -156,7 +165,10 @@ export function App() {
         })
         .then((result) => {
           if (controller.signal.aborted) return;
-          const nextSummary = summarizeDiagnostics(result.diagnostics);
+          const nextSummary = summarizeStatusDiagnostics(
+            result.diagnostics,
+            null,
+          );
           if (
             shouldAutoOpenDiagnostics(previousSummaryRef.current, nextSummary)
           ) {
@@ -164,8 +176,10 @@ export function App() {
             setIsDiagnosticsOpen(true);
           }
           previousSummaryRef.current = nextSummary;
+          lastSuccessfulDiagnosticsRef.current = result.diagnostics;
           setCurrentSvg(result.svg);
           setDiagnostics(result.diagnostics);
+          setRenderIssue(null);
           setRenderDurationMs(
             Math.round(performance.now() - renderStartedAtRef.current),
           );
@@ -173,10 +187,19 @@ export function App() {
         })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
-          setOperationMessage({
-            tone: "error",
-            text: error instanceof Error ? error.message : "Render error",
-          });
+          const issue = createRenderIssue(error);
+          const nextSummary = summarizeStatusDiagnostics(
+            lastSuccessfulDiagnosticsRef.current,
+            issue,
+          );
+          if (
+            shouldAutoOpenDiagnostics(previousSummaryRef.current, nextSummary)
+          ) {
+            setDiagnosticFilter("error");
+            setIsDiagnosticsOpen(true);
+          }
+          previousSummaryRef.current = nextSummary;
+          setRenderIssue(issue);
           setIsRendering(false);
         });
     }, 150);
@@ -196,6 +219,7 @@ export function App() {
   const handleSelectExample = (example: ArchitectureExample) => {
     setSource(example.source);
     setSelectedId(null);
+    setEditorSelection(null);
   };
 
   const handleCopySvg = async () => {
@@ -245,7 +269,16 @@ export function App() {
     setIsDiagnosticsOpen(true);
   };
 
-  const summary = summarizeDiagnostics(diagnostics);
+  const handleSelectDiagnostic = (diagnostic: Diagnostic) => {
+    selectionRequestRef.current += 1;
+    setSelectedId(diagnostic.elements[0] ?? null);
+    setEditorSelection({
+      span: diagnostic.span,
+      requestId: selectionRequestRef.current,
+    });
+  };
+
+  const summary = summarizeStatusDiagnostics(diagnostics, renderIssue);
   const provider = providerFromSource(source);
 
   return (
@@ -274,6 +307,7 @@ export function App() {
             onSourceChange={setSource}
             documentLabel="architecture.cloudmer"
             onCursorChange={setCursor}
+            selection={editorSelection}
           />
         }
         preview={
@@ -288,13 +322,12 @@ export function App() {
           isDiagnosticsOpen ? (
             <DiagnosticsDrawer
               diagnostics={diagnostics}
+              renderIssue={renderIssue}
               filter={diagnosticFilter}
               selectedId={selectedId}
               triggerRef={diagnosticsTriggerRef}
               onFilterChange={setDiagnosticFilter}
-              onSelectDiagnostic={(diagnostic) =>
-                setSelectedId(diagnostic.elements[0] ?? null)
-              }
+              onSelectDiagnostic={handleSelectDiagnostic}
               onClose={() => setIsDiagnosticsOpen(false)}
             />
           ) : null

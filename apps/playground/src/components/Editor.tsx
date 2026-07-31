@@ -1,8 +1,17 @@
+import type { SourceSpan } from "@cloudmer/model";
+import { useEffect, useRef } from "react";
+
+export interface EditorSelection {
+  span: SourceSpan;
+  requestId: number;
+}
+
 interface EditorProps {
   source: string;
   onSourceChange: (newSource: string) => void;
   documentLabel: string;
   onCursorChange: (position: { line: number; column: number }) => void;
+  selection: EditorSelection | null;
 }
 
 export function Editor({
@@ -10,7 +19,25 @@ export function Editor({
   onSourceChange,
   documentLabel,
   onCursorChange,
+  selection,
 }: EditorProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!selection) return;
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = Math.min(selection.span.start.offset, textarea.value.length);
+    const end = Math.min(selection.span.end.offset, textarea.value.length);
+    textarea.focus();
+    textarea.setSelectionRange(start, Math.max(start, end));
+    onCursorChange({
+      line: selection.span.start.line,
+      column: selection.span.start.column,
+    });
+  }, [selection, onCursorChange]);
+
   return (
     <section className="editor-pane" aria-label="CloudMer Source Editor">
       <div className="pane-header">
@@ -20,6 +47,7 @@ export function Editor({
 
       <div className="editor-body">
         <textarea
+          ref={textareaRef}
           id="source"
           className="source-input"
           spellCheck={false}
