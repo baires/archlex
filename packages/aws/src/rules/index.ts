@@ -2,13 +2,33 @@ import type { CloudGraph, Diagnostic, ValidationMode } from "@cloudmer/model";
 import { resolveAwsService } from "../catalog/index.js";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
 
+import { sagemakerVpcPlacementRule } from "./ai-ml.js";
+import {
+  emrVpcPlacementRule,
+  kinesisFirehoseDestinationRule,
+} from "./analytics.js";
 import { lambdaVpcPlacementRule } from "./compute.js";
 import { s3PublicAccessGuidanceRule } from "./data.js";
-import { rdsProxyNetworkRule, subnetContainmentRule } from "./networking.js";
+import { codePipelineStagesRule } from "./devtools.js";
+import {
+  eventBridgeTargetsRule,
+  stepFunctionsTargetsRule,
+} from "./integration.js";
+import {
+  igwAttachmentRule,
+  natGatewayPlacementRule,
+  rdsProxyNetworkRule,
+  subnetContainmentRule,
+  transitGatewayRoutesRule,
+} from "./networking.js";
 import { unattachedIamRoleRule } from "./security.js";
 
+export * from "./ai-ml.js";
+export * from "./analytics.js";
 export * from "./compute.js";
 export * from "./data.js";
+export * from "./devtools.js";
+export * from "./integration.js";
 export * from "./networking.js";
 export * from "./security.js";
 
@@ -40,6 +60,25 @@ export function evaluateAwsRules(
   // Pass 2: Provider Validation Rules
   rawDiagnostics.push(...rdsProxyNetworkRule.validate(graph));
   rawDiagnostics.push(...subnetContainmentRule.validate(graph));
+
+  // Tier 1: Networking Rules
+  rawDiagnostics.push(...natGatewayPlacementRule.validate(graph));
+  rawDiagnostics.push(...igwAttachmentRule.validate(graph));
+  rawDiagnostics.push(...transitGatewayRoutesRule.validate(graph));
+
+  // Tier 2: Integration Rules
+  rawDiagnostics.push(...stepFunctionsTargetsRule.validate(graph));
+  rawDiagnostics.push(...eventBridgeTargetsRule.validate(graph));
+
+  // Tier 2: Analytics Rules
+  rawDiagnostics.push(...kinesisFirehoseDestinationRule.validate(graph));
+  rawDiagnostics.push(...emrVpcPlacementRule.validate(graph));
+
+  // Tier 2: AI/ML Rules
+  rawDiagnostics.push(...sagemakerVpcPlacementRule.validate(graph));
+
+  // Tier 2: DevTools Rules
+  rawDiagnostics.push(...codePipelineStagesRule.validate(graph));
 
   // Pass 3: Architecture Guidance Rules
   rawDiagnostics.push(...lambdaVpcPlacementRule.validate(graph));

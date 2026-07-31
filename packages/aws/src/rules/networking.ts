@@ -88,3 +88,110 @@ export const subnetContainmentRule = defineRule({
     return diagnostics;
   },
 });
+
+// Tier 1: NAT Gateway Placement
+export const natGatewayPlacementRule = defineRule({
+  code: AWS_DIAGNOSTIC_CODES.NAT_GATEWAY_PLACEMENT,
+  severity: "warning",
+  summary:
+    "NAT Gateway should be placed in a public subnet for internet access.",
+  validate(graph: CloudGraph): readonly Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    const natGateways = graph.nodes.filter(
+      (n) => n.serviceKind.toLowerCase() === "nat-gateway",
+    );
+
+    for (const natGw of natGateways) {
+      // Check if NAT Gateway is in a subnet
+      const subnet = graph.scopes.find(
+        (s) => s.kind === "subnet" && s.childrenNodeIds.includes(natGw.id),
+      );
+
+      if (!subnet) {
+        diagnostics.push({
+          code: AWS_DIAGNOSTIC_CODES.NAT_GATEWAY_PLACEMENT,
+          severity: "warning",
+          message: `NAT Gateway '${natGw.label}' should be placed within a subnet scope.`,
+          span: natGw.span,
+          elements: [natGw.id],
+          remediation:
+            "Place NAT Gateway in a public subnet with a route to an Internet Gateway.",
+        });
+      }
+    }
+
+    return diagnostics;
+  },
+});
+
+// Tier 1: Internet Gateway Attachment
+export const igwAttachmentRule = defineRule({
+  code: AWS_DIAGNOSTIC_CODES.IGW_ATTACHMENT,
+  severity: "info",
+  summary: "Internet Gateway should be attached to a VPC.",
+  validate(graph: CloudGraph): readonly Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    const igws = graph.nodes.filter(
+      (n) => n.serviceKind.toLowerCase() === "internet-gateway",
+    );
+
+    for (const igw of igws) {
+      // Check if IGW is in a VPC scope
+      const vpc = graph.scopes.find(
+        (s) => s.kind === "vpc" && s.childrenNodeIds.includes(igw.id),
+      );
+
+      if (!vpc) {
+        diagnostics.push({
+          code: AWS_DIAGNOSTIC_CODES.IGW_ATTACHMENT,
+          severity: "info",
+          message: `Internet Gateway '${igw.label}' should be placed within a VPC scope to indicate attachment.`,
+          span: igw.span,
+          elements: [igw.id],
+          remediation:
+            "Place Internet Gateway inside a vpc block to show VPC attachment.",
+        });
+      }
+    }
+
+    return diagnostics;
+  },
+});
+
+// Tier 1: Transit Gateway Routes
+export const transitGatewayRoutesRule = defineRule({
+  code: AWS_DIAGNOSTIC_CODES.TRANSIT_GATEWAY_ROUTES,
+  severity: "info",
+  summary:
+    "Transit Gateway should have route table associations or connections.",
+  validate(graph: CloudGraph): readonly Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    const tgws = graph.nodes.filter(
+      (n) => n.serviceKind.toLowerCase() === "transit-gateway",
+    );
+
+    for (const tgw of tgws) {
+      // Check if TGW has any connections
+      const hasConnections = graph.edges.some(
+        (e) => e.source === tgw.id || e.target === tgw.id,
+      );
+
+      if (!hasConnections) {
+        diagnostics.push({
+          code: AWS_DIAGNOSTIC_CODES.TRANSIT_GATEWAY_ROUTES,
+          severity: "info",
+          message: `Transit Gateway '${tgw.label}' has no connections. Consider adding route table or VPC attachments.`,
+          span: tgw.span,
+          elements: [tgw.id],
+          remediation:
+            "Connect Transit Gateway to VPCs, VPN connections, or Direct Connect gateways.",
+        });
+      }
+    }
+
+    return diagnostics;
+  },
+});

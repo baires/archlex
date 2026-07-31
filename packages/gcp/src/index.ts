@@ -19,7 +19,7 @@ export function gcpProvider(): CloudProvider {
   return {
     id: "gcp",
     name: "Google Cloud",
-    catalogVersion: "2026-07-29",
+    catalogVersion: "2026-07-31-tier4",
     supports(serviceKind: string): boolean {
       return resolveGcpService(serviceKind) !== undefined;
     },

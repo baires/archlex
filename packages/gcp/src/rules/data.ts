@@ -59,3 +59,38 @@ export const cloudSqlNetworkRule = defineRule({
     return diagnostics;
   },
 });
+
+// Tier 1: AlloyDB Private Service Connect
+export const alloyDbPscRule = defineRule({
+  code: GCP_DIAGNOSTIC_CODES.ALLOYDB_PSC,
+  severity: "info",
+  summary: "AlloyDB should use Private Service Connect for VPC connectivity.",
+  validate(graph: CloudGraph): readonly Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    const alloyDbs = graph.nodes.filter(
+      (n) => n.serviceKind.toLowerCase() === "alloydb",
+    );
+
+    for (const alloyDb of alloyDbs) {
+      // Check if AlloyDB is in a subnet
+      const subnet = graph.scopes.find(
+        (s) => s.kind === "subnet" && s.childrenNodeIds.includes(alloyDb.id),
+      );
+
+      if (!subnet) {
+        diagnostics.push({
+          code: GCP_DIAGNOSTIC_CODES.ALLOYDB_PSC,
+          severity: "info",
+          message: `AlloyDB '${alloyDb.label}' should be placed within a subnet scope to use Private Service Connect.`,
+          span: alloyDb.span,
+          elements: [alloyDb.id],
+          remediation:
+            "Place AlloyDB in a subnet and configure Private Service Connect for VPC connectivity.",
+        });
+      }
+    }
+
+    return diagnostics;
+  },
+});

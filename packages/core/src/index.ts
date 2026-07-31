@@ -166,6 +166,33 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         "routes",
         "replicates",
         "assumes-role",
+        // Tier 1: Core Infrastructure
+        "encrypts",
+        "decrypts",
+        "monitors",
+        "logs",
+        "caches",
+        "proxies",
+        "traces",
+        "alerts",
+        // Tier 2: Application Services
+        "processes",
+        "transforms",
+        "orchestrates",
+        "triggers",
+        "schedules",
+        "streams",
+        "builds",
+        "deploys",
+        "analyzes",
+        // Tier 3: Specialized Services
+        "transcodes",
+        "packages",
+        "migrates",
+        "discovers",
+        "catalogs",
+        "protects",
+        "governs",
       ]);
       const globalNames = new Map<string, string[]>();
 

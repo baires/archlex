@@ -353,4 +353,209 @@ lb -[routes]-> app
 app -[caches]-> cache
 app -[writes]-> cloud-storage`,
   },
+  {
+    id: "aws-media-streaming",
+    title: "Live Video Streaming Pipeline",
+    category: "Media & Streaming",
+    description:
+      "AWS MediaLive ingesting live streams, MediaPackage packaging for delivery, and CloudFront CDN distribution",
+    source: `direction LR
+provider aws
+
+live_input: medialive["Live Video Input"]
+packager: mediapackage
+cdn: cloudfront
+storage: s3
+
+live_input -[transcodes]-> packager
+packager -[packages]-> cdn
+packager -[archives]-> storage`,
+  },
+  {
+    id: "aws-iot-analytics",
+    title: "IoT Data Collection & Analytics",
+    category: "IoT & Edge",
+    description:
+      "IoT Core ingesting device data, IoT Analytics processing streams, and QuickSight visualizing insights",
+    source: `direction LR
+provider aws
+
+devices: iot-core["IoT Devices"]
+analytics: iot-analytics
+warehouse: timestream
+viz: quicksight
+
+devices -[streams]-> analytics
+analytics -[writes]-> warehouse
+warehouse -[analyzes]-> viz`,
+  },
+  {
+    id: "aws-data-lake-etl",
+    title: "Serverless Data Lake ETL Pipeline",
+    category: "Analytics & Data",
+    description:
+      "Kinesis Firehose streaming to S3 Data Lake, Glue ETL transforming data, and Athena querying results",
+    source: `direction LR
+provider aws
+
+stream: kinesis-firehose
+raw_lake: s3["Raw Data Lake"]
+etl: glue
+processed_lake: s3["Processed Data Lake"]
+query: athena
+
+stream -[streams]-> raw_lake
+raw_lake -[transforms]-> etl
+etl -[writes]-> processed_lake
+processed_lake -[queries]-> query`,
+  },
+  {
+    id: "aws-migration-workflow",
+    title: "Database Migration to Cloud",
+    category: "Migration & Hybrid",
+    description:
+      "DMS migrating on-premises database to Aurora, with Application Discovery mapping dependencies",
+    source: `direction LR
+provider aws
+
+discovery: application-discovery
+on_prem_db: rds["On-Premises DB"]
+migration: dms
+target_db: aurora["Aurora Cluster"]
+app: ecs
+
+discovery -[discovers]-> on_prem_db
+on_prem_db -[migrates]-> migration
+migration -[writes]-> target_db
+app -[connects]-> target_db`,
+  },
+  {
+    id: "aws-cicd-pipeline",
+    title: "Complete CI/CD Deployment Pipeline",
+    category: "DevOps & CI/CD",
+    description:
+      "CodePipeline orchestrating CodeBuild, CodeDeploy to ECS, with CloudFormation infrastructure",
+    source: `direction LR
+provider aws
+
+repo: codecommit
+pipeline: codepipeline
+build: codebuild
+registry: ecr
+deploy: codedeploy
+infra: cloudformation
+cluster: ecs
+
+repo -[triggers]-> pipeline
+pipeline -[orchestrates]-> build
+build -[builds]-> registry
+pipeline -[orchestrates]-> deploy
+deploy -[deploys]-> cluster
+pipeline -[orchestrates]-> infra`,
+  },
+  {
+    id: "gcp-ai-document-processing",
+    title: "AI-Powered Document Processing",
+    category: "Google Cloud AI",
+    description:
+      "Document AI extracting data from uploads, Natural Language AI analyzing content, stored in Firestore",
+    source: `direction LR
+provider gcp
+
+uploads: cloud-storage["Document Uploads"]
+doc_ai: document-ai
+nlp: natural-language-ai
+database: firestore
+search: cloud-search
+
+uploads -[triggers]-> doc_ai
+doc_ai -[analyzes]-> nlp
+nlp -[writes]-> database
+database -[indexes]-> search`,
+  },
+  {
+    id: "gcp-data-warehouse",
+    title: "Modern Data Warehouse with Dataflow",
+    category: "Google Cloud Analytics",
+    description:
+      "Pub/Sub streaming to Dataflow for transformation, loading into BigQuery, visualized by Looker",
+    source: `direction LR
+provider gcp
+
+events: pubsub["Event Stream"]
+transform: dataflow
+warehouse: bigquery
+viz: looker
+govern: dataplex
+
+events -[streams]-> transform
+transform -[processes]-> warehouse
+warehouse -[analyzes]-> viz
+warehouse -[governs]-> dataplex`,
+  },
+  {
+    id: "gcp-hybrid-anthos",
+    title: "Hybrid Cloud with Anthos",
+    category: "Google Cloud Hybrid",
+    description:
+      "GKE Enterprise (Anthos) managing clusters across GCP, on-premises VMware, and AWS environments",
+    source: `direction LR
+provider gcp
+
+control_plane: gke-enterprise["Anthos Control Plane"]
+gcp_cluster: gke["GCP GKE"]
+vmware_cluster: anthos-vmware["On-Prem VMware"]
+aws_cluster: anthos-aws["AWS EKS"]
+config: config-connector
+
+control_plane -[orchestrates]-> gcp_cluster
+control_plane -[orchestrates]-> vmware_cluster
+control_plane -[orchestrates]-> aws_cluster
+control_plane -[manages]-> config`,
+  },
+  {
+    id: "gcp-retail-recommendations",
+    title: "E-Commerce Recommendations Engine",
+    category: "Google Cloud Retail",
+    description:
+      "Retail API serving product catalog, Recommendations AI generating personalized suggestions to customers",
+    source: `direction LR
+provider gcp
+
+catalog: retail-api["Product Catalog"]
+recommendations: recommendations-ai
+user_events: pubsub["User Events"]
+frontend: cloud-run
+cache: memorystore
+
+user_events -[streams]-> recommendations
+catalog -[feeds]-> recommendations
+recommendations -[caches]-> cache
+frontend -[reads]-> cache
+frontend -[queries]-> catalog`,
+  },
+  {
+    id: "gcp-healthcare-compliance",
+    title: "HIPAA-Compliant Healthcare Data Platform",
+    category: "Google Cloud Healthcare",
+    description:
+      "Healthcare API storing medical records, Cloud DLP protecting sensitive data, Assured Workloads ensuring compliance",
+    source: `direction LR
+provider gcp
+
+account healthcare-org {
+  compliance: assured-workloads["Compliance Controls"]
+
+  region us-central1 {
+    healthcare: cloud-healthcare-api["Medical Records"]
+    protection: dlp["Data Protection"]
+    audit: cloud-logging["Audit Logs"]
+    encryption: cloud-kms
+
+    healthcare -[protects]-> protection
+    healthcare -[encrypts]-> encryption
+    healthcare -[logs]-> audit
+  }
+}`,
+  },
 ];

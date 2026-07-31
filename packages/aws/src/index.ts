@@ -19,7 +19,7 @@ export function awsProvider(): CloudProvider {
   return {
     id: "aws",
     name: "Amazon Web Services",
-    catalogVersion: "2026-07-27",
+    catalogVersion: "2026-07-31-tier4",
     supports(serviceKind: string): boolean {
       return resolveAwsService(serviceKind) !== undefined;
     },

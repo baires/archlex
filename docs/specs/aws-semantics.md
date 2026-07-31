@@ -34,6 +34,49 @@ Unknown resources become generic AWS nodes and emit `AWS-CATALOG-UNKNOWN-RESOURC
 - Identity: IAM role.
 - Edge/DNS: CloudFront and Route 53.
 
+## Extended coverage (Tier 1-3)
+
+**Tier 1: Core Infrastructure** (39 services)
+- Networking: VPC Endpoints, NAT Gateway, Internet Gateway, Transit Gateway, Direct Connect, PrivateLink, Network Firewall, Global Accelerator
+- Compute: App Runner, Batch, Fargate
+- Storage: EFS, FSx (Windows/Lustre), EBS, Glacier, Storage Gateway
+- Database: Aurora, Neptune, DocumentDB, Timestream, Keyspaces
+- Security: WAF, Shield, Secrets Manager, KMS, ACM, GuardDuty
+- Monitoring: CloudWatch (Logs/Metrics/Alarms), X-Ray, CloudTrail, Systems Manager
+
+**Tier 2: Application Services** (48 services)
+- Integration: Step Functions, AppFlow, AppSync, MQ, MSK, EventBridge extensions
+- Analytics: Kinesis (Streams/Firehose/Analytics), EMR, Glue, Athena, Redshift, QuickSight, OpenSearch, Data Pipeline
+- AI/ML: SageMaker, Bedrock, Rekognition, Comprehend, Translate, Polly, Transcribe, Lex, Kendra, Forecast
+- Developer Tools: CodePipeline, CodeBuild, CodeDeploy, CodeCommit, Cloud9, CodeArtifact, CodeGuru
+- Containers: ECR, ECS Anywhere, EKS Add-ons, App Mesh, Copilot
+- Serverless: Lambda@Edge, Lambda Layers, SAM, Application Composer
+
+**Tier 3: Specialized Services** (55 services)
+- IoT: IoT Core, IoT Analytics, IoT Events, IoT Greengrass, IoT SiteWise, IoT TwinMaker, Monitron, Panorama
+- Media: MediaLive, MediaConvert, MediaPackage, MediaConnect, MediaTailor, IVS, Kinesis Video Streams, MediaStore
+- Gaming: GameLift, GameSparks
+- End User Computing: WorkSpaces, AppStream 2.0, WorkDocs, WorkLink, WorkMail
+- Contact Center: Amazon Connect (with Customer Profiles and Voice ID)
+- Business Applications: Chime, Honeycode, WorkSpaces Web, Wickr
+- Blockchain: Managed Blockchain, QLDB
+- Robotics & AR/VR: RoboMaker, Sumerian, IoT RoboRunner
+- Migration: DMS, SMS, DataSync, Transfer Family, Migration Hub, Application Discovery, Application Migration, Migration Evaluator, CloudEndure, Mainframe Modernization
+- Supply Chain: Supply Chain, Private 5G
+- Additional Compute: Elastic Beanstalk, Lightsail, SimSpace Weaver, Compute Optimizer
+
+**Tier 4: Edge Cases & Legacy** (35 services)
+- Edge/Hybrid: AWS Outposts (Rack/Server), Snow Family (Snowball/Snowmobile/Snowcone), AWS Wavelength, Local Zones
+- Satellite: AWS Ground Station
+- Quantum: Amazon Braket
+- Legacy Services: SimpleDB, OpsWorks (Stacks/Chef Automate)
+- Monitoring & Management: Managed Grafana, Managed Prometheus, CloudFormation, Service Catalog, Config, Control Tower, Organizations
+- Networking: Cloud Map, App Mesh (legacy, moved from Tier 2), Route 53 Resolver, VPC Lattice
+- Security & Compliance: Audit Manager, Artifact, Detective, Inspector
+- Cost Management: Cost Explorer, Budgets, Cost and Usage Report, Savings Plans
+
+**Total Coverage**: ~210 services (Catalog version: `2026-07-31-tier4`)
+
 Catalog entries may precede deep semantic rules. They render with official imagery and produce `info` only when placement or a relationship cannot be evaluated.
 
 ## Relationships and validation

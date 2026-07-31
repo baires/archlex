@@ -2,10 +2,24 @@ import type { CloudGraph, Diagnostic, ValidationMode } from "@cloudmer/model";
 import { resolveGcpService } from "../catalog/index.js";
 import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
 
-import { cloudSqlNetworkRule } from "./data.js";
-import { subnetContainmentRule } from "./networking.js";
+import { aiPlatformVpcPlacementRule } from "./ai-ml.js";
+import { dataprocVpcPlacementRule } from "./analytics.js";
+import { gkeAutopilotConfigRule } from "./containers.js";
+import { alloyDbPscRule, cloudSqlNetworkRule } from "./data.js";
+import { iapBackendRule } from "./identity.js";
+import { eventarcTargetsRule, workflowsTargetsRule } from "./integration.js";
+import {
+  cloudNatVpcRule,
+  filestoreVpcRule,
+  subnetContainmentRule,
+} from "./networking.js";
 
+export * from "./ai-ml.js";
+export * from "./analytics.js";
+export * from "./containers.js";
 export * from "./data.js";
+export * from "./identity.js";
+export * from "./integration.js";
 export * from "./networking.js";
 
 export function evaluateGcpRules(
@@ -36,8 +50,29 @@ export function evaluateGcpRules(
   // Pass 2: Provider Validation Rules
   rawDiagnostics.push(...subnetContainmentRule.validate(graph));
 
+  // Tier 1: Networking Rules
+  rawDiagnostics.push(...cloudNatVpcRule.validate(graph));
+  rawDiagnostics.push(...filestoreVpcRule.validate(graph));
+
+  // Tier 2: Integration Rules
+  rawDiagnostics.push(...workflowsTargetsRule.validate(graph));
+  rawDiagnostics.push(...eventarcTargetsRule.validate(graph));
+
+  // Tier 2: Analytics Rules
+  rawDiagnostics.push(...dataprocVpcPlacementRule.validate(graph));
+
+  // Tier 2: AI/ML Rules
+  rawDiagnostics.push(...aiPlatformVpcPlacementRule.validate(graph));
+
+  // Tier 2: Identity Rules
+  rawDiagnostics.push(...iapBackendRule.validate(graph));
+
+  // Tier 2: Container Rules
+  rawDiagnostics.push(...gkeAutopilotConfigRule.validate(graph));
+
   // Pass 3: Architecture Guidance Rules
   rawDiagnostics.push(...cloudSqlNetworkRule.validate(graph));
+  rawDiagnostics.push(...alloyDbPscRule.validate(graph));
 
   // Policy Mode Handling: strict promotes warnings to errors
   if (mode === "strict") {

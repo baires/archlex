@@ -45,6 +45,53 @@ Official GCP SVGs carry presentational CSS in `<style>` blocks. The import scrip
 - Analytics/AI: BigQuery, Vertex AI.
 - Identity/security: IAM, Secret Manager.
 
+## Extended coverage (Tier 1-3)
+
+**Tier 1: Core Infrastructure** (37 services)
+- Networking: Cloud NAT, Cloud VPN, Cloud Interconnect, Private Service Connect, Cloud Router, VPC Service Controls, Firewall, Cloud Armor, Network Endpoint Groups, Cloud Domains
+- Compute: Cloud Workstations, Batch, App Engine, Cloud Shell
+- Storage: Persistent Disk, Filestore, Archive Storage, Transfer Service, Transfer Appliance
+- Database: AlloyDB, Memorystore for Memcached, Cloud Datastore
+- Security: Cloud KMS, Security Command Center, Binary Authorization, Certificate Manager, Cloud HSM, reCAPTCHA Enterprise, Web Risk, Identity Platform
+- Monitoring: Cloud Monitoring, Cloud Logging, Cloud Trace, Cloud Profiler, Error Reporting, Cloud Debugger, Cloud Operations
+
+**Tier 2: Application Services** (53 services)
+- Integration: Cloud Scheduler, Workflows, Eventarc, Cloud Composer (Airflow), Apigee
+- Analytics: Dataproc, Dataform, Looker, Data Fusion, Dataplex, Datastream, Pub/Sub Lite, Analytics Hub
+- AI/ML: AI Platform, AutoML, Recommendations AI, Vision AI, Natural Language AI, Speech-to-Text, Text-to-Speech, Translation AI, Document AI, Video Intelligence, Dialogflow, Contact Center AI
+- Developer Tools: Cloud Build, Cloud Deploy, Artifact Registry, Source Repositories, Cloud Code, Cloud SDK, Skaffold
+- Containers: GKE Autopilot, GKE Enterprise (Anthos), Container Registry, Cloud Run Jobs, Anthos Service Mesh
+- API Management: Cloud Endpoints, API Gateway, Apigee Hybrid, Apigee X
+- Identity & Access: Cloud Identity, IAP, Access Context Manager, Managed AD, Cloud Identity Engine, Workforce Identity Federation
+
+**Tier 3: Specialized Services** (52 services)
+- IoT: Cloud IoT Core (legacy)
+- Media: Transcoder API, Video Intelligence API, Live Stream API, Media CDN
+- Gaming: Game Servers (Agones), Google Play Games Services
+- Business Applications: Chrome Enterprise, Cloud Search, Google Workspace APIs, AppSheet
+- Specialized Compute: Bare Metal Solution, VMware Engine, Anthos on VMware/AWS/Azure
+- Migration: Database Migration Service, Migrate for Compute Engine, Migrate for Anthos, BigQuery Data Transfer Service, Cloud Data Transfer, Rapid Migration Assessment
+- API Management Extended: Cloud Endpoints Service Management, Service Control, Service Infrastructure
+- Identity Extended: Cloud Identity Premium, Context-Aware Access, BeyondCorp Enterprise, Assured Workloads
+- Healthcare & Life Sciences: Cloud Healthcare API, Cloud Life Sciences, Medical Imaging Suite
+- Retail & Commerce: Retail API, Discovery AI for Retail
+- Security Extended: Chronicle Security Operations, Cloud Asset Inventory, Policy Intelligence, Risk Manager
+- Networking Extended: Network Intelligence Center, Network Connectivity Center, Traffic Director, Service Directory
+- Management Tools: Cloud Deployment Manager, Config Connector, Cloud Billing API, Recommender, Active Assist
+- Data Governance: Data Catalog, Cloud Data Loss Prevention, Sensitive Data Protection
+
+**Tier 4: Edge Cases & Emerging Services** (30 services)
+- Edge/Hybrid: Distributed Cloud Edge, Distributed Cloud Hosted, Edge TPU, Google Distributed Cloud Virtual
+- Maps & Location: Google Maps Platform, Places API, Routes API, Geocoding API, Street View API
+- Content & Media: YouTube Data API
+- AI/ML Extended: Dialogflow CX, Contact Center AI Platform, Cloud Talent Solution
+- Security Extended: Chronicle SOAR
+- Management & Governance: Cloud Foundation Toolkit, Cloud Resource Manager, Cloud Billing Budget, Cloud Quotas, Infrastructure Manager, Policy Simulator
+- Collaboration & Productivity: Google Workspace, Gmail API, Calendar API, Drive API
+- Testing & QA: Firebase Test Lab, Cloud Testing
+
+**Total Coverage**: ~212 services (Catalog version: `2026-07-31-tier4`)
+
 Catalog entries may precede deep semantic rules. They render with official imagery and produce `info` only when placement or a relationship cannot be evaluated.
 
 Containment uses the provider-agnostic grammar scopes (`account`, `region`, `vpc`, `subnet`): a GCP `account` scope models an organization or folder, and GCP VPC/subnet blocks model VPC networks and subnets.
