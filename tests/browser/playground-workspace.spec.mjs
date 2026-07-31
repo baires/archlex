@@ -40,3 +40,48 @@ test("groups infrequent actions without hiding core configuration", async ({
   await page.keyboard.press("Escape");
   await expect(page.getByRole("menuitem", { name: "Copy SVG" })).toHaveCount(0);
 });
+
+test("keeps the command bar compact and supports Export menu keyboard navigation", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const commandBar = page.getByRole("banner");
+  const commandBarHeight = await commandBar.evaluate(
+    (element) => element.getBoundingClientRect().height,
+  );
+  expect(commandBarHeight).toBeGreaterThanOrEqual(44);
+  expect(commandBarHeight).toBeLessThanOrEqual(48);
+
+  const exportTrigger = page.getByRole("button", { name: "Export" });
+  await expect(exportTrigger).toBeEnabled();
+  await exportTrigger.click();
+
+  const copySvg = page.getByRole("menuitem", { name: "Copy SVG" });
+  const downloadSvg = page.getByRole("menuitem", { name: "Download SVG" });
+  await expect(copySvg).toBeFocused();
+
+  await page.keyboard.press("ArrowDown");
+  await expect(downloadSvg).toBeFocused();
+  await page.keyboard.press("Home");
+  await expect(copySvg).toBeFocused();
+  await page.keyboard.press("End");
+  await expect(downloadSvg).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(exportTrigger).toBeFocused();
+  await expect(copySvg).toHaveCount(0);
+});
+
+test("retains the current SVG while a command change is rendering", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const renderedSvg = page.locator("svg[data-cloudmer-version]");
+  await expect(renderedSvg).toBeVisible();
+
+  await page.getByLabel("Layout direction").selectOption("TB");
+  await expect(page.locator(".render-metadata")).toContainText("Rendering");
+  await expect(renderedSvg).toBeVisible();
+  await expect(page.locator(".render-metadata")).toContainText("Ready");
+});
