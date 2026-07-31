@@ -212,7 +212,6 @@ test("uses the operations-console visual foundation", async ({ page }) => {
     }))).join("\n"),
   );
   expect(styles).not.toMatch(/backdrop-filter|linear-gradient|radial-gradient/);
-  await expect(page.locator(".toolbar")).toHaveCount(0);
 });
 ```
 
@@ -337,6 +336,7 @@ test("groups infrequent actions without hiding core configuration", async ({ pag
   await expect(page.getByLabel("Example")).toBeVisible();
   await expect(page.getByLabel("Layout direction")).toBeVisible();
   await expect(page.getByLabel("Validation mode")).toBeVisible();
+  await expect(page.locator(".toolbar")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Export" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy SVG" })).toHaveCount(0);
 
