@@ -31,6 +31,22 @@ An implicit resource uses its type as local instance ID. Repeated implicit occur
 
 Stable graph IDs contain containment path plus local instance ID, not source offsets. Reordering within a scope does not change identity.
 
+## Display labels
+
+Any resource may carry a quoted display label after its kind:
+
+```cloudmer
+primary: rds["Primary DB"]
+replica: rds["Read Replica"]
+sqs["Ingest Queue"]
+primary -[replicates]-> replica
+```
+
+The label replaces the default card text: the visible label is the display label when present, otherwise the instance name, otherwise the service display name. The service name remains in the node's accessible name (`"Primary DB (Amazon RDS)"`). Chain nodes accept the same syntax, so `rds["Primary"] > ecs["App"]` labels both endpoints.
+
+The first display label encountered wins: named declarations are processed before relationships, and within one phase document order applies. A later, different label for the same instance is ignored and emits informational `CM-STRUCT-CONFLICTING-LABEL`. An empty or whitespace-only label is treated as absent.
+
+
 ## Containment
 
 ```cloudmer
@@ -61,7 +77,7 @@ a ->|PostgreSQL/TLS| b
 a -[writes]->|PostgreSQL/TLS| b
 ```
 
-`>` is sugar for `->`. Forward, reverse, bidirectional, undirected, and dotted forms preserve their shown semantics. `-[kind]->` carries a machine-readable identifier; `->|label|` carries presentation text. Labels are unquoted text up to the next unescaped `|`, or quoted strings. Chains are left-associative: `a > b > c` creates two edges. Relationship direction controls semantics and arrowheads; document direction controls placement only.
+`>` is sugar for `->`. Forward, reverse, bidirectional, undirected, and dotted forms preserve their shown semantics. `-[kind]->` carries a machine-readable identifier; `->|label|` carries presentation text. Labels are unquoted text up to the next unescaped `|`, or quoted strings. Chains are left-associative: `a > b > c` creates two edges. Relationship direction controls semantics and arrowheads; document direction controls placement only. Chain nodes may carry display labels: `rds["Primary"] > ecs["App"]`.
 
 ## AST and recovery
 

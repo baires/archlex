@@ -32,12 +32,14 @@ export interface ResourceAst extends StatementAst {
   type: "resource";
   kind: string;
   name?: string;
+  displayLabel?: string;
   attributes?: Record<string, string>;
 }
 
 export interface ChainNodeAst {
   kind: string;
   name?: string;
+  displayLabel?: string;
   span: SourceSpan;
 }
 
@@ -87,6 +89,7 @@ export interface CloudNode {
   serviceKind: string;
   name?: string;
   label: string;
+  accessibleName?: string;
   iconKey?: string;
   icon?: string;
   span: SourceSpan;
@@ -123,6 +126,7 @@ export interface LayoutNode {
   width: number;
   height: number;
   label: string;
+  accessibleName?: string;
   iconKey?: string;
   icon?: string;
   children?: readonly LayoutNode[];
@@ -278,3 +282,5 @@ export class CloudMerInternalError extends Error {
     this.name = "CloudMerInternalError";
   }
 }
+
+export * from "./labels.js";

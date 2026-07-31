@@ -113,7 +113,7 @@ test("every supported relationship arrow round-trips with an XML-safe internal I
   }
 });
 
-test("repeated provider icons mount with unique local IDs and resolved references", async ({
+test("shared provider icons mount with unique local IDs and resolved references", async ({
   page,
 }) => {
   await page.goto("/");
@@ -168,12 +168,14 @@ test("repeated provider icons mount with unique local IDs and resolved reference
           error: "",
           providerIds,
           references,
+          symbolCount: mounted.querySelectorAll("symbol").length,
         };
       } catch (caught) {
         return {
           error: caught instanceof Error ? caught.message : String(caught),
           providerIds: [],
           references: [],
+          symbolCount: 0,
         };
       } finally {
         container.remove();
@@ -183,7 +185,10 @@ test("repeated provider icons mount with unique local IDs and resolved reference
   );
 
   expect(result.error).toBe("");
-  expect(result.providerIds).toHaveLength(4);
+  // Identical artwork is deduplicated into one shared symbol: the symbol id
+  // plus its two namespaced internal ids (paint, shape).
+  expect(result.symbolCount).toBe(1);
+  expect(result.providerIds).toHaveLength(3);
   expect(new Set(result.providerIds).size).toBe(result.providerIds.length);
   for (const reference of result.references) {
     const id = reference?.replace(/^url\(#|^#|\)$/g, "");

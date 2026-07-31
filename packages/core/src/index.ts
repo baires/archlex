@@ -174,6 +174,7 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         kind: string,
         name: string | undefined,
         span: CloudNode["span"],
+        displayLabel?: string,
       ): CloudNode => {
         const [qualifiedProvider, qualifiedKind] = kind.includes(".")
           ? kind.split(".", 2)
@@ -181,12 +182,18 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         const nodeProvider = providerMap.get(qualifiedProvider ?? providerId);
         const serviceKind = qualifiedKind ?? kind;
         const service = nodeProvider?.resolveService(serviceKind);
+        const label =
+          displayLabel ?? name ?? service?.displayName ?? serviceKind;
         const node = {
           id,
           provider: qualifiedProvider ?? providerId,
           serviceKind: service?.id ?? serviceKind,
           name,
-          label: service?.displayName ?? name ?? serviceKind,
+          label,
+          accessibleName:
+            service?.displayName && service.displayName !== label
+              ? `${label} (${service.displayName})`
+              : undefined,
           iconKey: service?.iconKey,
           icon: service?.iconSvg,
           span,
@@ -201,6 +208,51 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           });
         }
         return node;
+      };
+
+      const nodeDisplayLabels = new Map<
+        string,
+        { value: string; span: CloudNode["span"] }
+      >();
+      const applyDisplayLabel = (
+        id: string,
+        displayLabel: string | undefined,
+        span: CloudNode["span"],
+      ) => {
+        if (!displayLabel) return;
+        const node = nodesMap.get(id);
+        if (!node) return;
+        const existing = nodeDisplayLabels.get(id);
+        if (existing) {
+          if (existing.value !== displayLabel) {
+            diagnostics.push({
+              code: "CM-STRUCT-CONFLICTING-LABEL",
+              severity: "info",
+              message: `Conflicting display label '${displayLabel}' is ignored; '${existing.value}' was applied first.`,
+              span,
+              related: [
+                {
+                  message: "First display label for this resource.",
+                  span: existing.span,
+                },
+              ],
+              elements: [id],
+            });
+          }
+          return;
+        }
+        nodeDisplayLabels.set(id, { value: displayLabel, span });
+        const serviceDisplayName = providerMap
+          .get(node.provider)
+          ?.resolveService(node.serviceKind)?.displayName;
+        nodesMap.set(id, {
+          ...node,
+          label: displayLabel,
+          accessibleName:
+            serviceDisplayName && serviceDisplayName !== displayLabel
+              ? `${displayLabel} (${serviceDisplayName})`
+              : undefined,
+        });
       };
 
       type Environment = {
@@ -253,8 +305,20 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         rememberGlobal(local, id);
         nodesMap.set(
           id,
-          createNode(id, resource.kind, resource.name, resource.span),
+          createNode(
+            id,
+            resource.kind,
+            resource.name,
+            resource.span,
+            resource.displayLabel,
+          ),
         );
+        if (resource.displayLabel) {
+          nodeDisplayLabels.set(id, {
+            value: resource.displayLabel,
+            span: resource.span,
+          });
+        }
       };
 
       const buildDeclarations = (
@@ -327,7 +391,20 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
                   validEndpoint.kind,
                   undefined,
                   validEndpoint.span,
+                  validEndpoint.displayLabel,
                 ),
+              );
+              if (validEndpoint.displayLabel) {
+                nodeDisplayLabels.set(validId, {
+                  value: validEndpoint.displayLabel,
+                  span: validEndpoint.span,
+                });
+              }
+            } else {
+              applyDisplayLabel(
+                validId,
+                validEndpoint.displayLabel,
+                validEndpoint.span,
               );
             }
             const placeholderId = makeId(
@@ -356,19 +433,42 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           }
           if (statement.type !== "relationship") continue;
           const rel = statement as RelationshipAst;
-          const endpoint = (kind: string, span: CloudNode["span"]) => {
+          const endpoint = (
+            kind: string,
+            span: CloudNode["span"],
+            displayLabel?: string,
+          ) => {
             const resolved = resolve(kind, env);
-            if (resolved) return resolved;
+            if (resolved) {
+              applyDisplayLabel(resolved, displayLabel, span);
+              return resolved;
+            }
             const id = makeId(env.path, kind);
             if (!nodesMap.has(id)) {
               env.names.set(kind, id);
               rememberGlobal(kind, id);
-              nodesMap.set(id, createNode(id, kind, undefined, span));
+              nodesMap.set(
+                id,
+                createNode(id, kind, undefined, span, displayLabel),
+              );
+              if (displayLabel) {
+                nodeDisplayLabels.set(id, { value: displayLabel, span });
+              }
+            } else {
+              applyDisplayLabel(id, displayLabel, span);
             }
             return id;
           };
-          let source = endpoint(rel.left.kind, rel.left.span);
-          let target = endpoint(rel.right.kind, rel.right.span);
+          let source = endpoint(
+            rel.left.kind,
+            rel.left.span,
+            rel.left.displayLabel,
+          );
+          let target = endpoint(
+            rel.right.kind,
+            rel.right.span,
+            rel.right.displayLabel,
+          );
           if (rel.arrow === "<-") [source, target] = [target, source];
           const edgeId = `${source}-${rel.arrow}-${target}`;
           edges.push({

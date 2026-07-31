@@ -5,6 +5,7 @@ import type {
   LayoutGraph,
   LayoutNode,
 } from "@cloudmer/model";
+import { nodeWidthForLabel } from "@cloudmer/model";
 
 const COMPACT_RESOURCE_WIDTH = 128;
 const COMPACT_RESOURCE_HEIGHT = 92;
@@ -15,6 +16,7 @@ export interface ElkNodeInput {
   width?: number;
   height?: number;
   labels?: { text: string }[];
+  accessibleName?: string;
   iconKey?: string;
   icon?: string;
   layoutOptions?: Record<string, string>;
@@ -77,9 +79,10 @@ export function buildElkGraph(
           claimedNodeIds.add(nodeId);
           childNodes.push({
             id: n.id,
-            width: COMPACT_RESOURCE_WIDTH,
+            width: nodeWidthForLabel(n.label),
             height: COMPACT_RESOURCE_HEIGHT,
             labels: [{ text: n.label }],
+            accessibleName: n.accessibleName,
             iconKey: n.iconKey,
             icon: n.icon,
           });
@@ -115,9 +118,10 @@ export function buildElkGraph(
       claimedNodeIds.add(n.id);
       topLevelChildren.push({
         id: n.id,
-        width: COMPACT_RESOURCE_WIDTH,
+        width: nodeWidthForLabel(n.label),
         height: COMPACT_RESOURCE_HEIGHT,
         labels: [{ text: n.label }],
+        accessibleName: n.accessibleName,
         iconKey: n.iconKey,
         icon: n.icon,
         ports: undefined,
@@ -158,6 +162,7 @@ export interface ElkChildNode {
   width?: number;
   height?: number;
   labels?: { text: string }[];
+  accessibleName?: string;
   iconKey?: string;
   icon?: string;
   children?: ElkChildNode[];
@@ -209,6 +214,7 @@ export function convertElkResultToLayoutGraph(
         width: child.width ?? COMPACT_RESOURCE_WIDTH,
         height: child.height ?? COMPACT_RESOURCE_HEIGHT,
         label: child.labels?.[0]?.text ?? child.id,
+        accessibleName: child.accessibleName,
         iconKey: child.iconKey,
         icon: child.icon,
       };
@@ -222,6 +228,7 @@ export function convertElkResultToLayoutGraph(
           width: c.width ?? COMPACT_RESOURCE_WIDTH,
           height: c.height ?? COMPACT_RESOURCE_HEIGHT,
           label: c.labels?.[0]?.text ?? c.id,
+          accessibleName: c.accessibleName,
           iconKey: c.iconKey,
           icon: c.icon,
         }));

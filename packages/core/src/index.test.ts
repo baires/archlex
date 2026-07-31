@@ -218,6 +218,104 @@ describe("Phase 2 semantic graph", () => {
   });
 });
 
+describe("display labels and instance names", () => {
+  it("shows the instance name for named resources and keeps the service name accessible", () => {
+    const cloudmer = createCloudMer({ providers: [gcpProvider()] });
+    const result = cloudmer.analyze(cloudmer.parse("web: compute-engine").ast);
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.graph.nodes[0]).toMatchObject({
+      id: "web",
+      label: "web",
+      accessibleName: "web (Compute Engine)",
+    });
+  });
+
+  it("keeps the service display name for implicit resources without an accessible name override", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(cloudmer.parse("rds").ast);
+
+    expect(result.graph.nodes[0]).toMatchObject({
+      id: "rds",
+      label: "Amazon RDS",
+    });
+    expect(result.graph.nodes[0].accessibleName).toBeUndefined();
+  });
+
+  it("prefers a display label over the instance name and service name", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(
+      cloudmer.parse('db: rds["Primary DB"]').ast,
+    );
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.graph.nodes[0]).toMatchObject({
+      id: "db",
+      label: "Primary DB",
+      accessibleName: "Primary DB (Amazon RDS)",
+    });
+  });
+
+  it("applies display labels written on chain nodes", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(cloudmer.parse('rds["Primary"] > ecs').ast);
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.graph.nodes[0]).toMatchObject({
+      id: "rds",
+      label: "Primary",
+    });
+  });
+
+  it("applies a chain label to a previously named instance", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(
+      cloudmer.parse('api: ecs\napi["Gateway"] > rds').ast,
+    );
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.graph.nodes[0]).toMatchObject({
+      id: "api",
+      label: "Gateway",
+      accessibleName: "Gateway (Amazon ECS)",
+    });
+  });
+
+  it("keeps the first display label and diagnoses a conflicting later one", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(
+      cloudmer.parse('rds["A"] > ecs\nrds["B"] > lambda').ast,
+    );
+
+    expect(result.graph.nodes.find((node) => node.id === "rds")?.label).toBe(
+      "A",
+    );
+    expect(result.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "CM-STRUCT-CONFLICTING-LABEL",
+          severity: "info",
+          elements: ["rds"],
+        }),
+      ]),
+    );
+  });
+
+  it("lets declaration labels win over chain labels", () => {
+    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const result = cloudmer.analyze(
+      cloudmer.parse('rds["Decl"]\nrds["Chain"] > ecs').ast,
+    );
+
+    expect(result.graph.nodes.find((node) => node.id === "rds")?.label).toBe(
+      "Decl",
+    );
+    expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      "CM-STRUCT-CONFLICTING-LABEL",
+    );
+  });
+});
+
 describe("Multi-provider dispatch", () => {
   it("resolves qualified gcp kinds through the GCP provider in an aws document", async () => {
     const cloudmer = createCloudMer({

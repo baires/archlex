@@ -141,12 +141,13 @@ for (const theme of ["dark", "light"]) {
       ["ecs", "aws.ecs"],
     ]) {
       const node = svg.locator(`g.cloudmer-node[data-cloudmer-id="${id}"]`);
-      await expect(
-        node.locator(`[data-cloudmer-icon="${iconKey}"]`),
-      ).toHaveCount(1);
+      const iconUse = node.locator(`use[data-cloudmer-icon="${iconKey}"]`);
+      await expect(iconUse).toHaveCount(1);
       if (iconKey !== "aws.rds-proxy") {
-        const artworkBackground = node.locator(
-          `[data-cloudmer-icon="${iconKey}"] rect[width="64"][height="64"]`,
+        const href = await iconUse.getAttribute("href");
+        expect(href).toMatch(/^#cloudmer-icon-/);
+        const artworkBackground = svg.locator(
+          `defs symbol${href} rect[width="64"][height="64"]`,
         );
         await expect(artworkBackground).toHaveAttribute("width", "64");
         await expect(artworkBackground).toHaveAttribute("height", "64");
@@ -154,9 +155,9 @@ for (const theme of ["dark", "light"]) {
       await expectCompactIconLabelGeometry(node);
     }
 
-    await expect(page.getByTestId("diagnostics")).toContainText(
-      "0 diagnostics",
-    );
+    // A diagram without diagnostics renders no diagnostics panel at all
+    // (the playground hides the pane when the list is empty).
+    await expect(page.getByTestId("diagnostics")).toHaveCount(0);
   });
 }
 

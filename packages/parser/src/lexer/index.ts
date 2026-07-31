@@ -14,6 +14,8 @@ export const Newline = createToken({ name: "Newline", pattern: /\r?\n/ });
 export const Semicolon = createToken({ name: "Semicolon", pattern: /;/ });
 export const LBrace = createToken({ name: "LBrace", pattern: /\{/ });
 export const RBrace = createToken({ name: "RBrace", pattern: /\}/ });
+export const LBracket = createToken({ name: "LBracket", pattern: /\[/ });
+export const RBracket = createToken({ name: "RBracket", pattern: /\]/ });
 export const Colon = createToken({ name: "Colon", pattern: /:/ });
 export const Dot = createToken({ name: "Dot", pattern: /\./ });
 export const DirectiveName = createToken({
@@ -45,6 +47,8 @@ export const allTokens = [
   Semicolon,
   LBrace,
   RBrace,
+  LBracket,
+  RBracket,
   Colon,
   DirectiveName,
   ScopeKind,

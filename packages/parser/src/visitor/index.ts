@@ -85,6 +85,27 @@ function qualifiedName(node: CstNodeLike | undefined): {
   };
 }
 
+function displayLabel(node: CstNodeLike | undefined): string | undefined {
+  const token = firstToken(node ?? {}, "value");
+  if (!token?.image || token.isInsertedInRecovery) return undefined;
+  return decodeString(token.image);
+}
+
+function chainNode(node: CstNodeLike | undefined): {
+  value: string;
+  span: SourceSpan;
+  recovered: boolean;
+  displayLabel?: string;
+} {
+  const base = qualifiedName(childNodes(node ?? {}, "name")[0]);
+  const label = displayLabel(childNodes(node ?? {}, "displayLabel")[0]);
+  return {
+    ...base,
+    span: node ? nodeSpan(node) : base.span,
+    displayLabel: label,
+  };
+}
+
 function decodeString(value: string): string {
   if (!value.startsWith('"')) return value;
   try {
@@ -156,6 +177,7 @@ function convertStatement(wrapper: CstNodeLike): StatementAst[] {
       type: "resource",
       name: name.image,
       kind: kind.value,
+      displayLabel: displayLabel(childNodes(child, "displayLabel")[0]),
       span: nodeSpan(child),
     };
     return [ast];
@@ -180,12 +202,13 @@ function convertStatement(wrapper: CstNodeLike): StatementAst[] {
   }
 
   if (child.name === "relationshipOrResource") {
-    const nodes = childNodes(child, "node").map(qualifiedName);
+    const nodes = childNodes(child, "node").map(chainNode);
     const operators = (child.children?.op ?? []) as TokenLocation[];
     if (operators.length === 0 && nodes[0] && !nodes[0].recovered) {
       const resource: ResourceAst = {
         type: "resource",
         kind: nodes[0].value,
+        displayLabel: nodes[0].displayLabel,
         span: nodes[0].span,
       };
       return [resource];
@@ -199,7 +222,11 @@ function convertStatement(wrapper: CstNodeLike): StatementAst[] {
       statement.partialRelationship = {
         left:
           left && !left.recovered
-            ? { kind: left.value, span: left.span }
+            ? {
+                kind: left.value,
+                span: left.span,
+                displayLabel: left.displayLabel,
+              }
             : undefined,
         arrow: operators[0]?.image ?? "->",
       };
@@ -211,21 +238,33 @@ function convertStatement(wrapper: CstNodeLike): StatementAst[] {
       return {
         type: "relationship",
         span: { start: left.span.start, end: right.span.end },
-        left: { kind: left.value, span: left.span },
-        right: { kind: right.value, span: right.span },
+        left: {
+          kind: left.value,
+          span: left.span,
+          displayLabel: left.displayLabel,
+        },
+        right: {
+          kind: right.value,
+          span: right.span,
+          displayLabel: right.displayLabel,
+        },
         ...operatorParts(operator.image ?? ""),
       };
     });
   }
 
   if (child.name === "incompleteRelationship") {
-    const right = qualifiedName(childNodes(child, "node")[0]);
+    const right = chainNode(childNodes(child, "node")[0]);
     const operator = firstToken(child, "op");
     const statement = invalid(child, "Relationship endpoint is missing");
     statement.partialRelationship = {
       right: right.recovered
         ? undefined
-        : { kind: right.value, span: right.span },
+        : {
+            kind: right.value,
+            span: right.span,
+            displayLabel: right.displayLabel,
+          },
       arrow: operator?.image ?? "->",
     };
     return [statement];

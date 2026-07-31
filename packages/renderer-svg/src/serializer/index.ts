@@ -5,6 +5,7 @@ import type {
   LayoutNode,
   SvgResult,
 } from "@cloudmer/model";
+import { charsPerLineForWidth } from "@cloudmer/model";
 import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
 
@@ -83,6 +84,45 @@ function namespaceIconIds(iconSvg: string, nodeId: string): string {
     },
   );
   return namespaced;
+}
+
+function fnv1aHex(value: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+interface IconSymbolDef {
+  id: string;
+  viewBox: string;
+  content: string;
+}
+
+/**
+ * Registers a node's icon for <defs>/<use> deduplication. Returns the symbol
+ * id to reference, or undefined when the icon cannot be shared (missing
+ * viewBox or non-SVG fragment) and must render inline.
+ */
+function registerIconSymbol(
+  node: LayoutNode,
+  symbolDefs: Map<string, IconSymbolDef>,
+): string | undefined {
+  if (!node.icon || !node.icon.startsWith("<svg")) return undefined;
+  const viewBox = node.icon.match(/\sviewBox="([^"]+)"/)?.[1];
+  if (!viewBox) return undefined;
+
+  const defId = `cloudmer-icon-${encodeSvgId(node.iconKey ?? "adhoc")}-${fnv1aHex(node.icon)}`;
+  if (!symbolDefs.has(defId)) {
+    const namespaced = namespaceIconIds(node.icon, defId);
+    const content = namespaced
+      .replace(/^<svg\b[^>]*>/, "")
+      .replace(/<\/svg>\s*$/, "");
+    symbolDefs.set(defId, { id: defId, viewBox, content });
+  }
+  return defId;
 }
 
 function buildRoundedPath(
@@ -452,7 +492,7 @@ function renderNodeLabel(
   hasIcon: boolean,
   theme: ThemeTokens,
 ): string {
-  const { lines } = layoutNodeLabel(label);
+  const { lines } = layoutNodeLabel(label, charsPerLineForWidth(nodeWidth));
   if (lines.length === 0) return "";
 
   const centerX = (nodeWidth / 2).toFixed(1);
@@ -523,6 +563,16 @@ export function serializeSvgGraph(
   const leafNodes = sortedNodes.filter(
     (n) => !n.children || n.children.length === 0,
   );
+
+  // Deduplicate icon artwork: each unique icon becomes one <symbol> in
+  // <defs>, referenced per node via <use>. Icons that cannot be shared
+  // (no viewBox or non-SVG fragment) keep the inline fallback.
+  const iconSymbolDefs = new Map<string, IconSymbolDef>();
+  const nodeIconSymbolIds = new Map<string, string>();
+  for (const node of leafNodes) {
+    const symbolId = registerIconSymbol(node, iconSymbolDefs);
+    if (symbolId) nodeIconSymbolIds.set(node.id, symbolId);
+  }
 
   // 1. Scopes container SVG content
   let scopeSvgContent = "";
@@ -716,7 +766,7 @@ export function serializeSvgGraph(
       ? ` aria-describedby="${diagnosticId}"`
       : "";
 
-    nodeSvgContent += `  <g id="${svgId}" class="cloudmer-node" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.label)}"${describedByAttr}>\n`;
+    nodeSvgContent += `  <g id="${svgId}" class="cloudmer-node" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.accessibleName ?? node.label)}"${describedByAttr}>\n`;
     nodeSvgContent += `    <rect class="cloudmer-node-surface" width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${strokeColor}" stroke-width="1"${strokeDash}/>\n`;
 
     if (node.icon) {
@@ -726,8 +776,11 @@ export function serializeSvgGraph(
       const iconSize = NODE_ICON_SIZE;
       const iconX = (node.width / 2 - iconSize / 2).toFixed(1);
       const iconY = NODE_ICON_TOP;
+      const symbolId = nodeIconSymbolIds.get(node.id);
 
-      if (node.icon.startsWith("<svg")) {
+      if (symbolId) {
+        nodeSvgContent += `    <use href="#${symbolId}" x="${iconX}" y="${iconY.toFixed(1)}" width="${iconSize}" height="${iconSize}"${iconKeyAttr} aria-hidden="true" focusable="false"/>\n`;
+      } else if (node.icon.startsWith("<svg")) {
         const namespacedIcon = namespaceIconIds(node.icon, node.id);
         const positionedIcon = namespacedIcon.replace(
           /^<svg\b[^>]*>/,
@@ -788,6 +841,14 @@ export function serializeSvgGraph(
   const width = Math.max(layoutGraph.width, 100);
   const height = Math.max(layoutGraph.height, 100);
 
+  const iconSymbolSvg = [...iconSymbolDefs.values()]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map(
+      (def) =>
+        `    <symbol id="${def.id}" viewBox="${escapeXml(def.viewBox)}">\n      ${def.content}\n    </symbol>\n`,
+    )
+    .join("");
+
   const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0" class="cloudmer-svg">
   <defs>
     <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
@@ -805,7 +866,7 @@ export function serializeSvgGraph(
     <marker id="arrowhead-read" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
       <circle cx="3.5" cy="3.5" r="2.5" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
-    <style>
+${iconSymbolSvg}    <style>
       g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
     </style>
   </defs>

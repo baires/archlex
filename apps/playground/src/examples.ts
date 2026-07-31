@@ -287,6 +287,23 @@ global_dns -[failover]-> app_secondary
 db_primary -[replicates]-> db_replica`,
   },
   {
+    id: "labeled-instances",
+    title: "Display Labels & Named Instances",
+    category: "Database & Compute",
+    description:
+      "Instance names and custom display labels distinguishing primary and replica databases",
+    source: `direction LR
+provider aws
+validation normal
+
+primary: rds["Primary DB"]
+replica: rds["Read Replica"]
+app: ecs
+
+app -[writes]-> primary
+primary -[replicates]-> replica`,
+  },
+  {
     id: "gcp-serverless-sql",
     title: "GCP Serverless Cloud Run + Cloud SQL",
     category: "Google Cloud",

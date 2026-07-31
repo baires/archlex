@@ -1,4 +1,4 @@
-import type { Diagnostic, LayoutGraph } from "@cloudmer/model";
+import type { Diagnostic, LayoutGraph, LayoutNode } from "@cloudmer/model";
 import { describe, expect, it } from "vitest";
 import { serializeSvgGraph } from "./index.js";
 
@@ -203,7 +203,7 @@ describe("relationship rendering", () => {
 });
 
 describe("Mermaid-aligned rendering", () => {
-  it("namespaces every provider artwork ID and local reference per node instance", () => {
+  it("deduplicates shared provider artwork into one namespaced symbol", () => {
     const sharedIcon =
       '<svg viewBox="0 0 4 4"><defs><linearGradient id="paint"><stop offset="0" stop-color="#fff"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="1"/></filter><clipPath id="crop"><rect width="4" height="4"/></clipPath></defs><title id="name">Shared icon</title><path id="shape" fill="url(#paint)" filter="url(#soft)" clip-path="url(#crop)" aria-labelledby="name" d="M0 0h4v4z"/><use href="#shape"/></svg>';
     const graph: LayoutGraph = {
@@ -234,15 +234,28 @@ describe("Mermaid-aligned rendering", () => {
 
     const first = serializeSvgGraph(graph).svg;
     const second = serializeSvgGraph(graph).svg;
+    expect(second).toBe(first);
+
+    // Identical artwork is emitted once as a shared <symbol>.
+    const symbolIds = [...first.matchAll(/<symbol id="([^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    expect(symbolIds).toHaveLength(1);
+
+    // Both nodes reference that symbol; the artwork path appears once.
+    const nodeUseRefs = [
+      ...first.matchAll(/<use href="#([^"]+)"[^>]*width="48"/g),
+    ].map((match) => match[1]);
+    expect(nodeUseRefs).toEqual([symbolIds[0], symbolIds[0]]);
+    expect(first.match(/<path id="/g)).toHaveLength(1);
+
     const ids = [...first.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
     const providerIds = ids.filter((id) => id.startsWith("cloudmer-icon-"));
-
-    expect(second).toBe(first);
-    expect(providerIds).toHaveLength(10);
+    expect(providerIds).toHaveLength(6);
     expect(new Set(providerIds).size).toBe(providerIds.length);
     expect(first).not.toMatch(/\sid="(?:paint|soft|crop|name|shape)"/);
     for (const id of providerIds) {
-      expect(id).toMatch(/^cloudmer-icon-[a-f0-9]+-[a-f0-9]+$/);
+      expect(id).toMatch(/^cloudmer-icon-[a-f0-9]+(?:-[a-f0-9]+)+$/);
     }
 
     const urlReferences = [...first.matchAll(/url\(#([^\)]+)\)/g)].map(
@@ -365,6 +378,121 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).toContain(
       'aria-label="Supercalifragilistic Service Name"',
     );
+  });
+
+  it("wraps canonical names without truncation on wider cards", () => {
+    const graph: LayoutGraph = {
+      width: 200,
+      height: 120,
+      nodes: [
+        {
+          id: "gke",
+          x: 20,
+          y: 20,
+          width: 160,
+          height: 92,
+          label: "Google Kubernetes Engine",
+        },
+      ],
+      edges: [],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).toContain(">Google Kubernetes</tspan>");
+    expect(result.svg).toContain(">Engine</tspan>");
+    expect(result.svg).not.toContain("…");
+  });
+
+  it("uses the accessible name for the node aria-label when present", () => {
+    const graph: LayoutGraph = {
+      width: 200,
+      height: 120,
+      nodes: [
+        {
+          id: "web",
+          x: 20,
+          y: 20,
+          width: 128,
+          height: 92,
+          label: "web",
+          accessibleName: "web (Compute Engine)",
+        },
+      ],
+      edges: [],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).toContain('aria-label="web (Compute Engine)"');
+    expect(result.svg).toContain(">web</tspan>");
+  });
+
+  it("shares one symbol per unique icon across nodes", () => {
+    const gkeIcon =
+      '<svg viewBox="0 0 10 10"><path fill="#4285f4" d="M0 0h10v10H0z"/></svg>';
+    const pubsubIcon =
+      '<svg viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#aecbfa"/></svg>';
+    const node = (
+      id: string,
+      x: number,
+      icon: string,
+      iconKey: string,
+    ): LayoutNode => ({
+      id,
+      x,
+      y: 10,
+      width: 128,
+      height: 92,
+      label: id,
+      icon,
+      iconKey,
+    });
+    const graph: LayoutGraph = {
+      width: 500,
+      height: 120,
+      nodes: [
+        node("gke-a", 10, gkeIcon, "gcp.gke"),
+        node("gke-b", 160, gkeIcon, "gcp.gke"),
+        node("pubsub", 310, pubsubIcon, "gcp.pubsub"),
+      ],
+      edges: [],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    const symbolIds = [...result.svg.matchAll(/<symbol id="([^"]+)"/g)].map(
+      (match) => match[1],
+    );
+    expect(symbolIds).toHaveLength(2);
+    expect(result.svg.match(/fill="#4285f4"/g)).toHaveLength(1);
+    expect(result.svg.match(/fill="#aecbfa"/g)).toHaveLength(1);
+    expect(result.svg.match(/<use href="#cloudmer-icon-/g)).toHaveLength(3);
+    expect(result.svg).toContain('data-cloudmer-icon="gcp.gke"');
+  });
+
+  it("falls back to inline artwork when an icon has no viewBox", () => {
+    const graph: LayoutGraph = {
+      width: 200,
+      height: 120,
+      nodes: [
+        {
+          id: "bare",
+          x: 20,
+          y: 20,
+          width: 128,
+          height: 92,
+          label: "Bare",
+          icon: '<svg width="4" height="4"><path d="M0 0h4v4z"/></svg>',
+        },
+      ],
+      edges: [],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    expect(result.svg).not.toContain("<symbol");
+    expect(result.svg).toContain('<svg x="40.0" y="10" width="48" height="48"');
   });
 
   it("renders quiet scope boundaries with inline kind and name labels", () => {

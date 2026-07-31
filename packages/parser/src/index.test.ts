@@ -151,3 +151,93 @@ account production {
     });
   });
 });
+
+describe("display labels", () => {
+  it("parses a display label on a named resource", () => {
+    const result = parse('db: rds["Primary DB"]');
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "resource",
+      name: "db",
+      kind: "rds",
+      displayLabel: "Primary DB",
+      span: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 22, offset: 21 },
+      },
+    });
+  });
+
+  it("parses display labels on chain nodes and standalone resources", () => {
+    const result = parse('rds["Primary"] > ecs["App"]\nsqs["Queue"]');
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "relationship",
+      left: { kind: "rds", displayLabel: "Primary" },
+      right: { kind: "ecs", displayLabel: "App" },
+    });
+    expect(result.ast.statements[1]).toMatchObject({
+      type: "resource",
+      kind: "sqs",
+      displayLabel: "Queue",
+    });
+  });
+
+  it("decodes escaped characters in display labels", () => {
+    const result = parse('db: rds["Primary \\"main\\" DB"]');
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      displayLabel: 'Primary "main" DB',
+    });
+  });
+
+  it("keeps exact spans for labeled chain nodes", () => {
+    const result = parse('rds["A"] > ecs');
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      span: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 15, offset: 14 },
+      },
+      left: {
+        span: {
+          start: { line: 1, column: 1, offset: 0 },
+          end: { line: 1, column: 9, offset: 8 },
+        },
+      },
+      right: {
+        span: {
+          start: { line: 1, column: 12, offset: 11 },
+          end: { line: 1, column: 15, offset: 14 },
+        },
+      },
+    });
+  });
+
+  it("recovers a missing closing bracket without losing the label", () => {
+    const result = parse('db: rds["A"');
+
+    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "resource",
+      name: "db",
+      kind: "rds",
+      displayLabel: "A",
+    });
+  });
+
+  it("recovers an unterminated label string without throwing", () => {
+    const result = parse('db: rds["unterminated');
+
+    expect(result.diagnostics.length).toBeGreaterThan(0);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "resource",
+      name: "db",
+      kind: "rds",
+    });
+  });
+});

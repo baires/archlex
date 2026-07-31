@@ -139,6 +139,8 @@ workers: ecs
 
 Repeated implicit names refer to the same resource within the current scope. Multiple instances of one service type require explicit instance names. Fully qualified service names such as `aws.rds` remain valid and prepare the language for future multi-cloud diagrams.
 
+Resources may carry a quoted display label after the kind — `primary: rds["Primary DB"]` or inline in a chain, `rds["Primary DB"] > ecs`. The display label is the node's visible card text; without one, a named instance shows its instance name and an implicit resource shows the service display name. The service name remains part of the node's accessible name. The first label wins; a conflicting later label produces an informational diagnostic.
+
 ### Relationships
 
 Relationship direction and layout direction are independent. The initial operators are:

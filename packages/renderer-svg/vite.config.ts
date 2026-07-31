@@ -9,7 +9,9 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["@cloudmer/model"],
+      // @cloudmer/model is bundled so the built module stays self-contained
+      // for browser consumers that load dist directly (no bare specifiers).
+      external: [],
     },
   },
 });

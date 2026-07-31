@@ -20,7 +20,7 @@ CloudMer's differentiator is semantic knowledge of cloud resources and relations
 
 ## Operating Context
 
-Diagrams are authored as text: shorthand like `rds-proxy > rds > ecs`, named instances, typed relationships (`-[writes]->`), presentation labels, and semantic containment blocks (`account`, `region`, `vpc`, `subnet`). Directives declare provider, layout direction (`LR`/`RL`/`TB`/`BT`), and validation mode (`strict`/`normal`/`off`). The library renders asynchronously in the browser (layout in a Web Worker) and also runs in Node.js 22 without browser globals. The playground is where the product is evaluated: Monaco editor with syntax highlighting and completion, debounced live preview, two-way source↔SVG selection sync, diagnostics panel, direction/validation/theme controls, copy/download SVG export, and browser-local persistence.
+Diagrams are authored as text: shorthand like `rds-proxy > rds > ecs`, named instances, node display labels (`primary: rds["Primary DB"]`), typed relationships (`-[writes]->`), presentation labels, and semantic containment blocks (`account`, `region`, `vpc`, `subnet`). Directives declare provider, layout direction (`LR`/`RL`/`TB`/`BT`), and validation mode (`strict`/`normal`/`off`). The library renders asynchronously in the browser (layout in a Web Worker) and also runs in Node.js 22 without browser globals. The playground is where the product is evaluated: Monaco editor with syntax highlighting and completion, debounced live preview, two-way source↔SVG selection sync, diagnostics panel, direction/validation/theme controls, copy/download SVG export, and browser-local persistence.
 
 ## Capabilities and Constraints
 

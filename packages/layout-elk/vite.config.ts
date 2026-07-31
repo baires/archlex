@@ -9,7 +9,9 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["@cloudmer/model", "elkjs"],
+      // @cloudmer/model is bundled so the built module has one less bare
+      // specifier; elkjs stays external for worker bundling flexibility.
+      external: ["elkjs"],
     },
   },
 });

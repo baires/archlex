@@ -5,8 +5,10 @@ import {
   Dot,
   Identifier,
   LBrace,
+  LBracket,
   Newline,
   RBrace,
+  RBracket,
   RelationshipOperator,
   ScopeKind,
   Semicolon,
@@ -71,19 +73,33 @@ export class CloudMerCstParser extends CstParser {
     this.CONSUME(Identifier, { LABEL: "name" });
     this.CONSUME(Colon);
     this.SUBRULE(this.qualifiedName, { LABEL: "kind" });
+    this.SUBRULE(this.displayLabel);
   });
 
   public relationshipOrResource = this.RULE("relationshipOrResource", () => {
-    this.SUBRULE(this.qualifiedName, { LABEL: "node" });
+    this.SUBRULE(this.chainNode, { LABEL: "node" });
     this.MANY(() => {
       this.CONSUME(RelationshipOperator, { LABEL: "op" });
-      this.SUBRULE2(this.qualifiedName, { LABEL: "node" });
+      this.SUBRULE2(this.chainNode, { LABEL: "node" });
     });
   });
 
   public incompleteRelationship = this.RULE("incompleteRelationship", () => {
     this.CONSUME(RelationshipOperator, { LABEL: "op" });
-    this.SUBRULE(this.qualifiedName, { LABEL: "node" });
+    this.SUBRULE(this.chainNode, { LABEL: "node" });
+  });
+
+  public chainNode = this.RULE("chainNode", () => {
+    this.SUBRULE(this.qualifiedName, { LABEL: "name" });
+    this.SUBRULE(this.displayLabel);
+  });
+
+  public displayLabel = this.RULE("displayLabel", () => {
+    this.OPTION(() => {
+      this.CONSUME(LBracket);
+      this.CONSUME(StringLiteral, { LABEL: "value" });
+      this.CONSUME(RBracket);
+    });
   });
 
   public qualifiedName = this.RULE("qualifiedName", () => {

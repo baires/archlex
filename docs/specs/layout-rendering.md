@@ -18,6 +18,8 @@ Every drawable element has finite coordinates and non-negative size. Edges conta
 
 The DOM-free renderer returns complete SVG with namespace, view box, accessible title/description, definitions, groups, edges, nodes, labels, icons, and diagnostics. Items sort by stable ID. Numbers use fixed precision and omit negative zero.
 
+Icon artwork is deduplicated: each unique icon (by icon key and content hash) is emitted once as a `<symbol>` in `<defs>` with its internal identifiers namespaced per symbol, and each node references it through a fragment-only `<use>`. Icons without a view box or in non-SVG fragment form keep the per-node inline fallback.
+
 Public attributes are `data-cloudmer-id`, `data-cloudmer-kind`, `data-cloudmer-validity`, and `data-cloudmer-diagnostics`. Arrowheads reflect semantic direction; dotted relationships use dash styling; labels do not alter semantics.
 
 ## AWS icon workflow
@@ -28,7 +30,7 @@ Run `pnpm --filter @cloudmer/aws icons:check` to confirm that the checked-in gen
 
 ## Mermaid-aligned visual system
 
-This specification supersedes the prior glassmorphism rendering direction. Resources use compact neutral cards with a one-pixel border, modest corner radius, official 48px artwork without recoloring or synthetic badges, and centered labels. Label layout is deterministic: labels occupy at most two lines, overflow is truncated consistently, and the complete label remains in the node's accessible name.
+This specification supersedes the prior glassmorphism rendering direction. Resources use compact neutral cards with a one-pixel border, modest corner radius, official 48px artwork without recoloring or synthetic badges, and centered labels. Card width is label-aware: the layout adapter picks the smallest of 128, 160, or 192 px that wraps the label in at most two lines without truncation, and wrapping derives deterministically from the chosen width (`floor((width - 16) / 7)` characters per line). Overflow beyond the widest tier is truncated consistently, and the complete label remains in the node's accessible name. A node's visible label is its display label when authored, otherwise its instance name, otherwise the service display name; when the visible label differs from the service display name, the accessible name combines both (`"<label> (<Service Display Name>)"`).
 
 Account, region, VPC, and subnet scopes use one neutral containment system. Subtle tint, stroke weight, and dash pattern communicate scope type; plain inline labels near the top-left boundary identify each scope. Scope headers are not floating pills, and the content region begins below the label.
 
