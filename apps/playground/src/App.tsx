@@ -1,16 +1,21 @@
 import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
 import type { Diagnostic, ValidationMode } from "@cloudmer/model";
 import { useEffect, useRef, useState } from "react";
+import { CommandBar } from "./components/CommandBar.js";
 import { Diagnostics } from "./components/Diagnostics.js";
 import { Editor } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
-import { Toolbar } from "./components/Toolbar.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 
 const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
 
 const STORAGE_SOURCE_KEY = "cloudmer_source_v1";
 const STORAGE_OPTIONS_KEY = "cloudmer_options_v1";
+
+export type OperationMessage = {
+  tone: "success" | "error";
+  text: string;
+} | null;
 
 function loadPersistedSource(): string {
   try {
@@ -59,10 +64,12 @@ export function App() {
 
   const [currentSvg, setCurrentSvg] = useState<string>("");
   const [diagnostics, setDiagnostics] = useState<readonly Diagnostic[]>([]);
-  const [status, setStatus] = useState<string>("Ready");
   const [isRendering, setIsRendering] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
+  const [operationMessage, setOperationMessage] =
+    useState<OperationMessage>(null);
+  const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
+  const renderStartedAtRef = useRef(0);
 
   // 1. Persist to LocalStorage
   useEffect(() => {
@@ -90,7 +97,6 @@ export function App() {
 
   useEffect(() => {
     setIsRendering(true);
-    setStatus("Rendering...");
 
     const timeoutId = setTimeout(() => {
       if (activeControllerRef.current) {
@@ -99,6 +105,7 @@ export function App() {
       const controller = new AbortController();
       activeControllerRef.current = controller;
 
+      renderStartedAtRef.current = performance.now();
       cloudmer
         .render(source, {
           direction,
@@ -110,12 +117,17 @@ export function App() {
           if (controller.signal.aborted) return;
           setCurrentSvg(result.svg);
           setDiagnostics(result.diagnostics);
-          setStatus("Ready");
+          setRenderDurationMs(
+            Math.round(performance.now() - renderStartedAtRef.current),
+          );
           setIsRendering(false);
         })
         .catch((error: unknown) => {
           if (controller.signal.aborted) return;
-          setStatus(error instanceof Error ? error.message : "Render error");
+          setOperationMessage({
+            tone: "error",
+            text: error instanceof Error ? error.message : "Render error",
+          });
           setIsRendering(false);
         });
     }, 150);
@@ -125,52 +137,90 @@ export function App() {
     };
   }, [source, direction, validation, theme]);
 
+  useEffect(() => {
+    if (!operationMessage) return;
+    const timeoutId = window.setTimeout(() => setOperationMessage(null), 2000);
+    return () => window.clearTimeout(timeoutId);
+  }, [operationMessage]);
+
   // Actions
   const handleSelectExample = (example: ArchitectureExample) => {
     setSource(example.source);
     setSelectedId(null);
   };
 
-  const handleCopySvg = () => {
+  const handleCopySvg = async () => {
     if (!currentSvg) return;
-    navigator.clipboard.writeText(currentSvg).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    try {
+      await navigator.clipboard.writeText(currentSvg);
+      setOperationMessage({ tone: "success", text: "SVG copied" });
+    } catch {
+      setOperationMessage({ tone: "error", text: "Copy failed" });
+    }
   };
 
   const handleDownloadSvg = () => {
     if (!currentSvg) return;
-    const blob = new Blob([currentSvg], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "cloudmer-diagram.svg";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    let url: string | null = null;
+    try {
+      const blob = new Blob([currentSvg], {
+        type: "image/svg+xml;charset=utf-8",
+      });
+      url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "cloudmer-diagram.svg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setOperationMessage({ tone: "success", text: "SVG downloaded" });
+    } catch {
+      setOperationMessage({ tone: "error", text: "Download failed" });
+    } finally {
+      if (url) URL.revokeObjectURL(url);
+    }
   };
+
+  const handleEnterFullscreen = () => {
+    if (!document.documentElement.requestFullscreen) return;
+    void document.documentElement.requestFullscreen().catch(() => {
+      setOperationMessage({ tone: "error", text: "Fullscreen unavailable" });
+    });
+  };
+
+  const renderStatus = operationMessage?.text
+    ? operationMessage.text
+    : isRendering
+      ? "Rendering…"
+      : renderDurationMs === null
+        ? "Ready"
+        : `Ready · rendered in ${renderDurationMs} ms`;
 
   return (
     <div className="app-shell" data-theme={theme}>
-      <Toolbar
-        status={status}
-        isRendering={isRendering}
+      <CommandBar
         direction={direction}
-        onDirectionChange={setDirection}
         validation={validation}
-        onValidationChange={setValidation}
         theme={theme}
-        onThemeChange={setTheme}
         examples={ARCHITECTURE_EXAMPLES}
+        canExport={Boolean(currentSvg)}
+        onDirectionChange={setDirection}
+        onValidationChange={setValidation}
+        onThemeChange={setTheme}
         onSelectExample={handleSelectExample}
         onCopySvg={handleCopySvg}
         onDownloadSvg={handleDownloadSvg}
-        copied={copied}
+        onEnterFullscreen={handleEnterFullscreen}
       />
+
+      <output
+        className={`render-metadata status-badge ${
+          operationMessage?.tone ?? (isRendering ? "rendering" : "ready")
+        }`}
+        aria-live="polite"
+      >
+        {renderStatus}
+      </output>
 
       <main className="workspace-grid">
         <Editor

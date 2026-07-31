@@ -20,16 +20,23 @@ test("uses the operations-console visual foundation", async ({ page }) => {
   expect(styles).not.toMatch(/backdrop-filter|linear-gradient|radial-gradient/);
 });
 
-test("renders toolbar actions with local SVG icons instead of emoji", async ({
+test("groups infrequent actions without hiding core configuration", async ({
   page,
 }) => {
   await page.goto("/");
-  const toolbar = page.locator(".toolbar");
-  const actions = toolbar.getByRole("button");
+  await expect(page.getByRole("banner")).toHaveClass(/command-bar/);
+  await expect(page.getByLabel("Example")).toBeVisible();
+  await expect(page.getByLabel("Layout direction")).toBeVisible();
+  await expect(page.getByLabel("Validation mode")).toBeVisible();
+  await expect(page.locator(".toolbar")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Export" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy SVG" })).toHaveCount(0);
 
-  await expect(actions).toHaveCount(3);
-  await expect(actions.locator("svg[aria-hidden='true']")).toHaveCount(3);
-  expect((await toolbar.textContent()) ?? "").not.toMatch(
-    /\p{Extended_Pictographic}/u,
-  );
+  await page.getByRole("button", { name: "Export" }).click();
+  await expect(page.getByRole("menuitem", { name: "Copy SVG" })).toBeVisible();
+  await expect(
+    page.getByRole("menuitem", { name: "Download SVG" }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("menuitem", { name: "Copy SVG" })).toHaveCount(0);
 });
