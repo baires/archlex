@@ -5,6 +5,11 @@ import { CommandBar } from "./components/CommandBar.js";
 import { Diagnostics } from "./components/Diagnostics.js";
 import { Editor } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
+import { Workspace } from "./components/Workspace.js";
+import {
+  DEFAULT_SPLIT_RATIO,
+  clampSplitRatio,
+} from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 
 const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
@@ -31,6 +36,7 @@ interface PersistedOptions {
   direction: "LR" | "RL" | "TB" | "BT";
   validation: ValidationMode;
   theme: "dark" | "light";
+  splitRatio: number;
 }
 
 function loadPersistedOptions(): PersistedOptions {
@@ -42,12 +48,18 @@ function loadPersistedOptions(): PersistedOptions {
         direction: parsed.direction ?? "LR",
         validation: parsed.validation ?? "normal",
         theme: parsed.theme ?? "dark",
+        splitRatio: clampSplitRatio(parsed.splitRatio),
       };
     }
   } catch {
     // Corruption fallback
   }
-  return { direction: "LR", validation: "normal", theme: "dark" };
+  return {
+    direction: "LR",
+    validation: "normal",
+    theme: "dark",
+    splitRatio: DEFAULT_SPLIT_RATIO,
+  };
 }
 
 export function App() {
@@ -61,6 +73,9 @@ export function App() {
     initialOptions.validation,
   );
   const [theme, setTheme] = useState<"dark" | "light">(initialOptions.theme);
+  const [splitRatio, setSplitRatio] = useState(initialOptions.splitRatio);
+  const [cursor, setCursor] = useState({ line: 1, column: 1 });
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [currentSvg, setCurrentSvg] = useState<string>("");
   const [diagnostics, setDiagnostics] = useState<readonly Diagnostic[]>([]);
@@ -84,13 +99,23 @@ export function App() {
     try {
       localStorage.setItem(
         STORAGE_OPTIONS_KEY,
-        JSON.stringify({ direction, validation, theme }),
+        JSON.stringify({ direction, validation, theme, splitRatio }),
       );
     } catch {
       // Ignore storage error
     }
     document.documentElement.setAttribute("data-theme", theme);
-  }, [direction, validation, theme]);
+  }, [direction, validation, theme, splitRatio]);
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(document.fullscreenElement !== null);
+    };
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    syncFullscreenState();
+    return () =>
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+  }, []);
 
   // 2. 150ms Debounced Render Pipeline
   const activeControllerRef = useRef<AbortController | null>(null);
@@ -213,35 +238,44 @@ export function App() {
         onEnterFullscreen={handleEnterFullscreen}
       />
 
-      <output
-        className={`render-metadata status-badge ${
-          operationMessage?.tone ?? (isRendering ? "rendering" : "ready")
-        }`}
-        aria-live="polite"
-      >
-        {renderStatus}
-      </output>
-
-      <main className="workspace-grid">
-        <Editor
-          source={source}
-          onSourceChange={setSource}
-          diagnostics={diagnostics}
-        />
-
-        <Preview
-          svg={currentSvg}
-          isRendering={isRendering}
-          selectedId={selectedId}
-          onSelectElement={setSelectedId}
-        />
-
-        <Diagnostics
-          diagnostics={diagnostics}
-          selectedId={selectedId}
-          onSelectDiagnostic={(id) => setSelectedId(id)}
-        />
-      </main>
+      <Workspace
+        splitRatio={splitRatio}
+        onSplitRatioChange={setSplitRatio}
+        editor={
+          <Editor
+            source={source}
+            onSourceChange={setSource}
+            documentLabel="architecture.cloudmer"
+            onCursorChange={setCursor}
+          />
+        }
+        preview={
+          <Preview
+            svg={currentSvg}
+            isRendering={isRendering}
+            selectedId={selectedId}
+            onSelectElement={setSelectedId}
+          />
+        }
+        diagnosticsDrawer={
+          <Diagnostics
+            diagnostics={diagnostics}
+            selectedId={selectedId}
+            onSelectDiagnostic={(id) => setSelectedId(id)}
+          />
+        }
+        statusBar={
+          <output
+            className={`render-metadata status-badge workspace-status-bar ${
+              operationMessage?.tone ?? (isRendering ? "rendering" : "ready")
+            }`}
+            aria-live="polite"
+          >
+            {renderStatus} · Ln {cursor.line}, Col {cursor.column}
+          </output>
+        }
+        isFullscreen={isFullscreen}
+      />
     </div>
   );
 }

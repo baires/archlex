@@ -1,19 +1,21 @@
-import type { Diagnostic } from "@cloudmer/model";
-
 interface EditorProps {
   source: string;
   onSourceChange: (newSource: string) => void;
-  diagnostics: readonly Diagnostic[];
+  documentLabel: string;
+  onCursorChange: (position: { line: number; column: number }) => void;
 }
 
-export function Editor({ source, onSourceChange, diagnostics }: EditorProps) {
-  const hasErrors = diagnostics.some((d) => d.severity === "error");
-
+export function Editor({
+  source,
+  onSourceChange,
+  documentLabel,
+  onCursorChange,
+}: EditorProps) {
   return (
     <section className="editor-pane" aria-label="CloudMer Source Editor">
       <div className="pane-header">
-        <h2>Code</h2>
-        {hasErrors && <span className="error-indicator">● Errors</span>}
+        <h2>{documentLabel}</h2>
+        <span className="editor-source-label">SOURCE</span>
       </div>
 
       <div className="editor-body">
@@ -23,6 +25,17 @@ export function Editor({ source, onSourceChange, diagnostics }: EditorProps) {
           spellCheck={false}
           value={source}
           onChange={(e) => onSourceChange(e.target.value)}
+          onSelect={(event) => {
+            const beforeCursor = event.currentTarget.value.slice(
+              0,
+              event.currentTarget.selectionStart,
+            );
+            const lines = beforeCursor.split("\n");
+            onCursorChange({
+              line: lines.length,
+              column: (lines.at(-1)?.length ?? 0) + 1,
+            });
+          }}
           placeholder="# Enter CloudMer DSL source code
 # Example:
 direction LR
