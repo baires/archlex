@@ -1,5 +1,20 @@
 import { expect, test } from "@playwright/test";
 
+const WARNING_SOURCE = `provider aws
+subnet orphan {
+  api: ecs
+}`;
+const MULTI_WARNING_SOURCE = `provider aws
+subnet first {
+  api: ecs
+}
+subnet second {
+  worker: lambda
+}`;
+const ERROR_SOURCE = `provider gcp
+region broken {
+  node: gke`;
+
 test("uses the operations-console visual foundation", async ({ page }) => {
   await page.goto("/");
   const body = page.locator("body");
@@ -139,4 +154,71 @@ test("uses editor and preview tabs on narrow screens", async ({ page }) => {
     "true",
   );
   await expect(page.getByRole("separator")).toHaveCount(0);
+});
+
+test("keeps warnings quiet and opens diagnostics for errors", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const editor = page.getByRole("textbox");
+  await editor.fill(WARNING_SOURCE);
+  await expect(page.getByRole("button", { name: /1 warning/ })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "Diagnostics" })).toHaveCount(
+    0,
+  );
+
+  await editor.fill(ERROR_SOURCE);
+  await expect(page.getByRole("dialog", { name: "Diagnostics" })).toBeVisible();
+  await expect(
+    page.getByRole("dialog", { name: "Diagnostics" }),
+  ).not.toBeFocused();
+});
+
+test("filters and navigates compact diagnostic rows", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("textbox").fill(WARNING_SOURCE);
+  await page.getByRole("button", { name: /1 warning/ }).click();
+  const drawer = page.getByRole("dialog", { name: "Diagnostics" });
+  await expect(drawer).toBeVisible();
+  await expect(
+    drawer.getByText(/AWS-NETWORKING-SUBNET-CONTAINMENT-001/),
+  ).toBeVisible();
+  const row = drawer.getByRole("option").first();
+  await row.focus();
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /warning/ })).toBeFocused();
+});
+
+test("moves diagnostic focus and expands remediation without selecting", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("textbox").fill(MULTI_WARNING_SOURCE);
+  const trigger = page.getByRole("button", {
+    name: /2 warnings, open diagnostics/,
+  });
+  await trigger.click();
+
+  const drawer = page.getByRole("dialog", { name: "Diagnostics" });
+  const rows = drawer.getByRole("option");
+  await expect(rows).toHaveCount(2);
+  await rows.first().focus();
+  await page.keyboard.press("ArrowDown");
+  await expect(rows.nth(1)).toBeFocused();
+
+  const remediation = rows.nth(1).getByRole("button", {
+    name: "Show remediation",
+  });
+  await remediation.click();
+  await expect(rows.nth(1)).toHaveAttribute("aria-selected", "false");
+  await expect(
+    rows.nth(1).getByText(/Nest the subnet block inside a vpc block/),
+  ).toBeVisible();
+
+  await rows.nth(1).getByRole("button", { name: "Hide remediation" }).focus();
+  await page.keyboard.press("Escape");
+  await expect(drawer).toHaveCount(0);
+  await expect(trigger).toBeFocused();
 });

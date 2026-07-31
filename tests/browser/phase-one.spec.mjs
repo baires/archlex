@@ -126,7 +126,9 @@ for (const theme of ["dark", "light"]) {
     page,
   }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "CloudMer" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "CloudMer", exact: true }),
+    ).toBeVisible();
     await expect(page.getByRole("textbox")).toHaveValue(CHAIN_SOURCE);
 
     await setTheme(page, theme);
@@ -155,9 +157,12 @@ for (const theme of ["dark", "light"]) {
       await expectCompactIconLabelGeometry(node);
     }
 
-    // A diagram without diagnostics renders no diagnostics panel at all
-    // (the playground hides the pane when the list is empty).
-    await expect(page.getByTestId("diagnostics")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /open diagnostics/ }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("dialog", { name: "Diagnostics" })).toHaveCount(
+      0,
+    );
   });
 }
 

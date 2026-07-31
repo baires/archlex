@@ -2,13 +2,19 @@ import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
 import type { Diagnostic, ValidationMode } from "@cloudmer/model";
 import { useEffect, useRef, useState } from "react";
 import { CommandBar } from "./components/CommandBar.js";
-import { Diagnostics } from "./components/Diagnostics.js";
+import {
+  type DiagnosticFilter,
+  DiagnosticsDrawer,
+} from "./components/DiagnosticsDrawer.js";
 import { Editor } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
+import { StatusBar } from "./components/StatusBar.js";
 import { Workspace } from "./components/Workspace.js";
 import {
   DEFAULT_SPLIT_RATIO,
   clampSplitRatio,
+  shouldAutoOpenDiagnostics,
+  summarizeDiagnostics,
 } from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 
@@ -16,6 +22,11 @@ const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
 
 const STORAGE_SOURCE_KEY = "cloudmer_source_v1";
 const STORAGE_OPTIONS_KEY = "cloudmer_options_v1";
+
+function providerFromSource(source: string): "aws" | "gcp" | "unknown" {
+  const provider = /^provider\s+(aws|gcp)\s*$/m.exec(source)?.[1];
+  return provider === "aws" || provider === "gcp" ? provider : "unknown";
+}
 
 export type OperationMessage = {
   tone: "success" | "error";
@@ -76,6 +87,9 @@ export function App() {
   const [splitRatio, setSplitRatio] = useState(initialOptions.splitRatio);
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
+  const [diagnosticFilter, setDiagnosticFilter] =
+    useState<DiagnosticFilter>("all");
 
   const [currentSvg, setCurrentSvg] = useState<string>("");
   const [diagnostics, setDiagnostics] = useState<readonly Diagnostic[]>([]);
@@ -85,6 +99,8 @@ export function App() {
     useState<OperationMessage>(null);
   const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
   const renderStartedAtRef = useRef(0);
+  const previousSummaryRef = useRef(summarizeDiagnostics([]));
+  const diagnosticsTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   // 1. Persist to LocalStorage
   useEffect(() => {
@@ -140,6 +156,14 @@ export function App() {
         })
         .then((result) => {
           if (controller.signal.aborted) return;
+          const nextSummary = summarizeDiagnostics(result.diagnostics);
+          if (
+            shouldAutoOpenDiagnostics(previousSummaryRef.current, nextSummary)
+          ) {
+            setDiagnosticFilter("error");
+            setIsDiagnosticsOpen(true);
+          }
+          previousSummaryRef.current = nextSummary;
           setCurrentSvg(result.svg);
           setDiagnostics(result.diagnostics);
           setRenderDurationMs(
@@ -213,13 +237,16 @@ export function App() {
     });
   };
 
-  const renderStatus = operationMessage?.text
-    ? operationMessage.text
-    : isRendering
-      ? "Rendering…"
-      : renderDurationMs === null
-        ? "Ready"
-        : `Ready · rendered in ${renderDurationMs} ms`;
+  const handleOpenDiagnostics = (filter: DiagnosticFilter) => {
+    const activeElement = document.activeElement;
+    diagnosticsTriggerRef.current =
+      activeElement instanceof HTMLButtonElement ? activeElement : null;
+    setDiagnosticFilter(filter);
+    setIsDiagnosticsOpen(true);
+  };
+
+  const summary = summarizeDiagnostics(diagnostics);
+  const provider = providerFromSource(source);
 
   return (
     <div className="app-shell" data-theme={theme}>
@@ -258,21 +285,31 @@ export function App() {
           />
         }
         diagnosticsDrawer={
-          <Diagnostics
-            diagnostics={diagnostics}
-            selectedId={selectedId}
-            onSelectDiagnostic={(id) => setSelectedId(id)}
-          />
+          isDiagnosticsOpen ? (
+            <DiagnosticsDrawer
+              diagnostics={diagnostics}
+              filter={diagnosticFilter}
+              selectedId={selectedId}
+              triggerRef={diagnosticsTriggerRef}
+              onFilterChange={setDiagnosticFilter}
+              onSelectDiagnostic={(diagnostic) =>
+                setSelectedId(diagnostic.elements[0] ?? null)
+              }
+              onClose={() => setIsDiagnosticsOpen(false)}
+            />
+          ) : null
         }
         statusBar={
-          <output
-            className={`render-metadata status-badge workspace-status-bar ${
-              operationMessage?.tone ?? (isRendering ? "rendering" : "ready")
-            }`}
-            aria-live="polite"
-          >
-            {renderStatus} · Ln {cursor.line}, Col {cursor.column}
-          </output>
+          <StatusBar
+            provider={provider}
+            cursor={cursor}
+            summary={summary}
+            activeFilter={diagnosticFilter}
+            isRendering={isRendering}
+            renderDurationMs={renderDurationMs}
+            operationMessage={operationMessage}
+            onOpenDiagnostics={handleOpenDiagnostics}
+          />
         }
         isFullscreen={isFullscreen}
       />
