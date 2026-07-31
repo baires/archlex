@@ -1,5 +1,6 @@
 import type { ValidationMode } from "@cloudmer/model";
 import type { ArchitectureExample } from "../examples.js";
+import { Icon } from "./Icon.js";
 
 interface ToolbarProps {
   status: string;
@@ -101,16 +102,17 @@ export function Toolbar({
           onClick={() => onThemeChange(theme === "dark" ? "light" : "dark")}
           title="Toggle Theme"
         >
-          {theme === "dark" ? "☀️" : "🌙"}
+          <Icon name={theme === "dark" ? "sun" : "moon"} />
         </button>
 
         <button
           type="button"
           className="btn-secondary"
           onClick={onCopySvg}
-          title="Copy SVG to Clipboard"
+          title={copied ? "SVG copied" : "Copy SVG to Clipboard"}
+          aria-label={copied ? "SVG copied" : "Copy SVG to Clipboard"}
         >
-          {copied ? "✓" : "📋"}
+          <Icon name="clipboard" />
         </button>
 
         <button
@@ -119,7 +121,7 @@ export function Toolbar({
           onClick={onDownloadSvg}
           title="Download SVG Diagram"
         >
-          ⬇️ Download
+          <Icon name="download" /> Download
         </button>
       </div>
 
