@@ -720,3 +720,133 @@ service-b -[subscribes]-> queue
 
 ---
 
+## Validation & Troubleshooting
+
+CloudMer's validation engine helps ensure your diagrams are semantically accurate and compatible with your cloud provider.
+
+### Validation Engine Overview
+
+CloudMer performs three types of validation:
+
+1. **Structural Validation**: Verifies syntax correctness, required fields, and diagram structure. Always enabled.
+2. **Provider Semantic Validation**: Checks if relationship types are compatible with the specific services involved (e.g., can this Lambda actually invoke this S3 bucket?). Applies to built-in neutral relationship kinds only.
+3. **Provider Guidance**: Offers best-practice recommendations and warnings (e.g., using `connects` when a more specific type would be clearer).
+
+### Validation Modes
+
+CloudMer supports three validation modes:
+
+- **`normal`** (default): Structural validation + provider semantic validation. Custom relationship kinds generate **info-level** diagnostic `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent), but do not block rendering.
+- **`strict`**: Elevates info-level diagnostics to **errors**. Custom relationship kinds are rejected, enforcing built-in types only.
+- **`off`**: Disables validation entirely. Not recommended for production diagrams.
+
+Set validation mode in your CloudMer configuration or via CLI flags.
+
+### Diagnostic Code Breakdown
+
+**`AWS-RELATIONSHIP-UNKNOWN-KIND`** (or provider-specific equivalent):
+- **Severity in `normal` mode**: Info (does not block rendering)
+- **Severity in `strict` mode**: Error (blocks rendering)
+- **Cause**: Using a custom relationship kind not recognized by the provider validation engine.
+- **Fix**: Use a built-in neutral relationship kind, or accept the info-level diagnostic if the custom kind is intentional.
+
+**`AWS-RELATIONSHIP-INCOMPATIBLE-SERVICES`**:
+- **Severity**: Error
+- **Cause**: The relationship type is semantically incompatible with the source or target service (e.g., `Lambda -[replicates]-> S3` doesn't make sense—Lambda doesn't replicate data).
+- **Fix**: Choose a more appropriate relationship type (e.g., `Lambda -[writes]-> S3`).
+
+**`AWS-RELATIONSHIP-DIRECTION-MISMATCH`**:
+- **Severity**: Warning or Error
+- **Cause**: The arrow direction conflicts with the semantic direction of the relationship kind (e.g., `Database -[reads]-> API` reverses the typical data flow direction).
+- **Fix**: Reverse the arrow direction or choose a different relationship type.
+
+### Common Errors and Fixes
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Unknown relationship kind | Using custom kind in `strict` mode | Switch to built-in type or use `normal` mode |
+| Incompatible services | Relationship type doesn't match service capabilities | Choose semantically correct type |
+| Direction mismatch | Arrow direction conflicts with relationship semantics | Reverse arrow or choose different type |
+| Missing relationship kind | Relationship has no `-[kind]->` specified | Add explicit relationship kind |
+
+### Troubleshooting Checklist
+
+When you encounter relationship validation errors:
+
+1. **Check the relationship kind**: Is it a built-in neutral kind or a custom kind?
+2. **Verify service compatibility**: Does the relationship make sense for the source and target services?
+3. **Check arrow direction**: Does the arrow direction match the semantic direction of the relationship?
+4. **Review validation mode**: Are you in `normal`, `strict`, or `off` mode?
+5. **Consult the [Question-Based Selection Guide](#question-based-selection-guide)**: Confirm you're using the most appropriate relationship type.
+6. **Check the [Relationship Type Reference](#relationship-type-reference)**: Review the "When to use" and "When NOT to use" sections for your chosen type.
+7. **Review the diagnostic message**: CloudMer diagnostics include suggestions—read them carefully.
+
+---
+
+## Visual Conventions
+
+Understanding how CloudMer renders relationships helps you create clear, readable diagrams.
+
+### Arrow Styles
+
+CloudMer supports multiple arrow styles in relationship syntax:
+
+- `->`: Standard directed arrow (most common)
+- `<-`: Reverse directed arrow (semantically equivalent to reversing source and target)
+- `<->`: Bidirectional arrow (rare, typically used with `connects`)
+- `--`: Undirected line (no semantic direction)
+- `.->`: Dotted arrow (visual style, no semantic difference)
+
+**Example:**
+```cloudmer
+# These are semantically equivalent
+api -[reads]-> database
+database <-[reads]- api
+```
+
+### Relationship Kind vs Presentation Label
+
+CloudMer distinguishes between:
+
+1. **Relationship kind** (`-[kind]->`): The semantic type used for validation and understanding
+2. **Presentation label** (`->|label|`): Optional display text shown on the rendered arrow for additional context
+
+**Syntax:** `-[kind]->|label|`
+
+**Example:**
+```cloudmer
+# Relationship kind drives validation
+api -[reads]-> database
+
+# Presentation label enhances readability
+api -[reads]->|"Fetch User Data"| database
+
+# Both kind and label
+api -[invokes]->|"POST /orders"| order-service
+```
+
+**Guidelines:**
+- The **kind** is mandatory for validation and determines semantic meaning.
+- The **label** is optional and provides human-readable context in rendered diagrams.
+- Labels do not affect validation—only the kind matters for semantic correctness.
+
+### Semantic Direction vs Visual Layout
+
+**Semantic direction**: The direction of data flow or interaction, determined by the relationship kind.
+
+**Visual layout**: The direction the arrow points in the rendered diagram, influenced by the `direction` directive.
+
+**Important:** The `direction` directive (e.g., `direction LR`, `direction TB`) affects **layout only**, not semantic meaning.
+
+**Example:**
+```cloudmer
+# Semantic direction: API reads from database (data flows database -> API)
+# Visual layout: Can be rendered left-to-right, top-to-bottom, etc.
+direction LR
+api -[reads]-> database  # Arrow points right, but data flows left semantically
+```
+
+**Key takeaway:** Always choose relationship kinds based on semantic direction (data flow, initiator), not visual layout preferences. The `direction` directive will adjust the diagram layout without changing semantic meaning.
+
+---
+
