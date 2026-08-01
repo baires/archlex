@@ -51,4 +51,29 @@ describe("sanitizeSvg", () => {
       ).rejects.toThrow("maxBytes must be a finite, non-negative integer");
     },
   );
+
+  it.each([
+    "u\\72 l(//attacker.example/x.svg)",
+    "u\\72 l(//attacker.example/x.svg#p)",
+  ])("rejects escaped CSS URL syntax: %s", async (value) => {
+    await expect(
+      sanitizeSvg(
+        "aws",
+        "escaped-url",
+        `<svg viewBox="0 0 24 24"><path fill="${value}"/></svg>`,
+      ),
+    ).rejects.toThrow("Only local fragment references are allowed");
+  });
+
+  it.each(["#4285F4", "currentColor", "none", "url(#local-id)"])(
+    "retains safe URI-capable paint values: %s",
+    async (value) => {
+      const icon = await sanitizeSvg(
+        "aws",
+        "safe-paint",
+        `<svg viewBox="0 0 24 24"><path fill="${value}"/></svg>`,
+      );
+      expect(icon.svgFragment).toContain(`fill="${value}"`);
+    },
+  );
 });

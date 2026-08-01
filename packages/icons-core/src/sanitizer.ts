@@ -105,9 +105,11 @@ const URI_REFERENCE_ATTRIBUTES = new Set([
   "mask",
   "clip-path",
 ]);
+const PAINT_ATTRIBUTES = new Set(["fill", "stroke"]);
 const LOCAL_FRAGMENT_REFERENCE = /^#[a-zA-Z_][a-zA-Z0-9_.:-]*$/;
 const LOCAL_FRAGMENT_URL = /^url\(\s*#[a-zA-Z_][a-zA-Z0-9_.:-]*\s*\)$/i;
-const URL_FUNCTION = /^url\s*\(/i;
+const SAFE_PAINT_TOKEN =
+  /^(?:#[a-f0-9]{3,4}|#[a-f0-9]{6}(?:[a-f0-9]{2})?|[a-z]+)$/i;
 
 export interface SanitizeSvgOptions {
   readonly maxBytes?: number;
@@ -269,14 +271,28 @@ function validateUriReference(
   const normalizedValue = value.trim();
   const isLocalFragment = LOCAL_FRAGMENT_REFERENCE.test(normalizedValue);
   const isLocalFragmentUrl = LOCAL_FRAGMENT_URL.test(normalizedValue);
-  const isUriValue =
-    URL_FUNCTION.test(normalizedValue) ||
-    normalizedValue.includes("#") ||
-    /^(?:[a-z][a-z0-9+.-]*:|\/|\.\/|\.\.\/)/i.test(normalizedValue);
 
-  if (isUriValue && !isLocalFragment && !isLocalFragmentUrl) {
-    throw new Error(
-      `Only local fragment references are allowed in attribute "${attributeName}" for ${provider}/${key}`,
-    );
+  if (normalizedValue.includes("\\")) {
+    throwLocalReferenceError(attributeName, provider, key);
   }
+  if (isLocalFragment || isLocalFragmentUrl) return;
+  if (
+    PAINT_ATTRIBUTES.has(attributeName) &&
+    SAFE_PAINT_TOKEN.test(normalizedValue)
+  ) {
+    return;
+  }
+  if (normalizedValue === "none") return;
+
+  throwLocalReferenceError(attributeName, provider, key);
+}
+
+function throwLocalReferenceError(
+  attributeName: string,
+  provider: string,
+  key: string,
+): never {
+  throw new Error(
+    `Only local fragment references are allowed in attribute "${attributeName}" for ${provider}/${key}`,
+  );
 }
