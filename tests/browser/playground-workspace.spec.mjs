@@ -166,6 +166,50 @@ test("uses editor and preview tabs on narrow screens", async ({ page }) => {
   await expect(page.getByRole("separator")).toHaveCount(0);
 });
 
+test("fullscreen preview preserves workspace and canvas state", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const separator = page.getByRole("separator", {
+    name: "Resize editor and preview",
+  });
+  await separator.focus();
+  await page.keyboard.press("ArrowRight");
+  await page.getByRole("button", { name: "Actual size" }).click();
+  await page.getByRole("button", { name: "Zoom in" }).click();
+
+  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  await expect(page.getByTestId("workspace")).toHaveClass(/is-fullscreen/);
+  await expect(
+    page.getByRole("button", { name: "Exit fullscreen preview" }),
+  ).toBeVisible();
+  await expect(page.getByRole("banner")).toBeHidden();
+  await expect(page.getByLabel("Zoom level")).toHaveText("110%");
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("workspace")).not.toHaveClass(/is-fullscreen/);
+  await expect(separator).toHaveAttribute("aria-valuenow", "42");
+  await expect(page.getByLabel("Zoom level")).toHaveText("110%");
+});
+
+test("falls back to in-app fullscreen when the browser request rejects", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    Element.prototype.requestFullscreen = () =>
+      Promise.reject(new Error("denied"));
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  await expect(page.getByTestId("workspace")).toHaveAttribute(
+    "data-fullscreen-mode",
+    "in-app",
+  );
+  await expect(
+    page.getByRole("button", { name: "Exit fullscreen preview" }),
+  ).toBeVisible();
+});
+
 test("keeps warnings quiet and opens diagnostics for errors", async ({
   page,
 }) => {

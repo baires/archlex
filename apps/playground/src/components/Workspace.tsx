@@ -2,8 +2,9 @@ import type {
   KeyboardEvent as ReactKeyboardEvent,
   ReactNode,
   PointerEvent as ReactPointerEvent,
+  RefObject,
 } from "react";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   MAX_SPLIT_RATIO,
   MIN_SPLIT_RATIO,
@@ -11,8 +12,94 @@ import {
 } from "./workspace-state.js";
 
 export type WorkspaceTab = "editor" | "preview";
+export type FullscreenMode = "off" | "native" | "in-app";
+
+interface WorkspaceFullscreenController {
+  mode: FullscreenMode;
+  isFullscreen: boolean;
+  workspaceRef: RefObject<HTMLElement | null>;
+  enterFullscreen: () => Promise<void>;
+  exitFullscreen: () => Promise<void>;
+}
+
+export function useWorkspaceFullscreen(): WorkspaceFullscreenController {
+  const workspaceRef = useRef<HTMLElement>(null);
+  const entryTriggerRef = useRef<HTMLElement | null>(null);
+  const modeRef = useRef<FullscreenMode>("off");
+  const [mode, setModeState] = useState<FullscreenMode>("off");
+
+  const setMode = useCallback((nextMode: FullscreenMode) => {
+    modeRef.current = nextMode;
+    setModeState(nextMode);
+  }, []);
+
+  const restoreEntryFocus = useCallback(() => {
+    window.requestAnimationFrame(() => entryTriggerRef.current?.focus());
+  }, []);
+
+  const finishFullscreen = useCallback(() => {
+    setMode("off");
+    restoreEntryFocus();
+  }, [restoreEntryFocus, setMode]);
+
+  const enterFullscreen = useCallback(async () => {
+    const workspace = workspaceRef.current;
+    entryTriggerRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
+    if (!workspace?.requestFullscreen) {
+      setMode("in-app");
+      return;
+    }
+
+    try {
+      await workspace.requestFullscreen();
+      setMode(document.fullscreenElement === workspace ? "native" : "in-app");
+    } catch {
+      setMode("in-app");
+    }
+  }, [setMode]);
+
+  const exitFullscreen = useCallback(async () => {
+    if (modeRef.current === "native" && document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+    finishFullscreen();
+  }, [finishFullscreen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (modeRef.current === "native" && document.fullscreenElement === null) {
+        finishFullscreen();
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (modeRef.current === "off" || event.key !== "Escape") return;
+      event.preventDefault();
+      void exitFullscreen();
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [exitFullscreen, finishFullscreen]);
+
+  return {
+    mode,
+    isFullscreen: mode !== "off",
+    workspaceRef,
+    enterFullscreen,
+    exitFullscreen,
+  };
+}
 
 interface WorkspaceProps {
+  workspaceRef: RefObject<HTMLElement | null>;
   splitRatio: number;
   onSplitRatioChange: (value: number) => void;
   editor: ReactNode;
@@ -20,6 +107,7 @@ interface WorkspaceProps {
   diagnosticsDrawer: ReactNode;
   statusBar: ReactNode;
   isFullscreen: boolean;
+  fullscreenMode: FullscreenMode;
 }
 
 const tabs: readonly WorkspaceTab[] = ["editor", "preview"];
@@ -29,6 +117,7 @@ function labelForTab(tab: WorkspaceTab): string {
 }
 
 export function Workspace({
+  workspaceRef,
   splitRatio,
   onSplitRatioChange,
   editor,
@@ -36,8 +125,8 @@ export function Workspace({
   diagnosticsDrawer,
   statusBar,
   isFullscreen,
+  fullscreenMode,
 }: WorkspaceProps) {
-  const workspaceRef = useRef<HTMLElement>(null);
   const resizePointerIdRef = useRef<number | null>(null);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("editor");
 
@@ -121,8 +210,11 @@ export function Workspace({
   return (
     <main
       ref={workspaceRef}
-      className={`workspace-grid${isFullscreen ? " is-fullscreen" : ""}`}
+      className={`workspace workspace-grid${
+        isFullscreen ? " is-fullscreen" : ""
+      }`}
       data-testid="workspace"
+      data-fullscreen-mode={fullscreenMode}
       style={{ gridTemplateColumns: `${splitRatio * 100}% 1px 1fr` }}
     >
       <div className="workspace-tablist" role="tablist" aria-label="Workspace">

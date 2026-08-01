@@ -9,6 +9,7 @@ interface CommandBarProps {
   theme: "dark" | "light";
   examples: readonly ArchitectureExample[];
   canExport: boolean;
+  isFullscreen: boolean;
   onDirectionChange: (value: "LR" | "RL" | "TB" | "BT") => void;
   onValidationChange: (value: ValidationMode) => void;
   onThemeChange: (value: "dark" | "light") => void;
@@ -24,6 +25,7 @@ export function CommandBar({
   theme,
   examples,
   canExport,
+  isFullscreen,
   onDirectionChange,
   onValidationChange,
   onThemeChange,
@@ -33,7 +35,7 @@ export function CommandBar({
   onEnterFullscreen,
 }: CommandBarProps) {
   return (
-    <header className="command-bar">
+    <header className="command-bar" hidden={isFullscreen}>
       <div className="command-bar-brand">
         <span className="wordmark" aria-hidden="true">
           CLOUDMER
@@ -115,8 +117,8 @@ export function CommandBar({
         <button
           type="button"
           className="btn-secondary icon-button"
-          aria-label="Enter fullscreen"
-          title="Enter fullscreen"
+          aria-label="Enter fullscreen preview"
+          title="Enter fullscreen preview"
           onClick={onEnterFullscreen}
         >
           <Icon name="enter-fullscreen" />

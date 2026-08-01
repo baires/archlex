@@ -93,6 +93,10 @@ select {
   border-bottom: 1px solid var(--line);
 }
 
+.command-bar[hidden] {
+  display: none;
+}
+
 .command-bar-controls,
 .command-bar-actions,
 .control-group,
@@ -484,6 +488,8 @@ select {
 }
 
 .preview-controls button {
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
 
@@ -552,8 +558,9 @@ select {
 }
 
 .empty-icon {
+  display: grid;
+  place-items: center;
   color: var(--accent);
-  font-size: 2.5rem;
 }
 
 .empty-title {
@@ -843,6 +850,45 @@ select {
   .editor-pane {
     height: 100%;
   }
+}
+
+.workspace.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  background: var(--surface-0);
+}
+
+.workspace.is-fullscreen .workspace-tablist,
+.workspace.is-fullscreen .workspace-editor-panel,
+.workspace.is-fullscreen .workspace-splitter,
+.workspace.is-fullscreen > .diagnostics-drawer,
+.workspace.is-fullscreen > .workspace-status-bar,
+.workspace.is-fullscreen .preview-pane > .pane-header {
+  display: none;
+}
+
+.workspace.is-fullscreen .workspace-preview-panel {
+  grid-column: 1;
+  grid-row: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.fullscreen-view-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+
+.fullscreen-view-controls button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: -3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

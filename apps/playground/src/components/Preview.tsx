@@ -7,20 +7,25 @@ import {
   useRef,
   useState,
 } from "react";
+import { Icon } from "./Icon.js";
 import { calculateFitScale, clampScale } from "./preview-transform.js";
 
 interface PreviewProps {
   svg: string;
   isRendering: boolean;
   selectedId: string | null;
+  isFullscreen: boolean;
   onSelectElement: (id: string | null) => void;
+  onExitFullscreen: () => void;
 }
 
 export function Preview({
   svg,
   isRendering,
   selectedId,
+  isFullscreen,
   onSelectElement,
+  onExitFullscreen,
 }: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -157,7 +162,7 @@ export function Preview({
       <div className="pane-header">
         <h2>Preview</h2>
         <div className="preview-header-actions">
-          {hasNodes ? (
+          {hasNodes && !isFullscreen ? (
             <div
               className="preview-controls"
               aria-label="Diagram view controls"
@@ -168,7 +173,7 @@ export function Preview({
                 aria-label="Zoom out"
                 title="Zoom out"
               >
-                −
+                <Icon name="zoom-out" />
               </button>
               <output aria-label="Zoom level">
                 {Math.round(scale * 100)}%
@@ -179,7 +184,7 @@ export function Preview({
                 aria-label="Zoom in"
                 title="Zoom in"
               >
-                +
+                <Icon name="zoom-in" />
               </button>
               <button
                 type="button"
@@ -187,7 +192,7 @@ export function Preview({
                 aria-label="Fit diagram"
                 title="Fit diagram to viewport"
               >
-                Fit
+                <Icon name="fit" />
               </button>
               <button
                 type="button"
@@ -210,6 +215,47 @@ export function Preview({
         </div>
       </div>
 
+      {isFullscreen ? (
+        <div
+          className="preview-controls fullscreen-view-controls"
+          aria-label="Fullscreen diagram view controls"
+        >
+          <button
+            type="button"
+            onClick={() => zoomBy(-0.1)}
+            aria-label="Zoom out"
+            title="Zoom out"
+          >
+            <Icon name="zoom-out" />
+          </button>
+          <output aria-label="Zoom level">{Math.round(scale * 100)}%</output>
+          <button
+            type="button"
+            onClick={() => zoomBy(0.1)}
+            aria-label="Zoom in"
+            title="Zoom in"
+          >
+            <Icon name="zoom-in" />
+          </button>
+          <button
+            type="button"
+            onClick={fitDiagram}
+            aria-label="Fit diagram"
+            title="Fit diagram to viewport"
+          >
+            <Icon name="fit" />
+          </button>
+          <button
+            type="button"
+            onClick={onExitFullscreen}
+            aria-label="Exit fullscreen preview"
+            title="Exit fullscreen preview"
+          >
+            <Icon name="exit-fullscreen" />
+          </button>
+        </div>
+      ) : null}
+
       <div
         ref={viewportRef}
         className={`preview-viewport${isPanning ? " is-panning" : ""}`}
@@ -221,12 +267,11 @@ export function Preview({
       >
         {!hasNodes && !isRendering ? (
           <div className="empty-state">
-            <div className="empty-icon">📐</div>
-            <p className="empty-title">Start Building</p>
-            <p className="empty-hint">
-              Write CloudMer DSL code to visualize your cloud architecture
-            </p>
-            <code className="empty-code">account production → region us-east-1 → vpc main</code>
+            <div className="empty-icon">
+              <Icon name="fit" size={32} />
+            </div>
+            <p className="empty-title">No diagram yet</p>
+            <p className="empty-hint">Write CloudMer DSL to preview it here.</p>
           </div>
         ) : null}
         <div

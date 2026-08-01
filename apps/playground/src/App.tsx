@@ -9,7 +9,7 @@ import {
 import { Editor, type EditorSelection } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
 import { StatusBar } from "./components/StatusBar.js";
-import { Workspace } from "./components/Workspace.js";
+import { Workspace, useWorkspaceFullscreen } from "./components/Workspace.js";
 import {
   type RenderIssue,
   createRenderIssue,
@@ -90,7 +90,6 @@ export function App() {
   const [theme, setTheme] = useState<"dark" | "light">(initialOptions.theme);
   const [splitRatio, setSplitRatio] = useState(initialOptions.splitRatio);
   const [cursor, setCursor] = useState({ line: 1, column: 1 });
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
   const [diagnosticFilter, setDiagnosticFilter] =
     useState<DiagnosticFilter>("all");
@@ -110,6 +109,7 @@ export function App() {
   const lastSuccessfulDiagnosticsRef = useRef<readonly Diagnostic[]>([]);
   const selectionRequestRef = useRef(0);
   const diagnosticsTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const fullscreen = useWorkspaceFullscreen();
 
   // 1. Persist to LocalStorage
   useEffect(() => {
@@ -131,16 +131,6 @@ export function App() {
     }
     document.documentElement.setAttribute("data-theme", theme);
   }, [direction, validation, theme, splitRatio]);
-
-  useEffect(() => {
-    const syncFullscreenState = () => {
-      setIsFullscreen(document.fullscreenElement !== null);
-    };
-    document.addEventListener("fullscreenchange", syncFullscreenState);
-    syncFullscreenState();
-    return () =>
-      document.removeEventListener("fullscreenchange", syncFullscreenState);
-  }, []);
 
   // 2. 150ms Debounced Render Pipeline
   const activeControllerRef = useRef<AbortController | null>(null);
@@ -254,13 +244,6 @@ export function App() {
     }
   };
 
-  const handleEnterFullscreen = () => {
-    if (!document.documentElement.requestFullscreen) return;
-    void document.documentElement.requestFullscreen().catch(() => {
-      setOperationMessage({ tone: "error", text: "Fullscreen unavailable" });
-    });
-  };
-
   const handleOpenDiagnostics = (filter: DiagnosticFilter) => {
     const activeElement = document.activeElement;
     diagnosticsTriggerRef.current =
@@ -289,16 +272,18 @@ export function App() {
         theme={theme}
         examples={ARCHITECTURE_EXAMPLES}
         canExport={Boolean(currentSvg)}
+        isFullscreen={fullscreen.isFullscreen}
         onDirectionChange={setDirection}
         onValidationChange={setValidation}
         onThemeChange={setTheme}
         onSelectExample={handleSelectExample}
         onCopySvg={handleCopySvg}
         onDownloadSvg={handleDownloadSvg}
-        onEnterFullscreen={handleEnterFullscreen}
+        onEnterFullscreen={() => void fullscreen.enterFullscreen()}
       />
 
       <Workspace
+        workspaceRef={fullscreen.workspaceRef}
         splitRatio={splitRatio}
         onSplitRatioChange={setSplitRatio}
         editor={
@@ -315,7 +300,9 @@ export function App() {
             svg={currentSvg}
             isRendering={isRendering}
             selectedId={selectedId}
+            isFullscreen={fullscreen.isFullscreen}
             onSelectElement={setSelectedId}
+            onExitFullscreen={() => void fullscreen.exitFullscreen()}
           />
         }
         diagnosticsDrawer={
@@ -344,7 +331,8 @@ export function App() {
             onOpenDiagnostics={handleOpenDiagnostics}
           />
         }
-        isFullscreen={isFullscreen}
+        isFullscreen={fullscreen.isFullscreen}
+        fullscreenMode={fullscreen.mode}
       />
     </div>
   );
