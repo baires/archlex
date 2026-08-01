@@ -294,3 +294,116 @@ orchestrator -[invokes]-> service-b
 
 ---
 
+### routes
+
+**Definition:** Traffic distribution, load balancing, proxying, or API gateway routing. The source service forwards, routes, or balances traffic to the target service.
+
+**When to use:**
+- The source is a load balancer distributing requests across multiple targets.
+- The source is an API gateway routing requests to backend services.
+- The source is a proxy forwarding traffic to downstream services.
+- The source makes routing decisions based on rules, paths, or health checks.
+
+**When NOT to use:**
+- The source directly invokes the target without intermediary routing logic (use `invokes` instead).
+- The source publishes messages to a queue or topic (use `publishes` instead).
+- The relationship represents data replication rather than traffic routing (use `replicates` instead).
+
+**Directionality:** Source → Target (traffic flows from source router/gateway/LB to target service).
+
+**Examples:**
+
+```cloudmer
+# Load balancer routes to backend services
+loadbalancer -[routes]-> backend-a
+loadbalancer -[routes]-> backend-b
+
+# API gateway routes to microservices
+gateway -[routes]-> users-service
+gateway -[routes]-> orders-service
+
+# Proxy forwards requests
+proxy -[routes]-> upstream
+```
+
+**Common mistakes:**
+- Using `routes` for direct service-to-service calls—use `invokes` for direct invocations.
+- Using `routes` for message queue patterns—use `publishes`/`subscribes` for event-driven flows.
+- Confusing `routes` with `replicates`—`routes` is for traffic distribution, `replicates` is for data synchronization.
+
+---
+
+### replicates
+
+**Definition:** Data synchronization, cross-region replication, or backup workflows. The source service replicates its data to the target service or storage.
+
+**When to use:**
+- The source database replicates to a replica or standby database.
+- The source storage bucket syncs data to another region or backup location.
+- The source service maintains data consistency across multiple targets.
+- You're modeling disaster recovery, high availability, or data redundancy patterns.
+
+**When NOT to use:**
+- The source routes traffic to the target (use `routes` instead).
+- The source writes new data to the target without replication semantics (use `writes` instead).
+- The source reads from a read replica (use `reads` instead—replication is modeled from primary to replica).
+
+**Directionality:** Source → Target (data replicates from source to target).
+
+**Examples:**
+
+```cloudmer
+# Database primary replicates to read replica
+db-primary -[replicates]-> db-replica
+
+# S3 bucket replicates to another region
+bucket-us -[replicates]-> bucket-eu
+
+# Data store syncs to backup
+datastore -[replicates]-> backup-store
+```
+
+**Common mistakes:**
+- Using `replicates` for one-time data migrations—use `writes` for single data transfers.
+- Using `replicates` for read operations from replicas—use `reads` to model reading from a replica.
+- Confusing `replicates` with `routes`—`replicates` is for data sync, `routes` is for traffic distribution.
+
+---
+
+### assumes-role
+
+**Definition:** Identity delegation, IAM role assumption, or permission granting. The source service assumes a role or identity from the target to gain permissions.
+
+**When to use:**
+- The source service assumes an IAM role provided by the target account or resource.
+- The source gains temporary credentials or permissions from the target.
+- You're modeling cross-account access, service-to-service authentication, or permission delegation.
+- The relationship represents trust relationships between services or accounts.
+
+**When NOT to use:**
+- The source simply invokes the target with its own credentials (use `invokes` instead).
+- The source reads or writes data without role assumption (use `reads` or `writes`).
+- The relationship represents data flow rather than permission flow (use appropriate data/communication types).
+
+**Directionality:** Source assumes role from Target (source depends on target for permissions).
+
+**Examples:**
+
+```cloudmer
+# Lambda assumes role to access S3
+function -[assumes-role]-> s3-access-role
+
+# Service assumes cross-account role
+service-a -[assumes-role]-> account-b-role
+
+# ECS task assumes execution role
+task -[assumes-role]-> execution-role
+```
+
+**Common mistakes:**
+- Using `assumes-role` for every authenticated interaction—reserve it for explicit role assumption patterns.
+- Using `assumes-role` when the service uses its own identity without assuming another role.
+- Confusing `assumes-role` with `invokes`—`assumes-role` is for permission delegation, `invokes` is for execution.
+
+---
+
