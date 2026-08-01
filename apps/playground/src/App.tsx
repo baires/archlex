@@ -9,6 +9,7 @@ import {
 import { Editor, type EditorSelection } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
 import { StatusBar } from "./components/StatusBar.js";
+import { URLImportModal } from "./components/URLImportModal.js";
 import { Workspace, useWorkspaceFullscreen } from "./components/Workspace.js";
 import {
   type RenderIssue,
@@ -21,6 +22,7 @@ import {
   shouldAutoOpenDiagnostics,
 } from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
+import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
 const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
 
@@ -104,6 +106,7 @@ export function App() {
   const [operationMessage, setOperationMessage] =
     useState<OperationMessage>(null);
   const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
+  const [isUrlImportOpen, setIsUrlImportOpen] = useState(false);
   const renderStartedAtRef = useRef(0);
   const previousSummaryRef = useRef(summarizeStatusDiagnostics([], null));
   const lastSuccessfulDiagnosticsRef = useRef<readonly Diagnostic[]>([]);
@@ -212,6 +215,26 @@ export function App() {
     setEditorSelection(null);
   };
 
+  const handleImportFile = (content: string, filename: string) => {
+    setSource(content);
+    setSelectedId(null);
+    setEditorSelection(null);
+    setOperationMessage({
+      tone: "success",
+      text: `Imported ${filename}`,
+    });
+  };
+
+  const handleImportFromUrl = (content: string) => {
+    setSource(content);
+    setSelectedId(null);
+    setEditorSelection(null);
+    setOperationMessage({
+      tone: "success",
+      text: "Imported from URL",
+    });
+  };
+
   const handleCopySvg = async () => {
     if (!currentSvg) return;
     try {
@@ -241,6 +264,19 @@ export function App() {
       setOperationMessage({ tone: "error", text: "Download failed" });
     } finally {
       if (url) URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleDownloadPng = async () => {
+    if (!currentSvg) return;
+    try {
+      const pngDataUrl = await svgToPng(currentSvg, 2);
+      downloadDataUrl(pngDataUrl, "cloudmer-diagram.png");
+      setOperationMessage({ tone: "success", text: "PNG downloaded" });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "PNG export failed";
+      setOperationMessage({ tone: "error", text: message });
     }
   };
 
@@ -280,10 +316,20 @@ export function App() {
         onValidationChange={setValidation}
         onThemeChange={setTheme}
         onSelectExample={handleSelectExample}
+        onImportFile={handleImportFile}
+        onOpenUrlImport={() => setIsUrlImportOpen(true)}
         onCopySvg={handleCopySvg}
         onDownloadSvg={handleDownloadSvg}
+        onDownloadPng={handleDownloadPng}
         onEnterFullscreen={() => void fullscreen.enterFullscreen()}
       />
+
+      {isUrlImportOpen ? (
+        <URLImportModal
+          onImport={handleImportFromUrl}
+          onClose={() => setIsUrlImportOpen(false)}
+        />
+      ) : null}
 
       <Workspace
         workspaceRef={fullscreen.workspaceRef}

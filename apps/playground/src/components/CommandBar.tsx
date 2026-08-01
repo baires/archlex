@@ -1,6 +1,7 @@
 import type { ValidationMode } from "@cloudmer/model";
 import type { ArchitectureExample } from "../examples.js";
 import { ExportMenu } from "./ExportMenu.js";
+import { ImportMenu } from "./ImportMenu.js";
 import { Icon } from "./Icon.js";
 
 interface CommandBarProps {
@@ -14,8 +15,11 @@ interface CommandBarProps {
   onValidationChange: (value: ValidationMode) => void;
   onThemeChange: (value: "dark" | "light") => void;
   onSelectExample: (example: ArchitectureExample) => void;
+  onImportFile: (content: string, filename: string) => void;
+  onOpenUrlImport: () => void;
   onCopySvg: () => Promise<void>;
   onDownloadSvg: () => void;
+  onDownloadPng: () => Promise<void>;
   onEnterFullscreen: () => void;
 }
 
@@ -30,8 +34,11 @@ export function CommandBar({
   onValidationChange,
   onThemeChange,
   onSelectExample,
+  onImportFile,
+  onOpenUrlImport,
   onCopySvg,
   onDownloadSvg,
+  onDownloadPng,
   onEnterFullscreen,
 }: CommandBarProps) {
   return (
@@ -109,10 +116,15 @@ export function CommandBar({
         >
           <Icon name={theme === "dark" ? "sun" : "moon"} />
         </button>
+        <ImportMenu
+          onImportFile={onImportFile}
+          onOpenUrlImport={onOpenUrlImport}
+        />
         <ExportMenu
           disabled={!canExport}
           onCopySvg={onCopySvg}
           onDownloadSvg={onDownloadSvg}
+          onDownloadPng={onDownloadPng}
         />
         <button
           type="button"

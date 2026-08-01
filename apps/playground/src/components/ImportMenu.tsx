@@ -6,22 +6,16 @@ import {
 } from "react";
 import { Icon } from "./Icon.js";
 
-interface ExportMenuProps {
-  disabled: boolean;
-  onCopySvg: () => Promise<void>;
-  onDownloadSvg: () => void;
-  onDownloadPng: () => Promise<void>;
+interface ImportMenuProps {
+  onImportFile: (content: string, filename: string) => void;
+  onOpenUrlImport: () => void;
 }
 
-export function ExportMenu({
-  disabled,
-  onCopySvg,
-  onDownloadSvg,
-  onDownloadPng,
-}: ExportMenuProps) {
+export function ImportMenu({ onImportFile, onOpenUrlImport }: ImportMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const menuItemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const closeMenu = () => setIsOpen(false);
@@ -89,25 +83,60 @@ export function ExportMenu({
     menuItems[nextIndex]?.focus();
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result;
+      if (typeof content === "string") {
+        onImportFile(content, file.name);
+        closeMenu();
+      }
+    };
+    reader.readAsText(file);
+
+    // Reset input so same file can be selected again
+    event.target.value = "";
+  };
+
+  const handleFileImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleUrlImportClick = () => {
+    closeMenu();
+    onOpenUrlImport();
+  };
+
   return (
-    <div className="export-menu" ref={menuRef}>
+    <div className="import-menu" ref={menuRef}>
       <button
         ref={triggerRef}
         type="button"
         className="btn-secondary"
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        disabled={disabled}
         onClick={() => setIsOpen((open) => !open)}
       >
-        Export <Icon name="chevron-down" />
+        Import <Icon name="chevron-down" />
       </button>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".cloudmer,.txt,text/plain"
+        onChange={handleFileSelect}
+        style={{ display: "none" }}
+        aria-hidden="true"
+      />
 
       {isOpen ? (
         <div
-          className="export-menu-popover"
+          className="import-menu-popover"
           role="menu"
-          aria-label="Export"
+          aria-label="Import"
           onKeyDown={handleMenuKeyDown}
         >
           <button
@@ -116,12 +145,9 @@ export function ExportMenu({
             }}
             type="button"
             role="menuitem"
-            onClick={() => {
-              closeMenu();
-              void onCopySvg();
-            }}
+            onClick={handleFileImportClick}
           >
-            <Icon name="clipboard" /> Copy SVG
+            <Icon name="file" /> Import File
           </button>
           <button
             ref={(element) => {
@@ -129,25 +155,9 @@ export function ExportMenu({
             }}
             type="button"
             role="menuitem"
-            onClick={() => {
-              closeMenu();
-              onDownloadSvg();
-            }}
+            onClick={handleUrlImportClick}
           >
-            <Icon name="download" /> Download SVG
-          </button>
-          <button
-            ref={(element) => {
-              menuItemRefs.current[2] = element;
-            }}
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              closeMenu();
-              void onDownloadPng();
-            }}
-          >
-            <Icon name="download" /> Download PNG
+            <Icon name="link" /> Import from URL
           </button>
         </div>
       ) : null}

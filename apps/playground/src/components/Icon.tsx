@@ -2,6 +2,9 @@ export type IconName =
   | "chevron-down"
   | "clipboard"
   | "download"
+  | "upload"
+  | "link"
+  | "file"
   | "enter-fullscreen"
   | "exit-fullscreen"
   | "fit"
@@ -33,6 +36,26 @@ function glyph(name: IconName) {
       return (
         <>
           <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
+        </>
+      );
+    case "upload":
+      return (
+        <>
+          <path d="M12 21V9m0 0-4 4m4-4 4 4M5 3h14" />
+        </>
+      );
+    case "link":
+      return (
+        <>
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </>
+      );
+    case "file":
+      return (
+        <>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
+          <path d="M14 2v6h6M12 11v6m-3-3h6" />
         </>
       );
     case "enter-fullscreen":
