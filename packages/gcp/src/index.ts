@@ -1,4 +1,3 @@
-import { IconLoader } from "@archlex/icons";
 import type {
   CloudGraph,
   CloudProvider,
@@ -17,7 +16,9 @@ export * from "./icons/manifest.js";
 export * from "./icons/cdn.js";
 export * from "./registry.js";
 export * from "./rules/index.js";
-export { IconLoader } from "@archlex/icons";
+
+// Note: IconLoader is not re-exported to avoid importing Node.js-only @archlex/icons in browsers.
+// In Node.js environments, import directly: import { IconLoader } from "@archlex/icons";
 
 export function gcpProvider(): CloudProvider {
   return {
