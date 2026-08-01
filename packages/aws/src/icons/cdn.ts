@@ -1,4 +1,4 @@
-import { type CdnProviderConfig, IconLoader } from "@archlex/icons";
+import type { CdnProviderConfig } from "@archlex/icons";
 
 export const AWS_CDN_CONFIG: CdnProviderConfig = {
   provider: "aws",
@@ -39,6 +39,9 @@ export const AWS_ICON_NAME_MAPPING: Record<string, string> = {
 
 // Register provider automatically only in Node.js environments
 // Browser environments cannot use IconLoader due to Node.js dependencies
+// Use dynamic import to avoid loading @archlex/icons in browser bundles
 if (typeof process !== "undefined" && process.versions?.node) {
-  IconLoader.registerProvider("aws", AWS_CDN_CONFIG, AWS_ICON_NAME_MAPPING);
+  import("@archlex/icons").then(({ IconLoader }) => {
+    IconLoader.registerProvider("aws", AWS_CDN_CONFIG, AWS_ICON_NAME_MAPPING);
+  });
 }

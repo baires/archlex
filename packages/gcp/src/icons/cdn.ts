@@ -1,4 +1,4 @@
-import { type CdnProviderConfig, IconLoader } from "@archlex/icons";
+import type { CdnProviderConfig } from "@archlex/icons";
 
 export const GCP_CDN_CONFIG: CdnProviderConfig = {
   provider: "gcp",
@@ -35,6 +35,9 @@ export const GCP_ICON_NAME_MAPPING: Record<string, string> = {
 
 // Register provider automatically only in Node.js environments
 // Browser environments cannot use IconLoader due to Node.js dependencies
+// Use dynamic import to avoid loading @archlex/icons in browser bundles
 if (typeof process !== "undefined" && process.versions?.node) {
-  IconLoader.registerProvider("gcp", GCP_CDN_CONFIG, GCP_ICON_NAME_MAPPING);
+  import("@archlex/icons").then(({ IconLoader }) => {
+    IconLoader.registerProvider("gcp", GCP_CDN_CONFIG, GCP_ICON_NAME_MAPPING);
+  });
 }
