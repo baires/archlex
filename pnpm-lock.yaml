@@ -53,6 +53,9 @@ importers:
       '@cloudmer/core':
         specifier: workspace:^
         version: link:../../packages/core
+      '@cloudmer/diagnostics':
+        specifier: workspace:*
+        version: link:../../packages/diagnostics
       '@cloudmer/model':
         specifier: workspace:^
         version: link:../../packages/model
@@ -149,6 +152,9 @@ importers:
       '@cloudmer/aws':
         specifier: workspace:^
         version: link:../aws
+      '@cloudmer/diagnostics':
+        specifier: workspace:^
+        version: link:../diagnostics
       '@cloudmer/gcp':
         specifier: workspace:^
         version: link:../gcp
@@ -246,6 +252,9 @@ importers:
 
   packages/parser:
     dependencies:
+      '@cloudmer/diagnostics':
+        specifier: workspace:^
+        version: link:../diagnostics
       '@cloudmer/model':
         specifier: workspace:^
         version: link:../model

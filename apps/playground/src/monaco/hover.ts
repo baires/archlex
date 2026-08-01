@@ -1,3 +1,6 @@
+import type { DiagnosticCode } from "@cloudmer/diagnostics";
+import { getDiagnosticDefinition } from "@cloudmer/diagnostics";
+import type { Diagnostic } from "@cloudmer/model";
 import type * as Monaco from "monaco-editor";
 
 /**
@@ -68,9 +71,59 @@ const RELATIONSHIP_DOCS: Record<string, string> = {
  */
 export function registerHoverProvider(
   monaco: typeof Monaco,
+  diagnostics: readonly Diagnostic[] = [],
 ): Monaco.IDisposable {
   return monaco.languages.registerHoverProvider("cloudmer", {
     provideHover: (model, position) => {
+      // First, check if there's a diagnostic at this position
+      const diagnostic = diagnostics.find(
+        (d) =>
+          d.span.start.line === position.lineNumber &&
+          position.column >= d.span.start.column &&
+          position.column <= d.span.end.column,
+      );
+
+      if (diagnostic) {
+        // Get full definition from registry
+        const definition = getDiagnosticDefinition(
+          diagnostic.code as DiagnosticCode,
+        );
+
+        // Build hover content
+        const severityBadge =
+          diagnostic.severity === "error"
+            ? "Error"
+            : diagnostic.severity === "warning"
+              ? "Warning"
+              : "Info";
+
+        let content = `**${diagnostic.code}** [${severityBadge}]\n\n`;
+        content += `${diagnostic.message}\n\n`;
+
+        if (diagnostic.remediation) {
+          content += `**Fix:** ${diagnostic.remediation}\n\n`;
+        }
+
+        if (definition?.examples) {
+          content += `**Example:**\n\`\`\`cloudmer\n${definition.examples.valid}\n\`\`\`\n\n`;
+        }
+
+        if (definition?.documentationUrl) {
+          content += `[View full documentation →](${definition.documentationUrl})`;
+        }
+
+        return {
+          range: new monaco.Range(
+            diagnostic.span.start.line,
+            diagnostic.span.start.column,
+            diagnostic.span.end.line,
+            diagnostic.span.end.column,
+          ),
+          contents: [{ value: content, supportHtml: false, isTrusted: false }],
+        };
+      }
+
+      // Otherwise, show keyword/service documentation
       const word = model.getWordAtPosition(position);
       if (!word) return null;
 

@@ -35,6 +35,7 @@ export function Editor({
 }: EditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const hoverDisposableRef = useRef<Monaco.IDisposable | null>(null);
   const codeActionsDisposableRef = useRef<Monaco.IDisposable | null>(null);
   const [isReady, setIsReady] = useState(false);
 
@@ -51,8 +52,8 @@ export function Editor({
     // Register completion provider
     registerCompletionProvider(monaco);
 
-    // Register hover provider
-    registerHoverProvider(monaco);
+    // Register hover provider with diagnostics
+    hoverDisposableRef.current = registerHoverProvider(monaco, diagnostics);
 
     // Register code actions provider
     codeActionsDisposableRef.current = registerCodeActionsProvider(
@@ -98,6 +99,12 @@ export function Editor({
     if (model) {
       setDiagnosticMarkers(monaco, model, diagnostics);
 
+      // Update hover provider
+      if (hoverDisposableRef.current) {
+        hoverDisposableRef.current.dispose();
+      }
+      hoverDisposableRef.current = registerHoverProvider(monaco, diagnostics);
+
       // Update code actions
       if (codeActionsDisposableRef.current) {
         codeActionsDisposableRef.current.dispose();
@@ -109,6 +116,9 @@ export function Editor({
     }
 
     return () => {
+      if (hoverDisposableRef.current) {
+        hoverDisposableRef.current.dispose();
+      }
       if (codeActionsDisposableRef.current) {
         codeActionsDisposableRef.current.dispose();
       }
