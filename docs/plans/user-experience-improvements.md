@@ -1,4 +1,4 @@
-# CloudMer User Experience Improvements Plan
+# ArchLex User Experience Improvements Plan
 
 **Created**: 2026-07-31  
 **Status**: Planning  
@@ -6,9 +6,9 @@
 
 ## Context
 
-CloudMer has achieved comprehensive catalog coverage (422 services across AWS/GCP) and a solid rendering foundation. The playground application currently serves as a library demonstration tool with basic features: textarea editor, SVG export, 28 hardcoded examples, and localStorage persistence.
+ArchLex has achieved comprehensive catalog coverage (422 services across AWS/GCP) and a solid rendering foundation. The playground application currently serves as a library demonstration tool with basic features: textarea editor, SVG export, 28 hardcoded examples, and localStorage persistence.
 
-This plan focuses on transforming the playground into a production-grade development tool while adding CLI capabilities for CI/CD integration. The goal is to reduce friction for new users, enable advanced workflows, and unlock CloudMer adoption in automated environments.
+This plan focuses on transforming the playground into a production-grade development tool while adding CLI capabilities for CI/CD integration. The goal is to reduce friction for new users, enable advanced workflows, and unlock ArchLex adoption in automated environments.
 
 **Current State:**
 - Basic textarea editor (no Monaco despite spec mentioning it)
@@ -64,17 +64,17 @@ This plan focuses on transforming the playground into a production-grade develop
 
 ---
 
-### 1.2 File Import (Upload .cloudmer files)
+### 1.2 File Import (Upload .archlex files)
 
 **Complexity**: Low | **Value**: High
 
 **Problem**: Users can only type code manually or select from examples. No way to load existing diagrams from disk.
 
-**Solution**: Add file upload button that reads `.cloudmer` files using FileReader API.
+**Solution**: Add file upload button that reads `.archlex` files using FileReader API.
 
 **Implementation**:
 - Add "Import" button to Toolbar next to existing export buttons
-- Use hidden `<input type="file" accept=".cloudmer,text/plain">` element
+- Use hidden `<input type="file" accept=".archlex,text/plain">` element
 - Read file content using FileReader API (`readAsText()`)
 - Validate file extension before loading
 - Show filename in UI status bar after successful import
@@ -91,7 +91,7 @@ This plan focuses on transforming the playground into a production-grade develop
 - `apps/playground/src/App.tsx` - Add import handler
 
 **Success Criteria**:
-- Supports `.cloudmer` and `.txt` file extensions
+- Supports `.archlex` and `.txt` file extensions
 - Drag-and-drop works on editor area
 - Error messages for invalid files
 
@@ -109,7 +109,7 @@ This plan focuses on transforming the playground into a production-grade develop
 - Create modal dialog with URL input field
 - Support GitHub, Gist, and raw URL formats
 - Automatically convert GitHub URLs to raw URLs:
-  - `github.com/.../file.cloudmer` → `raw.githubusercontent.com/.../file.cloudmer`
+  - `github.com/.../file.archlex` → `raw.githubusercontent.com/.../file.archlex`
   - `gist.github.com/...` → `gist.githubusercontent.com/.../raw/...`
 - Fetch using native `fetch()` API with CORS handling
 - Show loading spinner during fetch
@@ -172,7 +172,7 @@ This plan focuses on transforming the playground into a production-grade develop
 - PNG exports at 2× resolution by default
 - High-quality output suitable for documentation
 - Handles diagrams up to 4096×4096 pixels
-- Download filename: `cloudmer-diagram.png`
+- Download filename: `archlex-diagram.png`
 
 ---
 
@@ -186,7 +186,7 @@ This plan focuses on transforming the playground into a production-grade develop
 
 **Problem**: Textarea provides no IDE features (syntax highlighting, autocomplete, error squiggles, keyboard shortcuts).
 
-**Solution**: Replace textarea with Monaco Editor and create custom language definition for CloudMer DSL.
+**Solution**: Replace textarea with Monaco Editor and create custom language definition for ArchLex DSL.
 
 **Implementation**:
 
@@ -195,7 +195,7 @@ This plan focuses on transforming the playground into a production-grade develop
 pnpm add @monaco-editor/react monaco-editor
 ```
 
-**2. Create CloudMer Language Definition**:
+**2. Create ArchLex Language Definition**:
 - Define Monarch tokenizer for syntax highlighting
 - Keywords: `provider`, `direction`, `validation`, `account`, `region`, `vpc`, `subnet`
 - Operators: `>`, `-[`, `]->`, `|`, `{`, `}`
@@ -204,12 +204,12 @@ pnpm add @monaco-editor/react monaco-editor
 
 **3. Register Language**:
 ```typescript
-monaco.languages.register({ id: 'cloudmer' });
-monaco.languages.setMonarchTokensProvider('cloudmer', cloudmerTokens);
+monaco.languages.register({ id: 'archlex' });
+monaco.languages.setMonarchTokensProvider('archlex', archlexTokens);
 ```
 
 **4. Add Autocomplete Provider**:
-- Extract service kinds from `@cloudmer/aws` and `@cloudmer/gcp` providers
+- Extract service kinds from `@archlex/aws` and `@archlex/gcp` providers
 - Suggest services based on provider directive
 - Suggest relationship types from core knownRelationships
 - Context-aware suggestions (inside blocks, after `-[`)
@@ -221,7 +221,7 @@ monaco.languages.setMonarchTokensProvider('cloudmer', cloudmerTokens);
 
 **6. Map Diagnostics to Markers**:
 ```typescript
-monaco.editor.setModelMarkers(model, 'cloudmer', diagnostics.map(d => ({
+monaco.editor.setModelMarkers(model, 'archlex', diagnostics.map(d => ({
   severity: d.severity === 'error' ? MarcoSeverity.Error : MarcoSeverity.Warning,
   startLineNumber: d.span.start.line,
   startColumn: d.span.start.column,
@@ -234,14 +234,14 @@ monaco.editor.setModelMarkers(model, 'cloudmer', diagnostics.map(d => ({
 **Technical Details**:
 - Lazy load Monaco (code splitting) to reduce initial bundle
 - Use Web Worker for tokenization (Monaco does this automatically)
-- Theme synchronization: map CloudMer themes to Monaco themes
+- Theme synchronization: map ArchLex themes to Monaco themes
 - Preserve 150ms debounce for rendering
-- Two-way selection sync still works via `data-cloudmer-id`
+- Two-way selection sync still works via `data-archlex-id`
 
 **Bundle Impact**: +3MB (Monaco is large, but lazy loaded)
 
 **Files to Create**:
-- `apps/playground/src/monaco/cloudmer-lang.ts` - Language definition
+- `apps/playground/src/monaco/archlex-lang.ts` - Language definition
 - `apps/playground/src/monaco/completions.ts` - Autocomplete provider
 - `apps/playground/src/monaco/hover.ts` - Hover provider
 - `apps/playground/src/monaco/diagnostics.ts` - Diagnostic mapper
@@ -252,7 +252,7 @@ monaco.editor.setModelMarkers(model, 'cloudmer', diagnostics.map(d => ({
 - `apps/playground/vite.config.ts` - Configure Monaco worker loading
 
 **Success Criteria**:
-- Syntax highlighting for all CloudMer constructs
+- Syntax highlighting for all ArchLex constructs
 - Autocomplete suggests valid services based on provider
 - Diagnostics appear as inline squiggles
 - Hover shows service/relationship descriptions
@@ -325,7 +325,7 @@ Example: "3-Tier Web Application"
     }
   ],
   generate: (params) => {
-    // Generate CloudMer source based on parameters
+    // Generate ArchLex source based on parameters
     return `provider aws
 direction LR
 
@@ -380,7 +380,7 @@ ecs -[writes]-> ${params.database}`;
 
 **Problem**: No command-line interface for CI/CD, batch processing, or automation.
 
-**Solution**: Create `@cloudmer/cli` package with render, validate, and utility commands.
+**Solution**: Create `@archlex/cli` package with render, validate, and utility commands.
 
 **Implementation**:
 
@@ -404,22 +404,22 @@ packages/cli/
 
 ```bash
 # Render to SVG
-cloudmer render diagram.cloudmer --output diagram.svg
+archlex render diagram.archlex --output diagram.svg
 
 # Render to PNG (requires Playwright)
-cloudmer render diagram.cloudmer --output diagram.png --scale 2
+archlex render diagram.archlex --output diagram.png --scale 2
 
 # Render with options
-cloudmer render diagram.cloudmer --direction TB --validation strict --theme light
+archlex render diagram.archlex --direction TB --validation strict --theme light
 
 # Validate only
-cloudmer validate diagram.cloudmer
+archlex validate diagram.archlex
 
 # List examples
-cloudmer examples list
+archlex examples list
 
 # Get example
-cloudmer examples get aws-3-tier-web > my-diagram.cloudmer
+archlex examples get aws-3-tier-web > my-diagram.archlex
 ```
 
 **3. PNG Export** (requires headless browser):
@@ -437,15 +437,15 @@ cloudmer examples get aws-3-tier-web > my-diagram.cloudmer
 
 ```yaml
 # GitHub Actions
-- name: Validate CloudMer diagrams
+- name: Validate ArchLex diagrams
   run: |
-    npm install -g @cloudmer/cli
-    cloudmer validate docs/architecture/*.cloudmer
+    npm install -g @archlex/cli
+    archlex validate docs/architecture/*.archlex
     
 - name: Generate diagram PNGs
   run: |
-    for file in docs/*.cloudmer; do
-      cloudmer render "$file" --output "${file%.cloudmer}.png"
+    for file in docs/*.archlex; do
+      archlex render "$file" --output "${file%.archlex}.png"
     done
 ```
 
@@ -472,7 +472,7 @@ cloudmer examples get aws-3-tier-web > my-diagram.cloudmer
 - `playwright` (optional) - PNG export
 
 **Success Criteria**:
-- CLI installable via `npm install -g @cloudmer/cli`
+- CLI installable via `npm install -g @archlex/cli`
 - Render command produces identical output to playground
 - Validate command shows clear error messages
 - Performance: <2s for typical diagrams
@@ -551,7 +551,7 @@ export default async function handler(req: Request) {
 
 ## Phase 3: Advanced Features (6-8 weeks)
 
-**Goal**: Add power-user features that differentiate CloudMer from competitors.
+**Goal**: Add power-user features that differentiate ArchLex from competitors.
 
 ### 3.1 Visual Node Positioning (Drag/Drop)
 
@@ -566,7 +566,7 @@ export default async function handler(req: Request) {
 **Challenge**: ELK layout engine may not support fixed positions. Two approaches:
 
 **Approach A** (Position Hints):
-- Extend CloudMer DSL with position hints:
+- Extend ArchLex DSL with position hints:
   ```
   app: ecs @position(100, 200)
   ```
@@ -640,7 +640,7 @@ async function exportToPdf(svgString: string, options: {
     height: pdf.internal.pageSize.getHeight()
   });
   
-  pdf.save('cloudmer-diagram.pdf');
+  pdf.save('archlex-diagram.pdf');
 }
 ```
 
@@ -707,7 +707,7 @@ async function exportToPdf(svgString: string, options: {
 - Create `ContextMenu` component with absolute positioning
 - Click outside to close
 - Keyboard navigation (arrow keys, Enter, Escape)
-- Actions generate CloudMer code snippets
+- Actions generate ArchLex code snippets
 - Show preview before applying
 
 **Files to Create**:
@@ -866,7 +866,7 @@ After each phase, verify:
 - `apps/playground/src/utils/export.ts` (new)
 
 **Phase 2**:
-- `apps/playground/src/monaco/cloudmer-lang.ts` (new)
+- `apps/playground/src/monaco/archlex-lang.ts` (new)
 - `apps/playground/src/templates/index.ts` (new)
 - `packages/cli/src/index.ts` (new)
 

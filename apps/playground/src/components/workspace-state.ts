@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 
 export const DEFAULT_SPLIT_RATIO = 0.4;
 export const MIN_SPLIT_RATIO = 0.25;

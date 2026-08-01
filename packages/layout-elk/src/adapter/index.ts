@@ -4,8 +4,8 @@ import type {
   LayoutEdge,
   LayoutGraph,
   LayoutNode,
-} from "@cloudmer/model";
-import { nodeWidthForLabel } from "@cloudmer/model";
+} from "@archlex/model";
+import { nodeWidthForLabel } from "@archlex/model";
 
 const COMPACT_RESOURCE_WIDTH = 128;
 const COMPACT_RESOURCE_HEIGHT = 92;

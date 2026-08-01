@@ -1,4 +1,4 @@
-# CM-STRUCT-DUPLICATE-ID
+# AL-STRUCT-DUPLICATE-ID
 
 **Severity:** error  
 **Category:** structural
@@ -15,14 +15,14 @@ Rename one of the resources to use a unique identifier. Each resource must have 
 
 ### Invalid
 
-```cloudmer
+```archlex
 lambda: my-func
 lambda: my-func
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 lambda: my-func-1
 lambda: my-func-2
 ```

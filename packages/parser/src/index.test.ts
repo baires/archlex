@@ -1,4 +1,4 @@
-import type { RelationshipAst } from "@cloudmer/model";
+import type { RelationshipAst } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import { parse } from "./index.js";
 
@@ -108,7 +108,7 @@ account production {
     const result = parse("api ->\nrds");
 
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
-      "CM-PARSE-MISSING-ENDPOINT",
+      "AL-PARSE-MISSING-ENDPOINT",
     );
     expect(result.ast.statements).toMatchObject([
       { type: "invalid", recovered: true },
@@ -120,7 +120,7 @@ account production {
     const result = parse("vpc app {\napi: ecs");
 
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
-      "CM-PARSE-MISSING-BRACE",
+      "AL-PARSE-MISSING-BRACE",
     );
     expect(result.ast.statements[0]).toMatchObject({
       type: "scope",

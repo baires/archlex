@@ -1,4 +1,4 @@
-import { mountSvg } from "@cloudmer/core/browser";
+import { mountSvg } from "@archlex/core/browser";
 import {
   type PointerEvent as ReactPointerEvent,
   type WheelEvent as ReactWheelEvent,
@@ -53,7 +53,7 @@ export function Preview({
 
   const hasNodes =
     Boolean(svg) &&
-    (svg.includes("data-cloudmer-id") || svg.includes("cloudmer-scope"));
+    (svg.includes("data-archlex-id") || svg.includes("archlex-scope"));
 
   const fitDiagram = useCallback(() => {
     const mounted = mountedSvgRef.current;
@@ -131,10 +131,10 @@ export function Preview({
       mounted.setAttribute("height", String(viewBox.height));
 
       const elements = Array.from(
-        mounted.querySelectorAll("[data-cloudmer-id]"),
+        mounted.querySelectorAll("[data-archlex-id]"),
       );
       for (const elem of elements) {
-        const id = elem.getAttribute("data-cloudmer-id");
+        const id = elem.getAttribute("data-archlex-id");
 
         elem.classList.toggle("selected", id === selectedId);
 
@@ -286,7 +286,7 @@ export function Preview({
               <Icon name="fit" size={32} />
             </div>
             <p className="empty-title">No diagram yet</p>
-            <p className="empty-hint">Write CloudMer DSL to preview it here.</p>
+            <p className="empty-hint">Write ArchLex DSL to preview it here.</p>
           </div>
         ) : null}
         <div

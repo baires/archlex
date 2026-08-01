@@ -3,7 +3,7 @@ import type {
   GraphRenderer,
   LayoutGraph,
   SvgResult,
-} from "@cloudmer/model";
+} from "@archlex/model";
 import { serializeSvgGraph } from "./serializer/index.js";
 
 export * from "./serializer/index.js";

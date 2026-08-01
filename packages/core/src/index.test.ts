@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { awsProvider, createCloudMer, gcpProvider } from "./index.js";
+import { awsProvider, createArchLex, gcpProvider } from "./index.js";
 
 describe("Phase 1 canonical rendering", () => {
   it("renders the complete RDS Proxy to RDS to ECS chain", async () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const archlex = createArchLex({ providers: [awsProvider()] });
 
-    const result = await cloudmer.render("rds-proxy > rds > ecs");
+    const result = await archlex.render("rds-proxy > rds > ecs");
 
     expect(result.diagnostics).toEqual([]);
     expect(result.graph.nodes.map((node) => node.id)).toEqual([
@@ -18,41 +18,41 @@ describe("Phase 1 canonical rendering", () => {
     expect(result.svg).toContain("Amazon RDS Proxy");
     expect(result.svg).toContain("Amazon RDS");
     expect(result.svg).toContain("Amazon ECS");
-    expect(result.svg).toContain('data-cloudmer-icon="aws.rds-proxy"');
+    expect(result.svg).toContain('data-archlex-icon="aws.rds-proxy"');
   });
 
   it("returns byte-identical SVG for repeated canonical renders", async () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const archlex = createArchLex({ providers: [awsProvider()] });
 
-    const first = await cloudmer.render("rds-proxy > rds > ecs");
-    const second = await cloudmer.render("rds-proxy > rds > ecs");
+    const first = await archlex.render("rds-proxy > rds > ecs");
+    const second = await archlex.render("rds-proxy > rds > ecs");
 
     expect(second.svg).toBe(first.svg);
   });
 
   it("forwards the selected light and dark themes to the SVG renderer", async () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const archlex = createArchLex({ providers: [awsProvider()] });
 
-    const light = await cloudmer.render("rds-proxy > rds > ecs", {
+    const light = await archlex.render("rds-proxy > rds > ecs", {
       theme: "light",
     });
-    const dark = await cloudmer.render("rds-proxy > rds > ecs", {
+    const dark = await archlex.render("rds-proxy > rds > ecs", {
       theme: "dark",
     });
 
     expect(light.svg).toContain(
-      '<rect class="cloudmer-canvas" width="100%" height="100%" fill="#ffffff"',
+      '<rect class="archlex-canvas" width="100%" height="100%" fill="#ffffff"',
     );
     expect(dark.svg).toContain(
-      '<rect class="cloudmer-canvas" width="100%" height="100%" fill="#111827"',
+      '<rect class="archlex-canvas" width="100%" height="100%" fill="#111827"',
     );
   });
 });
 
 describe("Phase 2 semantic graph", () => {
   it("builds stable containment IDs and resolves names lexically", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse(`account production {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse(`account production {
   region us-east-1 {
     vpc application {
       subnet private-a {
@@ -64,7 +64,7 @@ describe("Phase 2 semantic graph", () => {
   }
 }`);
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.diagnostics).toEqual([]);
     expect(result.graph.scopes.map((scope) => scope.id)).toEqual([
@@ -88,10 +88,10 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("keeps the first duplicate ID and diagnoses later declarations", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse("api: ecs\napi: rds");
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse("api: ecs\napi: rds");
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.graph.nodes).toHaveLength(1);
     expect(result.graph.nodes[0]).toMatchObject({
@@ -99,17 +99,17 @@ describe("Phase 2 semantic graph", () => {
       serviceKind: "ecs",
     });
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
-      "CM-STRUCT-DUPLICATE-ID",
+      "AL-STRUCT-DUPLICATE-ID",
     );
   });
 
   it("preserves unknown resources and custom relationships with information diagnostics", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse(
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse(
       "source: future-service\nsource -[streams]-> sink",
     );
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.graph.nodes.map((node) => node.id)).toEqual([
       "source",
@@ -119,11 +119,11 @@ describe("Phase 2 semantic graph", () => {
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          code: "CM-SEM-UNKNOWN-RESOURCE",
+          code: "AL-SEM-UNKNOWN-RESOURCE",
           severity: "info",
         }),
         expect.objectContaining({
-          code: "CM-SEM-UNKNOWN-RELATIONSHIP",
+          code: "AL-SEM-UNKNOWN-RELATIONSHIP",
           severity: "info",
         }),
       ]),
@@ -131,8 +131,8 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("reverses semantic endpoints for a reverse arrow", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(cloudmer.parse("ecs <- rds").ast);
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(archlex.parse("ecs <- rds").ast);
 
     expect(result.graph.edges[0]).toMatchObject({
       source: "rds",
@@ -142,10 +142,10 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("keeps a valid endpoint connected to a recovered placeholder", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse("ecs ->");
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse("ecs ->");
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.graph.nodes.map((node) => node.id)).toEqual([
       "ecs",
@@ -158,10 +158,10 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("keeps a valid right endpoint when the left endpoint is missing", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse("-> rds");
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse("-> rds");
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.graph.nodes.map((node) => node.id)).toEqual([
       "rds",
@@ -174,10 +174,10 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("uses source direction unless a render call overrides it", async () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
+    const archlex = createArchLex({ providers: [awsProvider()] });
 
-    const fromSource = await cloudmer.render("direction TB\nrds > ecs");
-    const overridden = await cloudmer.render("direction TB\nrds > ecs", {
+    const fromSource = await archlex.render("direction TB\nrds > ecs");
+    const overridden = await archlex.render("direction TB\nrds > ecs", {
       direction: "LR",
     });
 
@@ -192,36 +192,36 @@ describe("Phase 2 semantic graph", () => {
   });
 
   it("reports duplicate and late directives while keeping the first value", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const parsed = cloudmer.parse(
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse(
       "direction TB\ndirection LR\nrds\nvalidation off",
     );
 
-    const result = cloudmer.analyze(parsed.ast);
+    const result = archlex.analyze(parsed.ast);
 
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
-      "CM-STRUCT-DUPLICATE-DIRECTIVE",
-      "CM-STRUCT-LATE-DIRECTIVE",
+      "AL-STRUCT-DUPLICATE-DIRECTIVE",
+      "AL-STRUCT-LATE-DIRECTIVE",
     ]);
   });
 
   it("rejects invalid directive values without replacing defaults", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(
-      cloudmer.parse("direction SIDEWAYS\nvalidation maximum\nrds").ast,
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(
+      archlex.parse("direction SIDEWAYS\nvalidation maximum\nrds").ast,
     );
 
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toEqual([
-      "CM-STRUCT-INVALID-DIRECTIVE",
-      "CM-STRUCT-INVALID-DIRECTIVE",
+      "AL-STRUCT-INVALID-DIRECTIVE",
+      "AL-STRUCT-INVALID-DIRECTIVE",
     ]);
   });
 });
 
 describe("display labels and instance names", () => {
   it("shows the instance name for named resources and keeps the service name accessible", () => {
-    const cloudmer = createCloudMer({ providers: [gcpProvider()] });
-    const result = cloudmer.analyze(cloudmer.parse("web: compute-engine").ast);
+    const archlex = createArchLex({ providers: [gcpProvider()] });
+    const result = archlex.analyze(archlex.parse("web: compute-engine").ast);
 
     expect(result.diagnostics).toEqual([]);
     expect(result.graph.nodes[0]).toMatchObject({
@@ -232,8 +232,8 @@ describe("display labels and instance names", () => {
   });
 
   it("keeps the service display name for implicit resources without an accessible name override", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(cloudmer.parse("rds").ast);
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(archlex.parse("rds").ast);
 
     expect(result.graph.nodes[0]).toMatchObject({
       id: "rds",
@@ -243,10 +243,8 @@ describe("display labels and instance names", () => {
   });
 
   it("prefers a display label over the instance name and service name", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(
-      cloudmer.parse('db: rds["Primary DB"]').ast,
-    );
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(archlex.parse('db: rds["Primary DB"]').ast);
 
     expect(result.diagnostics).toEqual([]);
     expect(result.graph.nodes[0]).toMatchObject({
@@ -257,8 +255,8 @@ describe("display labels and instance names", () => {
   });
 
   it("applies display labels written on chain nodes", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(cloudmer.parse('rds["Primary"] > ecs').ast);
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(archlex.parse('rds["Primary"] > ecs').ast);
 
     expect(result.diagnostics).toEqual([]);
     expect(result.graph.nodes[0]).toMatchObject({
@@ -268,9 +266,9 @@ describe("display labels and instance names", () => {
   });
 
   it("applies a chain label to a previously named instance", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(
-      cloudmer.parse('api: ecs\napi["Gateway"] > rds').ast,
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(
+      archlex.parse('api: ecs\napi["Gateway"] > rds').ast,
     );
 
     expect(result.diagnostics).toEqual([]);
@@ -282,9 +280,9 @@ describe("display labels and instance names", () => {
   });
 
   it("keeps the first display label and diagnoses a conflicting later one", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(
-      cloudmer.parse('rds["A"] > ecs\nrds["B"] > lambda').ast,
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(
+      archlex.parse('rds["A"] > ecs\nrds["B"] > lambda').ast,
     );
 
     expect(result.graph.nodes.find((node) => node.id === "rds")?.label).toBe(
@@ -293,7 +291,7 @@ describe("display labels and instance names", () => {
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          code: "CM-STRUCT-CONFLICTING-LABEL",
+          code: "AL-STRUCT-CONFLICTING-LABEL",
           severity: "info",
           elements: ["rds"],
         }),
@@ -302,42 +300,42 @@ describe("display labels and instance names", () => {
   });
 
   it("lets declaration labels win over chain labels", () => {
-    const cloudmer = createCloudMer({ providers: [awsProvider()] });
-    const result = cloudmer.analyze(
-      cloudmer.parse('rds["Decl"]\nrds["Chain"] > ecs').ast,
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const result = archlex.analyze(
+      archlex.parse('rds["Decl"]\nrds["Chain"] > ecs').ast,
     );
 
     expect(result.graph.nodes.find((node) => node.id === "rds")?.label).toBe(
       "Decl",
     );
     expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
-      "CM-STRUCT-CONFLICTING-LABEL",
+      "AL-STRUCT-CONFLICTING-LABEL",
     );
   });
 });
 
 describe("Multi-provider dispatch", () => {
   it("resolves qualified gcp kinds through the GCP provider in an aws document", async () => {
-    const cloudmer = createCloudMer({
+    const archlex = createArchLex({
       providers: [awsProvider(), gcpProvider()],
     });
 
-    const result = await cloudmer.render("provider aws\nrds > gcp.pubsub");
+    const result = await archlex.render("provider aws\nrds > gcp.pubsub");
 
     const pubsub = result.graph.nodes.find((node) => node.id === "gcp.pubsub");
     expect(pubsub?.provider).toBe("gcp");
     expect(pubsub?.serviceKind).toBe("pubsub");
     expect(pubsub?.label).toBe("Pub/Sub");
     expect(pubsub?.icon).toContain("<svg");
-    expect(result.svg).toContain('data-cloudmer-icon="gcp.pubsub"');
+    expect(result.svg).toContain('data-archlex-icon="gcp.pubsub"');
   });
 
   it("resolves unqualified kinds through the gcp document provider", async () => {
-    const cloudmer = createCloudMer({
+    const archlex = createArchLex({
       providers: [awsProvider(), gcpProvider()],
     });
 
-    const result = await cloudmer.render("provider gcp\ncloud-run > cloud-sql");
+    const result = await archlex.render("provider gcp\ncloud-run > cloud-sql");
 
     expect(result.graph.nodes.map((node) => node.provider)).toEqual([
       "gcp",
@@ -346,6 +344,6 @@ describe("Multi-provider dispatch", () => {
     expect(result.graph.nodes.every((node) => node.icon)).toBe(true);
     expect(result.svg).toContain("Cloud Run");
     expect(result.svg).toContain("Cloud SQL");
-    expect(result.svg).toContain('data-cloudmer-icon="gcp.cloud-run"');
+    expect(result.svg).toContain('data-archlex-icon="gcp.cloud-run"');
   });
 });

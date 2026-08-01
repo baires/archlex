@@ -48,7 +48,7 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
       // Convert GitHub file URLs to raw URLs
       if (urlObj.hostname === "github.com") {
         const pathParts = urlObj.pathname.split("/");
-        // /owner/repo/blob/branch/path/to/file.cloudmer
+        // /owner/repo/blob/branch/path/to/file.archlex
         if (pathParts[3] === "blob") {
           pathParts[3] = ""; // Remove "blob"
           return `https://raw.githubusercontent.com${pathParts.join("/")}`;
@@ -86,7 +86,9 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Failed to fetch: ${response.status} ${response.statusText}`,
+        );
       }
 
       const content = await response.text();
@@ -118,7 +120,14 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
 
   return (
     <div className="modal-backdrop">
-      <div ref={modalRef} className="modal-dialog" role="dialog" aria-labelledby="url-import-title" aria-modal="true">
+      <div
+        ref={modalRef}
+        className="modal-dialog"
+        // biome-ignore lint/a11y/useSemanticElements: custom modal dialog container
+        role="dialog"
+        aria-labelledby="url-import-title"
+        aria-modal="true"
+      >
         <div className="modal-header">
           <h2 id="url-import-title" className="modal-title">
             Import from URL
@@ -136,7 +145,7 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             <p className="modal-description">
-              Enter a URL to a CloudMer diagram file. GitHub and Gist URLs are
+              Enter a URL to a ArchLex diagram file. GitHub and Gist URLs are
               automatically converted to raw format.
             </p>
 
@@ -149,7 +158,7 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
                 id="url-input"
                 type="url"
                 className="form-input"
-                placeholder="https://github.com/user/repo/blob/main/diagram.cloudmer"
+                placeholder="https://github.com/user/repo/blob/main/diagram.archlex"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 disabled={isLoading}

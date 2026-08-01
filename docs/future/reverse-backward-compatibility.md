@@ -60,7 +60,7 @@ Before starting this work:
 
 ### Phase 2: Update Public APIs
 
-1. **Core package (`@cloudmer/core`):**
+1. **Core package (`@archlex/core`):**
    ```typescript
    // Before
    export interface AnalysisResult {
@@ -75,7 +75,7 @@ Before starting this work:
    }
    ```
 
-2. **Parser package (`@cloudmer/parser`):**
+2. **Parser package (`@archlex/parser`):**
    ```typescript
    // Before
    export interface ParseResult {
@@ -90,7 +90,7 @@ Before starting this work:
    }
    ```
 
-3. **Layout package (`@cloudmer/layout-elk`):**
+3. **Layout package (`@archlex/layout-elk`):**
    ```typescript
    // Before
    export interface LayoutResult {
@@ -107,7 +107,7 @@ Before starting this work:
    }
    ```
 
-4. **Renderer package (`@cloudmer/renderer-svg`):**
+4. **Renderer package (`@archlex/renderer-svg`):**
    ```typescript
    // Before
    export interface SvgResult {
@@ -128,10 +128,10 @@ Before starting this work:
 
 ### Phase 3: Deprecate Legacy Type
 
-1. Mark `Diagnostic` as deprecated in `@cloudmer/model`:
+1. Mark `Diagnostic` as deprecated in `@archlex/model`:
    ```typescript
    /**
-    * @deprecated Use RichDiagnostic from @cloudmer/diagnostics instead.
+    * @deprecated Use RichDiagnostic from @archlex/diagnostics instead.
     * This type is maintained for backward compatibility only.
     */
    export interface Diagnostic {
@@ -149,7 +149,7 @@ If no external consumers depend on `Diagnostic`:
 
 1. Remove `toDiagnostic()` method from `RichDiagnostic`
 2. Remove `fromDiagnostic()` helper
-3. Remove `Diagnostic` type from `@cloudmer/model`
+3. Remove `Diagnostic` type from `@archlex/model`
 4. Clean up any conversion-related code
 
 ## New Features Unlocked

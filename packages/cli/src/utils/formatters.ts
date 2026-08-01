@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import chalk from "chalk";
 
 export function formatDiagnostic(diagnostic: Diagnostic): string {

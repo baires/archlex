@@ -1,8 +1,8 @@
 import {
   getAllDiagnostics,
   getDiagnosticDefinition,
-} from "@cloudmer/diagnostics";
-import type { DiagnosticCode } from "@cloudmer/diagnostics";
+} from "@archlex/diagnostics";
+import type { DiagnosticCode } from "@archlex/diagnostics";
 import chalk from "chalk";
 import { Command } from "commander";
 

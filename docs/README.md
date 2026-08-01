@@ -1,10 +1,10 @@
-# CloudMer Documentation
+# ArchLex Documentation
 
-CloudMer is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS and GCP are the supported providers; semantic validation is the main product capability.
+ArchLex is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS and GCP are the supported providers; semantic validation is the main product capability.
 
 ## Reading order
 
-1. [Foundation design](superpowers/specs/2026-07-27-cloudmer-foundation-design.md) — approved product intent and MVP boundaries.
+1. [Foundation design](superpowers/specs/2026-07-27-archlex-foundation-design.md) — approved product intent and MVP boundaries.
 2. [System architecture](architecture/system-architecture.md) — package boundaries, pipeline, runtimes, and failures.
 3. [Technology stack](architecture/technology-stack.md) — locked tools and compatibility policy.
 4. [Contribution guide](architecture/contribution-guide.md) — package layout, rules, catalog, and extension workflows.
@@ -25,4 +25,4 @@ CloudMer is a browser-first TypeScript library that turns a concise, provider-aw
 
 ## Status
 
-Architecture is approved. No production packages exist yet. The npm scope `@cloudmer/*` is provisional and packages remain private until the release phase.
+Architecture is approved. No production packages exist yet. The npm scope `@archlex/*` is provisional and packages remain private until the release phase.

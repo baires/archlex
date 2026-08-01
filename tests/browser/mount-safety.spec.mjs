@@ -22,9 +22,9 @@ test("mountSvg rejects prefixed entity-obfuscated foreign content before append 
     const { mountSvg } = await import(moduleUrl);
     const container = document.createElement("div");
     document.body.appendChild(container);
-    window.cloudmerExploitExecuted = false;
+    window.archlexExploitExecuted = false;
 
-    const payload = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xht&#x6d;l"><s:foreignObject width="20" height="20"><x:iframe srcdoc="&lt;script>parent.cloudmerExploitExecuted=true&lt;/script>"/></s:foreignObject></svg>`;
+    const payload = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:s="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xht&#x6d;l"><s:foreignObject width="20" height="20"><x:iframe srcdoc="&lt;script>parent.archlexExploitExecuted=true&lt;/script>"/></s:foreignObject></svg>`;
     let error = "";
     try {
       mountSvg(container, payload);
@@ -35,7 +35,7 @@ test("mountSvg rejects prefixed entity-obfuscated foreign content before append 
     await new Promise((resolveDelay) => setTimeout(resolveDelay, 100));
     return {
       error,
-      executed: window.cloudmerExploitExecuted,
+      executed: window.archlexExploitExecuted,
       childCount: container.childElementCount,
     };
   }, browserModuleUrl);
@@ -80,11 +80,11 @@ test("every supported relationship arrow round-trips with an XML-safe internal I
 
         try {
           const mounted = mountSvg(container, serializeSvgGraph(graph).svg);
-          const edge = mounted.querySelector(".cloudmer-edge");
+          const edge = mounted.querySelector(".archlex-edge");
           return {
             arrow,
             error: "",
-            originalId: edge?.getAttribute("data-cloudmer-id"),
+            originalId: edge?.getAttribute("data-archlex-id"),
             svgId: edge?.id,
           };
         } catch (caught) {
@@ -107,9 +107,7 @@ test("every supported relationship arrow round-trips with an XML-safe internal I
     expect
       .soft(result.originalId, result.arrow)
       .toBe(`source${result.arrow}target`);
-    expect
-      .soft(result.svgId, result.arrow)
-      .toMatch(/^cloudmer-edge-[a-f0-9]+$/);
+    expect.soft(result.svgId, result.arrow).toMatch(/^archlex-edge-[a-f0-9]+$/);
   }
 });
 
@@ -158,7 +156,7 @@ test("shared provider icons mount with unique local IDs and resolved references"
           mounted.querySelectorAll("[id]"),
           (element) => element.id,
         );
-        const providerIds = ids.filter((id) => id.startsWith("cloudmer-icon-"));
+        const providerIds = ids.filter((id) => id.startsWith("archlex-icon-"));
         const references = Array.from(
           mounted.querySelectorAll("[fill^='url'], use[href]"),
           (element) =>
@@ -227,9 +225,9 @@ test("keeps a two-line label below the icon and inside a 128 by 92 card", async 
 
       try {
         const mounted = mountSvg(container, serializeSvgGraph(graph).svg);
-        const icon = mounted.querySelector("[data-cloudmer-icon]");
-        const label = mounted.querySelector(".cloudmer-node-label");
-        const surface = mounted.querySelector(".cloudmer-node-surface");
+        const icon = mounted.querySelector("[data-archlex-icon]");
+        const label = mounted.querySelector(".archlex-node-label");
+        const surface = mounted.querySelector(".archlex-node-surface");
         if (!(icon instanceof SVGGraphicsElement))
           throw new Error("missing icon");
         if (!(label instanceof SVGGraphicsElement))

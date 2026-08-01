@@ -1,4 +1,4 @@
-import type { CloudGraph, Diagnostic, ValidationMode } from "@cloudmer/model";
+import type { CloudGraph, Diagnostic, ValidationMode } from "@archlex/model";
 import { resolveGcpService } from "../catalog/index.js";
 import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
 

@@ -1,9 +1,9 @@
-import type { Diagnostic, SourceSpan } from "@cloudmer/model";
+import type { Diagnostic, SourceSpan } from "@archlex/model";
 
 export type DiagnosticCode =
-  | `CM-PARSE-${string}`
-  | `CM-STRUCT-${string}`
-  | `CM-SEM-${string}`;
+  | `AL-PARSE-${string}`
+  | `AL-STRUCT-${string}`
+  | `AL-SEM-${string}`;
 
 export type DiagnosticCategory =
   | "parse"

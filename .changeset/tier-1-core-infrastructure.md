@@ -1,7 +1,7 @@
 ---
-"@cloudmer/aws": minor
-"@cloudmer/gcp": minor
-"@cloudmer/core": minor
+"@archlex/aws": minor
+"@archlex/gcp": minor
+"@archlex/core": minor
 ---
 
 feat: add Tier 1 core infrastructure services (76 services, 8 relationship types, 6 validation rules)

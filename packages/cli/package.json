@@ -1,10 +1,10 @@
 {
-  "name": "@cloudmer/cli",
+  "name": "@archlex/cli",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "cloudmer": "./dist/index.js"
+    "archlex": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,9 +21,9 @@
     "dev": "vite build --watch"
   },
   "dependencies": {
-    "@cloudmer/core": "workspace:^",
-    "@cloudmer/diagnostics": "workspace:*",
-    "@cloudmer/model": "workspace:^",
+    "@archlex/core": "workspace:^",
+    "@archlex/diagnostics": "workspace:*",
+    "@archlex/model": "workspace:^",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
     "ora": "^8.1.1",

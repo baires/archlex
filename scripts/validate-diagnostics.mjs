@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * CloudMer Diagnostic Code Validator
+ * ArchLex Diagnostic Code Validator
  *
  * Ensures diagnostic codes are globally unique and follow the naming convention.
  *
@@ -9,9 +9,9 @@
  *   node scripts/validate-diagnostics.mjs
  */
 
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,18 +22,14 @@ const ROOT = join(__dirname, "..");
  */
 function loadDiagnosticCodes(providerName) {
   try {
-    const registryPath = join(
-      ROOT,
-      `packages/${providerName}/src/registry.ts`
-    );
+    const registryPath = join(ROOT, `packages/${providerName}/src/registry.ts`);
     const content = readFileSync(registryPath, "utf-8");
 
     // Extract diagnostic codes
     const codes = [];
     const regex = /["']([A-Z]+-[A-Z-]+-\d{3})["']/g;
-    let match;
 
-    while ((match = regex.exec(content)) !== null) {
+    for (const match of content.matchAll(regex)) {
       codes.push({
         code: match[1],
         provider: providerName,
@@ -43,10 +39,7 @@ function loadDiagnosticCodes(providerName) {
 
     return codes;
   } catch (err) {
-    console.error(
-      `Error reading ${providerName} registry:`,
-      err.message
-    );
+    console.error(`Error reading ${providerName} registry:`, err.message);
     return [];
   }
 }
@@ -117,7 +110,7 @@ function validateProviderPrefix(codes) {
  */
 function main() {
   console.log("\n╔══════════════════════════════════════════════════════════╗");
-  console.log("║     CloudMer Diagnostic Code Validator                  ║");
+  console.log("║     ArchLex Diagnostic Code Validator                  ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 
   // Load all diagnostic codes
@@ -165,7 +158,7 @@ function main() {
     console.log(`❌ ${duplicates.length} duplicate code(s) found:\n`);
     for (const dup of duplicates) {
       console.log(`  Code: ${dup.code}`);
-      console.log(`  Locations:`);
+      console.log("  Locations:");
       for (const loc of dup.locations) {
         console.log(`    - ${loc.provider}: ${loc.file}`);
       }

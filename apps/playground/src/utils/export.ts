@@ -1,5 +1,5 @@
 /**
- * Export utilities for CloudMer diagrams
+ * Export utilities for ArchLex diagrams
  */
 
 /**

@@ -1,5 +1,5 @@
-import type { Diagnostic, LayoutGraph } from "@cloudmer/model";
-import { serializeSvgGraph } from "@cloudmer/renderer-svg";
+import type { Diagnostic, LayoutGraph } from "@archlex/model";
+import { serializeSvgGraph } from "@archlex/renderer-svg";
 import { describe, expect, it } from "vitest";
 
 describe("Phase 4: Production SVG Renderer", () => {
@@ -67,7 +67,7 @@ describe("Phase 4: Production SVG Renderer", () => {
   it("applies accessibility attributes graphics-document and tabindex=0", () => {
     const res = serializeSvgGraph(layoutGraph, [], "dark");
     expect(res.svg).toContain('role="graphics-document"');
-    expect(res.svg).toContain('aria-label="CloudMer Architecture Diagram"');
+    expect(res.svg).toContain('aria-label="ArchLex Architecture Diagram"');
     expect(res.svg).toContain('tabindex="0"');
   });
 
@@ -88,6 +88,6 @@ describe("Phase 4: Production SVG Renderer", () => {
     const res = serializeSvgGraph(layoutGraph, diagnostics, "dark");
     expect(res.svg).toContain('stroke="#ef4444"');
     expect(res.svg).toContain('stroke-dasharray="4 3"');
-    expect(res.svg).toContain('class="cloudmer-status-marker"');
+    expect(res.svg).toContain('class="archlex-status-marker"');
   });
 });

@@ -1,9 +1,9 @@
-import { awsProvider } from "@cloudmer/aws";
-import { createCloudMer } from "@cloudmer/core";
+import { awsProvider } from "@archlex/aws";
+import { createArchLex } from "@archlex/core";
 import { describe, expect, it } from "vitest";
 
 describe("Phase 3: Validation Policy Engine (normal, strict, off)", () => {
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [awsProvider()],
   });
 
@@ -14,7 +14,7 @@ describe("Phase 3: Validation Policy Engine (normal, strict, off)", () => {
   `;
 
   it("normal mode preserves warning severities", async () => {
-    const res = await cloudmer.render(sourceWithWarning, {
+    const res = await archlex.render(sourceWithWarning, {
       validation: "normal",
     });
     const diag = res.diagnostics.find(
@@ -25,7 +25,7 @@ describe("Phase 3: Validation Policy Engine (normal, strict, off)", () => {
   });
 
   it("strict mode promotes warning severities to errors", async () => {
-    const res = await cloudmer.render(sourceWithWarning, {
+    const res = await archlex.render(sourceWithWarning, {
       validation: "strict",
     });
     const diag = res.diagnostics.find(
@@ -36,7 +36,7 @@ describe("Phase 3: Validation Policy Engine (normal, strict, off)", () => {
   });
 
   it("off mode skips provider validation pass while preserving structural parse results", async () => {
-    const res = await cloudmer.render(sourceWithWarning, { validation: "off" });
+    const res = await archlex.render(sourceWithWarning, { validation: "off" });
     const diag = res.diagnostics.find(
       (d) => d.code === "AWS-NETWORKING-SUBNET-CONTAINMENT-001",
     );

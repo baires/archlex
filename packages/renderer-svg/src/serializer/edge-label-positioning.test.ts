@@ -1,4 +1,4 @@
-import type { LayoutGraph } from "@cloudmer/model";
+import type { LayoutGraph } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import { serializeSvgGraph } from "./index.js";
 
@@ -52,7 +52,7 @@ describe("edge label collision avoidance", () => {
 
     // Extract the edge label position
     const labelMatch = result.svg.match(
-      /class="cloudmer-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
+      /class="archlex-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
     );
     expect(labelMatch).toBeTruthy();
 
@@ -137,7 +137,7 @@ describe("edge label collision avoidance", () => {
     const result = serializeSvgGraph(graph);
 
     const labelMatch = result.svg.match(
-      /class="cloudmer-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
+      /class="archlex-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
     );
     expect(labelMatch).toBeTruthy();
 
@@ -196,7 +196,7 @@ describe("edge label collision avoidance", () => {
     const result = serializeSvgGraph(graph);
 
     const labelMatch = result.svg.match(
-      /class="cloudmer-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
+      /class="archlex-edge-label" transform="translate\(([^,]+), ([^)]+)\)"/,
     );
     expect(labelMatch).toBeTruthy();
 

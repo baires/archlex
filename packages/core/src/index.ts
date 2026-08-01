@@ -1,10 +1,7 @@
-import { awsProvider } from "@cloudmer/aws";
-import {
-  createDiagnostic,
-  diagnosticRegistry,
-} from "@cloudmer/diagnostics";
-import { gcpProvider } from "@cloudmer/gcp";
-import { createInlineLayoutEngine } from "@cloudmer/layout-elk";
+import { awsProvider } from "@archlex/aws";
+import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
+import { gcpProvider } from "@archlex/gcp";
+import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import type {
   AnalysisResult,
   CloudEdge,
@@ -28,11 +25,11 @@ import type {
   StatementAst,
   SvgResult,
   ValidationMode,
-} from "@cloudmer/model";
-import { parse as parseSource } from "@cloudmer/parser";
-import { createSvgRenderer } from "@cloudmer/renderer-svg";
+} from "@archlex/model";
+import { parse as parseSource } from "@archlex/parser";
+import { createSvgRenderer } from "@archlex/renderer-svg";
 
-export interface CloudMerOptions {
+export interface ArchLexOptions {
   providers: readonly CloudProvider[];
   defaultProvider?: string;
   layoutEngine?: LayoutEngine;
@@ -51,7 +48,7 @@ export interface AnalyzeOptions {
   provider?: string;
 }
 
-export interface CloudMer {
+export interface ArchLex {
   parse(source: string): ParseResult;
   analyze(ast: DocumentAst, options?: AnalyzeOptions): AnalysisResult;
   layout(graph: CloudGraph, options?: LayoutOptions): Promise<LayoutResult>;
@@ -85,13 +82,13 @@ function collectDirectives(
       diagnostics.push(
         createDiagnostic(
           declarationsStarted
-            ? "CM-STRUCT-LATE-DIRECTIVE"
-            : "CM-STRUCT-DUPLICATE-DIRECTIVE",
+            ? "AL-STRUCT-LATE-DIRECTIVE"
+            : "AL-STRUCT-DUPLICATE-DIRECTIVE",
           { directiveName: name },
           directive.span,
           [],
-          diagnosticRegistry
-        )
+          diagnosticRegistry,
+        ),
       );
       continue;
     }
@@ -104,7 +101,7 @@ function collectDirectives(
     if (allowed && !allowed.includes(directive.value)) {
       diagnostics.push(
         createDiagnostic(
-          "CM-STRUCT-INVALID-DIRECTIVE",
+          "AL-STRUCT-INVALID-DIRECTIVE",
           {
             directiveName: name,
             value: directive.value,
@@ -112,8 +109,8 @@ function collectDirectives(
           },
           directive.span,
           [],
-          diagnosticRegistry
-        )
+          diagnosticRegistry,
+        ),
       );
       continue;
     }
@@ -134,9 +131,9 @@ function getDirective(ast: DocumentAst, name: string): string | undefined {
     : undefined;
 }
 
-export function createCloudMer(options: CloudMerOptions): CloudMer {
+export function createArchLex(options: ArchLexOptions): ArchLex {
   if (!options.providers || options.providers.length === 0) {
-    throw new Error("createCloudMer requires at least one provider.");
+    throw new Error("createArchLex requires at least one provider.");
   }
 
   const providerMap = new Map<string, CloudProvider>();
@@ -238,15 +235,15 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         if (!service) {
           diagnostics.push(
             createDiagnostic(
-              "CM-SEM-UNKNOWN-RESOURCE",
+              "AL-SEM-UNKNOWN-RESOURCE",
               {
                 serviceKind,
                 provider: qualifiedProvider ?? providerId,
               },
               span,
               [id],
-              diagnosticRegistry
-            )
+              diagnosticRegistry,
+            ),
           );
         }
         return node;
@@ -269,12 +266,12 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           if (existing.value !== displayLabel) {
             diagnostics.push(
               createDiagnostic(
-                "CM-STRUCT-CONFLICTING-LABEL",
+                "AL-STRUCT-CONFLICTING-LABEL",
                 { id },
                 span,
                 [id],
-                diagnosticRegistry
-              )
+                diagnosticRegistry,
+              ),
             );
           }
           return;
@@ -326,12 +323,16 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         if (existing) {
           diagnostics.push(
             createDiagnostic(
-              "CM-STRUCT-DUPLICATE-ID",
-              { id: local, line: resource.span.start.line, column: resource.span.start.column },
+              "AL-STRUCT-DUPLICATE-ID",
+              {
+                id: local,
+                line: resource.span.start.line,
+                column: resource.span.start.column,
+              },
               resource.span,
               [existing],
-              diagnosticRegistry
-            )
+              diagnosticRegistry,
+            ),
           );
           return;
         }
@@ -517,7 +518,7 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           if (rel.kind && !knownRelationships.has(rel.kind)) {
             diagnostics.push(
               createDiagnostic(
-                "CM-SEM-UNKNOWN-RELATIONSHIP",
+                "AL-SEM-UNKNOWN-RELATIONSHIP",
                 {
                   relationshipKind: rel.kind,
                   leftKind: rel.left.kind,
@@ -525,8 +526,8 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
                 },
                 rel.span,
                 [edgeId],
-                diagnosticRegistry
-              )
+                diagnosticRegistry,
+              ),
             );
           }
         }
@@ -544,15 +545,15 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       if (graph.nodes.length === 0) {
         diagnostics.push(
           createDiagnostic(
-            "CM-SEM-EMPTY-GRAPH",
+            "AL-SEM-EMPTY-GRAPH",
             {},
             {
               start: { line: 1, column: 1, offset: 0 },
               end: { line: 1, column: 1, offset: 0 },
             },
             [],
-            diagnosticRegistry
-          )
+            diagnosticRegistry,
+          ),
         );
       }
 

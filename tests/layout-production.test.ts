@@ -2,8 +2,8 @@ import {
   buildElkGraph,
   computeGeometryFingerprint,
   createInlineLayoutEngine,
-} from "@cloudmer/layout-elk";
-import type { CloudGraph, LayoutEdge, LayoutNode } from "@cloudmer/model";
+} from "@archlex/layout-elk";
+import type { CloudGraph, LayoutEdge, LayoutNode } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 
 function distanceFromRectangleBoundary(

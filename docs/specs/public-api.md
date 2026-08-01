@@ -2,10 +2,10 @@
 
 ## Exports
 
-`@cloudmer/core` is ESM-only. Browser helpers use `@cloudmer/core/browser`.
+`@archlex/core` is ESM-only. Browser helpers use `@archlex/core/browser`.
 
 ```ts
-interface CloudMer {
+interface ArchLex {
   parse(source: string): ParseResult;
   analyze(ast: DocumentAst, options?: AnalyzeOptions): AnalysisResult;
   layout(graph: CloudGraph, options?: LayoutOptions): Promise<LayoutResult>;
@@ -13,7 +13,7 @@ interface CloudMer {
   render(source: string, options?: RenderPipelineOptions): Promise<RenderResult>;
 }
 
-function createCloudMer(options: CloudMerOptions): CloudMer;
+function createArchLex(options: ArchLexOptions): ArchLex;
 function mountSvg(container: Element, svg: string): SVGSVGElement;
 ```
 
@@ -22,7 +22,7 @@ AWS is not bundled into core; consumers pass `awsProvider()`. Construction requi
 ## Options and precedence
 
 ```ts
-interface CloudMerOptions {
+interface ArchLexOptions {
   providers: readonly CloudProvider[];
   defaultProvider?: string;
   layoutEngine?: LayoutEngine;
@@ -87,16 +87,16 @@ Codes are programmatically stable; messages may improve in minor versions. SVG a
 
 ## AST and graph label contracts
 
-`ResourceAst` and `ChainNodeAst` carry an optional `displayLabel`: the decoded text of the `["..."]` form. A node's visible label resolves as display label, then instance name, then service display name. `CloudNode` and `LayoutNode` carry an optional `accessibleName`, present when the visible label differs from the service display name and combining both as `"<label> (<Service Display Name>)"`. Conflicting display labels for one instance are diagnosed with informational `CM-STRUCT-CONFLICTING-LABEL`; the first label wins.
+`ResourceAst` and `ChainNodeAst` carry an optional `displayLabel`: the decoded text of the `["..."]` form. A node's visible label resolves as display label, then instance name, then service display name. `CloudNode` and `LayoutNode` carry an optional `accessibleName`, present when the visible label differs from the service display name and combining both as `"<label> (<Service Display Name>)"`. Conflicting display labels for one instance are diagnosed with informational `AL-STRUCT-CONFLICTING-LABEL`; the first label wins.
 
 ## Partial results, cancellation, and failures
 
-Expected source errors do not reject. Invalid elements remain when generic geometry is possible; otherwise rendering returns a valid accessible empty-state SVG. `layout` and `render` accept `AbortSignal`; abortion throws `CloudMerAbortError` and is never a diagnostic.
+Expected source errors do not reject. Invalid elements remain when generic geometry is possible; otherwise rendering returns a valid accessible empty-state SVG. `layout` and `render` accept `AbortSignal`; abortion throws `ArchLexAbortError` and is never a diagnostic.
 
-Unexpected invariant failures throw `CloudMerInternalError` with stage (`parse`, `analyze`, `layout`, or `render`) and optional cause.
+Unexpected invariant failures throw `ArchLexInternalError` with stage (`parse`, `analyze`, `layout`, or `render`) and optional cause.
 
 ## Browser mounting
 
-`mountSvg` parses CloudMer output as `image/svg+xml`, rejects parse errors or a non-SVG root, imports the node, replaces container children, and returns the root. Renderer output never contains scripts, event attributes, active content, or external resources.
+`mountSvg` parses ArchLex output as `image/svg+xml`, rejects parse errors or a non-SVG root, imports the node, replaces container children, and returns the root. Renderer output never contains scripts, event attributes, active content, or external resources.
 
-`ElementMapping` plus `data-cloudmer-*` attributes are public editor integration points. Renderer CSS classes are not public API.
+`ElementMapping` plus `data-archlex-*` attributes are public editor integration points. Renderer CSS classes are not public API.

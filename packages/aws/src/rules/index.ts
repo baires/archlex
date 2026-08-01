@@ -1,4 +1,4 @@
-import type { CloudGraph, Diagnostic, ValidationMode } from "@cloudmer/model";
+import type { CloudGraph, Diagnostic, ValidationMode } from "@archlex/model";
 import { resolveAwsService } from "../catalog/index.js";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
 

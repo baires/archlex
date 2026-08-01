@@ -1,4 +1,4 @@
-import { validateSvgSafety } from "@cloudmer/core/browser";
+import { validateSvgSafety } from "@archlex/core/browser";
 import { DOMParser as XmlDomParser } from "@xmldom/xmldom";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 

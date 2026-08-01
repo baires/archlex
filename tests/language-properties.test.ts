@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { parse } from "@cloudmer/parser";
+import { parse } from "@archlex/parser";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 
@@ -19,13 +19,13 @@ describe("language robustness", () => {
     );
   });
 
-  it("executes every documented cloudmer example", () => {
+  it("executes every documented archlex example", () => {
     const markdown = readFileSync(
       resolve(process.cwd(), "docs/specs/language.md"),
       "utf8",
     );
     const examples = Array.from(
-      markdown.matchAll(/```cloudmer\n([\s\S]*?)```/g),
+      markdown.matchAll(/```archlex\n([\s\S]*?)```/g),
       (match) => match[1] ?? "",
     );
 

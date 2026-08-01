@@ -11,8 +11,8 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "@cloudmer/core",
-        "@cloudmer/model",
+        "@archlex/core",
+        "@archlex/model",
         "chalk",
         "commander",
         "ora",
@@ -41,7 +41,7 @@ export default defineConfig({
           const files = readdirSync(examplesDir);
 
           for (const file of files) {
-            if (file.endsWith(".cloudmer")) {
+            if (file.endsWith(".archlex")) {
               copyFileSync(
                 resolve(examplesDir, file),
                 resolve(distExamplesDir, file),

@@ -1,9 +1,9 @@
-import { awsProvider } from "@cloudmer/aws";
-import { createCloudMer } from "@cloudmer/core";
-import { createInlineLayoutEngine } from "@cloudmer/layout-elk";
-import { CloudMerAbortError, type RelationshipAst } from "@cloudmer/model";
-import { parse } from "@cloudmer/parser";
-import { createSvgRenderer } from "@cloudmer/renderer-svg";
+import { awsProvider } from "@archlex/aws";
+import { createArchLex } from "@archlex/core";
+import { createInlineLayoutEngine } from "@archlex/layout-elk";
+import { ArchLexAbortError, type RelationshipAst } from "@archlex/model";
+import { parse } from "@archlex/parser";
+import { createSvgRenderer } from "@archlex/renderer-svg";
 import { describe, expect, it } from "vitest";
 
 describe("Phase 0 Spikes", () => {
@@ -19,10 +19,10 @@ describe("Phase 0 Spikes", () => {
       expect(stmt.arrow).toBe(">");
     });
 
-    it("recovers from syntax errors and generates CM-PARSE diagnostics", () => {
+    it("recovers from syntax errors and generates AL-PARSE diagnostics", () => {
       const res = parse("rds-proxy >");
       expect(res.diagnostics.length).toBeGreaterThan(0);
-      expect(res.diagnostics[0].code).toMatch(/^CM-PARSE-/);
+      expect(res.diagnostics[0].code).toMatch(/^AL-PARSE-/);
     });
   });
 
@@ -82,7 +82,7 @@ describe("Phase 0 Spikes", () => {
           { nodes: [], edges: [], scopes: [] },
           { signal: controller.signal },
         ),
-      ).rejects.toThrow(CloudMerAbortError);
+      ).rejects.toThrow(ArchLexAbortError);
     });
   });
 
@@ -115,11 +115,11 @@ describe("Phase 0 Spikes", () => {
 
   describe("End-to-End Core Pipeline Spike", () => {
     it("renders source 'rds-proxy > rds' to SVG", async () => {
-      const cloudmer = createCloudMer({
+      const archlex = createArchLex({
         providers: [awsProvider()],
       });
 
-      const res = await cloudmer.render("rds-proxy > rds");
+      const res = await archlex.render("rds-proxy > rds");
       expect(res.svg).toContain("rds-proxy");
       expect(res.svg).toContain("rds");
       expect(res.ast.statements).toHaveLength(1);

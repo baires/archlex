@@ -1,4 +1,4 @@
-import type { CloudGraph, Diagnostic } from "@cloudmer/model";
+import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
 
 /**

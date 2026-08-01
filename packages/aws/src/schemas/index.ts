@@ -4,7 +4,7 @@ import type {
   ResourceDefinition,
   SanitizedIcon,
   SemanticRule,
-} from "@cloudmer/model";
+} from "@archlex/model";
 
 export function validateResourceDefinition(def: ResourceDefinition): boolean {
   return (

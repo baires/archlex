@@ -3,8 +3,8 @@ import type {
   LayoutEngine,
   LayoutOptions,
   LayoutResult,
-} from "@cloudmer/model";
-import { CloudMerAbortError, CloudMerInternalError } from "@cloudmer/model";
+} from "@archlex/model";
+import { ArchLexAbortError, ArchLexInternalError } from "@archlex/model";
 import ELK from "elkjs/lib/elk.bundled.js";
 import {
   type ElkLayoutResult,
@@ -41,7 +41,7 @@ export function createInlineLayoutEngine(): LayoutEngine {
       const startTime = performance.now();
 
       if (options?.signal?.aborted) {
-        throw new CloudMerAbortError("Layout aborted before execution");
+        throw new ArchLexAbortError("Layout aborted before execution");
       }
 
       const fingerprint = computeGeometryFingerprint(graph, options);
@@ -63,7 +63,7 @@ export function createInlineLayoutEngine(): LayoutEngine {
         const elkResult = (await elk.layout(elkGraph)) as ElkLayoutResult;
 
         if (options?.signal?.aborted) {
-          throw new CloudMerAbortError("Layout aborted after calculation");
+          throw new ArchLexAbortError("Layout aborted after calculation");
         }
 
         const layoutGraph = convertElkResultToLayoutGraph(elkResult);
@@ -81,8 +81,8 @@ export function createInlineLayoutEngine(): LayoutEngine {
           },
         };
       } catch (err: unknown) {
-        if (err instanceof CloudMerAbortError) throw err;
-        throw new CloudMerInternalError(
+        if (err instanceof ArchLexAbortError) throw err;
+        throw new ArchLexInternalError(
           "layout",
           "ELK layout calculation failed",
           err,
@@ -108,7 +108,7 @@ export function createWorkerLayoutEngine(
       }
 
       if (options?.signal?.aborted) {
-        throw new CloudMerAbortError("Layout aborted before worker execution");
+        throw new ArchLexAbortError("Layout aborted before worker execution");
       }
 
       const { requestId, request } = createWorkerRequest(graph, options);
@@ -117,7 +117,7 @@ export function createWorkerLayoutEngine(
       return new Promise<LayoutResult>((resolve, reject) => {
         const onAbort = () => {
           worker.terminate();
-          reject(new CloudMerAbortError("Layout worker aborted by caller"));
+          reject(new ArchLexAbortError("Layout worker aborted by caller"));
         };
 
         if (options?.signal) {
@@ -134,7 +134,7 @@ export function createWorkerLayoutEngine(
           if (isStaleResponse(response, requestId)) return;
 
           if (response.error) {
-            reject(new CloudMerInternalError("layout", response.error));
+            reject(new ArchLexInternalError("layout", response.error));
           } else if (response.result) {
             resolve(response.result);
           }
@@ -145,7 +145,7 @@ export function createWorkerLayoutEngine(
             options.signal.removeEventListener("abort", onAbort);
           }
           worker.terminate();
-          reject(new CloudMerInternalError("layout", "Worker error", err));
+          reject(new ArchLexInternalError("layout", "Worker error", err));
         };
 
         worker.postMessage(request);

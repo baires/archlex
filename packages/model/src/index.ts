@@ -265,21 +265,21 @@ export interface GraphRenderer {
   ): SvgResult;
 }
 
-export class CloudMerAbortError extends Error {
+export class ArchLexAbortError extends Error {
   constructor(message = "Operation aborted") {
     super(message);
-    this.name = "CloudMerAbortError";
+    this.name = "ArchLexAbortError";
   }
 }
 
-export class CloudMerInternalError extends Error {
+export class ArchLexInternalError extends Error {
   constructor(
     public stage: string,
     message: string,
     public cause?: unknown,
   ) {
     super(`[${stage}] Internal error: ${message}`);
-    this.name = "CloudMerInternalError";
+    this.name = "ArchLexInternalError";
   }
 }
 

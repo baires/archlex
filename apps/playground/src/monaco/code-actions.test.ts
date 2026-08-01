@@ -1,11 +1,11 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import { describe, expect, test } from "vitest";
 import { getCodeActionsForDiagnostic } from "./code-actions.js";
 
 describe("getCodeActionsForDiagnostic", () => {
   test("provides actions for missing endpoint", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-PARSE-MISSING-ENDPOINT",
+      code: "AL-PARSE-MISSING-ENDPOINT",
       severity: "error",
       message: "Expected relationship endpoint",
       span: {
@@ -24,7 +24,7 @@ describe("getCodeActionsForDiagnostic", () => {
 
   test("provides actions for invalid directive value", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-STRUCT-INVALID-DIRECTIVE",
+      code: "AL-STRUCT-INVALID-DIRECTIVE",
       severity: "error",
       message: "Invalid value 'diagonal' for 'direction'",
       span: {
@@ -45,7 +45,7 @@ describe("getCodeActionsForDiagnostic", () => {
 
   test("returns empty array for non-actionable diagnostics", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-SEM-UNKNOWN-RESOURCE",
+      code: "AL-SEM-UNKNOWN-RESOURCE",
       severity: "info",
       message: "Unknown service",
       span: {

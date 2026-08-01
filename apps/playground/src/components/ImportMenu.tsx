@@ -126,10 +126,9 @@ export function ImportMenu({ onImportFile, onOpenUrlImport }: ImportMenuProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".cloudmer,.txt,text/plain"
+        accept=".archlex,.txt,text/plain"
         onChange={handleFileSelect}
         style={{ display: "none" }}
-        aria-hidden="true"
       />
 
       {isOpen ? (

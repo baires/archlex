@@ -2,7 +2,7 @@
 
 ## Provider and catalog
 
-The GCP provider implements the `CloudProvider` interface from `@cloudmer/model`:
+The GCP provider implements the `CloudProvider` interface from `@archlex/model`:
 
 ```ts
 interface CloudProvider {
@@ -117,7 +117,7 @@ Initial rules:
 - `GCP-NETWORKING-SUBNET-CONTAINMENT-001` (warning): subnets should be nested within a VPC containment block.
 - `GCP-DATA-CLOUD-SQL-NETWORK-001` (warning): a Cloud SQL instance and its compute client should not reside in different VPC scopes without peering.
 
-Rules use only facts represented in the graph. CloudMer does not infer firewall rules, IAM policy contents, zones, or network peering unless the language models them.
+Rules use only facts represented in the graph. ArchLex does not infer firewall rules, IAM policy contents, zones, or network peering unless the language models them.
 
 ## Verification
 

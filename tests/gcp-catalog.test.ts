@@ -4,7 +4,7 @@ import {
   GCP_SERVICE_CATALOG,
   gcpProvider,
   resolveGcpService,
-} from "@cloudmer/gcp";
+} from "@archlex/gcp";
 import { describe, expect, it } from "vitest";
 
 describe("GCP Catalog & Icon Manifest", () => {

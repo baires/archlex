@@ -5,7 +5,7 @@ export default defineConfig({
   use: { baseURL: "http://127.0.0.1:4173" },
   webServer: {
     command:
-      "pnpm turbo build --filter=@cloudmer/playground... && pnpm --filter @cloudmer/playground preview",
+      "pnpm turbo build --filter=@archlex/playground... && pnpm --filter @archlex/playground preview",
     port: 4173,
     reuseExistingServer: false,
   },

@@ -1,45 +1,45 @@
-# @cloudmer/cli
+# @archlex/cli
 
-Command-line interface for CloudMer - cloud architecture diagrams with semantic validation.
+Command-line interface for ArchLex - cloud architecture diagrams with semantic validation.
 
 ## Installation
 
 ```bash
 # Install globally
-npm install -g @cloudmer/cli
+npm install -g @archlex/cli
 
 # Or use with npx
-npx @cloudmer/cli render diagram.cloudmer
+npx @archlex/cli render diagram.archlex
 ```
 
 ## Commands
 
 ### `render` - Render diagrams to SVG or PNG
 
-Render a CloudMer diagram to SVG or PNG format.
+Render a ArchLex diagram to SVG or PNG format.
 
 ```bash
 # Render to SVG (default)
-cloudmer render diagram.cloudmer
+archlex render diagram.archlex
 
 # Specify output file
-cloudmer render diagram.cloudmer --output diagram.svg
+archlex render diagram.archlex --output diagram.svg
 
 # Render to PNG (requires Playwright)
-cloudmer render diagram.cloudmer --output diagram.png
+archlex render diagram.archlex --output diagram.png
 
 # Render with options
-cloudmer render diagram.cloudmer \
+archlex render diagram.archlex \
   --direction TB \
   --validation strict \
   --theme light \
   --output diagram.svg
 
 # Read from stdin
-cat diagram.cloudmer | cloudmer render --stdin --output diagram.svg
+cat diagram.archlex | archlex render --stdin --output diagram.svg
 
 # PNG with custom scale and background
-cloudmer render diagram.cloudmer \
+archlex render diagram.archlex \
   --output diagram.png \
   --scale 3 \
   --background-color white
@@ -57,17 +57,17 @@ cloudmer render diagram.cloudmer \
 
 ### `validate` - Validate diagrams
 
-Validate a CloudMer diagram without rendering.
+Validate a ArchLex diagram without rendering.
 
 ```bash
 # Validate a file
-cloudmer validate diagram.cloudmer
+archlex validate diagram.archlex
 
 # Validate with strict mode (default)
-cloudmer validate diagram.cloudmer --validation strict
+archlex validate diagram.archlex --validation strict
 
 # Validate from stdin
-cat diagram.cloudmer | cloudmer validate --stdin
+cat diagram.archlex | archlex validate --stdin
 ```
 
 **Options:**
@@ -83,18 +83,18 @@ cat diagram.cloudmer | cloudmer validate --stdin
 
 ### `examples` - Work with example diagrams
 
-List and view example CloudMer diagrams.
+List and view example ArchLex diagrams.
 
 ```bash
 # List all available examples
-cloudmer examples list
-cloudmer examples ls
+archlex examples list
+archlex examples ls
 
 # Get an example by ID
-cloudmer examples get aws-3-tier-web
+archlex examples get aws-3-tier-web
 
 # Use an example as starting point
-cloudmer examples get aws-3-tier-web > my-diagram.cloudmer
+archlex examples get aws-3-tier-web > my-diagram.archlex
 ```
 
 **Available Examples:**
@@ -124,17 +124,17 @@ jobs:
         with:
           node-version: '22'
       
-      - name: Install CloudMer CLI
-        run: npm install -g @cloudmer/cli
+      - name: Install ArchLex CLI
+        run: npm install -g @archlex/cli
       
       - name: Validate diagrams
         run: |
-          cloudmer validate docs/architecture/*.cloudmer
+          archlex validate docs/architecture/*.archlex
       
       - name: Generate PNGs
         run: |
-          for file in docs/architecture/*.cloudmer; do
-            cloudmer render "$file" --output "${file%.cloudmer}.png"
+          for file in docs/architecture/*.archlex; do
+            archlex render "$file" --output "${file%.archlex}.png"
           done
       
       - name: Upload artifacts
@@ -150,16 +150,16 @@ jobs:
 validate-diagrams:
   image: node:22
   script:
-    - npm install -g @cloudmer/cli
-    - cloudmer validate docs/**/*.cloudmer
+    - npm install -g @archlex/cli
+    - archlex validate docs/**/*.archlex
 
 generate-diagrams:
   image: node:22
   script:
-    - npm install -g @cloudmer/cli
+    - npm install -g @archlex/cli
     - |
-      find docs -name "*.cloudmer" -exec sh -c '
-        cloudmer render "$1" --output "${1%.cloudmer}.png"
+      find docs -name "*.archlex" -exec sh -c '
+        archlex render "$1" --output "${1%.archlex}.png"
       ' sh {} \;
   artifacts:
     paths:
@@ -172,7 +172,7 @@ Add to `.husky/pre-commit` or use lint-staged:
 
 ```bash
 #!/bin/sh
-cloudmer validate $(git diff --cached --name-only --diff-filter=ACMR | grep '\.cloudmer$')
+archlex validate $(git diff --cached --name-only --diff-filter=ACMR | grep '\.archlex$')
 ```
 
 ## PNG Export
@@ -195,14 +195,14 @@ For CI/CD environments, you may want to cache the browser:
 
 ```bash
 # Pipe from file
-cat diagram.cloudmer | cloudmer render --stdin
+cat diagram.archlex | archlex render --stdin
 
 # Pipe from command
 echo "provider aws
-vpc: vpc" | cloudmer render --stdin
+vpc: vpc" | archlex render --stdin
 
 # Chain commands
-cloudmer examples get aws-3-tier-web | cloudmer validate --stdin
+archlex examples get aws-3-tier-web | archlex validate --stdin
 ```
 
 ### Writing to stdout
@@ -211,10 +211,10 @@ When no `--output` is specified for the `render` command, SVG is written to stdo
 
 ```bash
 # Redirect to file
-cloudmer render diagram.cloudmer > output.svg
+archlex render diagram.archlex > output.svg
 
 # Pipe to other tools
-cloudmer render diagram.cloudmer | svgo --input - --output optimized.svg
+archlex render diagram.archlex | svgo --input - --output optimized.svg
 ```
 
 ## Examples
@@ -223,13 +223,13 @@ cloudmer render diagram.cloudmer | svgo --input - --output optimized.svg
 
 ```bash
 # Validate all diagrams in a directory
-for file in diagrams/*.cloudmer; do
-  cloudmer validate "$file" || echo "Failed: $file"
+for file in diagrams/*.archlex; do
+  archlex validate "$file" || echo "Failed: $file"
 done
 
 # Generate PNGs for all diagrams
-find . -name "*.cloudmer" -exec sh -c '
-  cloudmer render "$1" --output "${1%.cloudmer}.png" --scale 2
+find . -name "*.archlex" -exec sh -c '
+  archlex render "$1" --output "${1%.archlex}.png" --scale 2
 ' sh {} \;
 ```
 
@@ -237,20 +237,20 @@ find . -name "*.cloudmer" -exec sh -c '
 
 ```bash
 # Using watchexec
-watchexec -w diagram.cloudmer cloudmer render diagram.cloudmer -o diagram.svg
+watchexec -w diagram.archlex archlex render diagram.archlex -o diagram.svg
 
 # Using nodemon
-nodemon --watch diagram.cloudmer --exec "cloudmer render diagram.cloudmer -o diagram.svg"
+nodemon --watch diagram.archlex --exec "archlex render diagram.archlex -o diagram.svg"
 ```
 
 ### Integration with Other Tools
 
 ```bash
 # Optimize SVG output with svgo
-cloudmer render diagram.cloudmer | svgo --input - --output - > optimized.svg
+archlex render diagram.archlex | svgo --input - --output - > optimized.svg
 
 # Convert to PDF with Inkscape
-cloudmer render diagram.cloudmer -o diagram.svg
+archlex render diagram.archlex -o diagram.svg
 inkscape diagram.svg --export-filename=diagram.pdf
 ```
 
@@ -267,8 +267,8 @@ pnpm build
 npm link
 
 # Test the CLI
-cloudmer --version
-cloudmer render examples/aws-3-tier-web.cloudmer
+archlex --version
+archlex render examples/aws-3-tier-web.archlex
 ```
 
 ## License

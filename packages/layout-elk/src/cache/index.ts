@@ -1,4 +1,4 @@
-import type { CloudGraph, LayoutGraph, LayoutOptions } from "@cloudmer/model";
+import type { CloudGraph, LayoutGraph, LayoutOptions } from "@archlex/model";
 
 export function computeGeometryFingerprint(
   graph: CloudGraph,

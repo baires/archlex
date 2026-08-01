@@ -103,7 +103,7 @@ test("retains the current SVG while a command change is rendering", async ({
 }) => {
   await page.goto("/");
 
-  const renderedSvg = page.locator("svg[data-cloudmer-version]");
+  const renderedSvg = page.locator("svg[data-archlex-version]");
   await expect(renderedSvg).toBeVisible();
 
   await page.getByLabel("Layout direction").selectOption("TB");
@@ -120,7 +120,7 @@ test("exports the latest successful SVG without playground selection styling", a
 latest: lambda`);
 
   const latestNode = page.locator(
-    'svg[data-cloudmer-version] [data-cloudmer-id="latest"]',
+    'svg[data-archlex-version] [data-archlex-id="latest"]',
   );
   await expect(latestNode).toBeVisible();
   await latestNode.click();
@@ -134,8 +134,8 @@ latest: lambda`);
   if (!downloadPath) throw new Error("Downloaded SVG path is unavailable");
   const downloadedSvg = await readFile(downloadPath, "utf8");
 
-  expect(download.suggestedFilename()).toBe("cloudmer-diagram.svg");
-  expect(downloadedSvg).toContain('data-cloudmer-id="latest"');
+  expect(download.suggestedFilename()).toBe("archlex-diagram.svg");
+  expect(downloadedSvg).toContain('data-archlex-id="latest"');
   expect(downloadedSvg).not.toMatch(/class="[^"]*\bselected\b/);
 });
 
@@ -360,7 +360,7 @@ test("fullscreen restores drawer, selection, and pan state", async ({
 }) => {
   await page.goto("/");
   await page.getByRole("textbox").fill(WARNING_SOURCE);
-  await expect(page.locator("svg[data-cloudmer-version]")).toBeVisible();
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
   await page.getByRole("button", { name: /1 warning/ }).click();
 
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
@@ -368,7 +368,7 @@ test("fullscreen restores drawer, selection, and pan state", async ({
   const diagnosticRow = drawer.getByRole("option").first();
   await diagnosticRow.focus();
   await page.keyboard.press("Space");
-  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(1);
 
   await page.getByRole("button", { name: "Actual size" }).click();
   const viewport = page.locator(".preview-viewport");
@@ -384,13 +384,13 @@ test("fullscreen restores drawer, selection, and pan state", async ({
 
   await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
   await expect(drawer).toBeHidden();
-  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(1);
   await expect(stage).toHaveAttribute("data-pan-x", "50");
   await expect(stage).toHaveAttribute("data-pan-y", "30");
 
   await page.keyboard.press("Escape");
   await expect(drawer).toBeVisible();
-  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(1);
   await expect(stage).toHaveAttribute("data-pan-x", "50");
   await expect(stage).toHaveAttribute("data-pan-y", "30");
 });
@@ -445,7 +445,7 @@ test("filters and navigates compact diagnostic rows", async ({ page }) => {
       })),
     )
     .toEqual({ start: 0, end: 0 });
-  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(1);
   await row.focus();
   await page.keyboard.press("Escape");
   await expect(drawer).toHaveCount(0);
@@ -504,7 +504,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
   await drawer.getByRole("button", { name: "Info", exact: true }).click();
   await expect(drawer.getByRole("option")).toHaveCount(4);
   await expect(
-    drawer.getByText(/CM-SEM-UNKNOWN-RESOURCE/).first(),
+    drawer.getByText(/AL-SEM-UNKNOWN-RESOURCE/).first(),
   ).toBeVisible();
   await expect(
     drawer.getByText(/AWS-NETWORKING-SUBNET-CONTAINMENT-001/),
@@ -512,7 +512,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
 
   await editor.fill(ERROR_SOURCE);
   const errorDrawer = page.getByRole("dialog", { name: "Diagnostics" });
-  await expect(errorDrawer.getByText(/CM-PARSE-MISSING-BRACE/)).toBeVisible();
+  await expect(errorDrawer.getByText(/AL-PARSE-MISSING-BRACE/)).toBeVisible();
   const sourceOnlyRow = errorDrawer.getByRole("option").first();
   await sourceOnlyRow.focus();
   await page.keyboard.press("Space");
@@ -525,5 +525,5 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
       })),
     )
     .toEqual({ start: 0, end: 0 });
-  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(0);
+  await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(0);
 });

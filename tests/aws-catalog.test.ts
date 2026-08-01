@@ -4,7 +4,7 @@ import {
   AWS_SERVICE_CATALOG,
   awsProvider,
   resolveAwsService,
-} from "@cloudmer/aws";
+} from "@archlex/aws";
 import { describe, expect, it } from "vitest";
 
 describe("Phase 3: AWS Catalog & Icon Manifest", () => {

@@ -1,10 +1,10 @@
-import type { Diagnostic, SourceSpan } from "@cloudmer/model";
+import type { Diagnostic, SourceSpan } from "@archlex/model";
 import { Editor as MonacoEditor, type OnMount } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
+import { registerArchLexLanguage } from "../monaco/archlex-language.js";
+import { registerArchLexThemes } from "../monaco/archlex-theme.js";
 import { registerCodeActionsProvider } from "../monaco/code-actions.js";
-import { registerCloudMerLanguage } from "../monaco/cloudmer-language.js";
-import { registerCloudMerThemes } from "../monaco/cloudmer-theme.js";
 import { registerCompletionProvider } from "../monaco/completions.js";
 import { setDiagnosticMarkers } from "../monaco/diagnostics.js";
 import { registerHoverProvider } from "../monaco/hover.js";
@@ -43,11 +43,11 @@ export function Editor({
     editorRef.current = editor;
     monacoRef.current = monaco;
 
-    // Register CloudMer language
-    registerCloudMerLanguage(monaco);
+    // Register ArchLex language
+    registerArchLexLanguage(monaco);
 
     // Register themes
-    registerCloudMerThemes(monaco);
+    registerArchLexThemes(monaco);
 
     // Register completion provider
     registerCompletionProvider(monaco);
@@ -58,7 +58,7 @@ export function Editor({
     // Register code actions provider
     codeActionsDisposableRef.current = registerCodeActionsProvider(
       monaco,
-      diagnostics
+      diagnostics,
     );
 
     // Track cursor position
@@ -85,7 +85,7 @@ export function Editor({
     const monaco = monacoRef.current;
     if (!editor || !monaco || !isReady) return;
 
-    const monacoTheme = theme === "dark" ? "cloudmer-dark" : "cloudmer-light";
+    const monacoTheme = theme === "dark" ? "archlex-dark" : "archlex-light";
     monaco.editor.setTheme(monacoTheme);
   }, [theme, isReady]);
 
@@ -111,7 +111,7 @@ export function Editor({
       }
       codeActionsDisposableRef.current = registerCodeActionsProvider(
         monaco,
-        diagnostics
+        diagnostics,
       );
     }
 
@@ -143,7 +143,7 @@ export function Editor({
   }, [selection]);
 
   return (
-    <section className="editor-pane" aria-label="CloudMer Source Editor">
+    <section className="editor-pane" aria-label="ArchLex Source Editor">
       <div className="pane-header">
         <h2>{documentLabel}</h2>
         <label className="editor-source-label" htmlFor="source">
@@ -153,8 +153,8 @@ export function Editor({
 
       <div className="editor-body">
         <MonacoEditor
-          language="cloudmer"
-          theme={theme === "dark" ? "cloudmer-dark" : "cloudmer-light"}
+          language="archlex"
+          theme={theme === "dark" ? "archlex-dark" : "archlex-light"}
           value={source}
           onChange={(value: string | undefined) => onSourceChange(value || "")}
           onMount={handleEditorDidMount}

@@ -29,10 +29,10 @@ async function main() {
   const program = new Command();
 
   program
-    .name("cloudmer")
+    .name("archlex")
     .description(
       chalk.cyan(
-        "CloudMer CLI - Cloud architecture diagrams with semantic validation",
+        "ArchLex CLI - Cloud architecture diagrams with semantic validation",
       ),
     )
     .version(version, "-v, --version", "Output the current version");

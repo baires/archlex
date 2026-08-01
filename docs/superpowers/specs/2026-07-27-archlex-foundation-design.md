@@ -1,10 +1,10 @@
-# CloudMer Foundation Design
+# ArchLex Foundation Design
 
 ## Summary
 
-CloudMer is a browser-first TypeScript library for describing AWS architectures with a concise, provider-aware language and rendering them as accessible SVG diagrams. Its primary differentiator is semantic knowledge of cloud resources and relationships, not generic graph drawing.
+ArchLex is a browser-first TypeScript library for describing AWS architectures with a concise, provider-aware language and rendering them as accessible SVG diagrams. Its primary differentiator is semantic knowledge of cloud resources and relationships, not generic graph drawing.
 
-The initial product is a reusable framework-neutral browser library plus a small React playground. It does not use Mermaid as its parser, layout engine, or renderer. Mermaid is prior art for separating parsing from rendering; CloudMer owns its language, semantic graph, diagnostics, layout adaptation, and SVG output.
+The initial product is a reusable framework-neutral browser library plus a small React playground. It does not use Mermaid as its parser, layout engine, or renderer. Mermaid is prior art for separating parsing from rendering; ArchLex owns its language, semantic graph, diagnostics, layout adaptation, and SVG output.
 
 ## Goals
 
@@ -32,7 +32,7 @@ The initial product is a reusable framework-neutral browser library plus a small
 
 The first implementation is TypeScript-native. Parsing performance is not expected to be the main source of complexity; semantic rules, recoverable diagnostics, compound layout, and deterministic rendering are more important. Clean stage interfaces allow a future Rust/Wasm parser or analyzer without changing public graph interfaces.
 
-ELK.js supplies geometry only. Its layered layout supports directed graphs, ports, orthogonal routing, and compound graphs, which match cloud architecture needs. CloudMer remains responsible for semantics, icons, styles, accessibility, and SVG structure.
+ELK.js supplies geometry only. Its layered layout supports directed graphs, ports, orthogonal routing, and compound graphs, which match cloud architecture needs. ArchLex remains responsible for semantics, icons, styles, accessibility, and SVG structure.
 
 Official AWS architecture icons form a separately versioned catalog because AWS updates its icon packages independently. Provider assets must preserve their official visual treatment.
 
@@ -40,44 +40,44 @@ Official AWS architecture icons form a separately versioned catalog because AWS 
 
 The project is a strict TypeScript, ESM-only monorepo managed with pnpm workspaces and Turborepo. Vite library mode builds distributable packages, TypeScript project references validate boundaries, and Node.js 22 is the supported non-browser runtime. The monorepo has the following packages:
 
-### `@cloudmer/model`
+### `@archlex/model`
 
 Owns provider-neutral public types: AST nodes, source spans, graph nodes, groups, edges, diagnostics, layout results, provider interfaces, and renderer interfaces. Other packages may depend on `model`; `model` does not depend on them.
 
-### `@cloudmer/parser`
+### `@archlex/parser`
 
 Transforms source text into a recoverable AST and syntax diagnostics. It preserves source spans and partially recognized constructs. It has no AWS, ELK, SVG, React, or browser-DOM knowledge.
 
-### `@cloudmer/aws`
+### `@archlex/aws`
 
 Provides AWS resource definitions, aliases, official icon references, containment rules, relationship semantics, and validation rules through the provider-neutral interfaces in `model`. AWS assumptions do not enter the parser or renderer.
 
-### `@cloudmer/layout-elk`
+### `@archlex/layout-elk`
 
 Adapts a semantic `CloudGraph` to ELK.js and converts ELK output into a positioned graph. It runs in a Web Worker by default and exposes the same interface when running inline for tests or constrained consumers.
 
-### `@cloudmer/renderer-svg`
+### `@archlex/renderer-svg`
 
 Transforms a positioned graph into a deterministic, accessible SVG string without DOM globals. It has no Mermaid or React dependency and does not perform semantic validation.
 
-### `@cloudmer/core`
+### `@archlex/core`
 
 Provides the stable orchestration API and combines parser, providers, layout, and renderer. It also exposes individual stages for editor tooling and advanced integrations.
 
 ### `apps/playground`
 
-A React/Vite reference consumer that depends on `@cloudmer/core`. It demonstrates live editing, diagnostics, selection synchronization, themes, and SVG export without making React part of the library API.
+A React/Vite reference consumer that depends on `@archlex/core`. It demonstrates live editing, diagnostics, selection synchronization, themes, and SVG export without making React part of the library API.
 
 ## Public API
 
 The primary browser API is asynchronous because layout normally runs in a worker:
 
 ```ts
-const cloudmer = createCloudMer({
+const archlex = createArchLex({
   providers: [awsProvider()],
 });
 
-const result = await cloudmer.render(source, {
+const result = await archlex.render(source, {
   direction: "LR",
   validation: "normal",
   theme: "light",
@@ -90,10 +90,10 @@ console.log(result.diagnostics);
 Advanced consumers and the playground can invoke stages independently:
 
 ```ts
-cloudmer.parse(source);
-cloudmer.analyze(ast);
-cloudmer.layout(graph);
-cloudmer.renderGraph(layoutGraph);
+archlex.parse(source);
+archlex.analyze(ast);
+archlex.layout(graph);
+archlex.renderGraph(layoutGraph);
 ```
 
 Conceptually, the boundaries are:
@@ -113,7 +113,7 @@ render(layout, theme): SvgResult
 
 Diagrams may declare a default provider, layout direction, and validation mode:
 
-```cloudmer
+```archlex
 provider aws
 direction LR
 validation normal
@@ -125,13 +125,13 @@ Supported directions are `LR`, `RL`, `TB`, and `BT`. Supported validation modes 
 
 An unqualified service name resolves through the default provider and creates or references an implicit instance:
 
-```cloudmer
+```archlex
 rds-proxy > rds > ecs
 ```
 
 Named instances allow multiple resources of the same type:
 
-```cloudmer
+```archlex
 primary: rds
 replica: rds
 workers: ecs
@@ -145,7 +145,7 @@ Resources may carry a quoted display label after the kind — `primary: rds["Pri
 
 Relationship direction and layout direction are independent. The initial operators are:
 
-```cloudmer
+```archlex
 a -> b
 a <- b
 a <-> b
@@ -176,7 +176,7 @@ Unknown custom relationship types are preserved and rendered. They produce an in
 
 The first AWS containment constructs are `account`, `region`, `vpc`, and `subnet`:
 
-```cloudmer
+```archlex
 provider aws
 direction LR
 
@@ -278,7 +278,7 @@ The layout adapter caches results using a stable fingerprint of geometry-relevan
 
 ## SVG Rendering
 
-The renderer creates an SVG string with deterministic element ordering and stable identifiers. Nodes and edges expose `data-*` attributes containing graph IDs and diagnostic IDs so editor consumers can correlate the diagram with source ranges. A browser-only helper safely parses and mounts CloudMer-generated SVG.
+The renderer creates an SVG string with deterministic element ordering and stable identifiers. Nodes and edges expose `data-*` attributes containing graph IDs and diagnostic IDs so editor consumers can correlate the diagram with source ranges. A browser-only helper safely parses and mounts ArchLex-generated SVG.
 
 The SVG includes an accessible title and description, textual node labels, navigable interactive elements, and visible focus states. Themes control the canvas, containers, text, edge treatments, diagnostic colors, spacing, and typography. Themes do not recolor official provider assets in ways that conflict with their usage guidance.
 
@@ -288,7 +288,7 @@ SVG is the only core output in the first milestone. The playground may later ras
 
 The playground is a small React/Vite application with Monaco Editor. Chevrotain provides recoverable parsing, ELK.js runs behind the layout adapter, Vitest and Playwright provide test coverage, Biome formats and lints, and Changesets manages package releases. The playground includes:
 
-- Monaco source editor and CloudMer syntax highlighting.
+- Monaco source editor and ArchLex syntax highlighting.
 - Debounced parse, analysis, layout, and render cycles.
 - Live SVG preview.
 - Source-to-SVG and SVG-to-source selection synchronization.
@@ -299,7 +299,7 @@ The playground is a small React/Vite application with Monaco Editor. Chevrotain 
 - Bundled valid and invalid AWS examples.
 - Browser-local source persistence.
 
-The playground uses only public `@cloudmer/core` behavior. It must not import internal parser, provider, layout, or renderer modules.
+The playground uses only public `@archlex/core` behavior. It must not import internal parser, provider, layout, or renderer modules.
 
 ## Testing Strategy
 
@@ -356,7 +356,7 @@ The playground uses only public `@cloudmer/core` behavior. It must not import in
 ## Research Basis
 
 - Mermaid's extension guidance separates grammar/parsing from rendering: <https://mermaid.js.org/community/new-diagram>
-- Mermaid architecture diagrams demonstrate services, groups, edges, and registered icon packs, while leaving room for CloudMer's more concise and semantic language: <https://mermaid.js.org/syntax/architecture>
+- Mermaid architecture diagrams demonstrate services, groups, edges, and registered icon packs, while leaving room for ArchLex's more concise and semantic language: <https://mermaid.js.org/syntax/architecture>
 - ELK layered layout supports directed layered placement, ports, orthogonal routing, compound graphs, and cross-hierarchy edges: <https://eclipse.dev/elk/reference/algorithms/org-eclipse-elk-layered.html>
 - ELK.js exposes ELK layout to JavaScript and supports Web Workers: <https://github.com/kieler/elkjs>
 - AWS publishes approved architecture assets and describes their update cadence: <https://aws.amazon.com/architecture/icons/>

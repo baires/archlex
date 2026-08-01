@@ -1,4 +1,4 @@
-# CloudMer Playground Focused Workspace Implementation Plan
+# ArchLex Playground Focused Workspace Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -20,7 +20,7 @@
 - Official provider icons retain their official colors.
 - All controls, the separator, diagnostics, tabs, and fullscreen are keyboard operable.
 - Motion respects `prefers-reduced-motion`.
-- Do not change the public `@cloudmer/core` API.
+- Do not change the public `@archlex/core` API.
 
 ---
 
@@ -64,13 +64,13 @@
 - Create: `apps/playground/src/components/workspace-state.test.ts`
 
 **Interfaces:**
-- Consumes: `Diagnostic` from `@cloudmer/model`.
+- Consumes: `Diagnostic` from `@archlex/model`.
 - Produces: `clampSplitRatio(value: number): number`, `summarizeDiagnostics(diagnostics: readonly Diagnostic[]): DiagnosticSummary`, `shouldAutoOpenDiagnostics(previous: DiagnosticSummary, next: DiagnosticSummary): boolean`, and `DEFAULT_SPLIT_RATIO`.
 
 - [ ] **Step 1: Write failing unit tests for the state rules**
 
 ```ts
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SPLIT_RATIO,
@@ -81,7 +81,7 @@ import {
 
 const diagnostic = (severity: Diagnostic["severity"]): Diagnostic => ({
   severity,
-  code: `CM-${severity}`,
+  code: `AL-${severity}`,
   message: severity,
   span: {
     start: { line: 1, column: 1, offset: 0 },
@@ -130,7 +130,7 @@ Expected: FAIL because `workspace-state.ts` does not exist.
 - [ ] **Step 3: Implement the pure state helpers**
 
 ```ts
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 
 export const DEFAULT_SPLIT_RATIO = 0.4;
 export const MIN_SPLIT_RATIO = 0.25;
@@ -223,7 +223,7 @@ Expected: FAIL because IBM Plex is not bundled and the legacy toolbar/gradients 
 
 - [ ] **Step 3: Add bundled fonts**
 
-Run: `pnpm --filter @cloudmer/playground add @fontsource/ibm-plex-sans @fontsource/ibm-plex-mono`
+Run: `pnpm --filter @archlex/playground add @fontsource/ibm-plex-sans @fontsource/ibm-plex-mono`
 
 Add to `apps/playground/src/main.tsx` before the stylesheet import:
 
@@ -389,7 +389,7 @@ interface CommandBarProps {
 }
 ```
 
-Render the wordmark as `CLOUDMER` with a visually hidden `h1` containing `CloudMer`. Give every icon-only button an accessible name and `title`.
+Render the wordmark as `ARCHLEX` with a visually hidden `h1` containing `ArchLex`. Give every icon-only button an accessible name and `title`.
 
 - [ ] **Step 5: Make copy/download outcomes explicit and measure rendering**
 
@@ -402,7 +402,7 @@ const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
 const renderStartedAtRef = useRef(0);
 ```
 
-Set `renderStartedAtRef.current = performance.now()` immediately before `cloudmer.render`. On resolution, store `Math.round(performance.now() - renderStartedAtRef.current)`. Make copy `async`, catch clipboard rejection, and set either `SVG copied` or `Copy failed`. Wrap download creation in `try/catch` and report `Download failed` on failure. Clear operation messages after 2 seconds with an effect cleanup.
+Set `renderStartedAtRef.current = performance.now()` immediately before `archlex.render`. On resolution, store `Math.round(performance.now() - renderStartedAtRef.current)`. Make copy `async`, catch clipboard rejection, and set either `SVG copied` or `Copy failed`. Wrap download creation in `try/catch` and report `Download failed` on failure. Clear operation messages after 2 seconds with an effect cleanup.
 
 - [ ] **Step 6: Run focused tests and typecheck**
 
@@ -565,7 +565,7 @@ test("filters and navigates compact diagnostic rows", async ({ page }) => {
   await page.getByRole("button", { name: /1 warning/ }).click();
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
   await expect(drawer).toBeVisible();
-  await expect(drawer.getByText(/CM-SEM-UNKNOWN-RELATIONSHIP/)).toBeVisible();
+  await expect(drawer.getByText(/AL-SEM-UNKNOWN-RELATIONSHIP/)).toBeVisible();
   const row = drawer.getByRole("option").first();
   await row.focus();
   await page.keyboard.press("Enter");
@@ -798,7 +798,7 @@ workspace-dark-error-drawer
 workspace-dark-fullscreen
 ```
 
-Before each screenshot, clear both CloudMer local-storage keys, set the fixed viewport already used by the suite, load a fixed source, wait for the SVG and `Ready` status, and disable caret blinking. Use the existing Darwin-only snapshot policy.
+Before each screenshot, clear both ArchLex local-storage keys, set the fixed viewport already used by the suite, load a fixed source, wait for the SVG and `Ready` status, and disable caret blinking. Use the existing Darwin-only snapshot policy.
 
 - [ ] **Step 3: Run the new acceptance test and visual suite**
 

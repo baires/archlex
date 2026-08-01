@@ -8,7 +8,7 @@ It ships shorthand, nested-valid, and invalid RDS Proxy examples.
 
 ## Monaco and render loop
 
-Monaco receives CloudMer tokens, comments, brackets, provider-derived completion, and diagnostic markers. MVP does not implement an LSP.
+Monaco receives ArchLex tokens, comments, brackets, provider-derived completion, and diagnostic markers. MVP does not implement an LSP.
 
 Changes debounce for 150 ms. Each render aborts its predecessor. The previous successful SVG stays visible while pending. Expected errors update the partial diagram; internal errors preserve the prior SVG and show a separate banner.
 
@@ -16,11 +16,11 @@ Controls override source directives only when explicitly locked by the user; oth
 
 ## Selection, persistence, and export
 
-SVG selection uses `data-cloudmer-id` and `ElementMapping` to reveal source. Cursor movement highlights the narrowest mapped element. Playground selection styling never enters exported SVG.
+SVG selection uses `data-archlex-id` and `ElementMapping` to reveal source. Cursor movement highlights the narrowest mapped element. Playground selection styling never enters exported SVG.
 
 Versioned local state stores source, example/custom mode, explicit overrides, theme, and pane sizes. Invalid JSON or unsupported versions fall back safely.
 
-Copy/download uses the latest successful SVG. Filenames use a sanitized title or `cloudmer-diagram.svg`. Output includes theme and accessibility content but excludes selection state and editor UI.
+Copy/download uses the latest successful SVG. Filenames use a sanitized title or `archlex-diagram.svg`. Output includes theme and accessibility content but excludes selection state and editor UI.
 
 ## Accessibility
 

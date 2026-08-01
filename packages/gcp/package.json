@@ -1,5 +1,5 @@
 {
-  "name": "@cloudmer/gcp",
+  "name": "@archlex/gcp",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,7 +20,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cloudmer/model": "workspace:^"
+    "@archlex/model": "workspace:^"
   },
   "devDependencies": {
     "@xmldom/xmldom": "0.9.10",

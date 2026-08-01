@@ -4,7 +4,7 @@ import type {
   Diagnostic,
   ServiceMetadata,
   ValidationMode,
-} from "@cloudmer/model";
+} from "@archlex/model";
 import { resolveAwsService } from "./catalog/index.js";
 import { AWS_SANITIZED_ICONS } from "./icons/manifest.js";
 import { evaluateAwsRules } from "./rules/index.js";

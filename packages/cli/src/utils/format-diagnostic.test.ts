@@ -1,11 +1,11 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import { describe, expect, test } from "vitest";
 import { formatDiagnostic } from "./format-diagnostic.js";
 
 describe("formatDiagnostic", () => {
   test("formats error diagnostic with source context", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-PARSE-MISSING-ENDPOINT",
+      code: "AL-PARSE-MISSING-ENDPOINT",
       severity: "error",
       message: "Expected relationship endpoint after arrow operator",
       span: {
@@ -19,7 +19,7 @@ describe("formatDiagnostic", () => {
     const source = "lambda ->";
     const formatted = formatDiagnostic(diagnostic, source, "test.cm");
 
-    expect(formatted).toContain("error[CM-PARSE-MISSING-ENDPOINT]");
+    expect(formatted).toContain("error[AL-PARSE-MISSING-ENDPOINT]");
     expect(formatted).toContain("test.cm:1:10");
     expect(formatted).toContain("lambda ->");
     expect(formatted).toContain("Add a service identifier");
@@ -27,7 +27,7 @@ describe("formatDiagnostic", () => {
 
   test("formats warning diagnostic", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-SEM-UNKNOWN-RESOURCE",
+      code: "AL-SEM-UNKNOWN-RESOURCE",
       severity: "warning",
       message: "Unknown service type",
       span: {
@@ -39,12 +39,12 @@ describe("formatDiagnostic", () => {
     };
 
     const formatted = formatDiagnostic(diagnostic, "unknown", "test.cm");
-    expect(formatted).toContain("warning[CM-SEM-UNKNOWN-RESOURCE]");
+    expect(formatted).toContain("warning[AL-SEM-UNKNOWN-RESOURCE]");
   });
 
   test("handles multi-line source context", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-STRUCT-DUPLICATE-ID",
+      code: "AL-STRUCT-DUPLICATE-ID",
       severity: "error",
       message: "Duplicate resource ID",
       span: {

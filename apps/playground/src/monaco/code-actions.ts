@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
 export interface CodeAction {
@@ -23,7 +23,7 @@ export function getCodeActionsForDiagnostic(
   sourceText: string,
 ): CodeAction[] {
   switch (diagnostic.code) {
-    case "CM-PARSE-MISSING-ENDPOINT":
+    case "AL-PARSE-MISSING-ENDPOINT":
       return COMMON_SERVICES.map((service, index) => ({
         title: `Add '${service}'`,
         edit: {
@@ -39,7 +39,7 @@ export function getCodeActionsForDiagnostic(
         isPreferred: index === 0,
       }));
 
-    case "CM-STRUCT-INVALID-DIRECTIVE": {
+    case "AL-STRUCT-INVALID-DIRECTIVE": {
       const match = diagnostic.remediation?.match(/Use one of: (.+)/);
       if (!match) return [];
 
@@ -60,8 +60,8 @@ export function getCodeActionsForDiagnostic(
       }));
     }
 
-    case "CM-STRUCT-DUPLICATE-DIRECTIVE":
-    case "CM-STRUCT-LATE-DIRECTIVE": {
+    case "AL-STRUCT-DUPLICATE-DIRECTIVE":
+    case "AL-STRUCT-LATE-DIRECTIVE": {
       return [
         {
           title: "Remove this directive",
@@ -89,7 +89,7 @@ export function registerCodeActionsProvider(
   monaco: typeof Monaco,
   diagnostics: readonly Diagnostic[],
 ): Monaco.IDisposable {
-  return monaco.languages.registerCodeActionProvider("cloudmer", {
+  return monaco.languages.registerCodeActionProvider("archlex", {
     provideCodeActions(model, range, context) {
       const actions: Monaco.languages.CodeAction[] = [];
 

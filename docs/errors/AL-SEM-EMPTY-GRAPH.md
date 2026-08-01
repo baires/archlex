@@ -1,4 +1,4 @@
-# CM-SEM-EMPTY-GRAPH
+# AL-SEM-EMPTY-GRAPH
 
 **Severity:** info  
 **Category:** semantic

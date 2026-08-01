@@ -58,4 +58,4 @@ export const allTokens = [
   Identifier,
 ];
 
-export const CloudMerLexer = new Lexer(allTokens);
+export const ArchLexLexer = new Lexer(allTokens);

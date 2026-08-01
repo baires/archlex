@@ -1,4 +1,4 @@
-import type { CloudGraph, Diagnostic } from "@cloudmer/model";
+import type { CloudGraph, Diagnostic } from "@archlex/model";
 
 export interface ServiceDefinitionInput {
   id: string;

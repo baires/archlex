@@ -4,7 +4,7 @@ import type {
   Diagnostic,
   ServiceMetadata,
   ValidationMode,
-} from "@cloudmer/model";
+} from "@archlex/model";
 import { resolveGcpService } from "./catalog/index.js";
 import { GCP_SANITIZED_ICONS } from "./icons/manifest.js";
 import { evaluateGcpRules } from "./rules/index.js";

@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      // @cloudmer/model is bundled so the built module stays self-contained
+      // @archlex/model is bundled so the built module stays self-contained
       // for browser consumers that load dist directly (no bare specifiers).
       external: [],
     },

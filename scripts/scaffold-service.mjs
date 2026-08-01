@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * CloudMer Service Definition Scaffolder
+ * ArchLex Service Definition Scaffolder
  *
- * Generates boilerplate service definitions for CloudMer catalogs.
+ * Generates boilerplate service definitions for ArchLex catalogs.
  *
  * Usage:
  *   node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking
  *   node scripts/scaffold-service.mjs --provider gcp --name "Cloud NAT" --category networking --containment vpc
  */
 
-import { argv } from "process";
+import { argv } from "node:process";
 
 // Parse CLI arguments
 const args = argv.slice(2);
@@ -29,20 +29,26 @@ const containment = getArg("containment");
 if (!provider || !["aws", "gcp"].includes(provider)) {
   console.error("Error: --provider must be 'aws' or 'gcp'");
   console.error("\nUsage:");
-  console.error('  node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking');
+  console.error(
+    '  node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking',
+  );
   process.exit(1);
 }
 
 if (!name) {
   console.error("Error: --name is required");
   console.error("\nUsage:");
-  console.error('  node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking');
+  console.error(
+    '  node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking',
+  );
   process.exit(1);
 }
 
 if (!category) {
   console.error("Error: --category is required");
-  console.error("\nValid categories: networking, compute, database, storage, security, monitoring, analytics, ai-ml, identity, messaging");
+  console.error(
+    "\nValid categories: networking, compute, database, storage, security, monitoring, analytics, ai-ml, identity, messaging",
+  );
   process.exit(1);
 }
 
@@ -102,7 +108,7 @@ function generateServiceDefinition() {
   const aliases = generateAliases(id, name, provider);
   const iconKey = generateIconKey(id, provider);
 
-  let definition = `defineService({\n`;
+  let definition = "defineService({\n";
   definition += `  id: "${id}",\n`;
   definition += `  displayName: "${name}",\n`;
   definition += `  category: "${category}",\n`;
@@ -114,7 +120,7 @@ function generateServiceDefinition() {
   }
 
   definition += `  iconKey: "${iconKey}"\n`;
-  definition += `}),`;
+  definition += "}),";
 
   return definition;
 }
@@ -128,12 +134,12 @@ function generateChecklistItem() {
 
   let item = `- [ ] **${name}** - \`${id}\`\n`;
   item += `  - Category: ${category}\n`;
-  item += `  - Aliases: (see generated definition)\n`;
+  item += "  - Aliases: (see generated definition)\n";
   if (containment) {
     item += `  - Containment: ${containment}\n`;
   }
   item += `  - Icon: ${iconKey}\n`;
-  item += `  - Status: Not Started\n`;
+  item += "  - Status: Not Started\n";
 
   return item;
 }
@@ -143,7 +149,7 @@ function generateChecklistItem() {
  */
 function main() {
   console.log("\n╔══════════════════════════════════════════════════════════╗");
-  console.log("║     CloudMer Service Definition Scaffolder              ║");
+  console.log("║     ArchLex Service Definition Scaffolder              ║");
   console.log("╚══════════════════════════════════════════════════════════╝\n");
 
   console.log(`Provider: ${provider.toUpperCase()}`);
@@ -162,7 +168,7 @@ function main() {
   console.log();
 
   console.log("─".repeat(60));
-  console.log("Add to: packages/" + provider + "/src/catalog/index.ts");
+  console.log(`Add to: packages/${provider}/src/catalog/index.ts`);
   console.log("─".repeat(60));
   console.log();
 
@@ -176,12 +182,16 @@ function main() {
   console.log("Next Steps:");
   console.log("─".repeat(60));
   console.log();
-  console.log("1. Copy the service definition to packages/" + provider + "/src/catalog/index.ts");
-  console.log("2. Run icon import: pnpm run import-icons:" + provider);
-  console.log("3. Add to tier tracking: docs/expansion/tier-{N}-" + provider + ".md");
+  console.log(
+    `1. Copy the service definition to packages/${provider}/src/catalog/index.ts`,
+  );
+  console.log(`2. Run icon import: pnpm run import-icons:${provider}`);
+  console.log(
+    `3. Add to tier tracking: docs/expansion/tier-{N}-${provider}.md`,
+  );
   console.log("4. Add catalog tests if needed");
   console.log("5. Add validation rules if needed (optional)");
-  console.log("6. Update catalogVersion in packages/" + provider + "/src/index.ts");
+  console.log(`6. Update catalogVersion in packages/${provider}/src/index.ts`);
   console.log("7. Run: pnpm run check");
   console.log("8. Run: pnpm run test");
   console.log();

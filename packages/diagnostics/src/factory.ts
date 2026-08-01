@@ -1,3 +1,4 @@
+import { interpolate } from "./templates.js";
 import type {
   Diagnostic,
   DiagnosticCode,
@@ -5,14 +6,13 @@ import type {
   DiagnosticDefinition,
   SourceSpan,
 } from "./types.js";
-import { interpolate } from "./templates.js";
 
 export function createDiagnostic(
   code: DiagnosticCode,
   context: DiagnosticContext,
   span: SourceSpan,
-  elements: readonly string[] = [],
-  registry: Map<string, DiagnosticDefinition>
+  elements: readonly string[],
+  registry: Map<string, DiagnosticDefinition>,
 ): Diagnostic {
   const definition = registry.get(code);
 

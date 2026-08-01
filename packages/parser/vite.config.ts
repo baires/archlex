@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["@cloudmer/model", "chevrotain"],
+      external: ["@archlex/model", "chevrotain"],
     },
   },
 });

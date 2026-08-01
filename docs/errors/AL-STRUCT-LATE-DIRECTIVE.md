@@ -1,4 +1,4 @@
-# CM-STRUCT-LATE-DIRECTIVE
+# AL-STRUCT-LATE-DIRECTIVE
 
 **Severity:** error  
 **Category:** structural
@@ -15,14 +15,14 @@ Move '${directiveName}' directive to the top of the file, before any resources o
 
 ### Invalid
 
-```cloudmer
+```archlex
 lambda -> rds
 provider: aws
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 provider: aws
 lambda -> rds
 ```

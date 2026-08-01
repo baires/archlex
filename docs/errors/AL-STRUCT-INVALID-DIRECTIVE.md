@@ -1,4 +1,4 @@
-# CM-STRUCT-INVALID-DIRECTIVE
+# AL-STRUCT-INVALID-DIRECTIVE
 
 **Severity:** error  
 **Category:** structural
@@ -15,13 +15,13 @@ Use one of the allowed values: ${allowedValues}
 
 ### Invalid
 
-```cloudmer
+```archlex
 direction: diagonal
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 direction: LR
 ```
 

@@ -8,7 +8,7 @@
 | Language | Strict TypeScript | ESM-only public packages |
 | Workspace | pnpm + Turborepo | One lockfile and dependency-aware cached tasks |
 | Builds | Vite library mode | `dist/` per package; TypeScript project references validate boundaries |
-| Parser | Chevrotain | Recovery enabled; private CST converted to CloudMer AST |
+| Parser | Chevrotain | Recovery enabled; private CST converted to ArchLex AST |
 | Layout | ELK.js layered | Worker in browsers, inline in Node/tests |
 | Rendering | Custom SVG serializer | DOM-free deterministic SVG string |
 | Playground | React + Vite + Monaco | Imports public core APIs only |

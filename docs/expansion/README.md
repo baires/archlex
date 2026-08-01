@@ -1,6 +1,6 @@
-# CloudMer Service Expansion Tracking
+# ArchLex Service Expansion Tracking
 
-This directory tracks the expansion of CloudMer's AWS and GCP service coverage from the MVP baseline (24 services each) to comprehensive ecosystem coverage (160-190 services per provider).
+This directory tracks the expansion of ArchLex's AWS and GCP service coverage from the MVP baseline (24 services each) to comprehensive ecosystem coverage (160-190 services per provider).
 
 ## Status Dashboard
 
@@ -133,7 +133,7 @@ See [relationship-types.md](relationship-types.md) for detailed tracking.
 
 ## Roadmap Integration
 
-This expansion work extends the CloudMer roadmap:
+This expansion work extends the ArchLex roadmap:
 
 - **Phase 0-6**: MVP (Completed 2026-07-29)
 - **Phase 7**: Tier 1 Core Infrastructure (v0.2.0)

@@ -10,23 +10,23 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@cloudmer/model": resolve(__dirname, "./packages/model/src/index.ts"),
-      "@cloudmer/parser": resolve(__dirname, "./packages/parser/src/index.ts"),
-      "@cloudmer/aws": resolve(__dirname, "./packages/aws/src/index.ts"),
-      "@cloudmer/gcp": resolve(__dirname, "./packages/gcp/src/index.ts"),
-      "@cloudmer/layout-elk": resolve(
+      "@archlex/model": resolve(__dirname, "./packages/model/src/index.ts"),
+      "@archlex/parser": resolve(__dirname, "./packages/parser/src/index.ts"),
+      "@archlex/aws": resolve(__dirname, "./packages/aws/src/index.ts"),
+      "@archlex/gcp": resolve(__dirname, "./packages/gcp/src/index.ts"),
+      "@archlex/layout-elk": resolve(
         __dirname,
         "./packages/layout-elk/src/index.ts",
       ),
-      "@cloudmer/renderer-svg": resolve(
+      "@archlex/renderer-svg": resolve(
         __dirname,
         "./packages/renderer-svg/src/index.ts",
       ),
-      "@cloudmer/core/browser": resolve(
+      "@archlex/core/browser": resolve(
         __dirname,
         "./packages/core/src/browser.ts",
       ),
-      "@cloudmer/core": resolve(__dirname, "./packages/core/src/index.ts"),
+      "@archlex/core": resolve(__dirname, "./packages/core/src/index.ts"),
     },
   },
 });

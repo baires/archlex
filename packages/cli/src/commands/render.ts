@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
-import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
-import type { ValidationMode } from "@cloudmer/model";
+import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import type { ValidationMode } from "@archlex/model";
 import chalk from "chalk";
 import { Command } from "commander";
 import ora from "ora";
@@ -31,8 +31,8 @@ interface RenderOptions {
 
 export function createRenderCommand(): Command {
   return new Command("render")
-    .description("Render a CloudMer diagram to SVG or PNG")
-    .argument("[input]", "Input .cloudmer file (or use --stdin)")
+    .description("Render a ArchLex diagram to SVG or PNG")
+    .argument("[input]", "Input .archlex file (or use --stdin)")
     .option("-o, --output <path>", "Output file path (.svg or .png)")
     .option(
       "-d, --direction <direction>",
@@ -96,14 +96,14 @@ async function renderCommand(
   // Parse and render
   spinner.start("Rendering diagram");
 
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [awsProvider(), gcpProvider()],
   });
 
-  let result: Awaited<ReturnType<typeof cloudmer.render>>;
+  let result: Awaited<ReturnType<typeof archlex.render>>;
 
   try {
-    result = await cloudmer.render(source, {
+    result = await archlex.render(source, {
       direction: options.direction,
       validation: options.validation,
       theme: options.theme,
@@ -145,7 +145,7 @@ async function renderCommand(
   const outputPath = options.output
     ? resolve(options.output)
     : inputPath
-      ? inputPath.replace(/\.cloudmer$/, ".svg")
+      ? inputPath.replace(/\.archlex$/, ".svg")
       : undefined;
 
   const outputFormat = outputPath

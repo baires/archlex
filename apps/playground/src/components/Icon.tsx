@@ -70,7 +70,9 @@ function glyph(name: IconName) {
         </>
       );
     case "moon":
-      return <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />;
+      return (
+        <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />
+      );
     case "sun":
       return (
         <>

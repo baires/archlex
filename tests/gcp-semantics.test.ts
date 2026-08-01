@@ -1,9 +1,9 @@
-import { createCloudMer, gcpProvider } from "@cloudmer/core";
-import { gcpProvider as gcpProviderFromPackage } from "@cloudmer/gcp";
+import { createArchLex, gcpProvider } from "@archlex/core";
+import { gcpProvider as gcpProviderFromPackage } from "@archlex/gcp";
 import { describe, expect, it } from "vitest";
 
 describe("GCP Semantics & Rules Engine", () => {
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [gcpProvider()],
   });
 
@@ -17,7 +17,7 @@ describe("GCP Semantics & Rules Engine", () => {
         }
         app > db
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const networkDiags = res.diagnostics.filter(
         (d) => d.code === "GCP-DATA-CLOUD-SQL-NETWORK-001",
       );
@@ -35,7 +35,7 @@ describe("GCP Semantics & Rules Engine", () => {
         }
         app > db
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const networkDiag = res.diagnostics.find(
         (d) => d.code === "GCP-DATA-CLOUD-SQL-NETWORK-001",
       );
@@ -57,7 +57,7 @@ describe("GCP Semantics & Rules Engine", () => {
         }
         app > db
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const networkDiag = res.diagnostics.find(
         (d) => d.code === "GCP-DATA-CLOUD-SQL-NETWORK-001",
       );
@@ -74,7 +74,7 @@ describe("GCP Semantics & Rules Engine", () => {
           app: compute-engine
         }
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const subnetDiag = res.diagnostics.find(
         (d) => d.code === "GCP-NETWORKING-SUBNET-CONTAINMENT-001",
       );
@@ -91,7 +91,7 @@ describe("GCP Semantics & Rules Engine", () => {
           }
         }
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const subnetDiags = res.diagnostics.filter(
         (d) => d.code === "GCP-NETWORKING-SUBNET-CONTAINMENT-001",
       );
@@ -105,7 +105,7 @@ describe("GCP Semantics & Rules Engine", () => {
         provider gcp
         foo: custom_unknown_gcp_service
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const unknownDiag = res.diagnostics.find(
         (d) => d.code === "GCP-CATALOG-UNKNOWN-RESOURCE-001",
       );
@@ -123,7 +123,7 @@ describe("GCP Semantics & Rules Engine", () => {
     `;
 
     it("off skips provider diagnostics while catalog resolution still renders", async () => {
-      const res = await cloudmer.render(source, { validation: "off" });
+      const res = await archlex.render(source, { validation: "off" });
       const gcpDiags = res.diagnostics.filter((d) => d.code.startsWith("GCP-"));
       expect(gcpDiags).toHaveLength(0);
       const subnetNode = res.graph.nodes.find((n) => n.id.includes("app"));
@@ -131,8 +131,8 @@ describe("GCP Semantics & Rules Engine", () => {
     });
 
     it("normal keeps warnings and strict promotes them", async () => {
-      const normal = await cloudmer.render(source, { validation: "normal" });
-      const strict = await cloudmer.render(source, { validation: "strict" });
+      const normal = await archlex.render(source, { validation: "normal" });
+      const strict = await archlex.render(source, { validation: "strict" });
 
       const normalDiag = normal.diagnostics.find(
         (d) => d.code === "GCP-NETWORKING-SUBNET-CONTAINMENT-001",

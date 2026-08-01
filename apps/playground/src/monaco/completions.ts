@@ -1,7 +1,7 @@
 import type * as Monaco from "monaco-editor";
 
 /**
- * Keywords for CloudMer language
+ * Keywords for ArchLex language
  */
 const KEYWORDS = [
   "provider",
@@ -108,12 +108,12 @@ const RELATIONSHIP_TYPES = [
 ];
 
 /**
- * Register autocomplete provider for CloudMer
+ * Register autocomplete provider for ArchLex
  */
 export function registerCompletionProvider(
   monaco: typeof Monaco,
 ): Monaco.IDisposable {
-  return monaco.languages.registerCompletionItemProvider("cloudmer", {
+  return monaco.languages.registerCompletionItemProvider("archlex", {
     provideCompletionItems: (model, position) => {
       const word = model.getWordUntilPosition(position);
       const range = {
@@ -136,7 +136,7 @@ export function registerCompletionProvider(
             kind: monaco.languages.CompletionItemKind.Keyword,
             insertText: keyword,
             range,
-            detail: "CloudMer keyword",
+            detail: "ArchLex keyword",
           });
         }
       }

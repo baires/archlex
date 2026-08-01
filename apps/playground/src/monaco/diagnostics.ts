@@ -1,8 +1,8 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
 /**
- * Convert CloudMer diagnostics to Monaco markers
+ * Convert ArchLex diagnostics to Monaco markers
  */
 export function diagnosticsToMarkers(
   diagnostics: readonly Diagnostic[],
@@ -32,5 +32,5 @@ export function setDiagnosticMarkers(
   diagnostics: readonly Diagnostic[],
 ): void {
   const markers = diagnosticsToMarkers(diagnostics);
-  monaco.editor.setModelMarkers(model, "cloudmer", markers);
+  monaco.editor.setModelMarkers(model, "archlex", markers);
 }

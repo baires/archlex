@@ -4,8 +4,8 @@ import type {
   LayoutGraph,
   LayoutNode,
   SvgResult,
-} from "@cloudmer/model";
-import { charsPerLineForWidth } from "@cloudmer/model";
+} from "@archlex/model";
+import { charsPerLineForWidth } from "@archlex/model";
 import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
 
@@ -33,7 +33,7 @@ function encodeSvgId(value: string): string {
 }
 
 function createInternalSvgId(kind: string, value: string): string {
-  return `cloudmer-${kind}-${encodeSvgId(value)}`;
+  return `archlex-${kind}-${encodeSvgId(value)}`;
 }
 
 function namespaceIconIds(iconSvg: string, nodeId: string): string {
@@ -114,7 +114,7 @@ function registerIconSymbol(
   const viewBox = node.icon.match(/\sviewBox="([^"]+)"/)?.[1];
   if (!viewBox) return undefined;
 
-  const defId = `cloudmer-icon-${encodeSvgId(node.iconKey ?? "adhoc")}-${fnv1aHex(node.icon)}`;
+  const defId = `archlex-icon-${encodeSvgId(node.iconKey ?? "adhoc")}-${fnv1aHex(node.icon)}`;
   if (!symbolDefs.has(defId)) {
     const namespaced = namespaceIconIds(node.icon, defId);
     const content = namespaced
@@ -505,7 +505,7 @@ function renderNodeLabel(
     ? nodeHeight - labelBottomInset - (lines.length - 1) * lineHeight
     : nodeHeight / 2 + 4 - ((lines.length - 1) * lineHeight) / 2;
 
-  let labelSvg = `    <text class="cloudmer-node-label" x="${centerX}" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">\n`;
+  let labelSvg = `    <text class="archlex-node-label" x="${centerX}" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">\n`;
   for (const [index, line] of lines.entries()) {
     const position =
       index === 0 ? ` y="${firstBaseline.toFixed(1)}"` : ` dy="${lineHeight}"`;
@@ -523,7 +523,7 @@ function renderStatusMarker(
   description: string,
   theme: ThemeTokens,
 ): string {
-  return `    <g id="${id}" class="cloudmer-status-marker" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})" role="img" aria-label="${escapeXml(description)}">
+  return `    <g id="${id}" class="archlex-status-marker" transform="translate(${x.toFixed(1)}, ${y.toFixed(1)})" role="img" aria-label="${escapeXml(description)}">
       <circle r="7" fill="${theme.background}" stroke="${color}" stroke-width="1.5"/>
       <text y="3.5" fill="${color}" font-family="system-ui, sans-serif" font-size="10" font-weight="700" text-anchor="middle" aria-hidden="true">!</text>
     </g>
@@ -593,15 +593,15 @@ export function serializeSvgGraph(
       diagnostic.elements.includes(scope.id),
     );
     const diagnosticId =
-      isError || isWarning ? `cloudmer-scope-diagnostic-${scopeIndex}` : "";
+      isError || isWarning ? `archlex-scope-diagnostic-${scopeIndex}` : "";
     const describedByAttr = diagnosticId
       ? ` aria-describedby="${diagnosticId}"`
       : "";
 
-    scopeSvgContent += `    <g id="${svgId}" class="cloudmer-scope" data-cloudmer-id="${escapeXml(scope.id)}" data-cloudmer-scope-kind="${escapeXml(style.kind.toLowerCase())}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
+    scopeSvgContent += `    <g id="${svgId}" class="archlex-scope" data-archlex-id="${escapeXml(scope.id)}" data-archlex-scope-kind="${escapeXml(style.kind.toLowerCase())}" transform="translate(${scope.x.toFixed(1)}, ${scope.y.toFixed(1)})"${describedByAttr}>\n`;
     scopeSvgContent += `      <rect width="${scope.width.toFixed(1)}" height="${scope.height.toFixed(1)}" rx="8" ry="8" fill="${style.fill}" stroke="${strokeColor}" stroke-width="1.5"${dashAttr}/>\n`;
-    scopeSvgContent += `      <path class="cloudmer-scope-accent" d="M 8 1.5 H ${(scope.width - 8).toFixed(1)}" stroke="${style.accent}" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>\n`;
-    scopeSvgContent += `      <text class="cloudmer-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
+    scopeSvgContent += `      <path class="archlex-scope-accent" d="M 8 1.5 H ${(scope.width - 8).toFixed(1)}" stroke="${style.accent}" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>\n`;
+    scopeSvgContent += `      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">\n`;
     scopeSvgContent += `        <tspan fill="${theme.textMuted ?? theme.scopeTextFill}" font-size="9" font-weight="700" letter-spacing="0.5">${escapeXml(style.kind)}</tspan>\n`;
     scopeSvgContent += `        <tspan dx="6" fill="${theme.scopeTextFill}" font-size="11" font-weight="600">${escapeXml(style.name)}</tspan>\n`;
     scopeSvgContent += "      </text>\n";
@@ -686,7 +686,7 @@ export function serializeSvgGraph(
       diagnostic.elements.includes(edge.id),
     );
     const diagnosticId =
-      isError || isWarning ? `cloudmer-edge-diagnostic-${edgeIndex}` : "";
+      isError || isWarning ? `archlex-edge-diagnostic-${edgeIndex}` : "";
     const describedByAttr = diagnosticId
       ? ` aria-describedby="${diagnosticId}"`
       : "";
@@ -694,7 +694,7 @@ export function serializeSvgGraph(
       ? ` aria-label="${escapeXml(relationshipLabel)}" role="graphics-object"`
       : "";
 
-    edgeSvgContent += `  <path id="${svgId}" class="cloudmer-edge" data-cloudmer-id="${escapeXml(edge.id)}" data-cloudmer-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}"${edgeStrokeStyle || ' stroke-width="1.5"'}${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
+    edgeSvgContent += `  <path id="${svgId}" class="archlex-edge" data-archlex-id="${escapeXml(edge.id)}" data-archlex-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}"${edgeStrokeStyle || ' stroke-width="1.5"'}${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
     if (relationshipLabel) {
       const labelWidth = Math.max(50, relationshipLabel.length * 6.6 + 24);
       const labelHeight = 24;
@@ -708,7 +708,7 @@ export function serializeSvgGraph(
         edge.target,
       );
 
-      edgeLabelSvgContent += `  <g class="cloudmer-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
+      edgeLabelSvgContent += `  <g class="archlex-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
       edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-12" width="${labelWidth.toFixed(1)}" height="24" rx="6" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
       edgeLabelSvgContent += `    <text y="4.5" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
       edgeLabelSvgContent += "  </g>\n";
@@ -761,17 +761,17 @@ export function serializeSvgGraph(
       diagnostic.elements.includes(node.id),
     );
     const diagnosticId =
-      isError || isWarning ? `cloudmer-diagnostic-${nodeIndex}` : "";
+      isError || isWarning ? `archlex-diagnostic-${nodeIndex}` : "";
     const describedByAttr = diagnosticId
       ? ` aria-describedby="${diagnosticId}"`
       : "";
 
-    nodeSvgContent += `  <g id="${svgId}" class="cloudmer-node" data-cloudmer-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.accessibleName ?? node.label)}"${describedByAttr}>\n`;
-    nodeSvgContent += `    <rect class="cloudmer-node-surface" width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${strokeColor}" stroke-width="1"${strokeDash}/>\n`;
+    nodeSvgContent += `  <g id="${svgId}" class="archlex-node" data-archlex-id="${escapeXml(node.id)}" transform="translate(${node.x.toFixed(1)}, ${node.y.toFixed(1)})" tabindex="0" role="graphics-symbol" aria-label="${escapeXml(node.accessibleName ?? node.label)}"${describedByAttr}>\n`;
+    nodeSvgContent += `    <rect class="archlex-node-surface" width="${node.width.toFixed(1)}" height="${node.height.toFixed(1)}" rx="6" ry="6" fill="${theme.nodeFill}" stroke="${strokeColor}" stroke-width="1"${strokeDash}/>\n`;
 
     if (node.icon) {
       const iconKeyAttr = node.iconKey
-        ? ` data-cloudmer-icon="${escapeXml(node.iconKey)}"`
+        ? ` data-archlex-icon="${escapeXml(node.iconKey)}"`
         : "";
       const iconSize = NODE_ICON_SIZE;
       const iconX = (node.width / 2 - iconSize / 2).toFixed(1);
@@ -849,7 +849,7 @@ export function serializeSvgGraph(
     )
     .join("");
 
-  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="CloudMer Architecture Diagram" data-cloudmer-version="0.1.0" class="cloudmer-svg">
+  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="ArchLex Architecture Diagram" data-archlex-version="0.1.0" class="archlex-svg">
   <defs>
     <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
       <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}"/>
@@ -867,10 +867,10 @@ export function serializeSvgGraph(
       <circle cx="3.5" cy="3.5" r="2.5" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
 ${iconSymbolSvg}    <style>
-      g.cloudmer-node:focus-visible > rect.cloudmer-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
+      g.archlex-node:focus-visible > rect.archlex-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
     </style>
   </defs>
-  <rect class="cloudmer-canvas" width="100%" height="100%" fill="${theme.background}"/>
+  <rect class="archlex-canvas" width="100%" height="100%" fill="${theme.background}"/>
   <g id="scopes">
 ${scopeSvgContent}  </g>
   <g id="edges">

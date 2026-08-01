@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
-import type { ValidationMode } from "@cloudmer/model";
+import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import type { ValidationMode } from "@archlex/model";
 import chalk from "chalk";
 import { Command } from "commander";
 import ora from "ora";
@@ -24,8 +24,8 @@ interface ValidateOptions {
 
 export function createValidateCommand(): Command {
   return new Command("validate")
-    .description("Validate a CloudMer diagram without rendering")
-    .argument("[input]", "Input .cloudmer file (or use --stdin)")
+    .description("Validate a ArchLex diagram without rendering")
+    .argument("[input]", "Input .archlex file (or use --stdin)")
     .option(
       "-v, --validation <mode>",
       "Validation mode (normal, strict, off)",
@@ -75,14 +75,14 @@ async function validateCommand(
   // Parse and validate
   spinner.start("Validating diagram");
 
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [awsProvider(), gcpProvider()],
   });
 
-  let result: Awaited<ReturnType<typeof cloudmer.render>>;
+  let result: Awaited<ReturnType<typeof archlex.render>>;
 
   try {
-    result = await cloudmer.render(source, {
+    result = await archlex.render(source, {
       validation: options.validation || "strict",
     });
   } catch (error) {

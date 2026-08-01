@@ -1,6 +1,6 @@
-# CloudMer Missing Icons Tracker
+# ArchLex Missing Icons Tracker
 
-This document tracks services that have been added to CloudMer's catalog but don't have official icons available in the AWS or GCP icon libraries.
+This document tracks services that have been added to ArchLex's catalog but don't have official icons available in the AWS or GCP icon libraries.
 
 **Last Updated**: 2026-07-31
 

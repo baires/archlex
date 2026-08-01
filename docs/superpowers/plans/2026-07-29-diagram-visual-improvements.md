@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Improve complex CloudMer diagrams with complete AWS service artwork, semantic edge labels, usable viewport controls, clearer nested layout and boundaries, and a connected enterprise example.
+**Goal:** Improve complex ArchLex diagrams with complete AWS service artwork, semantic edge labels, usable viewport controls, clearer nested layout and boundaries, and a connected enterprise example.
 
 **Architecture:** Extend the existing deterministic icon import pipeline and SVG serializer rather than adding runtime assets. Keep graph geometry in `layout-elk`, presentation in `renderer-svg`, and viewport interaction in the React playground so exported SVG remains independent from editor controls.
 
@@ -45,7 +45,7 @@
 
 **Interfaces:**
 - Consumes: `LayoutEdge.label?: string`, `routeMidpoint(points)`
-- Produces: `.cloudmer-edge-label` SVG groups with escaped text, background surface, and accessible edge naming
+- Produces: `.archlex-edge-label` SVG groups with escaped text, background surface, and accessible edge naming
 
 - [ ] Add serializer tests expecting escaped label text, midpoint placement, a legibility surface, and no label group for unlabeled edges.
 - [ ] Run the serializer test and confirm failure because the label is not currently emitted.
@@ -94,7 +94,7 @@
 - Test: `packages/renderer-svg/src/serializer/index.test.ts`
 
 **Interfaces:**
-- Produces: kind-specific account/region/VPC/subnet header accents and `data-cloudmer-scope-kind` hooks while preserving quiet transparent fills
+- Produces: kind-specific account/region/VPC/subnet header accents and `data-archlex-scope-kind` hooks while preserving quiet transparent fills
 
 - [ ] Add failing tests requiring distinct scope-kind accents in both themes and semantic data attributes in serialized SVG.
 - [ ] Add accessible, restrained header rules and kind-specific accent tokens; keep child content and edges unobscured.
@@ -120,6 +120,6 @@
 - Modify: reviewed Darwin snapshots under `tests/browser/visual-acceptance.spec.mjs-snapshots/`
 
 - [ ] Add event-pipeline and enterprise scenarios to visual acceptance coverage.
-- [ ] Run `pnpm check`, `pnpm test:browser`, and `pnpm --filter @cloudmer/aws icons:check`.
+- [ ] Run `pnpm check`, `pnpm test:browser`, and `pnpm --filter @archlex/aws icons:check`.
 - [ ] Inspect generated screenshots for icon completeness, readable edge labels, useful default fit, clean routing, boundary hierarchy, and the connected ALB.
 - [ ] Review `git diff --check`, `git status --short`, and the six-recommendation checklist before handoff.

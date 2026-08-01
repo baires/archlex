@@ -16,7 +16,7 @@ import {
   allTokens,
 } from "../lexer/index.js";
 
-export class CloudMerCstParser extends CstParser {
+export class ArchLexCstParser extends CstParser {
   constructor() {
     super(allTokens, { recoveryEnabled: true, nodeLocationTracking: "full" });
     this.performSelfAnalysis();
@@ -111,4 +111,4 @@ export class CloudMerCstParser extends CstParser {
   });
 }
 
-export const parserInstance = new CloudMerCstParser();
+export const parserInstance = new ArchLexCstParser();

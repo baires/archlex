@@ -1,5 +1,5 @@
 {
-  "name": "cloud-mer-monorepo",
+  "name": "arch-lex-monorepo",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,9 +19,9 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.12",
-    "@cloudmer/aws": "workspace:*",
-    "@cloudmer/core": "workspace:*",
-    "@cloudmer/diagnostics": "workspace:*",
+    "@archlex/aws": "workspace:*",
+    "@archlex/core": "workspace:*",
+    "@archlex/diagnostics": "workspace:*",
     "@playwright/test": "1.62.0",
     "@types/node": "^22.13.1",
     "@xmldom/xmldom": "0.9.10",

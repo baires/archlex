@@ -223,11 +223,11 @@ function parseSvgDocument(svgString: string): Document {
 function validateStyleElement(element: Element): void {
   const compactCss = (element.textContent ?? "").replace(/\s+/g, " ").trim();
   if (
-    !/^g\.cloudmer-node:focus-visible > rect\.cloudmer-node-surface \{ stroke: #[0-9a-f]{6}; stroke-width: 2; \}$/i.test(
+    !/^g\.archlex-node:focus-visible > rect\.archlex-node-surface \{ stroke: #[0-9a-f]{6}; stroke-width: 2; \}$/i.test(
       compactCss,
     )
   ) {
-    safetyFailure("Only the static CloudMer focus rule is allowed in style.");
+    safetyFailure("Only the static ArchLex focus rule is allowed in style.");
   }
 }
 
@@ -289,7 +289,7 @@ function validateParsedSvgTree(document: Document): SVGSVGElement {
       }
       if (
         !ALLOWED_ATTRIBUTES.has(attributeName) &&
-        !/^data-cloudmer-[a-z0-9-]+$/.test(attributeName)
+        !/^data-archlex-[a-z0-9-]+$/.test(attributeName)
       ) {
         safetyFailure(`Unsupported attribute ${attribute.name}.`);
       }

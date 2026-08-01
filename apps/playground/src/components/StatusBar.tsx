@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import type { OperationMessage } from "../App.js";
 import type { DiagnosticFilter } from "./DiagnosticsDrawer.js";
 import type { DiagnosticSummary } from "./workspace-state.js";

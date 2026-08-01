@@ -2,7 +2,7 @@
 
 ## Provider and catalog
 
-The AWS provider implements the `CloudProvider` interface from `@cloudmer/model`:
+The AWS provider implements the `CloudProvider` interface from `@archlex/model`:
 
 ```ts
 interface CloudProvider {
@@ -97,7 +97,7 @@ Codes use `AWS-<DOMAIN>-<RULE>-NNN`, are globally unique, and have registry entr
 
 The first cross-resource rule is `AWS-RDS-PROXY-NETWORK-001`: RDS Proxy and its target must have compatible VPC placement.
 
-Rules use only facts represented in the graph. CloudMer does not infer security-group rules, IAM policy contents, availability zones, or trust policies unless the language models them.
+Rules use only facts represented in the graph. ArchLex does not infer security-group rules, IAM policy contents, availability zones, or trust policies unless the language models them.
 
 Invalid and unknown elements remain in the graph with validity metadata; layout and rendering may not drop them solely due to semantics.
 

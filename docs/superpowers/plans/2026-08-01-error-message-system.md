@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a centralized diagnostic registry with enhanced Monaco Editor integration, CLI formatting, and multi-channel documentation for CloudMer error messages.
+**Goal:** Build a centralized diagnostic registry with enhanced Monaco Editor integration, CLI formatting, and multi-channel documentation for ArchLex error messages.
 
-**Architecture:** Create `@cloudmer/diagnostics` package as single source of truth for all diagnostic codes. Refactor parser, core, and providers to use factory pattern. Enhance Monaco with code actions and rich hovers. Add CLI formatter and `cloudmer errors` command. Generate web documentation from registry.
+**Architecture:** Create `@archlex/diagnostics` package as single source of truth for all diagnostic codes. Refactor parser, core, and providers to use factory pattern. Enhance Monaco with code actions and rich hovers. Add CLI formatter and `archlex errors` command. Generate web documentation from registry.
 
 **Tech Stack:** TypeScript, Monaco Editor, Vitest, chalk (CLI), markdown generation
 
@@ -12,7 +12,7 @@
 
 ## File Structure
 
-### New Package: @cloudmer/diagnostics
+### New Package: @archlex/diagnostics
 - `packages/diagnostics/package.json` - Package manifest
 - `packages/diagnostics/tsconfig.json` - TypeScript config
 - `packages/diagnostics/vite.config.ts` - Build config
@@ -21,9 +21,9 @@
 - `packages/diagnostics/src/templates.ts` - Template interpolation engine
 - `packages/diagnostics/src/factory.ts` - createDiagnostic() implementation
 - `packages/diagnostics/src/registry.ts` - Registry lookup functions
-- `packages/diagnostics/src/categories/parse.ts` - CM-PARSE-* definitions
-- `packages/diagnostics/src/categories/structural.ts` - CM-STRUCT-* definitions
-- `packages/diagnostics/src/categories/semantic.ts` - CM-SEM-* definitions
+- `packages/diagnostics/src/categories/parse.ts` - AL-PARSE-* definitions
+- `packages/diagnostics/src/categories/structural.ts` - AL-STRUCT-* definitions
+- `packages/diagnostics/src/categories/semantic.ts` - AL-SEM-* definitions
 - `packages/diagnostics/src/categories/index.ts` - Category exports
 
 ### Monaco Enhancements
@@ -57,7 +57,7 @@
 
 ```json
 {
-  "name": "@cloudmer/diagnostics",
+  "name": "@archlex/diagnostics",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -76,7 +76,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cloudmer/model": "workspace:*"
+    "@archlex/model": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -121,7 +121,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["@cloudmer/model"],
+      external: ["@archlex/model"],
     },
   },
 });
@@ -203,12 +203,12 @@ Expected: FAIL - "Cannot find module './templates.js'"
 - [ ] **Step 3: Create types.ts with diagnostic definitions**
 
 ```typescript
-import type { Diagnostic, SourceSpan } from "@cloudmer/model";
+import type { Diagnostic, SourceSpan } from "@archlex/model";
 
 export type DiagnosticCode =
-  | `CM-PARSE-${string}`
-  | `CM-STRUCT-${string}`
-  | `CM-SEM-${string}`;
+  | `AL-PARSE-${string}`
+  | `AL-STRUCT-${string}`
+  | `AL-SEM-${string}`;
 
 export type DiagnosticCategory = "parse" | "structural" | "semantic" | "architecture";
 
@@ -282,9 +282,9 @@ import type { DiagnosticDefinition } from "./types.js";
 
 const mockRegistry = new Map<string, DiagnosticDefinition>([
   [
-    "CM-TEST-001",
+    "AL-TEST-001",
     {
-      code: "CM-TEST-001",
+      code: "AL-TEST-001",
       category: "parse",
       severity: "error",
       message: "Test error at ${line}:${column}",
@@ -296,7 +296,7 @@ const mockRegistry = new Map<string, DiagnosticDefinition>([
 describe("createDiagnostic", () => {
   test("creates diagnostic with interpolated message and remediation", () => {
     const diagnostic = createDiagnostic(
-      "CM-TEST-001",
+      "AL-TEST-001",
       { line: 5, column: 10 },
       {
         start: { line: 5, column: 10, offset: 50 },
@@ -306,7 +306,7 @@ describe("createDiagnostic", () => {
       mockRegistry
     );
 
-    expect(diagnostic.code).toBe("CM-TEST-001");
+    expect(diagnostic.code).toBe("AL-TEST-001");
     expect(diagnostic.severity).toBe("error");
     expect(diagnostic.message).toBe("Test error at 5:10");
     expect(diagnostic.remediation).toBe("Fix the issue at line 5");
@@ -319,7 +319,7 @@ describe("createDiagnostic", () => {
   test("throws error for unknown diagnostic code", () => {
     expect(() =>
       createDiagnostic(
-        "CM-UNKNOWN-001",
+        "AL-UNKNOWN-001",
         {},
         {
           start: { line: 1, column: 1, offset: 0 },
@@ -328,12 +328,12 @@ describe("createDiagnostic", () => {
         [],
         mockRegistry
       )
-    ).toThrow("Unknown diagnostic code: CM-UNKNOWN-001");
+    ).toThrow("Unknown diagnostic code: AL-UNKNOWN-001");
   });
 
   test("includes elements in diagnostic", () => {
     const diagnostic = createDiagnostic(
-      "CM-TEST-001",
+      "AL-TEST-001",
       { line: 5, column: 10 },
       {
         start: { line: 5, column: 10, offset: 50 },
@@ -424,26 +424,26 @@ import { describe, test, expect } from "vitest";
 import { parseDiagnostics } from "./parse.js";
 
 describe("parseDiagnostics", () => {
-  test("includes CM-PARSE-001 definition", () => {
-    const def = parseDiagnostics.get("CM-PARSE-001");
+  test("includes AL-PARSE-001 definition", () => {
+    const def = parseDiagnostics.get("AL-PARSE-001");
     expect(def).toBeDefined();
-    expect(def?.code).toBe("CM-PARSE-001");
+    expect(def?.code).toBe("AL-PARSE-001");
     expect(def?.category).toBe("parse");
     expect(def?.severity).toBe("error");
     expect(def?.message).toBeTruthy();
     expect(def?.remediation).toBeTruthy();
   });
 
-  test("includes CM-PARSE-MISSING-ENDPOINT definition", () => {
-    const def = parseDiagnostics.get("CM-PARSE-MISSING-ENDPOINT");
+  test("includes AL-PARSE-MISSING-ENDPOINT definition", () => {
+    const def = parseDiagnostics.get("AL-PARSE-MISSING-ENDPOINT");
     expect(def).toBeDefined();
     expect(def?.examples).toBeDefined();
     expect(def?.examples?.invalid).toBeTruthy();
     expect(def?.examples?.valid).toBeTruthy();
   });
 
-  test("includes CM-PARSE-MISSING-BRACE definition", () => {
-    const def = parseDiagnostics.get("CM-PARSE-MISSING-BRACE");
+  test("includes AL-PARSE-MISSING-BRACE definition", () => {
+    const def = parseDiagnostics.get("AL-PARSE-MISSING-BRACE");
     expect(def).toBeDefined();
   });
 
@@ -475,9 +475,9 @@ import type { DiagnosticDefinition } from "../types.js";
 
 export const parseDiagnostics = new Map<string, DiagnosticDefinition>([
   [
-    "CM-PARSE-001",
+    "AL-PARSE-001",
     {
-      code: "CM-PARSE-001",
+      code: "AL-PARSE-001",
       category: "parse",
       severity: "error",
       message: "Unexpected token '${token}'",
@@ -489,9 +489,9 @@ export const parseDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-PARSE-002",
+    "AL-PARSE-002",
     {
-      code: "CM-PARSE-002",
+      code: "AL-PARSE-002",
       category: "parse",
       severity: "error",
       message: "Syntax error: ${details}",
@@ -503,9 +503,9 @@ export const parseDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-PARSE-MISSING-ENDPOINT",
+    "AL-PARSE-MISSING-ENDPOINT",
     {
-      code: "CM-PARSE-MISSING-ENDPOINT",
+      code: "AL-PARSE-MISSING-ENDPOINT",
       category: "parse",
       severity: "error",
       message: "Expected relationship endpoint after arrow operator",
@@ -517,9 +517,9 @@ export const parseDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-PARSE-MISSING-BRACE",
+    "AL-PARSE-MISSING-BRACE",
     {
-      code: "CM-PARSE-MISSING-BRACE",
+      code: "AL-PARSE-MISSING-BRACE",
       category: "parse",
       severity: "error",
       message: "Expected closing brace '}' for ${scopeType} block",
@@ -562,13 +562,13 @@ import { describe, test, expect } from "vitest";
 import { structuralDiagnostics } from "./structural.js";
 
 describe("structuralDiagnostics", () => {
-  test("includes all CM-STRUCT-* codes", () => {
+  test("includes all AL-STRUCT-* codes", () => {
     const codes = [
-      "CM-STRUCT-DUPLICATE-ID",
-      "CM-STRUCT-CONFLICTING-LABEL",
-      "CM-STRUCT-DUPLICATE-DIRECTIVE",
-      "CM-STRUCT-LATE-DIRECTIVE",
-      "CM-STRUCT-INVALID-DIRECTIVE",
+      "AL-STRUCT-DUPLICATE-ID",
+      "AL-STRUCT-CONFLICTING-LABEL",
+      "AL-STRUCT-DUPLICATE-DIRECTIVE",
+      "AL-STRUCT-LATE-DIRECTIVE",
+      "AL-STRUCT-INVALID-DIRECTIVE",
     ];
 
     for (const code of codes) {
@@ -607,9 +607,9 @@ import type { DiagnosticDefinition } from "../types.js";
 
 export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
   [
-    "CM-STRUCT-DUPLICATE-ID",
+    "AL-STRUCT-DUPLICATE-ID",
     {
-      code: "CM-STRUCT-DUPLICATE-ID",
+      code: "AL-STRUCT-DUPLICATE-ID",
       category: "structural",
       severity: "error",
       message: "Resource '${id}' conflicts with existing declaration at ${line}:${column}",
@@ -621,9 +621,9 @@ export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-STRUCT-CONFLICTING-LABEL",
+    "AL-STRUCT-CONFLICTING-LABEL",
     {
-      code: "CM-STRUCT-CONFLICTING-LABEL",
+      code: "AL-STRUCT-CONFLICTING-LABEL",
       category: "structural",
       severity: "error",
       message: "Display label for '${id}' conflicts with previous definition",
@@ -635,9 +635,9 @@ export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-STRUCT-DUPLICATE-DIRECTIVE",
+    "AL-STRUCT-DUPLICATE-DIRECTIVE",
     {
-      code: "CM-STRUCT-DUPLICATE-DIRECTIVE",
+      code: "AL-STRUCT-DUPLICATE-DIRECTIVE",
       category: "structural",
       severity: "error",
       message: "Duplicate '${directiveName}' directive. Only one ${directiveName} directive is allowed.",
@@ -649,9 +649,9 @@ export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-STRUCT-LATE-DIRECTIVE",
+    "AL-STRUCT-LATE-DIRECTIVE",
     {
-      code: "CM-STRUCT-LATE-DIRECTIVE",
+      code: "AL-STRUCT-LATE-DIRECTIVE",
       category: "structural",
       severity: "error",
       message: "Directive '${directiveName}' must appear before all resource and relationship declarations",
@@ -663,9 +663,9 @@ export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-STRUCT-INVALID-DIRECTIVE",
+    "AL-STRUCT-INVALID-DIRECTIVE",
     {
-      code: "CM-STRUCT-INVALID-DIRECTIVE",
+      code: "AL-STRUCT-INVALID-DIRECTIVE",
       category: "structural",
       severity: "error",
       message: "Invalid value '${value}' for '${directiveName}' directive",
@@ -708,11 +708,11 @@ import { describe, test, expect } from "vitest";
 import { semanticDiagnostics } from "./semantic.js";
 
 describe("semanticDiagnostics", () => {
-  test("includes all CM-SEM-* codes", () => {
+  test("includes all AL-SEM-* codes", () => {
     const codes = [
-      "CM-SEM-UNKNOWN-RESOURCE",
-      "CM-SEM-UNKNOWN-RELATIONSHIP",
-      "CM-SEM-EMPTY-GRAPH",
+      "AL-SEM-UNKNOWN-RESOURCE",
+      "AL-SEM-UNKNOWN-RELATIONSHIP",
+      "AL-SEM-EMPTY-GRAPH",
     ];
 
     for (const code of codes) {
@@ -748,9 +748,9 @@ import type { DiagnosticDefinition } from "../types.js";
 
 export const semanticDiagnostics = new Map<string, DiagnosticDefinition>([
   [
-    "CM-SEM-UNKNOWN-RESOURCE",
+    "AL-SEM-UNKNOWN-RESOURCE",
     {
-      code: "CM-SEM-UNKNOWN-RESOURCE",
+      code: "AL-SEM-UNKNOWN-RESOURCE",
       category: "semantic",
       severity: "info",
       message: "Unknown service type '${serviceKind}' for provider '${provider}'",
@@ -758,9 +758,9 @@ export const semanticDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-SEM-UNKNOWN-RELATIONSHIP",
+    "AL-SEM-UNKNOWN-RELATIONSHIP",
     {
-      code: "CM-SEM-UNKNOWN-RELATIONSHIP",
+      code: "AL-SEM-UNKNOWN-RELATIONSHIP",
       category: "semantic",
       severity: "info",
       message: "Unknown relationship type '${relationshipKind}' between '${leftKind}' and '${rightKind}'",
@@ -768,9 +768,9 @@ export const semanticDiagnostics = new Map<string, DiagnosticDefinition>([
     },
   ],
   [
-    "CM-SEM-EMPTY-GRAPH",
+    "AL-SEM-EMPTY-GRAPH",
     {
-      code: "CM-SEM-EMPTY-GRAPH",
+      code: "AL-SEM-EMPTY-GRAPH",
       category: "semantic",
       severity: "info",
       message: "Document contains no resources or relationships",
@@ -814,19 +814,19 @@ describe("registry", () => {
   test("getAllDiagnostics returns all diagnostic definitions", () => {
     const all = getAllDiagnostics();
     expect(all.size).toBeGreaterThan(0);
-    expect(all.has("CM-PARSE-001")).toBe(true);
-    expect(all.has("CM-STRUCT-DUPLICATE-ID")).toBe(true);
-    expect(all.has("CM-SEM-UNKNOWN-RESOURCE")).toBe(true);
+    expect(all.has("AL-PARSE-001")).toBe(true);
+    expect(all.has("AL-STRUCT-DUPLICATE-ID")).toBe(true);
+    expect(all.has("AL-SEM-UNKNOWN-RESOURCE")).toBe(true);
   });
 
   test("getDiagnosticDefinition returns correct definition", () => {
-    const def = getDiagnosticDefinition("CM-PARSE-MISSING-ENDPOINT");
+    const def = getDiagnosticDefinition("AL-PARSE-MISSING-ENDPOINT");
     expect(def).toBeDefined();
-    expect(def?.code).toBe("CM-PARSE-MISSING-ENDPOINT");
+    expect(def?.code).toBe("AL-PARSE-MISSING-ENDPOINT");
   });
 
   test("getDiagnosticDefinition returns undefined for unknown code", () => {
-    const def = getDiagnosticDefinition("CM-UNKNOWN-CODE" as any);
+    const def = getDiagnosticDefinition("AL-UNKNOWN-CODE" as any);
     expect(def).toBeUndefined();
   });
 });
@@ -923,7 +923,7 @@ git commit -m "feat(diagnostics): implement registry and export API"
 
 Add to `packages/parser/package.json` dependencies:
 ```json
-"@cloudmer/diagnostics": "workspace:*"
+"@archlex/diagnostics": "workspace:*"
 ```
 
 Run: `cd packages/parser && pnpm install`
@@ -967,13 +967,13 @@ Expected: FAIL - remediation is undefined
 Replace diagnostic creation in `packages/parser/src/index.ts`:
 
 ```typescript
-import type { Diagnostic, DocumentAst, ParseResult } from "@cloudmer/model";
+import type { Diagnostic, DocumentAst, ParseResult } from "@archlex/model";
 import {
   createDiagnostic,
   diagnosticRegistry,
-} from "@cloudmer/diagnostics";
+} from "@archlex/diagnostics";
 import { parserInstance } from "./cst/index.js";
-import { CloudMerLexer } from "./lexer/index.js";
+import { ArchLexLexer } from "./lexer/index.js";
 import { convertCstToAst, tokenToSpan } from "./visitor/index.js";
 
 export * from "./cst/index.js";
@@ -981,7 +981,7 @@ export * from "./lexer/index.js";
 export * from "./visitor/index.js";
 
 export function parse(source: string): ParseResult {
-  const lexResult = CloudMerLexer.tokenize(source);
+  const lexResult = ArchLexLexer.tokenize(source);
   const diagnostics: Diagnostic[] = [];
 
   for (const err of lexResult.errors) {
@@ -992,7 +992,7 @@ export function parse(source: string): ParseResult {
     
     diagnostics.push(
       createDiagnostic(
-        "CM-PARSE-001",
+        "AL-PARSE-001",
         { token: err.message, line, column },
         {
           start: { line, column, offset },
@@ -1015,10 +1015,10 @@ export function parse(source: string): ParseResult {
       /(?:>|->|<-|<->|--|-\.->|-\[[^\]]+\]->)\s*(?:\r?\n|$)/.test(source);
     
     const code = missingBrace
-      ? "CM-PARSE-MISSING-BRACE"
+      ? "AL-PARSE-MISSING-BRACE"
       : missingEndpoint
-        ? "CM-PARSE-MISSING-ENDPOINT"
-        : "CM-PARSE-002";
+        ? "AL-PARSE-MISSING-ENDPOINT"
+        : "AL-PARSE-002";
 
     diagnostics.push(
       createDiagnostic(
@@ -1036,11 +1036,11 @@ export function parse(source: string): ParseResult {
   }
 
   const hasUnclosedScope = diagnostics.some(
-    (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-BRACE"
+    (diagnostic) => diagnostic.code === "AL-PARSE-MISSING-BRACE"
   );
 
   const hasIncompleteRelationship = diagnostics.some(
-    (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-ENDPOINT"
+    (diagnostic) => diagnostic.code === "AL-PARSE-MISSING-ENDPOINT"
   );
 
   if (parserInstance.errors.length > 0 && !hasUnclosedScope && !hasIncompleteRelationship) {
@@ -1083,7 +1083,7 @@ git commit -m "refactor(parser): use diagnostic factory from registry"
 
 Add to `packages/core/package.json` dependencies:
 ```json
-"@cloudmer/diagnostics": "workspace:*"
+"@archlex/diagnostics": "workspace:*"
 ```
 
 Run: `cd packages/core && pnpm install`
@@ -1122,13 +1122,13 @@ Expected: FAIL - remediation is undefined
 In `packages/core/src/index.ts`, update imports and directive collection:
 
 ```typescript
-import { awsProvider } from "@cloudmer/aws";
-import { gcpProvider } from "@cloudmer/gcp";
-import { createInlineLayoutEngine } from "@cloudmer/layout-elk";
+import { awsProvider } from "@archlex/aws";
+import { gcpProvider } from "@archlex/gcp";
+import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import {
   createDiagnostic,
   diagnosticRegistry,
-} from "@cloudmer/diagnostics";
+} from "@archlex/diagnostics";
 import type {
   AnalysisResult,
   CloudEdge,
@@ -1152,9 +1152,9 @@ import type {
   StatementAst,
   SvgResult,
   ValidationMode,
-} from "@cloudmer/model";
-import { parse as parseSource } from "@cloudmer/parser";
-import { createSvgRenderer } from "@cloudmer/renderer-svg";
+} from "@archlex/model";
+import { parse as parseSource } from "@archlex/parser";
+import { createSvgRenderer } from "@archlex/renderer-svg";
 
 // ... (keep existing interfaces)
 
@@ -1177,8 +1177,8 @@ function collectDirectives(
     
     if (declarationsStarted || values[name] !== undefined) {
       const code = declarationsStarted
-        ? "CM-STRUCT-LATE-DIRECTIVE"
-        : "CM-STRUCT-DUPLICATE-DIRECTIVE";
+        ? "AL-STRUCT-LATE-DIRECTIVE"
+        : "AL-STRUCT-DUPLICATE-DIRECTIVE";
       
       diagnostics.push(
         createDiagnostic(
@@ -1202,7 +1202,7 @@ function collectDirectives(
     if (allowed && !allowed.includes(directive.value)) {
       diagnostics.push(
         createDiagnostic(
-          "CM-STRUCT-INVALID-DIRECTIVE",
+          "AL-STRUCT-INVALID-DIRECTIVE",
           { 
             value: directive.value, 
             directiveName: name,
@@ -1239,7 +1239,7 @@ analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
   // When creating unknown resource diagnostic:
   diagnostics.push(
     createDiagnostic(
-      "CM-SEM-UNKNOWN-RESOURCE",
+      "AL-SEM-UNKNOWN-RESOURCE",
       { 
         serviceKind: resource.kind,
         provider: currentProvider,
@@ -1253,7 +1253,7 @@ analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
   // When creating conflicting label diagnostic:
   diagnostics.push(
     createDiagnostic(
-      "CM-STRUCT-CONFLICTING-LABEL",
+      "AL-STRUCT-CONFLICTING-LABEL",
       { id: resource.name ?? resource.kind },
       resource.span,
       [nodeId],
@@ -1264,7 +1264,7 @@ analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
   // When creating duplicate ID diagnostic:
   diagnostics.push(
     createDiagnostic(
-      "CM-STRUCT-DUPLICATE-ID",
+      "AL-STRUCT-DUPLICATE-ID",
       { 
         id: nodeId,
         line: existing.span.start.line,
@@ -1279,7 +1279,7 @@ analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
   // When creating unknown relationship diagnostic:
   diagnostics.push(
     createDiagnostic(
-      "CM-SEM-UNKNOWN-RELATIONSHIP",
+      "AL-SEM-UNKNOWN-RELATIONSHIP",
       { 
         relationshipKind: rel.kind ?? rel.arrow,
         leftKind: leftNode.serviceKind,
@@ -1295,7 +1295,7 @@ analyze(ast: DocumentAst, analyzeOptions?: AnalyzeOptions): AnalysisResult {
   if (validation !== "off" && nodesMap.size === 0) {
     diagnostics.push(
       createDiagnostic(
-        "CM-SEM-EMPTY-GRAPH",
+        "AL-SEM-EMPTY-GRAPH",
         {},
         ast.span,
         [],
@@ -1340,12 +1340,12 @@ git commit -m "refactor(core): use diagnostic factory from registry"
 ```typescript
 import { describe, test, expect } from "vitest";
 import { getCodeActionsForDiagnostic } from "./code-actions.js";
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 
 describe("getCodeActionsForDiagnostic", () => {
   test("provides actions for missing endpoint", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-PARSE-MISSING-ENDPOINT",
+      code: "AL-PARSE-MISSING-ENDPOINT",
       severity: "error",
       message: "Expected relationship endpoint",
       span: {
@@ -1364,7 +1364,7 @@ describe("getCodeActionsForDiagnostic", () => {
 
   test("provides actions for invalid directive value", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-STRUCT-INVALID-DIRECTIVE",
+      code: "AL-STRUCT-INVALID-DIRECTIVE",
       severity: "error",
       message: "Invalid value 'diagonal' for 'direction'",
       span: {
@@ -1382,7 +1382,7 @@ describe("getCodeActionsForDiagnostic", () => {
 
   test("returns empty array for non-actionable diagnostics", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-SEM-UNKNOWN-RESOURCE",
+      code: "AL-SEM-UNKNOWN-RESOURCE",
       severity: "info",
       message: "Unknown service",
       span: {
@@ -1409,7 +1409,7 @@ Expected: FAIL - "Cannot find module './code-actions.js'"
 - [ ] **Step 3: Implement code actions provider**
 
 ```typescript
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
 export interface CodeAction {
@@ -1434,7 +1434,7 @@ export function getCodeActionsForDiagnostic(
   sourceText: string
 ): CodeAction[] {
   switch (diagnostic.code) {
-    case "CM-PARSE-MISSING-ENDPOINT":
+    case "AL-PARSE-MISSING-ENDPOINT":
       return COMMON_SERVICES.map((service, index) => ({
         title: `Add '${service}'`,
         edit: {
@@ -1450,7 +1450,7 @@ export function getCodeActionsForDiagnostic(
         isPreferred: index === 0,
       }));
 
-    case "CM-STRUCT-INVALID-DIRECTIVE": {
+    case "AL-STRUCT-INVALID-DIRECTIVE": {
       const match = diagnostic.remediation?.match(/Use one of: (.+)/);
       if (!match) return [];
 
@@ -1471,8 +1471,8 @@ export function getCodeActionsForDiagnostic(
       }));
     }
 
-    case "CM-STRUCT-DUPLICATE-DIRECTIVE":
-    case "CM-STRUCT-LATE-DIRECTIVE": {
+    case "AL-STRUCT-DUPLICATE-DIRECTIVE":
+    case "AL-STRUCT-LATE-DIRECTIVE": {
       return [
         {
           title: "Remove this directive",
@@ -1500,7 +1500,7 @@ export function registerCodeActionsProvider(
   monaco: typeof Monaco,
   diagnostics: readonly Diagnostic[]
 ): Monaco.IDisposable {
-  return monaco.languages.registerCodeActionProvider("cloudmer", {
+  return monaco.languages.registerCodeActionProvider("archlex", {
     provideCodeActions(model, range, context) {
       const actions: Monaco.languages.CodeAction[] = [];
 
@@ -1636,7 +1636,7 @@ git commit -m "feat(playground): implement Monaco code actions for quick fixes"
 
 Add to `apps/playground/package.json` dependencies:
 ```json
-"@cloudmer/diagnostics": "workspace:*"
+"@archlex/diagnostics": "workspace:*"
 ```
 
 Run: `cd apps/playground && pnpm install`
@@ -1647,15 +1647,15 @@ Expected: Dependency added
 Replace content of `apps/playground/src/monaco/hover.ts`:
 
 ```typescript
-import type { Diagnostic } from "@cloudmer/model";
-import { getDiagnosticDefinition } from "@cloudmer/diagnostics";
+import type { Diagnostic } from "@archlex/model";
+import { getDiagnosticDefinition } from "@archlex/diagnostics";
 import type * as Monaco from "monaco-editor";
 
 export function registerHoverProvider(
   monaco: typeof Monaco,
   diagnostics: readonly Diagnostic[]
 ): Monaco.IDisposable {
-  return monaco.languages.registerHoverProvider("cloudmer", {
+  return monaco.languages.registerHoverProvider("archlex", {
     provideHover(model, position) {
       // Find diagnostic at this position
       const diagnostic = diagnostics.find(
@@ -1688,7 +1688,7 @@ export function registerHoverProvider(
       }
 
       if (definition?.examples) {
-        content += `**Example:**\n\`\`\`cloudmer\n${definition.examples.valid}\n\`\`\`\n\n`;
+        content += `**Example:**\n\`\`\`archlex\n${definition.examples.valid}\n\`\`\`\n\n`;
       }
 
       if (definition?.documentationUrl) {
@@ -1774,7 +1774,7 @@ git commit -m "feat(playground): enhance Monaco hover with registry data"
 
 Add to `packages/cli/package.json` dependencies:
 ```json
-"@cloudmer/diagnostics": "workspace:*"
+"@archlex/diagnostics": "workspace:*"
 ```
 
 Run: `cd packages/cli && pnpm install`
@@ -1785,12 +1785,12 @@ Expected: Dependency added
 ```typescript
 import { describe, test, expect } from "vitest";
 import { formatDiagnostic } from "./format-diagnostic.js";
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 
 describe("formatDiagnostic", () => {
   test("formats error diagnostic with source context", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-PARSE-MISSING-ENDPOINT",
+      code: "AL-PARSE-MISSING-ENDPOINT",
       severity: "error",
       message: "Expected relationship endpoint after arrow operator",
       span: {
@@ -1804,7 +1804,7 @@ describe("formatDiagnostic", () => {
     const source = "lambda ->";
     const formatted = formatDiagnostic(diagnostic, source, "test.cm");
 
-    expect(formatted).toContain("error[CM-PARSE-MISSING-ENDPOINT]");
+    expect(formatted).toContain("error[AL-PARSE-MISSING-ENDPOINT]");
     expect(formatted).toContain("test.cm:1:10");
     expect(formatted).toContain("lambda ->");
     expect(formatted).toContain("Add a service identifier");
@@ -1812,7 +1812,7 @@ describe("formatDiagnostic", () => {
 
   test("formats warning diagnostic", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-SEM-UNKNOWN-RESOURCE",
+      code: "AL-SEM-UNKNOWN-RESOURCE",
       severity: "warning",
       message: "Unknown service type",
       span: {
@@ -1824,12 +1824,12 @@ describe("formatDiagnostic", () => {
     };
 
     const formatted = formatDiagnostic(diagnostic, "unknown", "test.cm");
-    expect(formatted).toContain("warning[CM-SEM-UNKNOWN-RESOURCE]");
+    expect(formatted).toContain("warning[AL-SEM-UNKNOWN-RESOURCE]");
   });
 
   test("handles multi-line source context", () => {
     const diagnostic: Diagnostic = {
-      code: "CM-STRUCT-DUPLICATE-ID",
+      code: "AL-STRUCT-DUPLICATE-ID",
       severity: "error",
       message: "Duplicate resource ID",
       span: {
@@ -1859,7 +1859,7 @@ Expected: FAIL - "Cannot find module './format-diagnostic.js'"
 - [ ] **Step 4: Implement diagnostic formatter**
 
 ```typescript
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import chalk from "chalk";
 
 export function formatDiagnostic(
@@ -1972,8 +1972,8 @@ import chalk from "chalk";
 import {
   getAllDiagnostics,
   getDiagnosticDefinition,
-} from "@cloudmer/diagnostics";
-import type { DiagnosticCode } from "@cloudmer/diagnostics";
+} from "@archlex/diagnostics";
+import type { DiagnosticCode } from "@archlex/diagnostics";
 
 export function createErrorsCommand(): Command {
   const cmd = new Command("errors");
@@ -2107,7 +2107,7 @@ Expected: Build succeeds
 Run: `./dist/index.js errors`
 Expected: Lists all error codes grouped by category
 
-Run: `./dist/index.js errors CM-PARSE-MISSING-ENDPOINT`
+Run: `./dist/index.js errors AL-PARSE-MISSING-ENDPOINT`
 Expected: Shows detailed info for that specific code
 
 - [ ] **Step 4: Run typecheck**
@@ -2136,7 +2136,7 @@ git commit -m "feat(cli): add errors command for documentation"
 #!/usr/bin/env node
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { getAllDiagnostics } from "@cloudmer/diagnostics";
+import { getAllDiagnostics } from "@archlex/diagnostics";
 
 async function generateErrorDocs() {
   const docsDir = join(process.cwd(), "docs", "errors");
@@ -2156,7 +2156,7 @@ async function generateErrorDocs() {
   }
 
   // Generate index page
-  let indexContent = "# CloudMer Error Codes\n\n";
+  let indexContent = "# ArchLex Error Codes\n\n";
   indexContent += "Complete reference of all diagnostic codes.\n\n";
 
   for (const [category, items] of byCategory.entries()) {
@@ -2188,9 +2188,9 @@ async function generateErrorDocs() {
     if (def.examples) {
       content += `## Examples\n\n`;
       content += `### Invalid\n\n`;
-      content += `\`\`\`cloudmer\n${def.examples.invalid}\n\`\`\`\n\n`;
+      content += `\`\`\`archlex\n${def.examples.invalid}\n\`\`\`\n\n`;
       content += `### Valid\n\n`;
-      content += `\`\`\`cloudmer\n${def.examples.valid}\n\`\`\`\n\n`;
+      content += `\`\`\`archlex\n${def.examples.valid}\n\`\`\`\n\n`;
     }
 
     if (def.relatedCodes && def.relatedCodes.length > 0) {
@@ -2238,9 +2238,9 @@ Expected: Creates docs/errors/ with index.md and individual code pages
 - [ ] **Step 5: Verify generated docs**
 
 Run: `ls docs/errors/`
-Expected: index.md, CM-PARSE-001.md, CM-PARSE-MISSING-ENDPOINT.md, etc.
+Expected: index.md, AL-PARSE-001.md, AL-PARSE-MISSING-ENDPOINT.md, etc.
 
-Run: `cat docs/errors/CM-PARSE-MISSING-ENDPOINT.md`
+Run: `cat docs/errors/AL-PARSE-MISSING-ENDPOINT.md`
 Expected: Complete documentation page with description, remediation, examples
 
 - [ ] **Step 6: Commit**
@@ -2263,13 +2263,13 @@ git commit -m "feat: add error documentation generation script"
 
 ```typescript
 import { describe, test, expect } from "vitest";
-import { createCloudMer } from "@cloudmer/core";
-import { awsProvider } from "@cloudmer/aws";
-import { getDiagnosticDefinition } from "@cloudmer/diagnostics";
+import { createArchLex } from "@archlex/core";
+import { awsProvider } from "@archlex/aws";
+import { getDiagnosticDefinition } from "@archlex/diagnostics";
 
 describe("Error System Integration", () => {
   test("all diagnostics include remediation", async () => {
-    const cloudmer = createCloudMer({
+    const archlex = createArchLex({
       providers: [awsProvider],
     });
 
@@ -2282,22 +2282,22 @@ describe("Error System Integration", () => {
     ];
 
     for (const source of testCases) {
-      const result = await cloudmer.render(source);
+      const result = await archlex.render(source);
       
       for (const diagnostic of result.diagnostics) {
         expect(diagnostic.remediation).toBeDefined();
         expect(diagnostic.remediation).toBeTruthy();
-        expect(diagnostic.code).toMatch(/^CM-(PARSE|STRUCT|SEM)-/);
+        expect(diagnostic.code).toMatch(/^AL-(PARSE|STRUCT|SEM)-/);
       }
     }
   });
 
   test("diagnostic definitions match emitted diagnostics", async () => {
-    const cloudmer = createCloudMer({
+    const archlex = createArchLex({
       providers: [awsProvider],
     });
 
-    const result = await cloudmer.render("lambda ->");
+    const result = await archlex.render("lambda ->");
     
     for (const diagnostic of result.diagnostics) {
       const definition = getDiagnosticDefinition(diagnostic.code as any);
@@ -2308,7 +2308,7 @@ describe("Error System Integration", () => {
   });
 
   test("all error-severity diagnostics have examples", () => {
-    const allDiagnostics = require("@cloudmer/diagnostics").getAllDiagnostics();
+    const allDiagnostics = require("@archlex/diagnostics").getAllDiagnostics();
     
     for (const [code, def] of allDiagnostics.entries()) {
       if (def.severity === "error") {
@@ -2333,12 +2333,12 @@ Expected: PASS - All integration tests pass
 ```markdown
 # Error System
 
-CloudMer's error system provides precise, actionable diagnostics across all surfaces.
+ArchLex's error system provides precise, actionable diagnostics across all surfaces.
 
 ## For Library Users
 
 All diagnostics include:
-- **Code**: Stable identifier (e.g., `CM-PARSE-MISSING-ENDPOINT`)
+- **Code**: Stable identifier (e.g., `AL-PARSE-MISSING-ENDPOINT`)
 - **Severity**: `error`, `warning`, or `info`
 - **Message**: Technical description of the issue
 - **Remediation**: Actionable fix suggestion
@@ -2346,7 +2346,7 @@ All diagnostics include:
 - **Elements**: Affected resource/relationship IDs
 
 ```typescript
-const result = await cloudmer.render(source);
+const result = await archlex.render(source);
 
 for (const diagnostic of result.diagnostics) {
   console.log(`${diagnostic.code}: ${diagnostic.message}`);
@@ -2373,7 +2373,7 @@ Hover over any diagnostic marker to see:
 
 ### View Diagnostics
 ```bash
-cloudmer render diagram.cm
+archlex render diagram.cm
 ```
 
 Diagnostics shown with:
@@ -2383,25 +2383,25 @@ Diagnostics shown with:
 
 ### List All Error Codes
 ```bash
-cloudmer errors list
-cloudmer errors list --category parse
-cloudmer errors list --severity error
+archlex errors list
+archlex errors list --category parse
+archlex errors list --severity error
 ```
 
 ### View Specific Error
 ```bash
-cloudmer errors CM-PARSE-MISSING-ENDPOINT
+archlex errors AL-PARSE-MISSING-ENDPOINT
 ```
 
 ## Error Categories
 
-### Parse Errors (CM-PARSE-*)
+### Parse Errors (AL-PARSE-*)
 Lexer and parser failures. Fix by correcting syntax.
 
-### Structural Errors (CM-STRUCT-*)
+### Structural Errors (AL-STRUCT-*)
 Directive and declaration issues. Fix by reorganizing or renaming.
 
-### Semantic Errors (CM-SEM-*)
+### Semantic Errors (AL-SEM-*)
 Provider-specific validation. Usually informational.
 
 ## Documentation
@@ -2473,7 +2473,7 @@ Test commands:
 ```bash
 echo "lambda ->" | ./dist/index.js render
 ./dist/index.js errors list
-./dist/index.js errors CM-PARSE-MISSING-ENDPOINT
+./dist/index.js errors AL-PARSE-MISSING-ENDPOINT
 ```
 
 Expected: 
@@ -2489,7 +2489,7 @@ Check:
 ```bash
 ls docs/errors/
 cat docs/errors/index.md
-cat docs/errors/CM-PARSE-MISSING-ENDPOINT.md
+cat docs/errors/AL-PARSE-MISSING-ENDPOINT.md
 ```
 
 Expected: All documentation files generated correctly
@@ -2509,11 +2509,11 @@ Expected: No TypeScript errors in any package
 Add to `CHANGELOG.md` or create `.changeset/`:
 ```markdown
 ---
-"@cloudmer/diagnostics": minor
-"@cloudmer/core": patch
-"@cloudmer/parser": patch
-"@cloudmer/cli": minor
-"@cloudmer/playground": minor
+"@archlex/diagnostics": minor
+"@archlex/core": patch
+"@archlex/parser": patch
+"@archlex/cli": minor
+"@archlex/playground": minor
 ---
 
 Comprehensive error message system with diagnostic registry, Monaco code actions, CLI formatting, and multi-channel documentation
@@ -2537,7 +2537,7 @@ Document what was implemented:
 - ✅ Monaco code actions for quick fixes
 - ✅ Enhanced Monaco hover with examples
 - ✅ CLI diagnostic formatter with source context
-- ✅ `cloudmer errors` command
+- ✅ `archlex errors` command
 - ✅ Documentation generation script
 - ✅ Integration tests
 - ✅ Usage guide
@@ -2568,7 +2568,7 @@ Expected: Complete feature implementation verified
 ### Type Consistency
 ✅ `DiagnosticCode` type used consistently
 ✅ `createDiagnostic()` signature matches across all uses
-✅ `Diagnostic` interface from @cloudmer/model unchanged
+✅ `Diagnostic` interface from @archlex/model unchanged
 ✅ Template interpolation context types consistent
 ✅ Monaco API types from monaco-editor used correctly
 

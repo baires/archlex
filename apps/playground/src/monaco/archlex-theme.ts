@@ -1,10 +1,10 @@
 import type * as Monaco from "monaco-editor";
 
 /**
- * CloudMer theme for Monaco Editor (Dark)
- * Matches the CloudMer design system dark theme
+ * ArchLex theme for Monaco Editor (Dark)
+ * Matches the ArchLex design system dark theme
  */
-export const cloudmerDarkTheme: Monaco.editor.IStandaloneThemeData = {
+export const archlexDarkTheme: Monaco.editor.IStandaloneThemeData = {
   base: "vs-dark",
   inherit: true,
   rules: [
@@ -102,10 +102,10 @@ export const cloudmerDarkTheme: Monaco.editor.IStandaloneThemeData = {
 };
 
 /**
- * CloudMer theme for Monaco Editor (Light)
- * Matches the CloudMer design system light theme
+ * ArchLex theme for Monaco Editor (Light)
+ * Matches the ArchLex design system light theme
  */
-export const cloudmerLightTheme: Monaco.editor.IStandaloneThemeData = {
+export const archlexLightTheme: Monaco.editor.IStandaloneThemeData = {
   base: "vs",
   inherit: true,
   rules: [
@@ -203,9 +203,9 @@ export const cloudmerLightTheme: Monaco.editor.IStandaloneThemeData = {
 };
 
 /**
- * Register CloudMer themes with Monaco
+ * Register ArchLex themes with Monaco
  */
-export function registerCloudMerThemes(monaco: typeof Monaco): void {
-  monaco.editor.defineTheme("cloudmer-dark", cloudmerDarkTheme);
-  monaco.editor.defineTheme("cloudmer-light", cloudmerLightTheme);
+export function registerArchLexThemes(monaco: typeof Monaco): void {
+  monaco.editor.defineTheme("archlex-dark", archlexDarkTheme);
+  monaco.editor.defineTheme("archlex-light", archlexLightTheme);
 }

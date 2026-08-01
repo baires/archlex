@@ -1,4 +1,4 @@
-import type { CatalogManifest, SanitizedIcon } from "@cloudmer/model";
+import type { CatalogManifest, SanitizedIcon } from "@archlex/model";
 import {
   GCP_GENERATED_ICONS,
   GCP_GENERATED_ICON_MANIFEST_CHECKSUM,

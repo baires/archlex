@@ -1,9 +1,9 @@
-import type { DiagnosticCode, DiagnosticDefinition } from "./types.js";
 import {
   parseDiagnostics,
-  structuralDiagnostics,
   semanticDiagnostics,
+  structuralDiagnostics,
 } from "./categories/index.js";
+import type { DiagnosticCode, DiagnosticDefinition } from "./types.js";
 
 const allDiagnostics = new Map<string, DiagnosticDefinition>([
   ...parseDiagnostics,
@@ -16,7 +16,7 @@ export function getAllDiagnostics(): ReadonlyMap<string, DiagnosticDefinition> {
 }
 
 export function getDiagnosticDefinition(
-  code: DiagnosticCode
+  code: DiagnosticCode,
 ): DiagnosticDefinition | undefined {
   return allDiagnostics.get(code);
 }

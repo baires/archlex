@@ -45,7 +45,7 @@ async function generateErrorDocs() {
   }
 
   // Generate index page
-  let indexContent = "# CloudMer Error Codes\n\n";
+  let indexContent = "# ArchLex Error Codes\n\n";
   indexContent += "Complete reference of all diagnostic codes.\n\n";
 
   for (const [category, items] of byCategory.entries()) {
@@ -82,9 +82,9 @@ async function generateErrorDocs() {
     if (def.examples) {
       content += "## Examples\n\n";
       content += "### Invalid\n\n";
-      content += `\`\`\`cloudmer\n${def.examples.invalid}\n\`\`\`\n\n`;
+      content += `\`\`\`archlex\n${def.examples.invalid}\n\`\`\`\n\n`;
       content += "### Valid\n\n";
-      content += `\`\`\`cloudmer\n${def.examples.valid}\n\`\`\`\n\n`;
+      content += `\`\`\`archlex\n${def.examples.valid}\n\`\`\`\n\n`;
     }
 
     if (def.relatedCodes && def.relatedCodes.length > 0) {

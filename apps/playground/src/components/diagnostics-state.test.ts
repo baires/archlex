@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import {
   createRenderIssue,
@@ -7,7 +7,7 @@ import {
 
 const warning: Diagnostic = {
   severity: "warning",
-  code: "CM-WARNING",
+  code: "AL-WARNING",
   message: "Warning",
   span: {
     start: { line: 1, column: 1, offset: 0 },

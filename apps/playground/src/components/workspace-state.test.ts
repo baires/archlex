@@ -1,4 +1,4 @@
-import type { Diagnostic } from "@cloudmer/model";
+import type { Diagnostic } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_SPLIT_RATIO,
@@ -9,7 +9,7 @@ import {
 
 const diagnostic = (severity: Diagnostic["severity"]): Diagnostic => ({
   severity,
-  code: `CM-${severity}`,
+  code: `AL-${severity}`,
   message: severity,
   span: {
     start: { line: 1, column: 1, offset: 0 },

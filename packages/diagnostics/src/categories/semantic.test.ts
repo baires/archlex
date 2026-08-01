@@ -1,12 +1,12 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { semanticDiagnostics } from "./semantic.js";
 
 describe("semanticDiagnostics", () => {
-  test("includes all CM-SEM-* codes", () => {
+  test("includes all AL-SEM-* codes", () => {
     const codes = [
-      "CM-SEM-UNKNOWN-RESOURCE",
-      "CM-SEM-UNKNOWN-RELATIONSHIP",
-      "CM-SEM-EMPTY-GRAPH",
+      "AL-SEM-UNKNOWN-RESOURCE",
+      "AL-SEM-UNKNOWN-RELATIONSHIP",
+      "AL-SEM-EMPTY-GRAPH",
     ];
 
     for (const code of codes) {

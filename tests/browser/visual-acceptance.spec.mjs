@@ -91,7 +91,7 @@ const WORKSPACE_VIEWPORTS = {
   narrow: { width: 720, height: 900 },
 };
 
-const STORAGE_KEYS = ["cloudmer_source_v1", "cloudmer_options_v1"];
+const STORAGE_KEYS = ["archlex_source_v1", "archlex_options_v1"];
 
 const WORKSPACE_SOURCE = `direction LR
 provider aws
@@ -128,7 +128,7 @@ async function resetStoredWorkspace(page, viewport) {
 }
 
 async function waitForReadyWorkspace(page) {
-  const svg = page.locator("svg[data-cloudmer-version]");
+  const svg = page.locator("svg[data-archlex-version]");
   const status = page.locator(".workspace-status-bar");
   await expect(svg).toHaveCount(1);
   await expect(status).toContainText("Ready");
@@ -160,8 +160,8 @@ async function prepareWorkspace(
   const status = page.locator(".workspace-status-bar");
   await page.getByRole("textbox").fill(source);
   await expect(status).toContainText("Rendering");
-  const svg = page.locator("svg[data-cloudmer-version]");
-  await expect(svg.locator(".cloudmer-node")).toHaveCount(expectedNodes);
+  const svg = page.locator("svg[data-archlex-version]");
+  await expect(svg.locator(".archlex-node")).toHaveCount(expectedNodes);
   await expect(shell).toHaveAttribute("data-theme", theme);
   await waitForReadyWorkspace(page);
 }
@@ -208,13 +208,13 @@ async function renderScenario(page, scenario, theme) {
   }
 
   await expect(shell).toHaveAttribute("data-theme", theme);
-  const svg = page.locator("svg[data-cloudmer-version]");
+  const svg = page.locator("svg[data-archlex-version]");
   await expect(svg).toBeVisible();
-  await expect(svg.locator(".cloudmer-node")).toHaveCount(
+  await expect(svg.locator(".archlex-node")).toHaveCount(
     scenario.expectedNodes,
   );
   if (scenario.expectedScopes) {
-    await expect(svg.locator(".cloudmer-scope")).toHaveCount(
+    await expect(svg.locator(".archlex-scope")).toHaveCount(
       scenario.expectedScopes,
     );
   }
@@ -296,7 +296,7 @@ test("workspace dark narrow preview", async ({ page }) => {
     expectedNodes: 3,
   });
   await page.getByRole("tab", { name: "Preview" }).click();
-  await expect(page.locator("svg[data-cloudmer-version]")).toBeVisible();
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
   await expectWorkspaceScreenshot(page, "workspace-dark-narrow-preview");
 });
 

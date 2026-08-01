@@ -1,4 +1,4 @@
-# CloudMer MVP Roadmap
+# ArchLex MVP Roadmap
 
 Each phase starts after the preceding gate. A deliverable includes implementation, tests, and relevant documentation.
 

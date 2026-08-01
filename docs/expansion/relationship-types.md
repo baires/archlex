@@ -1,6 +1,6 @@
-# CloudMer Relationship Types Expansion
+# ArchLex Relationship Types Expansion
 
-This document tracks the expansion of `knownRelationships` in CloudMer as new services are added across tiers.
+This document tracks the expansion of `knownRelationships` in ArchLex as new services are added across tiers.
 
 **Last Updated**: 2026-07-31
 

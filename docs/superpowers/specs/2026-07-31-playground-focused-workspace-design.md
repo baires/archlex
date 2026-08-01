@@ -1,11 +1,11 @@
-# CloudMer Playground Focused Workspace Design
+# ArchLex Playground Focused Workspace Design
 
 **Date:** 2026-07-31
 **Status:** Approved design, pending implementation plan
 
 ## Context
 
-The CloudMer playground is a reference consumer and debugging environment for developers, DevOps engineers, SREs, and cloud engineers. Its current interface gives the brand, configuration, export actions, editor, preview controls, status, and diagnostics similar visual weight. A single informational diagnostic can consume a large horizontal band, reducing the usable editor and canvas area.
+The ArchLex playground is a reference consumer and debugging environment for developers, DevOps engineers, SREs, and cloud engineers. Its current interface gives the brand, configuration, export actions, editor, preview controls, status, and diagnostics similar visual weight. A single informational diagnostic can consume a large horizontal band, reducing the usable editor and canvas area.
 
 The current styling also relies on gradients, glass blur, glow, rounded cards, emoji, and decorative entrance animations. These choices make the product feel like a generic SaaS dashboard rather than a precise infrastructure tool.
 
@@ -40,7 +40,7 @@ The application has three persistent horizontal bands on desktop.
 
 The top command bar is 44–48 px tall. It contains:
 
-- A compact CloudMer wordmark at the left.
+- A compact ArchLex wordmark at the left.
 - Example, layout direction, and validation controls.
 - Theme, export, and fullscreen actions at the right.
 

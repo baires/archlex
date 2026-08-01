@@ -14,13 +14,13 @@ importers:
       '@changesets/cli':
         specifier: ^2.27.12
         version: 2.31.1(@types/node@22.20.1)
-      '@cloudmer/aws':
+      '@archlex/aws':
         specifier: workspace:*
         version: link:packages/aws
-      '@cloudmer/core':
+      '@archlex/core':
         specifier: workspace:*
         version: link:packages/core
-      '@cloudmer/diagnostics':
+      '@archlex/diagnostics':
         specifier: workspace:*
         version: link:packages/diagnostics
       '@playwright/test':
@@ -62,13 +62,13 @@ importers:
 
   apps/playground:
     dependencies:
-      '@cloudmer/core':
+      '@archlex/core':
         specifier: workspace:^
         version: link:../../packages/core
-      '@cloudmer/diagnostics':
+      '@archlex/diagnostics':
         specifier: workspace:*
         version: link:../../packages/diagnostics
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../../packages/model
       '@fontsource/ibm-plex-mono':
@@ -108,7 +108,7 @@ importers:
 
   packages/aws:
     dependencies:
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
     devDependencies:
@@ -127,13 +127,13 @@ importers:
 
   packages/cli:
     dependencies:
-      '@cloudmer/core':
+      '@archlex/core':
         specifier: workspace:^
         version: link:../core
-      '@cloudmer/diagnostics':
+      '@archlex/diagnostics':
         specifier: workspace:*
         version: link:../diagnostics
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
       chalk:
@@ -164,25 +164,25 @@ importers:
 
   packages/core:
     dependencies:
-      '@cloudmer/aws':
+      '@archlex/aws':
         specifier: workspace:^
         version: link:../aws
-      '@cloudmer/diagnostics':
+      '@archlex/diagnostics':
         specifier: workspace:^
         version: link:../diagnostics
-      '@cloudmer/gcp':
+      '@archlex/gcp':
         specifier: workspace:^
         version: link:../gcp
-      '@cloudmer/layout-elk':
+      '@archlex/layout-elk':
         specifier: workspace:^
         version: link:../layout-elk
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
-      '@cloudmer/parser':
+      '@archlex/parser':
         specifier: workspace:^
         version: link:../parser
-      '@cloudmer/renderer-svg':
+      '@archlex/renderer-svg':
         specifier: workspace:^
         version: link:../renderer-svg
     devDependencies:
@@ -198,7 +198,7 @@ importers:
 
   packages/diagnostics:
     dependencies:
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:*
         version: link:../model
     devDependencies:
@@ -217,7 +217,7 @@ importers:
 
   packages/gcp:
     dependencies:
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
     devDependencies:
@@ -236,7 +236,7 @@ importers:
 
   packages/layout-elk:
     dependencies:
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
       elkjs:
@@ -267,10 +267,10 @@ importers:
 
   packages/parser:
     dependencies:
-      '@cloudmer/diagnostics':
+      '@archlex/diagnostics':
         specifier: workspace:^
         version: link:../diagnostics
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
       chevrotain:
@@ -289,7 +289,7 @@ importers:
 
   packages/renderer-svg:
     dependencies:
-      '@cloudmer/model':
+      '@archlex/model':
         specifier: workspace:^
         version: link:../model
     devDependencies:

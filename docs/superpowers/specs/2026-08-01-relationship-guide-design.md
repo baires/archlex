@@ -2,18 +2,18 @@
 
 ## Overview
 
-This design specifies a comprehensive user-facing documentation guide for CloudMer relationship types. The guide helps users understand the semantics of the 9 built-in neutral relationship kinds, choose the right type for their architecture diagrams, and use custom relationship types appropriately.
+This design specifies a comprehensive user-facing documentation guide for ArchLex relationship types. The guide helps users understand the semantics of the 9 built-in neutral relationship kinds, choose the right type for their architecture diagrams, and use custom relationship types appropriately.
 
 ## Problem Statement
 
-Users currently face several challenges when working with relationships in CloudMer:
+Users currently face several challenges when working with relationships in ArchLex:
 
 1. **Semantic confusion** — Users don't understand what each relationship type means (e.g., the difference between `publishes` and `subscribes`)
 2. **Wrong type selection** — Users pick inappropriate relationship types for common scenarios (e.g., using `connects` when `invokes` is more accurate)
 3. **Invalid combinations** — Users don't know which relationship types are valid for specific service pairs
 4. **Custom type uncertainty** — Users are unsure when custom relationship types are appropriate vs when to use built-in types
 
-Without clear guidance, users produce diagrams with inconsistent or semantically incorrect relationships, reducing diagram clarity and limiting the value of CloudMer's semantic validation.
+Without clear guidance, users produce diagrams with inconsistent or semantically incorrect relationships, reducing diagram clarity and limiting the value of ArchLex's semantic validation.
 
 ## Goals
 
@@ -33,9 +33,9 @@ Without clear guidance, users produce diagrams with inconsistent or semantically
 
 ## Audience
 
-Primary: CloudMer users writing architecture diagrams who need to choose relationship types
+Primary: ArchLex users writing architecture diagrams who need to choose relationship types
 
-Secondary: New users learning CloudMer syntax and semantics
+Secondary: New users learning ArchLex syntax and semantics
 
 ## Design
 
@@ -46,7 +46,7 @@ Secondary: New users learning CloudMer syntax and semantics
 **Sections:**
 
 1. **Introduction**
-   - What relationships are in CloudMer
+   - What relationships are in ArchLex
    - Why choosing the right type matters for semantic accuracy
    - Overview of the 9 built-in neutral kinds
    - Brief mention of custom relationship support
@@ -297,7 +297,7 @@ Each pattern includes:
 2. Clear examples for every built-in relationship type
 3. Unambiguous guidance on when to use custom relationships
 4. Reduced semantic errors in user diagrams
-5. Consistent relationship usage patterns across CloudMer community
+5. Consistent relationship usage patterns across ArchLex community
 
 ## Future Enhancements (Out of Scope)
 

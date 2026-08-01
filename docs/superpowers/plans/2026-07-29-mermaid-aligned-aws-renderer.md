@@ -27,7 +27,7 @@
 - `packages/aws/assets/official/*.svg`: immutable official AWS source artwork for the three supported icons.
 - `packages/aws/scripts/import-official-icons.mjs`: deterministic importer, validator, sanitizer, checksum generator, and CLI entry point.
 - `packages/aws/src/icons/generated.ts`: generated runtime icon fragments and checksums; never hand-edit.
-- `packages/aws/src/icons/index.ts`: stable public/provenance mapping from CloudMer icon keys to generated fragments.
+- `packages/aws/src/icons/index.ts`: stable public/provenance mapping from ArchLex icon keys to generated fragments.
 - `packages/aws/src/icons/importer.test.ts`: importer safety, fidelity, determinism, and failure tests.
 - `packages/aws/src/icons/manifest.ts`: catalog manifest consuming generated official icon records.
 - `packages/aws/src/catalog/index.test.ts`, `tests/aws-catalog.test.ts`: runtime resolution and official-art fidelity assertions.
@@ -128,8 +128,8 @@ Run:
 
 ```bash
 pnpm vitest run packages/aws/src/icons/importer.test.ts
-pnpm --filter @cloudmer/aws icons:generate
-pnpm --filter @cloudmer/aws icons:check
+pnpm --filter @archlex/aws icons:generate
+pnpm --filter @archlex/aws icons:check
 ```
 
 Expected: all tests PASS, generation creates `packages/aws/src/icons/generated.ts`, and `--check` exits 0 without rewriting it.
@@ -197,8 +197,8 @@ Run:
 
 ```bash
 pnpm vitest run packages/aws/src/catalog/index.test.ts tests/aws-catalog.test.ts tests/aws-semantics.test.ts
-pnpm --filter @cloudmer/aws build
-pnpm --filter @cloudmer/aws typecheck
+pnpm --filter @archlex/aws build
+pnpm --filter @archlex/aws typecheck
 ```
 
 Expected: all commands exit 0 and all three service keys resolve to official artwork.
@@ -278,19 +278,19 @@ git commit -m "feat(renderer): add deterministic two-line labels"
 Add assertions that output:
 
 ```ts
-expect(svg).toContain('class="cloudmer-node-surface"');
+expect(svg).toContain('class="archlex-node-surface"');
 expect(svg).toContain('rx="6" ry="6"');
 expect(svg).toContain('width="48" height="48"');
-expect(svg).toContain('class="cloudmer-scope-label"');
+expect(svg).toContain('class="archlex-scope-label"');
 expect(svg).toContain('stroke-width="1.5"');
-expect(svg).not.toContain("cloudmer-node-bg");
-expect(svg).not.toContain("cloudmer-sheen");
-expect(svg).not.toContain("cloudmer-glow");
-expect(svg).not.toContain("cloudmer-scope-header");
+expect(svg).not.toContain("archlex-node-bg");
+expect(svg).not.toContain("archlex-sheen");
+expect(svg).not.toContain("archlex-glow");
+expect(svg).not.toContain("archlex-scope-header");
 expect(svg).not.toContain("transition:");
 ```
 
-Add diagnostic assertions for `stroke-dasharray` and a `cloudmer-status-marker` element. Keep the existing rounded orthogonal path test.
+Add diagnostic assertions for `stroke-dasharray` and a `archlex-status-marker` element. Keep the existing rounded orthogonal path test.
 
 - [ ] **Step 2: Run renderer tests and verify RED**
 
@@ -315,7 +315,7 @@ Keep contrast high enough for text and focus indicators in both themes.
 
 - [ ] **Step 4: Render quiet scope containers and inline labels**
 
-Parse scope kind/name as today, but return only fill, stroke, dash array, uppercase kind, and name. Render one boundary `<rect>` and one plain `<text class="cloudmer-scope-label">` with two tspans; do not render header rects, filters, or shadows. Use stroke variations `account: 6 4`, `region: none`, `vpc: 5 4`, `subnet: 3 3` with the same neutral palette.
+Parse scope kind/name as today, but return only fill, stroke, dash array, uppercase kind, and name. Render one boundary `<rect>` and one plain `<text class="archlex-scope-label">` with two tspans; do not render header rects, filters, or shadows. Use stroke variations `account: 6 4`, `region: none`, `vpc: 5 4`, `subnet: 3 3` with the same neutral palette.
 
 - [ ] **Step 5: Render compact nodes and official artwork**
 
@@ -335,8 +335,8 @@ Run:
 
 ```bash
 pnpm vitest run packages/renderer-svg/src/serializer/index.test.ts tests/renderer-production.test.ts tests/mount-safety.test.ts
-pnpm --filter @cloudmer/renderer-svg build
-pnpm --filter @cloudmer/renderer-svg typecheck
+pnpm --filter @archlex/renderer-svg build
+pnpm --filter @archlex/renderer-svg typecheck
 ```
 
 Expected: all commands exit 0.
@@ -390,7 +390,7 @@ Run:
 
 ```bash
 pnpm vitest run tests/layout-production.test.ts tests/playground-integration.test.ts tests/language-properties.test.ts tests/boundary-rules.test.ts
-pnpm --filter @cloudmer/layout-elk typecheck
+pnpm --filter @archlex/layout-elk typecheck
 ```
 
 Expected: all commands exit 0.
@@ -493,7 +493,7 @@ Add `/.superpowers/` to `.gitignore`; do not delete the user's local companion s
 Run:
 
 ```bash
-pnpm --filter @cloudmer/aws icons:check
+pnpm --filter @archlex/aws icons:check
 pnpm check
 pnpm test:browser
 git diff --check

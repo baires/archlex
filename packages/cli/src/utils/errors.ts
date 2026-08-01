@@ -1,30 +1,30 @@
 import chalk from "chalk";
 
-export class CloudMerError extends Error {
+export class ArchLexError extends Error {
   constructor(
     message: string,
     public exitCode = 2,
   ) {
     super(message);
-    this.name = "CloudMerError";
+    this.name = "ArchLexError";
   }
 }
 
-export class ValidationError extends CloudMerError {
+export class ValidationError extends ArchLexError {
   constructor(message: string) {
     super(message, 1);
     this.name = "ValidationError";
   }
 }
 
-export class FileNotFoundError extends CloudMerError {
+export class FileNotFoundError extends ArchLexError {
   constructor(filePath: string) {
     super(`File not found: ${filePath}`, 2);
     this.name = "FileNotFoundError";
   }
 }
 
-export class ParseError extends CloudMerError {
+export class ParseError extends ArchLexError {
   constructor(message: string) {
     super(message, 2);
     this.name = "ParseError";
@@ -32,7 +32,7 @@ export class ParseError extends CloudMerError {
 }
 
 export function formatError(error: unknown): string {
-  if (error instanceof CloudMerError) {
+  if (error instanceof ArchLexError) {
     return chalk.red(`${chalk.bold("Error:")} ${error.message}`);
   }
 
@@ -46,7 +46,7 @@ export function formatError(error: unknown): string {
 export function handleError(error: unknown): never {
   console.error(formatError(error));
 
-  if (error instanceof CloudMerError) {
+  if (error instanceof ArchLexError) {
     process.exit(error.exitCode);
   }
 

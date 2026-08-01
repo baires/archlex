@@ -1,5 +1,5 @@
-import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
-import type { LayoutEdge, LayoutNode } from "@cloudmer/model";
+import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import type { LayoutEdge, LayoutNode } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import { ARCHITECTURE_EXAMPLES } from "../apps/playground/src/examples.js";
 
@@ -83,7 +83,7 @@ function expectCompactVpcGeometry(
 }
 
 describe("Phase 5: Playground Architecture Examples & Render Integration", () => {
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [awsProvider(), gcpProvider()],
   });
 
@@ -91,11 +91,11 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
     expect(ARCHITECTURE_EXAMPLES.length).toBeGreaterThanOrEqual(5);
 
     for (const example of ARCHITECTURE_EXAMPLES) {
-      const res = await cloudmer.render(example.source);
+      const res = await archlex.render(example.source);
       expect(res.svg).toContain("<svg");
       expect(res.graph.nodes.length).toBeGreaterThan(0);
       const structuralErrors = res.diagnostics.filter((d) =>
-        d.code.startsWith("CM-STRUCT-"),
+        d.code.startsWith("AL-STRUCT-"),
       );
       expect(structuralErrors).toHaveLength(0);
     }
@@ -119,7 +119,7 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
     expect(example).toBeDefined();
     if (!example) throw new Error("missing VPC hierarchy example");
 
-    const res = await cloudmer.render(example.source);
+    const res = await archlex.render(example.source);
 
     expectCompactVpcGeometry(res.layout.nodes, res.layout.edges);
   });
@@ -131,7 +131,7 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
     expect(example).toBeDefined();
     if (!example) throw new Error("missing enterprise example");
 
-    const res = await cloudmer.render(example.source);
+    const res = await archlex.render(example.source);
     const loadBalancer = res.graph.nodes.find(
       (node) => node.serviceKind === "alb",
     );

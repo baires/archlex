@@ -6,7 +6,7 @@
 
 ## Overview
 
-Improve CloudMer's error messages to be clear, actionable, and helpful by creating a new structured diagnostic system that provides context, suggestions, and examples. The new system uses a builder pattern to ensure consistency and completeness while maintaining backward compatibility through conversion at package boundaries.
+Improve ArchLex's error messages to be clear, actionable, and helpful by creating a new structured diagnostic system that provides context, suggestions, and examples. The new system uses a builder pattern to ensure consistency and completeness while maintaining backward compatibility through conversion at package boundaries.
 
 ## Problem Statement
 
@@ -36,7 +36,7 @@ Current error messages have three main issues:
 
 ### Architecture
 
-Create a new `@cloudmer/diagnostics` package containing:
+Create a new `@archlex/diagnostics` package containing:
 
 - `RichDiagnostic` - structured error type with problem, context, suggestions, examples
 - `DiagnosticBuilder` - fluent API for creating errors
@@ -108,7 +108,7 @@ Fluent builder pattern ensures all required fields are provided:
 
 ```typescript
 // Base builder
-RichDiagnostic.validation('CM-STRUCT-DUPLICATE-ID')
+RichDiagnostic.validation('AL-STRUCT-DUPLICATE-ID')
   .problem(`Resource '${id}' is already defined`)
   .context({ 
     resourceId: id, 
@@ -128,7 +128,7 @@ Each category gets specialized helpers:
 
 ```typescript
 // Parse errors
-RichDiagnostic.parse('CM-PARSE-MISSING-ENDPOINT')
+RichDiagnostic.parse('AL-PARSE-MISSING-ENDPOINT')
   .problem('Relationship is missing the target endpoint')
   .context({ 
     arrow: '-->',
@@ -141,7 +141,7 @@ RichDiagnostic.parse('CM-PARSE-MISSING-ENDPOINT')
   .build();
 
 // Validation errors with helpers
-RichDiagnostic.validation('CM-SEM-UNKNOWN-RESOURCE')
+RichDiagnostic.validation('AL-SEM-UNKNOWN-RESOURCE')
   .problem(`Service type 'lambdaa' is not recognized`)
   .context({ 
     providedType: 'lambdaa',
@@ -155,7 +155,7 @@ RichDiagnostic.validation('CM-SEM-UNKNOWN-RESOURCE')
   .build();
 
 // Rendering errors
-RichDiagnostic.rendering('CM-RENDER-ICON-NOT-FOUND')
+RichDiagnostic.rendering('AL-RENDER-ICON-NOT-FOUND')
   .problem(`Cannot load icon for service '${serviceKind}'`)
   .context({ 
     serviceKind,
@@ -169,7 +169,7 @@ RichDiagnostic.rendering('CM-RENDER-ICON-NOT-FOUND')
   .build();
 
 // Internal errors
-RichDiagnostic.internal('CM-INTERNAL-LAYOUT-FAILED')
+RichDiagnostic.internal('AL-INTERNAL-LAYOUT-FAILED')
   .problem('Layout engine failed unexpectedly')
   .context({ 
     engine: 'elk',
@@ -295,9 +295,9 @@ class RichDiagnostic {
 
 All error emitters switch to `RichDiagnostic` builders immediately, converting to `Diagnostic` at package boundaries:
 
-1. Create `@cloudmer/diagnostics` package with types, builders, and converters
-2. Migrate `@cloudmer/parser` - all CM-PARSE-* codes
-3. Migrate `@cloudmer/core` - all CM-STRUCT-* and CM-SEM-* codes
+1. Create `@archlex/diagnostics` package with types, builders, and converters
+2. Migrate `@archlex/parser` - all AL-PARSE-* codes
+3. Migrate `@archlex/core` - all AL-STRUCT-* and AL-SEM-* codes
 4. Migrate playground rendering errors
 5. Update CLI formatter to use rich display when available
 6. Update playground UI to use rich display when available
@@ -315,8 +315,8 @@ All error emitters switch to `RichDiagnostic` builders immediately, converting t
 Rich diagnostics render with full context in the terminal:
 
 ```
-Error [CM-STRUCT-DUPLICATE-ID]: Resource 'my-lambda' is already defined
-  --> example.cloudmer:12:3
+Error [AL-STRUCT-DUPLICATE-ID]: Resource 'my-lambda' is already defined
+  --> example.archlex:12:3
    |
  5 | lambda my-lambda
    | ^^^^^^ first defined here
@@ -378,21 +378,21 @@ interface FormattedDiagnostic {
 
 ### Error Categories
 
-**Parse Errors (CM-PARSE-*):**
+**Parse Errors (AL-PARSE-*):**
 - Lexer/tokenization failures
 - Syntax errors (missing braces, endpoints)
 - Malformed statements
 
 **Validation Errors:**
-- **Structural (CM-STRUCT-*):** Duplicate IDs, conflicting labels, invalid directives
-- **Semantic (CM-SEM-*):** Unknown resources/relationships, invalid connections, empty graphs
+- **Structural (AL-STRUCT-*):** Duplicate IDs, conflicting labels, invalid directives
+- **Semantic (AL-SEM-*):** Unknown resources/relationships, invalid connections, empty graphs
 
-**Rendering Errors (CM-RENDER-*):**
+**Rendering Errors (AL-RENDER-*):**
 - Icon loading failures
 - Layout engine failures
 - SVG generation errors
 
-**Internal Errors (CM-INTERNAL-*):**
+**Internal Errors (AL-INTERNAL-*):**
 - Unexpected failures
 - Abort signals
 - System errors
@@ -406,7 +406,7 @@ Each category gets a specialized builder with domain-specific helpers.
 **Current (Diagnostic):**
 ```typescript
 {
-  code: "CM-SEM-UNKNOWN-RESOURCE",
+  code: "AL-SEM-UNKNOWN-RESOURCE",
   severity: "error",
   message: "Unknown service kind: lambdaa",
   span: { ... },
@@ -416,7 +416,7 @@ Each category gets a specialized builder with domain-specific helpers.
 
 **New (RichDiagnostic):**
 ```typescript
-RichDiagnostic.validation('CM-SEM-UNKNOWN-RESOURCE')
+RichDiagnostic.validation('AL-SEM-UNKNOWN-RESOURCE')
   .problem(`Service type 'lambdaa' is not recognized`)
   .context({ 
     providedType: 'lambdaa',
@@ -433,8 +433,8 @@ RichDiagnostic.validation('CM-SEM-UNKNOWN-RESOURCE')
 
 **Rendered in CLI:**
 ```
-Error [CM-SEM-UNKNOWN-RESOURCE]: Service type 'lambdaa' is not recognized
-  --> example.cloudmer:5:1
+Error [AL-SEM-UNKNOWN-RESOURCE]: Service type 'lambdaa' is not recognized
+  --> example.archlex:5:1
 
 Context:
   • Provided type: lambdaa
@@ -453,7 +453,7 @@ Example:
 
 **Parse Error:**
 ```typescript
-RichDiagnostic.parse('CM-PARSE-MISSING-ENDPOINT')
+RichDiagnostic.parse('AL-PARSE-MISSING-ENDPOINT')
   .problem('Relationship is missing the target endpoint')
   .context({ 
     arrow: '-->',
@@ -467,7 +467,7 @@ RichDiagnostic.parse('CM-PARSE-MISSING-ENDPOINT')
 
 **Duplicate ID:**
 ```typescript
-RichDiagnostic.validation('CM-STRUCT-DUPLICATE-ID')
+RichDiagnostic.validation('AL-STRUCT-DUPLICATE-ID')
   .problem(`Resource '${id}' is already defined`)
   .context({ 
     resourceId: id, 
@@ -484,7 +484,7 @@ RichDiagnostic.validation('CM-STRUCT-DUPLICATE-ID')
 
 **Rendering Error:**
 ```typescript
-RichDiagnostic.rendering('CM-RENDER-ICON-NOT-FOUND')
+RichDiagnostic.rendering('AL-RENDER-ICON-NOT-FOUND')
   .problem(`Cannot load icon for service 'custom-service'`)
   .context({ 
     serviceKind: 'custom-service',
@@ -559,7 +559,7 @@ See: `docs/future/reverse-backward-compatibility.md` (to be created)
 ## Dependencies
 
 - None - this is a new package with no external dependencies
-- All CloudMer packages will depend on `@cloudmer/diagnostics`
+- All ArchLex packages will depend on `@archlex/diagnostics`
 
 ## Timeline Estimate
 

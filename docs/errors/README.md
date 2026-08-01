@@ -1,11 +1,11 @@
 # Error System
 
-CloudMer's error system provides precise, actionable diagnostics across all surfaces.
+ArchLex's error system provides precise, actionable diagnostics across all surfaces.
 
 ## For Library Users
 
 All diagnostics include:
-- **Code**: Stable identifier (e.g., `CM-PARSE-MISSING-ENDPOINT`)
+- **Code**: Stable identifier (e.g., `AL-PARSE-MISSING-ENDPOINT`)
 - **Severity**: `error`, `warning`, or `info`
 - **Message**: Technical description of the issue
 - **Remediation**: Actionable fix suggestion
@@ -13,7 +13,7 @@ All diagnostics include:
 - **Elements**: Affected resource/relationship IDs
 
 ```typescript
-const result = await cloudmer.render(source);
+const result = await archlex.render(source);
 
 for (const diagnostic of result.diagnostics) {
   console.log(`${diagnostic.code}: ${diagnostic.message}`);
@@ -40,7 +40,7 @@ Hover over any diagnostic marker to see:
 
 ### View Diagnostics
 ```bash
-cloudmer render diagram.cm
+archlex render diagram.cm
 ```
 
 Diagnostics shown with:
@@ -50,25 +50,25 @@ Diagnostics shown with:
 
 ### List All Error Codes
 ```bash
-cloudmer errors list
-cloudmer errors list --category parse
-cloudmer errors list --severity error
+archlex errors list
+archlex errors list --category parse
+archlex errors list --severity error
 ```
 
 ### View Specific Error
 ```bash
-cloudmer errors CM-PARSE-MISSING-ENDPOINT
+archlex errors AL-PARSE-MISSING-ENDPOINT
 ```
 
 ## Error Categories
 
-### Parse Errors (CM-PARSE-*)
+### Parse Errors (AL-PARSE-*)
 Lexer and parser failures. Fix by correcting syntax.
 
-### Structural Errors (CM-STRUCT-*)
+### Structural Errors (AL-STRUCT-*)
 Directive and declaration issues. Fix by reorganizing or renaming.
 
-### Semantic Errors (CM-SEM-*)
+### Semantic Errors (AL-SEM-*)
 Provider-specific validation. Usually informational.
 
 ## Documentation

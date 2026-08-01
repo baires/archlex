@@ -1,4 +1,4 @@
-import type { CloudGraph, Diagnostic } from "@cloudmer/model";
+import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { defineRule } from "../builder.js";
 import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
 

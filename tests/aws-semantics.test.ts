@@ -1,9 +1,9 @@
-import { awsProvider } from "@cloudmer/aws";
-import { createCloudMer } from "@cloudmer/core";
+import { awsProvider } from "@archlex/aws";
+import { createArchLex } from "@archlex/core";
 import { describe, expect, it } from "vitest";
 
 describe("Phase 3: AWS Semantics & Rules Engine", () => {
-  const cloudmer = createCloudMer({
+  const archlex = createArchLex({
     providers: [awsProvider()],
   });
 
@@ -16,7 +16,7 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
         }
         proxy > db
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const networkErrors = res.diagnostics.filter(
         (d) => d.code === "AWS-RDS-PROXY-NETWORK-001",
       );
@@ -33,7 +33,7 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
         }
         proxy > db
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const networkError = res.diagnostics.find(
         (d) => d.code === "AWS-RDS-PROXY-NETWORK-001",
       );
@@ -51,7 +51,7 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
           api: ecs
         }
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const subnetDiag = res.diagnostics.find(
         (d) => d.code === "AWS-NETWORKING-SUBNET-CONTAINMENT-001",
       );
@@ -63,7 +63,7 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
       const source = `
         app_role: iam-role
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const roleDiag = res.diagnostics.find(
         (d) => d.code === "AWS-SECURITY-UNATTACHED-ROLE-001",
       );
@@ -77,7 +77,7 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
       const source = `
         foo: custom_unknown_aws_service
       `;
-      const res = await cloudmer.render(source);
+      const res = await archlex.render(source);
       const unknownDiag = res.diagnostics.find(
         (d) => d.code === "AWS-CATALOG-UNKNOWN-RESOURCE-001",
       );

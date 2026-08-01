@@ -1,4 +1,4 @@
-import type { ResourceDefinition } from "@cloudmer/model";
+import type { ResourceDefinition } from "@archlex/model";
 import { defineService } from "../builder.js";
 
 export const initialServices: ResourceDefinition[] = [

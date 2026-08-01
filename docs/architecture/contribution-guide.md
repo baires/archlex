@@ -1,6 +1,6 @@
-# CloudMer Contribution & Extension Guide
+# ArchLex Contribution & Extension Guide
 
-This document outlines the architecture patterns, directory conventions, and contribution workflows for expanding CloudMer (adding AWS services, semantic rules, layout engines, renderers, or new cloud providers).
+This document outlines the architecture patterns, directory conventions, and contribution workflows for expanding ArchLex (adding AWS services, semantic rules, layout engines, renderers, or new cloud providers).
 
 ---
 
@@ -8,7 +8,7 @@ This document outlines the architecture patterns, directory conventions, and con
 
 Every package in `packages/` enforces clear internal subdirectories and exports strictly through `src/index.ts` (or documented subpaths in `package.json`).
 
-### `@cloudmer/aws`
+### `@archlex/aws`
 
 ```text
 packages/aws/src/
@@ -25,7 +25,7 @@ packages/aws/src/
 └── index.ts       # Public provider export (awsProvider)
 ```
 
-### `@cloudmer/gcp`
+### `@archlex/gcp`
 
 ```text
 packages/gcp/src/
@@ -39,18 +39,18 @@ packages/gcp/src/
 
 GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
 
-### `@cloudmer/parser`
+### `@archlex/parser`
 
 ```text
 packages/parser/src/
 ├── lexer/         # Token definitions and Chevrotain Lexer instance
 ├── cst/           # Chevrotain CstParser definitions
 ├── visitor/       # CST-to-AST conversion visitor and span mapping
-├── recovery/      # Error recovery strategies & CM-PARSE-* diagnostics
+├── recovery/      # Error recovery strategies & AL-PARSE-* diagnostics
 └── index.ts       # Public parse() export
 ```
 
-### `@cloudmer/layout-elk`
+### `@archlex/layout-elk`
 
 ```text
 packages/layout-elk/src/
@@ -60,7 +60,7 @@ packages/layout-elk/src/
 └── index.ts       # Public layout engine exports
 ```
 
-### `@cloudmer/renderer-svg`
+### `@archlex/renderer-svg`
 
 ```text
 packages/renderer-svg/src/
@@ -127,10 +127,10 @@ export const rdsProxyNetworkRule = defineRule({
 
 ### 3. Adding a New Cloud Provider (e.g. Azure)
 
-Adding a new cloud provider requires **zero changes** to `@cloudmer/parser`, `@cloudmer/layout-elk`, or `@cloudmer/renderer-svg`. GCP (`packages/gcp`) is the reference implementation of this workflow.
+Adding a new cloud provider requires **zero changes** to `@archlex/parser`, `@archlex/layout-elk`, or `@archlex/renderer-svg`. GCP (`packages/gcp`) is the reference implementation of this workflow.
 
 1. Create a new package shell `packages/<provider>`.
-2. Implement the `CloudProvider` interface from `@cloudmer/model`:
+2. Implement the `CloudProvider` interface from `@archlex/model`:
 ```ts
 import type {
   CloudGraph,
@@ -138,7 +138,7 @@ import type {
   Diagnostic,
   ServiceMetadata,
   ValidationMode,
-} from "@cloudmer/model";
+} from "@archlex/model";
 
 export function azureProvider(): CloudProvider {
   return {
@@ -154,8 +154,8 @@ export function azureProvider(): CloudProvider {
   };
 }
 ```
-3. Add `@cloudmer/<provider>` to `packages/core` dependencies, re-export the provider from `packages/core/src/index.ts`, and extend the matrix in `tests/boundary-rules.test.ts`.
-4. Register it in `createCloudMer({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`.
+3. Add `@archlex/<provider>` to `packages/core` dependencies, re-export the provider from `packages/core/src/index.ts`, and extend the matrix in `tests/boundary-rules.test.ts`.
+4. Register it in `createArchLex({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`.
 
 ---
 

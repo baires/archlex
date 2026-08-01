@@ -6,7 +6,7 @@
 
 ## Overview
 
-Comprehensive redesign of CloudMer's diagnostic and error message system to provide precise, actionable feedback across all user touchpoints: Monaco Editor (playground), CLI output, and documentation. The system centers on a centralized diagnostic registry that serves as the single source of truth for all error codes, messages, remediation steps, and examples.
+Comprehensive redesign of ArchLex's diagnostic and error message system to provide precise, actionable feedback across all user touchpoints: Monaco Editor (playground), CLI output, and documentation. The system centers on a centralized diagnostic registry that serves as the single source of truth for all error codes, messages, remediation steps, and examples.
 
 ## Goals
 
@@ -14,7 +14,7 @@ Comprehensive redesign of CloudMer's diagnostic and error message system to prov
 2. **Discoverability:** Multi-channel access to error documentation (CLI commands, web docs, Monaco links)
 3. **Actionability:** Monaco code actions for deterministic fixes, clear remediation for all diagnostics
 4. **Maintainability:** Single source of truth prevents drift, type-safe factory prevents incomplete diagnostics
-5. **Quality:** Compiler-style technical precision assumes CloudMer expertise
+5. **Quality:** Compiler-style technical precision assumes ArchLex expertise
 
 ## Non-Goals
 
@@ -29,7 +29,7 @@ Comprehensive redesign of CloudMer's diagnostic and error message system to prov
 - Emitted inline in parser (`packages/parser/src/index.ts`)
 - Emitted inline in core analyzer (`packages/core/src/index.ts`)
 - Provider-specific semantic rules in AWS/GCP packages
-- Diagnostic codes already stable (CM-PARSE-*, CM-STRUCT-*, CM-SEM-*)
+- Diagnostic codes already stable (AL-PARSE-*, AL-STRUCT-*, AL-SEM-*)
 - `remediation` field exists but inconsistently populated
 
 **Monaco Integration:**
@@ -38,7 +38,7 @@ Comprehensive redesign of CloudMer's diagnostic and error message system to prov
 - No code actions or quick fixes
 
 **CLI:**
-- Basic error classes (`CloudMerError`, `ValidationError`, `ParseError`)
+- Basic error classes (`ArchLexError`, `ValidationError`, `ParseError`)
 - Simple error formatting with chalk coloring
 - No structured diagnostic output or error code documentation
 
@@ -46,13 +46,13 @@ Comprehensive redesign of CloudMer's diagnostic and error message system to prov
 
 ### 1. Diagnostic Registry Architecture
 
-**New Package:** `@cloudmer/diagnostics`
+**New Package:** `@archlex/diagnostics`
 
 Centralized registry defining every diagnostic code with complete metadata:
 
 ```typescript
 interface DiagnosticDefinition {
-  code: string;              // e.g., "CM-PARSE-MISSING-ENDPOINT"
+  code: string;              // e.g., "AL-PARSE-MISSING-ENDPOINT"
   category: "parse" | "structural" | "semantic" | "architecture";
   severity: "error" | "warning" | "info";
   message: string | MessageTemplate;  // Compiler-style technical message
@@ -66,9 +66,9 @@ interface DiagnosticDefinition {
 }
 
 type DiagnosticCode = 
-  | `CM-PARSE-${string}`
-  | `CM-STRUCT-${string}`
-  | `CM-SEM-${string}`;
+  | `AL-PARSE-${string}`
+  | `AL-STRUCT-${string}`
+  | `AL-SEM-${string}`;
 ```
 
 **Message Templates:**
@@ -79,7 +79,7 @@ Support interpolation for context-specific details:
 message: "Resource '${id}' conflicts with declaration at ${line}:${column}"
 
 // Usage
-createDiagnostic("CM-STRUCT-DUPLICATE-ID", {
+createDiagnostic("AL-STRUCT-DUPLICATE-ID", {
   id: "my-lambda",
   line: 10,
   column: 5
@@ -114,10 +114,10 @@ packages/diagnostics/
     factory.ts            # createDiagnostic() implementation
     templates.ts          # Message/remediation template engine
     categories/
-      parse.ts            # CM-PARSE-* definitions
-      structural.ts       # CM-STRUCT-* definitions
-      semantic.ts         # CM-SEM-* definitions
-      architecture.ts     # CM-ARCH-* definitions (future)
+      parse.ts            # AL-PARSE-* definitions
+      structural.ts       # AL-STRUCT-* definitions
+      semantic.ts         # AL-SEM-* definitions
+      architecture.ts     # AL-ARCH-* definitions (future)
   package.json
   tsconfig.json
 ```
@@ -145,7 +145,7 @@ Three-layer enhancement providing comprehensive in-editor diagnostic experience:
 **Layer 2: Rich Hover Provider**
 
 ```typescript
-monaco.languages.registerHoverProvider('cloudmer', {
+monaco.languages.registerHoverProvider('archlex', {
   provideHover(model, position) {
     // Find diagnostic at position
     // Query registry for full definition
@@ -156,7 +156,7 @@ monaco.languages.registerHoverProvider('cloudmer', {
 
 Hover content structure:
 ```markdown
-**CM-PARSE-MISSING-ENDPOINT** [Error]
+**AL-PARSE-MISSING-ENDPOINT** [Error]
 
 Expected relationship endpoint after arrow operator.
 
@@ -173,7 +173,7 @@ File: `apps/playground/src/monaco/hover.ts` (enhanced to query diagnostic regist
 **Layer 3: Code Actions Provider (Quick Fixes)**
 
 ```typescript
-monaco.languages.registerCodeActionsProvider('cloudmer', {
+monaco.languages.registerCodeActionsProvider('archlex', {
   provideCodeActions(model, range, context) {
     // For diagnostics with deterministic fixes:
     // - Return workspace edits that apply the fix
@@ -200,7 +200,7 @@ CLI consumes the same diagnostic registry but formats output for terminal displa
 **Error Output Structure:**
 
 ```
-error[CM-PARSE-MISSING-ENDPOINT]: Expected relationship endpoint after arrow operator
+error[AL-PARSE-MISSING-ENDPOINT]: Expected relationship endpoint after arrow operator
   --> diagram.cm:5:12
    |
  5 | lambda ->
@@ -228,12 +228,12 @@ error[CM-PARSE-MISSING-ENDPOINT]: Expected relationship endpoint after arrow ope
 
 **CLI Commands:**
 
-1. **`cloudmer errors`** - List all error codes with brief descriptions
+1. **`archlex errors`** - List all error codes with brief descriptions
    - Organized by category
    - Filterable by category or severity
    - Shows code, severity, and one-line summary
 
-2. **`cloudmer errors <code>`** - Show detailed documentation for specific code
+2. **`archlex errors <code>`** - Show detailed documentation for specific code
    - Full description
    - When this error occurs
    - Remediation strategies
@@ -257,9 +257,9 @@ Auto-generated markdown files from registry during build:
 docs/
   errors/
     index.md                         # Overview, all codes by category
-    CM-PARSE-MISSING-ENDPOINT.md
-    CM-STRUCT-DUPLICATE-ID.md
-    CM-SEM-UNKNOWN-RESOURCE.md
+    AL-PARSE-MISSING-ENDPOINT.md
+    AL-STRUCT-DUPLICATE-ID.md
+    AL-SEM-UNKNOWN-RESOURCE.md
     ...
 ```
 
@@ -274,7 +274,7 @@ Each error code page includes:
 
 **Channel 2: CLI Documentation**
 
-`cloudmer errors` command queries registry at runtime:
+`archlex errors` command queries registry at runtime:
 - Formatted for terminal display
 - Supports search/filtering by category or code
 - Same content as web docs, terminal-optimized formatting
@@ -285,7 +285,7 @@ Hover tooltips link to web documentation:
 - URLs follow pattern: `docs/errors/{code}.md` (relative) or hosted URL
 - Link generation configurable per deployment
 - Development: relative paths to local docs
-- Production: hosted docs (future: `https://cloudmer.dev/docs/errors/{code}`)
+- Production: hosted docs (future: `https://archlex.dev/docs/errors/{code}`)
 
 **Documentation Build Pipeline:**
 
@@ -313,17 +313,17 @@ Hover tooltips link to web documentation:
 
 **Phase 2: Refactor Parser**
 - Replace inline diagnostic creation with registry factory
-- Update all CM-PARSE-* codes
+- Update all AL-PARSE-* codes
 - Remove hardcoded messages
-- Import `createDiagnostic` from `@cloudmer/diagnostics`
+- Import `createDiagnostic` from `@archlex/diagnostics`
 
 **Phase 3: Refactor Core Analyzer**
-- Update CM-STRUCT-* diagnostic emission
+- Update AL-STRUCT-* diagnostic emission
 - Migrate to factory pattern
 - Ensure consistent remediation
 
 **Phase 4: Refactor Provider Rules**
-- Update CM-SEM-* codes in AWS/GCP packages
+- Update AL-SEM-* codes in AWS/GCP packages
 - Providers import from diagnostics registry
 - Semantic rules reference registry definitions
 
@@ -334,7 +334,7 @@ Hover tooltips link to web documentation:
 
 **Phase 6: CLI Enhancement**
 - Implement diagnostic formatter with source context
-- Add `cloudmer errors` command and subcommand
+- Add `archlex errors` command and subcommand
 - Update error output throughout CLI
 
 **Phase 7: Documentation Generation**
@@ -345,7 +345,7 @@ Hover tooltips link to web documentation:
 ### 6. Backwards Compatibility
 
 **Public API:**
-- `Diagnostic` interface in `@cloudmer/model` remains unchanged
+- `Diagnostic` interface in `@archlex/model` remains unchanged
 - Diagnostic codes remain stable (no renames)
 - `remediation` field already optional in interface (now always populated in practice)
 - Library consumers see no breaking changes
@@ -369,7 +369,7 @@ Hover tooltips link to web documentation:
 
 **CLI Tests:**
 - Snapshot tests for formatted diagnostic output
-- Test `cloudmer errors` command listing and detail views
+- Test `archlex errors` command listing and detail views
 - Verify source context rendering
 
 **Monaco Tests:**
@@ -387,7 +387,7 @@ Hover tooltips link to web documentation:
 High-level tasks for implementation plan:
 
 1. ✅ Design approved
-2. Create `@cloudmer/diagnostics` package structure
+2. Create `@archlex/diagnostics` package structure
 3. Define diagnostic registry with all existing codes
 4. Implement factory function and template engine
 5. Write remediation text for all existing diagnostics
@@ -398,7 +398,7 @@ High-level tasks for implementation plan:
 10. Implement Monaco code actions provider
 11. Enhance Monaco hover provider
 12. Implement CLI diagnostic formatter
-13. Add `cloudmer errors` CLI command
+13. Add `archlex errors` CLI command
 14. Create documentation generation script
 15. Integrate doc generation into build pipeline
 16. Write tests for all new components
@@ -409,7 +409,7 @@ High-level tasks for implementation plan:
 - Every diagnostic has a technical message and actionable remediation
 - Monaco users can apply quick fixes for deterministic errors
 - CLI users see source context and clear remediation in terminal
-- `cloudmer errors` command provides searchable error documentation
+- `archlex errors` command provides searchable error documentation
 - Web documentation auto-generates from registry
 - No breaking changes to public API
 - All tests pass including new integration tests

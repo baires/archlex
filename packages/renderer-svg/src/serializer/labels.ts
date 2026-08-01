@@ -1,2 +1,2 @@
-export type { NodeLabelLayout } from "@cloudmer/model";
-export { layoutNodeLabel } from "@cloudmer/model";
+export type { NodeLabelLayout } from "@archlex/model";
+export { layoutNodeLabel } from "@archlex/model";

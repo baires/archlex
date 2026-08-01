@@ -6,24 +6,24 @@ describe("Dependency Boundary Rules", () => {
   const rootDir = path.resolve(__dirname, "..");
   const matrix: Record<string, string[]> = {
     model: [],
-    parser: ["@cloudmer/diagnostics", "@cloudmer/model", "chevrotain"],
-    aws: ["@cloudmer/model"],
-    gcp: ["@cloudmer/model"],
-    "layout-elk": ["@cloudmer/model", "elkjs"],
-    "renderer-svg": ["@cloudmer/model"],
+    parser: ["@archlex/diagnostics", "@archlex/model", "chevrotain"],
+    aws: ["@archlex/model"],
+    gcp: ["@archlex/model"],
+    "layout-elk": ["@archlex/model", "elkjs"],
+    "renderer-svg": ["@archlex/model"],
     core: [
-      "@cloudmer/aws",
-      "@cloudmer/diagnostics",
-      "@cloudmer/gcp",
-      "@cloudmer/layout-elk",
-      "@cloudmer/model",
-      "@cloudmer/parser",
-      "@cloudmer/renderer-svg",
+      "@archlex/aws",
+      "@archlex/diagnostics",
+      "@archlex/gcp",
+      "@archlex/layout-elk",
+      "@archlex/model",
+      "@archlex/parser",
+      "@archlex/renderer-svg",
     ],
   };
 
   for (const [pkgName, allowedDeps] of Object.entries(matrix)) {
-    it(`package @cloudmer/${pkgName} respects dependency boundaries`, () => {
+    it(`package @archlex/${pkgName} respects dependency boundaries`, () => {
       const pkgJsonPath = path.join(
         rootDir,
         "packages",
@@ -47,9 +47,9 @@ describe("Dependency Boundary Rules", () => {
       ),
     );
     const deps = Object.keys(pkgJson.dependencies || {});
-    expect(deps).not.toContain("@cloudmer/aws");
-    expect(deps).not.toContain("@cloudmer/layout-elk");
-    expect(deps).not.toContain("@cloudmer/renderer-svg");
+    expect(deps).not.toContain("@archlex/aws");
+    expect(deps).not.toContain("@archlex/layout-elk");
+    expect(deps).not.toContain("@archlex/renderer-svg");
   });
 
   it("layout and renderer do not depend on parser or provider", () => {
@@ -69,10 +69,10 @@ describe("Dependency Boundary Rules", () => {
     const layoutDeps = Object.keys(layoutPkg.dependencies || {});
     const renderDeps = Object.keys(renderPkg.dependencies || {});
 
-    expect(layoutDeps).not.toContain("@cloudmer/parser");
-    expect(layoutDeps).not.toContain("@cloudmer/aws");
+    expect(layoutDeps).not.toContain("@archlex/parser");
+    expect(layoutDeps).not.toContain("@archlex/aws");
 
-    expect(renderDeps).not.toContain("@cloudmer/parser");
-    expect(renderDeps).not.toContain("@cloudmer/aws");
+    expect(renderDeps).not.toContain("@archlex/parser");
+    expect(renderDeps).not.toContain("@archlex/aws");
   });
 });

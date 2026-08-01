@@ -1,6 +1,6 @@
 ---
-"@cloudmer/aws": minor
-"@cloudmer/gcp": minor
+"@archlex/aws": minor
+"@archlex/gcp": minor
 ---
 
 # Tier 3: Specialized Services Expansion

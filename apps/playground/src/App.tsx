@@ -1,5 +1,5 @@
-import { awsProvider, createCloudMer, gcpProvider } from "@cloudmer/core";
-import type { Diagnostic, ValidationMode } from "@cloudmer/model";
+import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import type { Diagnostic, ValidationMode } from "@archlex/model";
 import { useEffect, useRef, useState } from "react";
 import { CommandBar } from "./components/CommandBar.js";
 import {
@@ -24,10 +24,10 @@ import {
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
-const cloudmer = createCloudMer({ providers: [awsProvider(), gcpProvider()] });
+const archlex = createArchLex({ providers: [awsProvider(), gcpProvider()] });
 
-const STORAGE_SOURCE_KEY = "cloudmer_source_v1";
-const STORAGE_OPTIONS_KEY = "cloudmer_options_v1";
+const STORAGE_SOURCE_KEY = "archlex_source_v1";
+const STORAGE_OPTIONS_KEY = "archlex_options_v1";
 
 function providerFromSource(source: string): "aws" | "gcp" | "unknown" {
   const provider = /^provider\s+(aws|gcp)\s*$/m.exec(source)?.[1];
@@ -149,7 +149,7 @@ export function App() {
       activeControllerRef.current = controller;
 
       renderStartedAtRef.current = performance.now();
-      cloudmer
+      archlex
         .render(source, {
           direction,
           validation,
@@ -255,7 +255,7 @@ export function App() {
       url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "cloudmer-diagram.svg";
+      link.download = "archlex-diagram.svg";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -271,7 +271,7 @@ export function App() {
     if (!currentSvg) return;
     try {
       const pngDataUrl = await svgToPng(currentSvg, 2);
-      downloadDataUrl(pngDataUrl, "cloudmer-diagram.png");
+      downloadDataUrl(pngDataUrl, "archlex-diagram.png");
       setOperationMessage({ tone: "success", text: "PNG downloaded" });
     } catch (error: unknown) {
       const message =
@@ -339,7 +339,7 @@ export function App() {
           <Editor
             source={source}
             onSourceChange={setSource}
-            documentLabel="architecture.cloudmer"
+            documentLabel="architecture.archlex"
             onCursorChange={setCursor}
             selection={editorSelection}
             theme={theme}

@@ -1,14 +1,14 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { structuralDiagnostics } from "./structural.js";
 
 describe("structuralDiagnostics", () => {
-  test("includes all CM-STRUCT-* codes", () => {
+  test("includes all AL-STRUCT-* codes", () => {
     const codes = [
-      "CM-STRUCT-DUPLICATE-ID",
-      "CM-STRUCT-CONFLICTING-LABEL",
-      "CM-STRUCT-DUPLICATE-DIRECTIVE",
-      "CM-STRUCT-LATE-DIRECTIVE",
-      "CM-STRUCT-INVALID-DIRECTIVE",
+      "AL-STRUCT-DUPLICATE-ID",
+      "AL-STRUCT-CONFLICTING-LABEL",
+      "AL-STRUCT-DUPLICATE-DIRECTIVE",
+      "AL-STRUCT-LATE-DIRECTIVE",
+      "AL-STRUCT-INVALID-DIRECTIVE",
     ];
 
     for (const code of codes) {

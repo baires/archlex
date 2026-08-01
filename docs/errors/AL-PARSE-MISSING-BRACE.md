@@ -1,4 +1,4 @@
-# CM-PARSE-MISSING-BRACE
+# AL-PARSE-MISSING-BRACE
 
 **Severity:** error  
 **Category:** parse
@@ -15,7 +15,7 @@ Add closing brace '}' to complete the ${scopeType} block started at line ${start
 
 ### Invalid
 
-```cloudmer
+```archlex
 vpc my-vpc {
   lambda
 
@@ -23,7 +23,7 @@ vpc my-vpc {
 
 ### Valid
 
-```cloudmer
+```archlex
 vpc my-vpc {
   lambda
 }

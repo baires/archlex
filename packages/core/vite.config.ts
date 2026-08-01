@@ -13,11 +13,11 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "@cloudmer/model",
-        "@cloudmer/parser",
-        "@cloudmer/aws",
-        "@cloudmer/layout-elk",
-        "@cloudmer/renderer-svg",
+        "@archlex/model",
+        "@archlex/parser",
+        "@archlex/aws",
+        "@archlex/layout-elk",
+        "@archlex/renderer-svg",
       ],
     },
   },

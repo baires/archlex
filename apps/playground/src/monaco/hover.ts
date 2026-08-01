@@ -1,10 +1,10 @@
-import type { DiagnosticCode } from "@cloudmer/diagnostics";
-import { getDiagnosticDefinition } from "@cloudmer/diagnostics";
-import type { Diagnostic } from "@cloudmer/model";
+import type { DiagnosticCode } from "@archlex/diagnostics";
+import { getDiagnosticDefinition } from "@archlex/diagnostics";
+import type { Diagnostic } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
 /**
- * Hover documentation for CloudMer keywords
+ * Hover documentation for ArchLex keywords
  */
 const KEYWORD_DOCS: Record<string, string> = {
   provider:
@@ -67,13 +67,13 @@ const RELATIONSHIP_DOCS: Record<string, string> = {
 };
 
 /**
- * Register hover provider for CloudMer
+ * Register hover provider for ArchLex
  */
 export function registerHoverProvider(
   monaco: typeof Monaco,
   diagnostics: readonly Diagnostic[] = [],
 ): Monaco.IDisposable {
-  return monaco.languages.registerHoverProvider("cloudmer", {
+  return monaco.languages.registerHoverProvider("archlex", {
     provideHover: (model, position) => {
       // First, check if there's a diagnostic at this position
       const diagnostic = diagnostics.find(
@@ -105,7 +105,7 @@ export function registerHoverProvider(
         }
 
         if (definition?.examples) {
-          content += `**Example:**\n\`\`\`cloudmer\n${definition.examples.valid}\n\`\`\`\n\n`;
+          content += `**Example:**\n\`\`\`archlex\n${definition.examples.valid}\n\`\`\`\n\n`;
         }
 
         if (definition?.documentationUrl) {

@@ -1,5 +1,5 @@
 {
-  "name": "@cloudmer/diagnostics",
+  "name": "@archlex/diagnostics",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,7 +18,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cloudmer/model": "workspace:*"
+    "@archlex/model": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

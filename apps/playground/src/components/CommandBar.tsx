@@ -1,8 +1,8 @@
-import type { ValidationMode } from "@cloudmer/model";
+import type { ValidationMode } from "@archlex/model";
 import type { ArchitectureExample } from "../examples.js";
 import { ExportMenu } from "./ExportMenu.js";
-import { ImportMenu } from "./ImportMenu.js";
 import { Icon } from "./Icon.js";
+import { ImportMenu } from "./ImportMenu.js";
 
 interface CommandBarProps {
   direction: "LR" | "RL" | "TB" | "BT";
@@ -45,9 +45,9 @@ export function CommandBar({
     <header className="command-bar" hidden={isFullscreen}>
       <div className="command-bar-brand">
         <span className="wordmark" aria-hidden="true">
-          CLOUDMER
+          ARCHLEX
         </span>
-        <h1 className="visually-hidden">CloudMer</h1>
+        <h1 className="visually-hidden">ArchLex</h1>
       </div>
 
       <div className="command-bar-controls">

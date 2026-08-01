@@ -1,7 +1,7 @@
 ---
-"@cloudmer/aws": minor
-"@cloudmer/gcp": minor
-"@cloudmer/core": minor
+"@archlex/aws": minor
+"@archlex/gcp": minor
+"@archlex/core": minor
 ---
 
 feat: add Tier 2 application services (95 services, 9 relationship types, 10 validation rules)

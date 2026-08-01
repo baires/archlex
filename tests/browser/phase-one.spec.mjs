@@ -37,7 +37,7 @@ async function setTheme(page, theme) {
 
   await expect(shell).toHaveAttribute("data-theme", theme);
   await expect(
-    page.locator("svg[data-cloudmer-version] .cloudmer-canvas"),
+    page.locator("svg[data-archlex-version] .archlex-canvas"),
   ).toHaveAttribute("fill", CANVAS_FILL[theme]);
 }
 
@@ -79,10 +79,10 @@ async function expectLegacyEffectsAbsent(svg) {
 
 test("permits inert provider-owned gradients and filters", async ({ page }) => {
   await page.setContent(`
-    <svg xmlns="http://www.w3.org/2000/svg" data-cloudmer-version="0.1.0">
+    <svg xmlns="http://www.w3.org/2000/svg" data-archlex-version="0.1.0">
       <defs><marker id="arrowhead"/></defs>
-      <g class="cloudmer-node">
-        <svg data-cloudmer-icon="aws.fixture" viewBox="0 0 4 4">
+      <g class="archlex-node">
+        <svg data-archlex-icon="aws.fixture" viewBox="0 0 4 4">
           <defs>
             <linearGradient id="provider-paint"><stop offset="0" stop-color="#fff"/></linearGradient>
             <filter id="provider-soft"><feGaussianBlur stdDeviation="0.25"/></filter>
@@ -93,19 +93,19 @@ test("permits inert provider-owned gradients and filters", async ({ page }) => {
     </svg>
   `);
 
-  const svg = page.locator("svg[data-cloudmer-version]");
+  const svg = page.locator("svg[data-archlex-version]");
   await expectLegacyEffectsAbsent(svg);
   await expect(
     svg.locator(
-      "[data-cloudmer-icon] linearGradient, [data-cloudmer-icon] filter",
+      "[data-archlex-icon] linearGradient, [data-archlex-icon] filter",
     ),
   ).toHaveCount(2);
 });
 
 async function expectCompactIconLabelGeometry(node) {
-  const icon = node.locator("[data-cloudmer-icon]");
-  const label = node.locator(".cloudmer-node-label");
-  const surface = node.locator(".cloudmer-node-surface");
+  const icon = node.locator("[data-archlex-icon]");
+  const label = node.locator(".archlex-node-label");
+  const surface = node.locator(".archlex-node-surface");
 
   await expect(icon).toBeVisible();
   await expect(label).toBeVisible();
@@ -122,18 +122,18 @@ async function expectCompactIconLabelGeometry(node) {
 }
 
 for (const theme of ["dark", "light"]) {
-  test(`renders the canonical CloudMer chain with official icons in ${theme} theme`, async ({
+  test(`renders the canonical ArchLex chain with official icons in ${theme} theme`, async ({
     page,
   }) => {
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "CloudMer", exact: true }),
+      page.getByRole("heading", { name: "ArchLex", exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("textbox")).toHaveValue(CHAIN_SOURCE);
 
     await setTheme(page, theme);
 
-    const svg = page.locator("svg[data-cloudmer-version]");
+    const svg = page.locator("svg[data-archlex-version]");
     await expect(svg).toContainText("Amazon RDS Proxy");
     await expectLegacyEffectsAbsent(svg);
 
@@ -142,12 +142,12 @@ for (const theme of ["dark", "light"]) {
       ["rds", "aws.rds"],
       ["ecs", "aws.ecs"],
     ]) {
-      const node = svg.locator(`g.cloudmer-node[data-cloudmer-id="${id}"]`);
-      const iconUse = node.locator(`use[data-cloudmer-icon="${iconKey}"]`);
+      const node = svg.locator(`g.archlex-node[data-archlex-id="${id}"]`);
+      const iconUse = node.locator(`use[data-archlex-icon="${iconKey}"]`);
       await expect(iconUse).toHaveCount(1);
       if (iconKey !== "aws.rds-proxy") {
         const href = await iconUse.getAttribute("href");
-        expect(href).toMatch(/^#cloudmer-icon-/);
+        expect(href).toMatch(/^#archlex-icon-/);
         const artworkBackground = svg.locator(
           `defs symbol${href} rect[width="64"][height="64"]`,
         );
@@ -170,7 +170,7 @@ test("offers accessible zoom, fit, actual-size, and drag-to-pan controls", async
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator("svg[data-cloudmer-version]")).toBeVisible();
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
 
   const zoomLevel = page.getByLabel("Zoom level");
   await expect(page.getByRole("button", { name: "Zoom out" })).toBeVisible();
@@ -209,23 +209,23 @@ for (const theme of ["dark", "light"]) {
     await page.getByRole("textbox").fill(NESTED_SOURCE);
     await setTheme(page, theme);
 
-    const svg = page.locator("svg[data-cloudmer-version]");
+    const svg = page.locator("svg[data-archlex-version]");
     await expect(svg).toBeVisible();
-    await expect(svg.locator(".cloudmer-scope")).toHaveCount(4);
+    await expect(svg.locator(".archlex-scope")).toHaveCount(4);
     await expectLegacyEffectsAbsent(svg);
 
     const subnet = svg.locator(
-      'g.cloudmer-scope[data-cloudmer-id$="/subnet:private-a"]',
+      'g.archlex-scope[data-archlex-id$="/subnet:private-a"]',
     );
-    const scopeLabel = subnet.locator(".cloudmer-scope-label");
-    const proxy = svg.locator('g.cloudmer-node[data-cloudmer-id$="/proxy"]');
-    const db = svg.locator('g.cloudmer-node[data-cloudmer-id$="/db"]');
+    const scopeLabel = subnet.locator(".archlex-scope-label");
+    const proxy = svg.locator('g.archlex-node[data-archlex-id$="/proxy"]');
+    const db = svg.locator('g.archlex-node[data-archlex-id$="/db"]');
 
     await expect(scopeLabel).toBeVisible();
     await expect(
-      proxy.locator('[data-cloudmer-icon="aws.rds-proxy"]'),
+      proxy.locator('[data-archlex-icon="aws.rds-proxy"]'),
     ).toHaveCount(1);
-    await expect(db.locator('[data-cloudmer-icon="aws.rds"]')).toHaveCount(1);
+    await expect(db.locator('[data-archlex-icon="aws.rds"]')).toHaveCount(1);
     await expectCompactIconLabelGeometry(proxy);
     await expectCompactIconLabelGeometry(db);
 

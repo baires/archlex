@@ -1,10 +1,7 @@
-import type { Diagnostic, DocumentAst, ParseResult } from "@cloudmer/model";
-import {
-  createDiagnostic,
-  diagnosticRegistry,
-} from "@cloudmer/diagnostics";
+import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
+import type { Diagnostic, DocumentAst, ParseResult } from "@archlex/model";
 import { parserInstance } from "./cst/index.js";
-import { CloudMerLexer } from "./lexer/index.js";
+import { ArchLexLexer } from "./lexer/index.js";
 import { convertCstToAst, tokenToSpan } from "./visitor/index.js";
 
 export * from "./cst/index.js";
@@ -12,7 +9,7 @@ export * from "./lexer/index.js";
 export * from "./visitor/index.js";
 
 export function parse(source: string): ParseResult {
-  const lexResult = CloudMerLexer.tokenize(source);
+  const lexResult = ArchLexLexer.tokenize(source);
   const diagnostics: Diagnostic[] = [];
 
   for (const err of lexResult.errors) {
@@ -22,15 +19,15 @@ export function parse(source: string): ParseResult {
     const offset = err.offset ?? 0;
     diagnostics.push(
       createDiagnostic(
-        "CM-PARSE-001",
+        "AL-PARSE-001",
         { token: err.message, line, column },
         {
           start: { line, column, offset },
           end: { line, column: column + length, offset: offset + length },
         },
         [],
-        diagnosticRegistry
-      )
+        diagnosticRegistry,
+      ),
     );
   }
 
@@ -45,26 +42,30 @@ export function parse(source: string): ParseResult {
       /(?:>|->|<-|<->|--|-\.->|-\[[^\]]+\]->)\s*(?:\r?\n|$)/.test(source);
 
     const code = missingBrace
-      ? "CM-PARSE-MISSING-BRACE"
+      ? "AL-PARSE-MISSING-BRACE"
       : missingEndpoint
-        ? "CM-PARSE-MISSING-ENDPOINT"
-        : "CM-PARSE-002";
+        ? "AL-PARSE-MISSING-ENDPOINT"
+        : "AL-PARSE-002";
 
     diagnostics.push(
       createDiagnostic(
         code,
-        { details: err.message, scopeType: "scope", startLine: token.startLine ?? 1 },
+        {
+          details: err.message,
+          scopeType: "scope",
+          startLine: token.startLine ?? 1,
+        },
         tokenToSpan(token),
         [],
-        diagnosticRegistry
-      )
+        diagnosticRegistry,
+      ),
     );
   }
 
   const statements = convertCstToAst(cst);
   if (
     diagnostics.some(
-      (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-BRACE",
+      (diagnostic) => diagnostic.code === "AL-PARSE-MISSING-BRACE",
     )
   ) {
     const recoveredScope = statements.find(
@@ -81,7 +82,7 @@ export function parse(source: string): ParseResult {
         statement.reason === "Relationship endpoint is missing",
     ) &&
     !diagnostics.some(
-      (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-ENDPOINT",
+      (diagnostic) => diagnostic.code === "AL-PARSE-MISSING-ENDPOINT",
     )
   ) {
     const invalidStatement = statements.find(
@@ -89,12 +90,12 @@ export function parse(source: string): ParseResult {
     );
     diagnostics.push(
       createDiagnostic(
-        "CM-PARSE-MISSING-ENDPOINT",
+        "AL-PARSE-MISSING-ENDPOINT",
         {},
         invalidStatement?.span ?? tokenToSpan({}),
         [],
-        diagnosticRegistry
-      )
+        diagnosticRegistry,
+      ),
     );
   }
 
@@ -106,20 +107,20 @@ export function parse(source: string): ParseResult {
         statement.recovered,
     ) &&
     !diagnostics.some(
-      (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-BRACE",
+      (diagnostic) => diagnostic.code === "AL-PARSE-MISSING-BRACE",
     )
   ) {
     diagnostics.push(
       createDiagnostic(
-        "CM-PARSE-MISSING-BRACE",
+        "AL-PARSE-MISSING-BRACE",
         { scopeType: "scope", startLine: 1 },
         tokenToSpan({
           startOffset: source.length,
           endOffset: source.length,
         }),
         [],
-        diagnosticRegistry
-      )
+        diagnosticRegistry,
+      ),
     );
   }
 

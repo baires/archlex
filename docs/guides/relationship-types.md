@@ -2,9 +2,9 @@
 
 ## Introduction
 
-In CloudMer, relationships represent how services interact with each other in your cloud architecture. Choosing the right relationship type is crucial for semantic accuracy—it helps you and your team understand your system's actual behavior, enables better validation, and makes your diagrams communicate intent clearly.
+In ArchLex, relationships represent how services interact with each other in your cloud architecture. Choosing the right relationship type is crucial for semantic accuracy—it helps you and your team understand your system's actual behavior, enables better validation, and makes your diagrams communicate intent clearly.
 
-CloudMer provides 9 built-in **neutral relationship kinds** that cover the most common interaction patterns:
+ArchLex provides 9 built-in **neutral relationship kinds** that cover the most common interaction patterns:
 
 | Relationship Kind | Semantic Meaning | Direction |
 |------------------|------------------|-----------|
@@ -26,7 +26,7 @@ In addition to these built-in types, you can define **custom relationship kinds*
 
 ### Relationship Directionality
 
-Relationships in CloudMer are **directional**. The arrow indicates the direction of the interaction:
+Relationships in ArchLex are **directional**. The arrow indicates the direction of the interaction:
 
 - **Source service**: The initiator or origin of the relationship (left side of the arrow).
 - **Target service**: The recipient or destination of the relationship (right side of the arrow).
@@ -37,12 +37,12 @@ For example:
 
 ### Built-in Neutral Kinds vs Custom Kinds
 
-- **Built-in neutral kinds** (`connects`, `reads`, `writes`, `publishes`, `subscribes`, `invokes`, `routes`, `replicates`, `assumes-role`) are recognized by CloudMer's validation engine and provide provider-specific semantic validation.
+- **Built-in neutral kinds** (`connects`, `reads`, `writes`, `publishes`, `subscribes`, `invokes`, `routes`, `replicates`, `assumes-role`) are recognized by ArchLex's validation engine and provide provider-specific semantic validation.
 - **Custom kinds** (e.g., `-[authenticates]->`) offer precise domain-specific semantics but receive only structural validation and an info-level diagnostic (`AWS-RELATIONSHIP-UNKNOWN-KIND`).
 
 ### Relationship Kind vs Presentation Label
 
-CloudMer distinguishes between:
+ArchLex distinguishes between:
 - **Relationship kind**: The semantic type specified in brackets, e.g., `-[reads]->`.
 - **Presentation label**: Optional display text shown on the rendered arrow, e.g., `->|"Fetch User Data"|`.
 
@@ -57,7 +57,7 @@ The `reads` kind drives validation; the label `"Fetch User Data"` enhances reada
 
 ### Validation Modes
 
-CloudMer's validation engine respects three modes:
+ArchLex's validation engine respects three modes:
 - **`normal`** (default): Structural validation + provider semantic validation, with info-level diagnostics for unknown custom kinds.
 - **`strict`**: Elevates info-level diagnostics (like `AWS-RELATIONSHIP-UNKNOWN-KIND`) to errors, enforcing built-in kinds only.
 - **`off`**: Disables validation entirely (not recommended for production).
@@ -89,7 +89,7 @@ This section provides detailed reference documentation for each of the 9 built-i
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Multi-operation edge: service both reads and writes
 app -[connects]-> cache
 
@@ -123,7 +123,7 @@ frontend -[connects]-> backend
 
 **Examples:**
 
-```cloudmer
+```archlex
 # API reads from database
 api -[reads]-> database
 
@@ -161,7 +161,7 @@ app -[reads]-> cache
 
 **Examples:**
 
-```cloudmer
+```archlex
 # API writes to database
 api -[writes]-> database
 
@@ -199,7 +199,7 @@ app -[writes]-> cache
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Service publishes events to SNS topic
 api -[publishes]-> topic
 
@@ -237,7 +237,7 @@ app -[publishes]-> queue
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Lambda subscribes to SQS queue
 function -[subscribes]-> queue
 
@@ -275,7 +275,7 @@ worker -[subscribes]-> stream
 
 **Examples:**
 
-```cloudmer
+```archlex
 # API invokes Lambda function
 api -[invokes]-> function
 
@@ -313,7 +313,7 @@ orchestrator -[invokes]-> service-b
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Load balancer routes to backend services
 loadbalancer -[routes]-> backend-a
 loadbalancer -[routes]-> backend-b
@@ -352,7 +352,7 @@ proxy -[routes]-> upstream
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Database primary replicates to read replica
 db-primary -[replicates]-> db-replica
 
@@ -389,7 +389,7 @@ datastore -[replicates]-> backup-store
 
 **Examples:**
 
-```cloudmer
+```archlex
 # Lambda assumes role to access S3
 function -[assumes-role]-> s3-access-role
 
@@ -447,7 +447,7 @@ Use this decision tree to select the most appropriate relationship type for your
 
 ## Custom Relationships
 
-While CloudMer provides 9 built-in neutral relationship kinds, you can define **custom relationship kinds** for domain-specific semantics.
+While ArchLex provides 9 built-in neutral relationship kinds, you can define **custom relationship kinds** for domain-specific semantics.
 
 ### When to Use Custom Relationships
 
@@ -484,10 +484,10 @@ Custom relationship kinds should:
 - Better team communication
 
 **Costs:**
-- Custom kinds receive only **structural validation** (CloudMer validates syntax, not semantics)
+- Custom kinds receive only **structural validation** (ArchLex validates syntax, not semantics)
 - Generates **info-level diagnostic** `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent) in `normal` mode
 - Generates **error-level diagnostic** in `strict` validation mode
-- No provider-specific semantic validation (e.g., CloudMer won't validate if the services actually support your custom interaction type)
+- No provider-specific semantic validation (e.g., ArchLex won't validate if the services actually support your custom interaction type)
 
 **Recommendation:** Start with built-in types. Only introduce custom kinds when the semantic value outweighs the validation trade-off.
 
@@ -495,7 +495,7 @@ Custom relationship kinds should:
 
 ## Common Architectural Patterns
 
-This section provides real-world architectural patterns organized by category, with recommended relationship types and CloudMer syntax examples.
+This section provides real-world architectural patterns organized by category, with recommended relationship types and ArchLex syntax examples.
 
 ### Data Flow Patterns
 
@@ -503,7 +503,7 @@ This section provides real-world architectural patterns organized by category, w
 
 Use [`reads`](#reads) and [`writes`](#writes) for database interactions:
 
-```cloudmer
+```archlex
 # API reads and writes to database
 api -[reads]-> database
 api -[writes]-> database
@@ -517,7 +517,7 @@ write-service -[writes]-> database
 
 Model cache interactions with [`reads`](#reads) and [`writes`](#writes):
 
-```cloudmer
+```archlex
 # Application with cache layer
 app -[reads]-> cache
 app -[writes]-> cache
@@ -528,7 +528,7 @@ app -[reads]-> database
 
 Use [`reads`](#reads) and [`writes`](#writes) for object storage:
 
-```cloudmer
+```archlex
 # Service uploads and downloads files
 service -[writes]-> storage
 service -[reads]-> storage
@@ -538,7 +538,7 @@ service -[reads]-> storage
 
 Chain services with appropriate relationship types:
 
-```cloudmer
+```archlex
 # Extract, Transform, Load pipeline
 extractor -[reads]-> source-db
 extractor -[writes]-> staging-storage
@@ -552,7 +552,7 @@ transformer -[writes]-> target-db
 
 Use [`publishes`](#publishes) and [`subscribes`](#subscribes) for queue-based messaging:
 
-```cloudmer
+```archlex
 # Producer-consumer pattern
 producer -[publishes]-> queue
 consumer -[subscribes]-> queue
@@ -566,7 +566,7 @@ worker-b -[subscribes]-> queue
 
 Model event-driven architectures with [`publishes`](#publishes) and [`subscribes`](#subscribes):
 
-```cloudmer
+```archlex
 # Services publish to event bus
 order-service -[publishes]-> eventbus
 payment-service -[publishes]-> eventbus
@@ -580,7 +580,7 @@ analytics-service -[subscribes]-> eventbus
 
 Use [`invokes`](#invokes) for request-response patterns:
 
-```cloudmer
+```archlex
 # Microservice invocation
 api-gateway -[invokes]-> auth-service
 api-gateway -[invokes]-> user-service
@@ -591,7 +591,7 @@ user-service -[invokes]-> profile-service
 
 Model webhook patterns with [`invokes`](#invokes) for the callback:
 
-```cloudmer
+```archlex
 # Service registers webhook, then receives callback
 client -[invokes]-> webhook-provider
 webhook-provider -[invokes]-> client-endpoint
@@ -603,7 +603,7 @@ webhook-provider -[invokes]-> client-endpoint
 
 Use [`invokes`](#invokes) for orchestrated workflows:
 
-```cloudmer
+```archlex
 # Orchestrator coordinates multiple services
 orchestrator -[invokes]-> service-a
 orchestrator -[invokes]-> service-b
@@ -614,7 +614,7 @@ orchestrator -[invokes]-> service-c
 
 Use [`routes`](#routes) for traffic distribution:
 
-```cloudmer
+```archlex
 # Load balancer distributes traffic
 loadbalancer -[routes]-> backend-a
 loadbalancer -[routes]-> backend-b
@@ -625,7 +625,7 @@ loadbalancer -[routes]-> backend-c
 
 Use [`routes`](#routes) for gateway routing:
 
-```cloudmer
+```archlex
 # API Gateway routes to services
 gateway -[routes]-> users-service
 gateway -[routes]-> orders-service
@@ -638,7 +638,7 @@ gateway -[routes]-> payments-service
 
 Use [`assumes-role`](#assumes-role) for IAM role assumption:
 
-```cloudmer
+```archlex
 # Lambda assumes role to access resources
 function -[assumes-role]-> s3-access-role
 function -[reads]-> bucket
@@ -651,7 +651,7 @@ service-account-a -[assumes-role]-> role-account-b
 
 Combine [`assumes-role`](#assumes-role) with data operations:
 
-```cloudmer
+```archlex
 # Service assumes role, then accesses resources
 app -[assumes-role]-> cross-account-role
 app -[reads]-> cross-account-storage
@@ -663,7 +663,7 @@ app -[reads]-> cross-account-storage
 
 Use [`replicates`](#replicates) for data sync:
 
-```cloudmer
+```archlex
 # Primary replicates to replicas
 db-primary -[replicates]-> db-replica-1
 db-primary -[replicates]-> db-replica-2
@@ -676,7 +676,7 @@ read-service -[reads]-> db-replica-1
 
 Model regional data synchronization with [`replicates`](#replicates):
 
-```cloudmer
+```archlex
 # Storage replicates across regions
 storage-us -[replicates]-> storage-eu
 storage-us -[replicates]-> storage-asia
@@ -688,7 +688,7 @@ storage-us -[replicates]-> storage-asia
 
 Use [`connects`](#connects) when a relationship involves multiple operation types:
 
-```cloudmer
+```archlex
 # Service performs multiple operations on cache
 service -[connects]-> cache
 ```
@@ -697,7 +697,7 @@ service -[connects]-> cache
 
 Use [`connects`](#connects) for exploratory or unclear relationships:
 
-```cloudmer
+```archlex
 # Early-stage architecture
 frontend -[connects]-> backend
 backend -[connects]-> datastore
@@ -707,7 +707,7 @@ backend -[connects]-> datastore
 
 Start with [`connects`](#connects), then refine:
 
-```cloudmer
+```archlex
 # Initial exploration
 app -[connects]-> service-a
 app -[connects]-> service-b
@@ -722,11 +722,11 @@ service-b -[subscribes]-> queue
 
 ## Validation & Troubleshooting
 
-CloudMer's validation engine helps ensure your diagrams are semantically accurate and compatible with your cloud provider.
+ArchLex's validation engine helps ensure your diagrams are semantically accurate and compatible with your cloud provider.
 
 ### Validation Engine Overview
 
-CloudMer performs three types of validation:
+ArchLex performs three types of validation:
 
 1. **Structural Validation**: Verifies syntax correctness, required fields, and diagram structure. Always enabled.
 2. **Provider Semantic Validation**: Checks if relationship types are compatible with the specific services involved (e.g., can this Lambda actually invoke this S3 bucket?). Applies to built-in neutral relationship kinds only.
@@ -734,13 +734,13 @@ CloudMer performs three types of validation:
 
 ### Validation Modes
 
-CloudMer supports three validation modes:
+ArchLex supports three validation modes:
 
 - **`normal`** (default): Structural validation + provider semantic validation. Custom relationship kinds generate **info-level** diagnostic `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent), but do not block rendering.
 - **`strict`**: Elevates info-level diagnostics to **errors**. Custom relationship kinds are rejected, enforcing built-in types only.
 - **`off`**: Disables validation entirely. Not recommended for production diagrams.
 
-Set validation mode in your CloudMer configuration or via CLI flags.
+Set validation mode in your ArchLex configuration or via CLI flags.
 
 ### Diagnostic Code Breakdown
 
@@ -779,17 +779,17 @@ When you encounter relationship validation errors:
 4. **Review validation mode**: Are you in `normal`, `strict`, or `off` mode?
 5. **Consult the [Question-Based Selection Guide](#question-based-selection-guide)**: Confirm you're using the most appropriate relationship type.
 6. **Check the [Relationship Type Reference](#relationship-type-reference)**: Review the "When to use" and "When NOT to use" sections for your chosen type.
-7. **Review the diagnostic message**: CloudMer diagnostics include suggestions—read them carefully.
+7. **Review the diagnostic message**: ArchLex diagnostics include suggestions—read them carefully.
 
 ---
 
 ## Visual Conventions
 
-Understanding how CloudMer renders relationships helps you create clear, readable diagrams.
+Understanding how ArchLex renders relationships helps you create clear, readable diagrams.
 
 ### Arrow Styles
 
-CloudMer supports multiple arrow styles in relationship syntax:
+ArchLex supports multiple arrow styles in relationship syntax:
 
 - `->`: Standard directed arrow (most common)
 - `<-`: Reverse directed arrow (semantically equivalent to reversing source and target)
@@ -798,7 +798,7 @@ CloudMer supports multiple arrow styles in relationship syntax:
 - `.->`: Dotted arrow (visual style, no semantic difference)
 
 **Example:**
-```cloudmer
+```archlex
 # These are semantically equivalent
 api -[reads]-> database
 database <-[reads]- api
@@ -806,7 +806,7 @@ database <-[reads]- api
 
 ### Relationship Kind vs Presentation Label
 
-CloudMer distinguishes between:
+ArchLex distinguishes between:
 
 1. **Relationship kind** (`-[kind]->`): The semantic type used for validation and understanding
 2. **Presentation label** (`->|label|`): Optional display text shown on the rendered arrow for additional context
@@ -814,7 +814,7 @@ CloudMer distinguishes between:
 **Syntax:** `-[kind]->|label|`
 
 **Example:**
-```cloudmer
+```archlex
 # Relationship kind drives validation
 api -[reads]-> database
 
@@ -839,7 +839,7 @@ api -[invokes]->|"POST /orders"| order-service
 **Important:** The `direction` directive (e.g., `direction LR`, `direction TB`) affects **layout only**, not semantic meaning.
 
 **Example:**
-```cloudmer
+```archlex
 # Semantic direction: API reads from database (data flows database -> API)
 # Visual layout: Can be rendered left-to-right, top-to-bottom, etc.
 direction LR

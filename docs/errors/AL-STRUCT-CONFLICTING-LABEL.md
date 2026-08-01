@@ -1,4 +1,4 @@
-# CM-STRUCT-CONFLICTING-LABEL
+# AL-STRUCT-CONFLICTING-LABEL
 
 **Severity:** info  
 **Category:** structural
@@ -15,14 +15,14 @@ Remove duplicate display label. Each resource can only have one display label.
 
 ### Invalid
 
-```cloudmer
+```archlex
 lambda["First Label"]
 lambda["Second Label"]
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 lambda["My Function"]
 ```
 

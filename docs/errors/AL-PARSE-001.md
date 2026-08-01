@@ -1,27 +1,28 @@
-# CM-PARSE-002
+# AL-PARSE-001
 
 **Severity:** error  
 **Category:** parse
 
 ## Description
 
-Syntax error: ${details}
+Unexpected token '${token}'
 
 ## Remediation
 
-Review the syntax at the indicated location and correct the error.
+Check syntax at line ${line}, column ${column}. Remove or correct the unexpected token.
 
 ## Examples
 
 ### Invalid
 
-```cloudmer
-lambda -> rds [invalid
+```archlex
+lambda ->>
+rds
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 lambda -> rds
 ```
 

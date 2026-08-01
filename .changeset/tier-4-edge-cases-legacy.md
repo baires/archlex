@@ -1,11 +1,11 @@
 ---
-"@cloudmer/aws": minor
-"@cloudmer/gcp": minor
+"@archlex/aws": minor
+"@archlex/gcp": minor
 ---
 
 # Tier 4: Edge Cases & Emerging Services
 
-Completes the CloudMer ecosystem expansion by adding 35 AWS and 30 GCP edge case, legacy, and emerging services. This release achieves near-complete coverage of documented AWS and GCP services.
+Completes the ArchLex ecosystem expansion by adding 35 AWS and 30 GCP edge case, legacy, and emerging services. This release achieves near-complete coverage of documented AWS and GCP services.
 
 ## AWS Tier 4 Services (35 services)
 
@@ -84,7 +84,7 @@ None. All additions are backward compatible.
 
 ## Expansion Complete
 
-With Tier 4, the CloudMer ecosystem expansion is complete:
+With Tier 4, the ArchLex ecosystem expansion is complete:
 - **Tier 0 (MVP)**: 24 services per provider (foundation)
 - **Tier 1**: +39 AWS, +37 GCP (core infrastructure)
 - **Tier 2**: +48 AWS, +53 GCP (application services)

@@ -1,5 +1,5 @@
 {
-  "name": "@cloudmer/layout-elk",
+  "name": "@archlex/layout-elk",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,7 +18,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cloudmer/model": "workspace:^",
+    "@archlex/model": "workspace:^",
     "elkjs": "^0.9.3"
   },
   "devDependencies": {

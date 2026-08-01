@@ -18,7 +18,7 @@ interface Example {
 
 export function createExamplesCommand(): Command {
   const command = new Command("examples").description(
-    "Work with example CloudMer diagrams",
+    "Work with example ArchLex diagrams",
   );
 
   command
@@ -62,7 +62,7 @@ async function listExamples(): Promise<void> {
 
   console.log(
     formatInfo(
-      `Use ${chalk.cyan("cloudmer examples get <id>")} to view an example`,
+      `Use ${chalk.cyan("archlex examples get <id>")} to view an example`,
     ),
   );
   console.log();
@@ -103,7 +103,7 @@ async function loadExamples(): Promise<Example[]> {
   const examples: Example[] = [];
 
   for (const file of files) {
-    if (!file.endsWith(".cloudmer")) continue;
+    if (!file.endsWith(".archlex")) continue;
 
     const filePath = join(examplesDir, file);
     const content = await readFile(filePath, "utf-8");
@@ -130,7 +130,7 @@ async function loadExamples(): Promise<Example[]> {
       }
     }
 
-    const id = basename(file, ".cloudmer");
+    const id = basename(file, ".archlex");
 
     examples.push({
       id,

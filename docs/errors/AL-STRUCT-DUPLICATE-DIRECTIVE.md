@@ -1,4 +1,4 @@
-# CM-STRUCT-DUPLICATE-DIRECTIVE
+# AL-STRUCT-DUPLICATE-DIRECTIVE
 
 **Severity:** error  
 **Category:** structural
@@ -15,14 +15,14 @@ Remove duplicate '${directiveName}' directive. Keep only the first occurrence.
 
 ### Invalid
 
-```cloudmer
+```archlex
 provider: aws
 provider: gcp
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 provider: aws
 ```
 

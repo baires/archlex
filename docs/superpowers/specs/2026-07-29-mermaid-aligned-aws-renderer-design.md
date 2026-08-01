@@ -2,11 +2,11 @@
 
 **Date:** 2026-07-29  
 **Status:** Approved for implementation planning  
-**Target packages:** `@cloudmer/aws`, `@cloudmer/renderer-svg`, playground
+**Target packages:** `@archlex/aws`, `@archlex/renderer-svg`, playground
 
 ## Objective
 
-Replace CloudMer's heavy glass-card rendering with a restrained, Mermaid-aligned visual system and replace recreated AWS glyphs with official AWS Architecture Icons for every currently supported AWS service.
+Replace ArchLex's heavy glass-card rendering with a restrained, Mermaid-aligned visual system and replace recreated AWS glyphs with official AWS Architecture Icons for every currently supported AWS service.
 
 The result must make topology and containment visually dominant. Official AWS artwork supplies provider identity; the renderer supplies quiet structure. The SVG output remains deterministic, self-contained, accessible, and safe to export.
 
@@ -14,7 +14,7 @@ The result must make topology and containment visually dominant. Official AWS ar
 
 This pass covers the currently supported AWS services: Amazon RDS, Amazon RDS Proxy, and Amazon Elastic Container Service (ECS). It also introduces a reusable importer so later catalog additions can use the same asset workflow.
 
-It does not bundle the complete AWS Architecture Icons package, fetch icons at render time, add new cloud services, or change the CloudMer language.
+It does not bundle the complete AWS Architecture Icons package, fetch icons at render time, add new cloud services, or change the ArchLex language.
 
 ## Asset Architecture
 
@@ -77,7 +77,7 @@ Output remains:
 - deterministic for identical graph, diagnostics, and theme inputs;
 - free of scripts, event handlers, external URLs, imports, foreign objects, and active animation;
 - compatible with exported SVG and PNG workflows; and
-- annotated with stable CloudMer IDs and accessible names.
+- annotated with stable ArchLex IDs and accessible names.
 
 ## Playground Integration
 

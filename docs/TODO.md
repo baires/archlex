@@ -1,4 +1,4 @@
-# CloudMer MVP TODO
+# ArchLex MVP TODO
 
 Complete an item only with implementation, tests, and relevant docs. Parenthetical dependencies must be complete first.
 
@@ -19,7 +19,7 @@ Complete an item only with implementation, tests, and relevant docs. Parenthetic
 - [x] Add RDS Proxy, RDS, and ECS catalog entries and sanitized icons.
 - [x] Resolve implicit identities into a structural graph.
 - [x] Implement ELK LR layout and deterministic accessible SVG.
-- [x] Implement `createCloudMer` and source-to-SVG orchestration.
+- [x] Implement `createArchLex` and source-to-SVG orchestration.
 - [x] Build the minimal playground through public exports.
 - [x] Add Node/Chromium canonical-example integration tests.
 

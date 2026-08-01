@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * CloudMer Catalog Coverage Reporter
+ * ArchLex Catalog Coverage Reporter
  *
- * Compares CloudMer's service catalogs against tier tracking files to report coverage.
+ * Compares ArchLex's service catalogs against tier tracking files to report coverage.
  *
  * Usage:
  *   node scripts/catalog-coverage.mjs --provider aws
@@ -11,9 +11,9 @@
  *   node scripts/catalog-coverage.mjs --provider all (default)
  */
 
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,7 +36,7 @@ function loadCatalogServiceCount(providerName) {
   try {
     const catalogPath = join(
       ROOT,
-      `packages/${providerName}/src/catalog/index.ts`
+      `packages/${providerName}/src/catalog/index.ts`,
     );
     const content = readFileSync(catalogPath, "utf-8");
 
@@ -56,17 +56,17 @@ function loadTierServiceCount(providerName, tier) {
   try {
     const tierPath = join(
       ROOT,
-      `docs/expansion/tier-${tier}-${providerName}.md`
+      `docs/expansion/tier-${tier}-${providerName}.md`,
     );
     const content = readFileSync(tierPath, "utf-8");
 
     // Extract total services from "Total Services: XX" line
     const match = content.match(/\*\*Total Services\*\*:\s*(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
+    return match ? Number.parseInt(match[1], 10) : 0;
   } catch (err) {
     console.error(
       `Error reading tier ${tier} for ${providerName}:`,
-      err.message
+      err.message,
     );
     return 0;
   }
@@ -79,7 +79,7 @@ function loadTierCompletedCount(providerName, tier) {
   try {
     const tierPath = join(
       ROOT,
-      `docs/expansion/tier-${tier}-${providerName}.md`
+      `docs/expansion/tier-${tier}-${providerName}.md`,
     );
     const content = readFileSync(tierPath, "utf-8");
 
@@ -111,9 +111,7 @@ function reportProviderCoverage(providerName) {
   const coverage = totalTarget > 0 ? (currentCount / totalTarget) * 100 : 0;
 
   console.log(`\n${"=".repeat(60)}`);
-  console.log(
-    `${providerName.toUpperCase()} Service Coverage Report`
-  );
+  console.log(`${providerName.toUpperCase()} Service Coverage Report`);
   console.log(`${"=".repeat(60)}\n`);
 
   console.log(`Current Services: ${currentCount}`);
@@ -134,13 +132,13 @@ function reportProviderCoverage(providerName) {
       tierCompleted === 0
         ? "Not Started"
         : tierCompleted === tierTarget
-        ? "Complete"
-        : "In Progress";
+          ? "Complete"
+          : "In Progress";
 
     console.log(
       `Tier ${tier}: ${tierCompleted}/${tierTarget} services (${tierCoverage.toFixed(
-        0
-      )}%) - ${status}`
+        0,
+      )}%) - ${status}`,
     );
   }
 
@@ -166,7 +164,7 @@ function reportProviderCoverage(providerName) {
     const icon = reached ? "✓" : "○";
     const status = reached ? "(Reached)" : "(Pending)";
     console.log(
-      `  ${icon} Tier ${milestone.tier}: ${milestone.coverage}% - ${milestone.label} ${status}`
+      `  ${icon} Tier ${milestone.tier}: ${milestone.coverage}% - ${milestone.label} ${status}`,
     );
   }
 
@@ -178,10 +176,10 @@ function reportProviderCoverage(providerName) {
  */
 function main() {
   console.log("\n╔══════════════════════════════════════════════════════════╗");
-  console.log("║     CloudMer Service Expansion Coverage Report          ║");
+  console.log("║     ArchLex Service Expansion Coverage Report          ║");
   console.log("╚══════════════════════════════════════════════════════════╝");
 
-  let results = {};
+  const results = {};
 
   if (provider === "all" || provider === "aws") {
     results.aws = reportProviderCoverage("aws");
@@ -211,8 +209,12 @@ function main() {
     console.log(`[${bar}] ${totalCoverage.toFixed(1)}%\n`);
   }
 
-  console.log("\nRun this script with --provider=aws or --provider=gcp for provider-specific reports.");
-  console.log("Update tier tracking files (docs/expansion/tier-*.md) to track progress.\n");
+  console.log(
+    "\nRun this script with --provider=aws or --provider=gcp for provider-specific reports.",
+  );
+  console.log(
+    "Update tier tracking files (docs/expansion/tier-*.md) to track progress.\n",
+  );
 }
 
 main();

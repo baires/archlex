@@ -7,7 +7,7 @@ import type {
   SourcePosition,
   SourceSpan,
   StatementAst,
-} from "@cloudmer/model";
+} from "@archlex/model";
 
 export interface TokenLocation {
   startLine?: number;

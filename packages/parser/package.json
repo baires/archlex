@@ -1,5 +1,5 @@
 {
-  "name": "@cloudmer/parser",
+  "name": "@archlex/parser",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -18,8 +18,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@cloudmer/diagnostics": "workspace:^",
-    "@cloudmer/model": "workspace:^",
+    "@archlex/diagnostics": "workspace:^",
+    "@archlex/model": "workspace:^",
     "chevrotain": "^11.0.2"
   },
   "devDependencies": {

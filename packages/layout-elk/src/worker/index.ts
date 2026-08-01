@@ -1,4 +1,4 @@
-import type { CloudGraph, LayoutOptions, LayoutResult } from "@cloudmer/model";
+import type { CloudGraph, LayoutOptions, LayoutResult } from "@archlex/model";
 
 export const PROTOCOL_VERSION = "1.0.0";
 

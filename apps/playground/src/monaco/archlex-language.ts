@@ -1,9 +1,9 @@
 import type * as Monaco from "monaco-editor";
 
 /**
- * CloudMer language configuration for Monaco Editor
+ * ArchLex language configuration for Monaco Editor
  */
-export const cloudmerLanguageConfig: Monaco.languages.LanguageConfiguration = {
+export const archlexLanguageConfig: Monaco.languages.LanguageConfiguration = {
   comments: {
     lineComment: "#",
     blockComment: ["/*", "*/"],
@@ -25,9 +25,9 @@ export const cloudmerLanguageConfig: Monaco.languages.LanguageConfiguration = {
 };
 
 /**
- * Monarch tokenizer for CloudMer syntax highlighting
+ * Monarch tokenizer for ArchLex syntax highlighting
  */
-export const cloudmerTokensProvider: Monaco.languages.IMonarchLanguage = {
+export const archlexTokensProvider: Monaco.languages.IMonarchLanguage = {
   keywords: [
     "provider",
     "direction",
@@ -134,15 +134,15 @@ export const cloudmerTokensProvider: Monaco.languages.IMonarchLanguage = {
 };
 
 /**
- * Register CloudMer language with Monaco
+ * Register ArchLex language with Monaco
  */
-export function registerCloudMerLanguage(monaco: typeof Monaco): void {
+export function registerArchLexLanguage(monaco: typeof Monaco): void {
   // Register the language
-  monaco.languages.register({ id: "cloudmer" });
+  monaco.languages.register({ id: "archlex" });
 
   // Set language configuration
-  monaco.languages.setLanguageConfiguration("cloudmer", cloudmerLanguageConfig);
+  monaco.languages.setLanguageConfiguration("archlex", archlexLanguageConfig);
 
   // Set tokens provider
-  monaco.languages.setMonarchTokensProvider("cloudmer", cloudmerTokensProvider);
+  monaco.languages.setMonarchTokensProvider("archlex", archlexTokensProvider);
 }

@@ -1,4 +1,4 @@
-# CM-PARSE-MISSING-ENDPOINT
+# AL-PARSE-MISSING-ENDPOINT
 
 **Severity:** error  
 **Category:** parse
@@ -15,13 +15,13 @@ Add a service identifier after the arrow operator. Valid services: lambda, rds, 
 
 ### Invalid
 
-```cloudmer
+```archlex
 lambda ->
 ```
 
 ### Valid
 
-```cloudmer
+```archlex
 lambda -> rds
 ```
 

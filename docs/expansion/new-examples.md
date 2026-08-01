@@ -1,4 +1,4 @@
-# New CloudMer Architecture Examples
+# New ArchLex Architecture Examples
 
 This document describes the 10 new real-world architecture examples added to showcase Tier 2-4 services and relationship types.
 
@@ -125,4 +125,4 @@ All examples have been validated to:
 **Added**: 10 examples  
 **Total**: 28 architecture examples
 
-The playground now provides comprehensive coverage of CloudMer's full service catalog across both AWS and GCP.
+The playground now provides comprehensive coverage of ArchLex's full service catalog across both AWS and GCP.
