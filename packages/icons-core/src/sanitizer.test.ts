@@ -27,4 +27,28 @@ describe("sanitizeSvg", () => {
       sanitizeSvg("aws", "large", SAFE_SVG, { maxBytes: 8 }),
     ).rejects.toThrow("exceeds 8 bytes");
   });
+
+  it.each([
+    ["fill", "url(icon.svg#paint)"],
+    ["filter", "url(//attacker.example/filter.svg#x)"],
+    ["mask", "url(https://attacker.example/mask.svg#x)"],
+    ["clip-path", "url(../clip.svg#x)"],
+  ])("rejects non-local URI references in %s: %s", async (attribute, value) => {
+    await expect(
+      sanitizeSvg(
+        "aws",
+        "external-reference",
+        `<svg viewBox="0 0 24 24"><path ${attribute}="${value}"/></svg>`,
+      ),
+    ).rejects.toThrow("Only local fragment references are allowed");
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY])(
+    "rejects an invalid maxBytes option: %s",
+    async (maxBytes) => {
+      await expect(
+        sanitizeSvg("aws", "invalid-limit", SAFE_SVG, { maxBytes }),
+      ).rejects.toThrow("maxBytes must be a finite, non-negative integer");
+    },
+  );
 });

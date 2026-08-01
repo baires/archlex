@@ -97,8 +97,17 @@ const ALLOWED_ATTRIBUTES = new Set([
   "exponent",
 ]);
 
-const FORBIDDEN_PROTOCOLS = ["javascript:", "data:", "http://", "https://"];
 const EVENT_ATTRIBUTES = /^on[a-z]/i;
+const URI_REFERENCE_ATTRIBUTES = new Set([
+  "fill",
+  "stroke",
+  "filter",
+  "mask",
+  "clip-path",
+]);
+const LOCAL_FRAGMENT_REFERENCE = /^#[a-zA-Z_][a-zA-Z0-9_.:-]*$/;
+const LOCAL_FRAGMENT_URL = /^url\(\s*#[a-zA-Z_][a-zA-Z0-9_.:-]*\s*\)$/i;
+const URL_FUNCTION = /^url\s*\(/i;
 
 export interface SanitizeSvgOptions {
   readonly maxBytes?: number;
@@ -111,6 +120,9 @@ export async function sanitizeSvg(
   options: SanitizeSvgOptions = {},
 ): Promise<SanitizedIcon> {
   const maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES;
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 0) {
+    throw new Error("maxBytes must be a finite, non-negative integer");
+  }
   const rawBytes = new TextEncoder().encode(rawSvg);
   if (rawBytes.byteLength > maxBytes) {
     throw new Error(
@@ -226,19 +238,7 @@ function sanitizeNode(
         element.removeAttribute(attribute.name);
         continue;
       }
-      if (
-        attributeName !== "xmlns" &&
-        FORBIDDEN_PROTOCOLS.some((protocol) =>
-          attribute.value.toLowerCase().includes(protocol),
-        ) &&
-        !(
-          attribute.value.startsWith("#") || attribute.value.startsWith("url(#")
-        )
-      ) {
-        throw new Error(
-          `Forbidden protocol in attribute "${attributeName}" for ${provider}/${key}`,
-        );
-      }
+      validateUriReference(attributeName, attribute.value, provider, key);
     }
 
     const attributes = Array.from(element.attributes).sort((left, right) =>
@@ -256,4 +256,27 @@ function sanitizeNode(
   }
 
   if (node.nodeType !== 3) node.parentNode?.removeChild(node);
+}
+
+function validateUriReference(
+  attributeName: string,
+  value: string,
+  provider: string,
+  key: string,
+): void {
+  if (!URI_REFERENCE_ATTRIBUTES.has(attributeName)) return;
+
+  const normalizedValue = value.trim();
+  const isLocalFragment = LOCAL_FRAGMENT_REFERENCE.test(normalizedValue);
+  const isLocalFragmentUrl = LOCAL_FRAGMENT_URL.test(normalizedValue);
+  const isUriValue =
+    URL_FUNCTION.test(normalizedValue) ||
+    normalizedValue.includes("#") ||
+    /^(?:[a-z][a-z0-9+.-]*:|\/|\.\/|\.\.\/)/i.test(normalizedValue);
+
+  if (isUriValue && !isLocalFragment && !isLocalFragmentUrl) {
+    throw new Error(
+      `Only local fragment references are allowed in attribute "${attributeName}" for ${provider}/${key}`,
+    );
+  }
 }
