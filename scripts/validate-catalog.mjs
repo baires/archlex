@@ -12,7 +12,7 @@
  */
 
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -28,7 +28,9 @@ async function loadModules() {
     const awsModule = await import("@archlex/aws");
     AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
   } catch {
-    const awsModule = await import(resolve(ROOT, "packages/aws/dist/index.js"));
+    const awsModule = await import(
+      pathToFileURL(resolve(ROOT, "packages/aws/dist/index.js")).href
+    );
     AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
   }
 
@@ -36,7 +38,9 @@ async function loadModules() {
     const gcpModule = await import("@archlex/gcp");
     GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
   } catch {
-    const gcpModule = await import(resolve(ROOT, "packages/gcp/dist/index.js"));
+    const gcpModule = await import(
+      pathToFileURL(resolve(ROOT, "packages/gcp/dist/index.js")).href
+    );
     GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
   }
 
@@ -46,7 +50,7 @@ async function loadModules() {
     validateCatalogContainment = diagModule.validateCatalogContainment;
   } catch {
     const diagModule = await import(
-      resolve(ROOT, "packages/diagnostics/dist/index.js")
+      pathToFileURL(resolve(ROOT, "packages/diagnostics/dist/index.js")).href
     );
     validateCatalogManifest = diagModule.validateCatalogManifest;
     validateCatalogContainment = diagModule.validateCatalogContainment;
@@ -66,6 +70,24 @@ function validateProviderCatalog(
   validateCatalogManifest,
   validateCatalogContainment,
 ) {
+  if (!catalog) {
+    const missingDiag = {
+      severity: "error",
+      code: "CATALOG_MISSING",
+      message: `${name} provider service catalog is undefined or missing.`,
+    };
+    return {
+      name,
+      count: 0,
+      valid: false,
+      diagnostics: [missingDiag],
+      errors: [missingDiag],
+      warnings: [],
+      manifestCount: 1,
+      containmentCount: 0,
+    };
+  }
+
   const manifestResult = validateCatalogManifest(catalog);
   const containmentDiagnostics = validateCatalogContainment(catalog);
   const diagnostics = [
@@ -77,7 +99,7 @@ function validateProviderCatalog(
 
   return {
     name,
-    count: catalog ? catalog.size : 0,
+    count: catalog.size,
     valid: errors.length === 0,
     diagnostics,
     errors,
