@@ -1,4 +1,8 @@
 import { awsProvider } from "@cloudmer/aws";
+import {
+  createDiagnostic,
+  diagnosticRegistry,
+} from "@cloudmer/diagnostics";
 import { gcpProvider } from "@cloudmer/gcp";
 import { createInlineLayoutEngine } from "@cloudmer/layout-elk";
 import type {
@@ -78,15 +82,17 @@ function collectDirectives(
     const directive = statement as DirectiveAst;
     const name = directive.name as "provider" | "direction" | "validation";
     if (declarationsStarted || values[name] !== undefined) {
-      diagnostics.push({
-        code: declarationsStarted
-          ? "CM-STRUCT-LATE-DIRECTIVE"
-          : "CM-STRUCT-DUPLICATE-DIRECTIVE",
-        severity: "error",
-        message: `${declarationsStarted ? "Late" : "Duplicate"} '${name}' directive is ignored.`,
-        span: directive.span,
-        elements: [],
-      });
+      diagnostics.push(
+        createDiagnostic(
+          declarationsStarted
+            ? "CM-STRUCT-LATE-DIRECTIVE"
+            : "CM-STRUCT-DUPLICATE-DIRECTIVE",
+          { directiveName: name },
+          directive.span,
+          [],
+          diagnosticRegistry
+        )
+      );
       continue;
     }
     const allowed =
@@ -96,14 +102,19 @@ function collectDirectives(
           ? ["normal", "strict", "off"]
           : undefined;
     if (allowed && !allowed.includes(directive.value)) {
-      diagnostics.push({
-        code: "CM-STRUCT-INVALID-DIRECTIVE",
-        severity: "error",
-        message: `Invalid value '${directive.value}' for '${name}'.`,
-        span: directive.span,
-        elements: [],
-        remediation: `Use one of: ${allowed.join(", ")}.`,
-      });
+      diagnostics.push(
+        createDiagnostic(
+          "CM-STRUCT-INVALID-DIRECTIVE",
+          {
+            directiveName: name,
+            value: directive.value,
+            allowedValues: allowed.join(", "),
+          },
+          directive.span,
+          [],
+          diagnosticRegistry
+        )
+      );
       continue;
     }
     values[name] = directive.value;
@@ -181,7 +192,6 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         "orchestrates",
         "triggers",
         "schedules",
-        "streams",
         "builds",
         "deploys",
         "analyzes",
@@ -226,13 +236,18 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
           span,
         };
         if (!service) {
-          diagnostics.push({
-            code: "CM-SEM-UNKNOWN-RESOURCE",
-            severity: "info",
-            message: `Unknown resource type '${kind}' is rendered generically.`,
-            span,
-            elements: [id],
-          });
+          diagnostics.push(
+            createDiagnostic(
+              "CM-SEM-UNKNOWN-RESOURCE",
+              {
+                serviceKind,
+                provider: qualifiedProvider ?? providerId,
+              },
+              span,
+              [id],
+              diagnosticRegistry
+            )
+          );
         }
         return node;
       };
@@ -252,19 +267,15 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         const existing = nodeDisplayLabels.get(id);
         if (existing) {
           if (existing.value !== displayLabel) {
-            diagnostics.push({
-              code: "CM-STRUCT-CONFLICTING-LABEL",
-              severity: "info",
-              message: `Conflicting display label '${displayLabel}' is ignored; '${existing.value}' was applied first.`,
-              span,
-              related: [
-                {
-                  message: "First display label for this resource.",
-                  span: existing.span,
-                },
-              ],
-              elements: [id],
-            });
+            diagnostics.push(
+              createDiagnostic(
+                "CM-STRUCT-CONFLICTING-LABEL",
+                { id },
+                span,
+                [id],
+                diagnosticRegistry
+              )
+            );
           }
           return;
         }
@@ -313,19 +324,15 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
         const id = makeId(env.path, local);
         const existing = env.names.get(local);
         if (existing) {
-          diagnostics.push({
-            code: "CM-STRUCT-DUPLICATE-ID",
-            severity: "error",
-            message: `Duplicate resource ID '${local}'.`,
-            span: resource.span,
-            related: [
-              {
-                message: "First declaration owns this ID.",
-                span: nodesMap.get(existing)?.span ?? resource.span,
-              },
-            ],
-            elements: [existing],
-          });
+          diagnostics.push(
+            createDiagnostic(
+              "CM-STRUCT-DUPLICATE-ID",
+              { id: local, line: resource.span.start.line, column: resource.span.start.column },
+              resource.span,
+              [existing],
+              diagnosticRegistry
+            )
+          );
           return;
         }
         env.names.set(local, id);
@@ -508,13 +515,19 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
             span: rel.span,
           });
           if (rel.kind && !knownRelationships.has(rel.kind)) {
-            diagnostics.push({
-              code: "CM-SEM-UNKNOWN-RELATIONSHIP",
-              severity: "info",
-              message: `Unknown relationship kind '${rel.kind}' is preserved.`,
-              span: rel.span,
-              elements: [edgeId],
-            });
+            diagnostics.push(
+              createDiagnostic(
+                "CM-SEM-UNKNOWN-RELATIONSHIP",
+                {
+                  relationshipKind: rel.kind,
+                  leftKind: rel.left.kind,
+                  rightKind: rel.right.kind,
+                },
+                rel.span,
+                [edgeId],
+                diagnosticRegistry
+              )
+            );
           }
         }
       };
@@ -529,19 +542,18 @@ export function createCloudMer(options: CloudMerOptions): CloudMer {
       };
 
       if (graph.nodes.length === 0) {
-        diagnostics.push({
-          code: "CM-SEM-EMPTY-GRAPH",
-          severity: "info",
-          message:
-            "Document contains no resource or relationship declarations.",
-          span: {
-            start: { line: 1, column: 1, offset: 0 },
-            end: { line: 1, column: 1, offset: 0 },
-          },
-          elements: [],
-          remediation:
-            "Add a resource (e.g., rds) or relationship (e.g., rds-proxy > rds > ecs).",
-        });
+        diagnostics.push(
+          createDiagnostic(
+            "CM-SEM-EMPTY-GRAPH",
+            {},
+            {
+              start: { line: 1, column: 1, offset: 0 },
+              end: { line: 1, column: 1, offset: 0 },
+            },
+            [],
+            diagnosticRegistry
+          )
+        );
       }
 
       if (provider && validation !== "off") {

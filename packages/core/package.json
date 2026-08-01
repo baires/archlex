@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@cloudmer/aws": "workspace:^",
+    "@cloudmer/diagnostics": "workspace:^",
     "@cloudmer/gcp": "workspace:^",
     "@cloudmer/layout-elk": "workspace:^",
     "@cloudmer/model": "workspace:^",

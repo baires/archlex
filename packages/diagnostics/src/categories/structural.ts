@@ -20,7 +20,7 @@ export const structuralDiagnostics = new Map<string, DiagnosticDefinition>([
     {
       code: "CM-STRUCT-CONFLICTING-LABEL",
       category: "structural",
-      severity: "error",
+      severity: "info",
       message: "Display label for '${id}' conflicts with previous definition",
       remediation: "Remove duplicate display label. Each resource can only have one display label.",
       examples: {
