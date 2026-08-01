@@ -161,7 +161,6 @@ export function Editor({
           loading={<div className="editor-loading">Loading editor...</div>}
           options={{
             ariaLabel: "Source",
-            editContext: false,
             minimap: { enabled: false },
             fontSize: 14,
             lineHeight: 23,
