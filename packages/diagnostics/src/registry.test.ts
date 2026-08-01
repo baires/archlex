@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { getAllDiagnostics, getDiagnosticDefinition } from "./registry.js";
+import {
+  CATALOG_DIAGNOSTIC_CODES,
+  getAllDiagnostics,
+  getDiagnosticDefinition,
+} from "./registry.js";
 
 describe("registry", () => {
   test("getAllDiagnostics returns all diagnostic definitions", () => {
@@ -20,5 +24,14 @@ describe("registry", () => {
     // biome-ignore lint/suspicious/noExplicitAny: mock invalid code for test
     const def = getDiagnosticDefinition("AL-UNKNOWN-CODE" as any);
     expect(def).toBeUndefined();
+  });
+
+  test("CATALOG_DIAGNOSTIC_CODES has correct mapping", () => {
+    expect(CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA).toBe("CATALOG001");
+    expect(CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP).toBe("CATALOG002");
+    expect(CATALOG_DIAGNOSTIC_CODES.MISSING_ICON).toBe("CATALOG003");
+    expect(CATALOG_DIAGNOSTIC_CODES.CROSS_SERVICE_INCONSISTENCY).toBe(
+      "CATALOG004",
+    );
   });
 });

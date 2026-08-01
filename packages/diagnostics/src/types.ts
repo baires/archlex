@@ -3,7 +3,8 @@ import type { Diagnostic, SourceSpan } from "@archlex/model";
 export type DiagnosticCode =
   | `AL-PARSE-${string}`
   | `AL-STRUCT-${string}`
-  | `AL-SEM-${string}`;
+  | `AL-SEM-${string}`
+  | `CATALOG${string}`;
 
 export type DiagnosticCategory =
   | "parse"
