@@ -6,7 +6,7 @@ const mockRegistry = new Map<string, DiagnosticDefinition>([
   [
     "CM-TEST-001",
     {
-      code: "CM-TEST-001",
+      code: "CM-TEST-001" as any,
       category: "parse",
       severity: "error",
       message: "Test error at ${line}:${column}",
@@ -18,7 +18,7 @@ const mockRegistry = new Map<string, DiagnosticDefinition>([
 describe("createDiagnostic", () => {
   test("creates diagnostic with interpolated message and remediation", () => {
     const diagnostic = createDiagnostic(
-      "CM-TEST-001",
+      "CM-TEST-001" as any,
       { line: 5, column: 10 },
       {
         start: { line: 5, column: 10, offset: 50 },
@@ -41,7 +41,7 @@ describe("createDiagnostic", () => {
   test("throws error for unknown diagnostic code", () => {
     expect(() =>
       createDiagnostic(
-        "CM-UNKNOWN-001",
+        "CM-UNKNOWN-001" as any,
         {},
         {
           start: { line: 1, column: 1, offset: 0 },
@@ -55,7 +55,7 @@ describe("createDiagnostic", () => {
 
   test("includes elements in diagnostic", () => {
     const diagnostic = createDiagnostic(
-      "CM-TEST-001",
+      "CM-TEST-001" as any,
       { line: 5, column: 10 },
       {
         start: { line: 5, column: 10, offset: 50 },
