@@ -1,6 +1,9 @@
-export * from "./cache.js";
-export * from "./fallback.js";
-export * from "./loader.js";
-export * from "./provider.js";
-export * from "./sanitizer.js";
-export * from "./types.js";
+export * from "@archlex/icons-core";
+export * from "@archlex/icons-node";
+export {
+  IconLoader,
+  sanitizeSvg,
+  type CdnProviderConfig,
+  type IconStats,
+  type ProviderAttributionReport,
+} from "./compat.js";

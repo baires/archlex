@@ -251,9 +251,31 @@ importers:
 
   packages/icons:
     dependencies:
+      '@archlex/icons-core':
+        specifier: workspace:*
+        version: link:../icons-core
+      '@archlex/icons-node':
+        specifier: workspace:*
+        version: link:../icons-node
       '@xmldom/xmldom':
         specifier: 0.9.10
         version: 0.9.10
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.1.0
+        version: 6.4.3(@types/node@22.20.1)(tsx@4.23.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.7(@types/node@22.20.1)(tsx@4.23.1)(yaml@2.9.0)
+
+  packages/icons-browser:
+    dependencies:
+      '@archlex/icons-core':
+        specifier: workspace:*
+        version: link:../icons-core
     devDependencies:
       typescript:
         specifier: ^5.7.3
@@ -271,6 +293,25 @@ importers:
         specifier: 0.9.10
         version: 0.9.10
     devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.1.0
+        version: 6.4.3(@types/node@22.20.1)(tsx@4.23.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.7(@types/node@22.20.1)(tsx@4.23.1)(yaml@2.9.0)
+
+  packages/icons-node:
+    dependencies:
+      '@archlex/icons-core':
+        specifier: workspace:*
+        version: link:../icons-core
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.1
+        version: 22.20.1
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

@@ -1,20 +1,20 @@
-import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: "src/index.ts",
       formats: ["es"],
       fileName: "index",
     },
     rollupOptions: {
       external: [
         "@archlex/icons-core",
-        "@archlex/icons-node",
-        "@xmldom/xmldom",
-        "node:crypto",
+        "node:fs/promises",
+        "node:os",
+        "node:path",
       ],
     },
+    target: "node22",
   },
 });

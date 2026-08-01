@@ -1,18 +1,16 @@
 {
-  "name": "@archlex/icons",
+  "name": "@archlex/icons-browser",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "node": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
-  },
-  "engines": {
-    "node": ">=22.0.0"
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
@@ -20,9 +18,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@archlex/icons-core": "workspace:*",
-    "@archlex/icons-node": "workspace:*",
-    "@xmldom/xmldom": "0.9.10"
+    "@archlex/icons-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.3",
