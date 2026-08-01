@@ -55,3 +55,36 @@ export interface CdnProviderDefinition {
   readonly timeoutMs: number;
   readonly maxResponseBytes: number;
 }
+
+export interface CdnProviderFetchResult {
+  readonly rawSvg: string;
+  readonly source: string;
+}
+
+export interface CdnProvider {
+  readonly definition: CdnProviderDefinition;
+  fetchIcon(
+    key: string,
+    options?: { signal?: AbortSignal },
+  ): Promise<CdnProviderFetchResult | undefined>;
+}
+
+export interface IconLoadResult {
+  readonly icons: ReadonlyMap<string, SanitizedIcon>;
+  readonly diagnostics: readonly IconDiagnostic[];
+}
+
+export interface IconLoader {
+  loadIcons(
+    requests: readonly IconRequest[],
+    options?: { signal?: AbortSignal },
+  ): Promise<IconLoadResult>;
+}
+
+export interface CreateIconLoaderOptions {
+  readonly providers: readonly CdnProviderDefinition[];
+  readonly fetchFn: FetchIcon;
+  readonly cache?: IconCache;
+  readonly concurrency?: number;
+  readonly negativeCacheMs?: number;
+}
