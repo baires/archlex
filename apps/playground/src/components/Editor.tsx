@@ -1,7 +1,7 @@
 import type { Diagnostic, SourceSpan } from "@cloudmer/model";
 import { Editor as MonacoEditor, type OnMount } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { registerCloudMerLanguage } from "../monaco/cloudmer-language.js";
 import { registerCloudMerThemes } from "../monaco/cloudmer-theme.js";
 import { registerCompletionProvider } from "../monaco/completions.js";
@@ -34,6 +34,7 @@ export function Editor({
 }: EditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
@@ -64,7 +65,20 @@ export function Editor({
     if (model) {
       setDiagnosticMarkers(monaco, model, diagnostics);
     }
+
+    // Mark as ready
+    setIsReady(true);
   };
+
+  // Update theme when it changes
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco || !isReady) return;
+
+    const monacoTheme = theme === "dark" ? "cloudmer-dark" : "cloudmer-light";
+    monaco.editor.setTheme(monacoTheme);
+  }, [theme, isReady]);
 
   // Update diagnostics when they change
   useEffect(() => {
@@ -111,6 +125,7 @@ export function Editor({
           value={source}
           onChange={(value: string | undefined) => onSourceChange(value || "")}
           onMount={handleEditorDidMount}
+          loading={<div className="editor-loading">Loading editor...</div>}
           options={{
             minimap: { enabled: false },
             fontSize: 14,
