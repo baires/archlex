@@ -66,3 +66,116 @@ Validation mode interacts with relationship types: custom kinds trigger info dia
 
 ---
 
+## Relationship Type Reference
+
+This section provides detailed reference documentation for each of the 9 built-in neutral relationship kinds.
+
+### connects
+
+**Definition:** Generic connectivity between services when the specific interaction type is ambiguous, involves multiple operations, or is not yet determined.
+
+**When to use:**
+- The relationship involves multiple operations that don't fit a single semantic type (e.g., both reads and writes).
+- You're in early exploratory phases of architecture design and haven't determined the specific interaction pattern yet.
+- The interaction is genuinely ambiguous or doesn't fit any of the more specific relationship kinds.
+- You need a quick fallback to capture connectivity without blocking diagram creation.
+
+**When NOT to use:**
+- The interaction has a clear, single semantic meaning (use the specific type instead: `reads`, `writes`, `invokes`, etc.).
+- You're documenting a production system where semantic accuracy matters for validation and understanding.
+- The relationship is one-directional with a clear initiator and clear operation type.
+
+**Directionality:** Typically bidirectional or unspecified. The arrow direction in `connects` is often a layout hint rather than a strict semantic constraint.
+
+**Examples:**
+
+```cloudmer
+# Multi-operation edge: service both reads and writes
+app -[connects]-> cache
+
+# Ambiguous early-stage architecture
+frontend -[connects]-> backend
+```
+
+**Common mistakes:**
+- Overusing `connects` when more specific types like `reads`, `invokes`, or `publishes` would be semantically accurate.
+- Using `connects` for clearly unidirectional operations (e.g., API calls should be `invokes`, not `connects`).
+- Choosing `connects` out of laziness rather than genuine ambiguity—this reduces diagram value.
+
+---
+
+### reads
+
+**Definition:** Read-only data retrieval from storage, cache, database, or other data sources. The source service retrieves data without modifying it.
+
+**When to use:**
+- The source service performs SELECT queries, GET requests, or read operations on the target.
+- Data flows from the target (storage/database) to the source (compute/application).
+- The interaction is read-only and does not mutate the target's state.
+- You're modeling cache lookups, database queries, object storage retrievals, or configuration reads.
+
+**When NOT to use:**
+- The source service modifies, inserts, or deletes data (use `writes` instead).
+- The interaction involves both reading and writing in a single conceptual operation (use `connects` or model as two separate edges).
+- The source invokes a synchronous API or function that happens to return data (use `invokes` for RPC semantics).
+
+**Directionality:** Target → Source (data flows from target to source). The arrow points from source to target, but semantically, the data moves in the opposite direction.
+
+**Examples:**
+
+```cloudmer
+# API reads from database
+api -[reads]-> database
+
+# Service retrieves objects from storage
+compute -[reads]-> storage
+
+# Application fetches from cache
+app -[reads]-> cache
+```
+
+**Common mistakes:**
+- Confusing arrow direction with data flow direction. In `api -[reads]-> database`, the arrow points to the database, but data flows from database to API.
+- Using `reads` for synchronous function calls that return data—use `invokes` if the interaction is RPC-style.
+- Using `reads` when the service also writes (model separately or use `connects` if truly ambiguous).
+
+---
+
+### writes
+
+**Definition:** Data mutation, insertion, deletion, or update to storage, cache, database, or other data sinks. The source service modifies the target's state.
+
+**When to use:**
+- The source service performs INSERT, UPDATE, DELETE, or PUT operations on the target.
+- Data flows from the source (compute/application) to the target (storage/database).
+- The interaction modifies the target's persistent or cached state.
+- You're modeling data ingestion, log writing, database mutations, or object uploads.
+
+**When NOT to use:**
+- The source service only reads data without modifying it (use `reads` instead).
+- The interaction involves both reading and writing in a single conceptual operation (use `connects` or model as two separate edges).
+- The source invokes a synchronous API or function that happens to accept data (use `invokes` for RPC semantics).
+- The source is publishing asynchronous messages to a queue or topic (use `publishes` instead).
+
+**Directionality:** Source → Target (data flows from source to target).
+
+**Examples:**
+
+```cloudmer
+# API writes to database
+api -[writes]-> database
+
+# Service uploads objects to storage
+compute -[writes]-> storage
+
+# Application updates cache
+app -[writes]-> cache
+```
+
+**Common mistakes:**
+- Using `writes` for asynchronous message publishing—use `publishes` for event/message emission.
+- Using `writes` when the service also reads (model separately or use `connects` if truly ambiguous).
+- Confusing `writes` with `invokes`—`writes` is for data mutation, `invokes` is for synchronous function calls.
+
+---
+
