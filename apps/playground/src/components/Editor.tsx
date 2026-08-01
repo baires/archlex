@@ -2,6 +2,7 @@ import type { Diagnostic, SourceSpan } from "@cloudmer/model";
 import { Editor as MonacoEditor, type OnMount } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
+import { registerCodeActionsProvider } from "../monaco/code-actions.js";
 import { registerCloudMerLanguage } from "../monaco/cloudmer-language.js";
 import { registerCloudMerThemes } from "../monaco/cloudmer-theme.js";
 import { registerCompletionProvider } from "../monaco/completions.js";
@@ -34,6 +35,7 @@ export function Editor({
 }: EditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
+  const codeActionsDisposableRef = useRef<Monaco.IDisposable | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
@@ -51,6 +53,12 @@ export function Editor({
 
     // Register hover provider
     registerHoverProvider(monaco);
+
+    // Register code actions provider
+    codeActionsDisposableRef.current = registerCodeActionsProvider(
+      monaco,
+      diagnostics
+    );
 
     // Track cursor position
     editor.onDidChangeCursorPosition((e) => {
@@ -89,7 +97,22 @@ export function Editor({
     const model = editor.getModel();
     if (model) {
       setDiagnosticMarkers(monaco, model, diagnostics);
+
+      // Update code actions
+      if (codeActionsDisposableRef.current) {
+        codeActionsDisposableRef.current.dispose();
+      }
+      codeActionsDisposableRef.current = registerCodeActionsProvider(
+        monaco,
+        diagnostics
+      );
     }
+
+    return () => {
+      if (codeActionsDisposableRef.current) {
+        codeActionsDisposableRef.current.dispose();
+      }
+    };
   }, [diagnostics]);
 
   // Handle selection changes from diagnostics

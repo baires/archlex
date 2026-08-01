@@ -6,13 +6,14 @@ describe("Dependency Boundary Rules", () => {
   const rootDir = path.resolve(__dirname, "..");
   const matrix: Record<string, string[]> = {
     model: [],
-    parser: ["@cloudmer/model", "chevrotain"],
+    parser: ["@cloudmer/diagnostics", "@cloudmer/model", "chevrotain"],
     aws: ["@cloudmer/model"],
     gcp: ["@cloudmer/model"],
     "layout-elk": ["@cloudmer/model", "elkjs"],
     "renderer-svg": ["@cloudmer/model"],
     core: [
       "@cloudmer/aws",
+      "@cloudmer/diagnostics",
       "@cloudmer/gcp",
       "@cloudmer/layout-elk",
       "@cloudmer/model",
