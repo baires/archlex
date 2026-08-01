@@ -407,3 +407,89 @@ task -[assumes-role]-> execution-role
 
 ---
 
+## Question-Based Selection Guide
+
+Use this decision tree to select the most appropriate relationship type for your use case:
+
+**What is the primary intent of this relationship?**
+
+### Data access
+- **Does the source modify data in the target?**
+  - **Yes** → Use [`writes`](#writes)
+  - **No** → Use [`reads`](#reads)
+
+### Communication
+- **Is the interaction synchronous (waiting for response)?**
+  - **Yes** → Use [`invokes`](#invokes)
+  - **No (asynchronous)** →
+    - **Is the source sending messages?** → Use [`publishes`](#publishes)
+    - **Is the source consuming messages?** → Use [`subscribes`](#subscribes)
+
+### Access control
+- **Does the source assume a role or identity from the target?**
+  - **Yes** → Use [`assumes-role`](#assumes-role)
+
+### Traffic routing
+- **Does the source distribute, balance, or proxy traffic to the target?**
+  - **Yes** → Use [`routes`](#routes)
+
+### Data replication
+- **Does the source replicate or sync data to the target?**
+  - **Yes** → Use [`replicates`](#replicates)
+
+### General connectivity
+- **Is the relationship ambiguous, exploratory, or involves multiple operations?**
+  - **Yes** → Use [`connects`](#connects)
+
+**Not sure?** Default to [`connects`](#connects) and refine later as the architecture becomes clearer.
+
+---
+
+## Custom Relationships
+
+While CloudMer provides 9 built-in neutral relationship kinds, you can define **custom relationship kinds** for domain-specific semantics.
+
+### When to Use Custom Relationships
+
+Use custom relationship kinds when:
+- Your domain requires precise, specialized semantics not covered by the built-in types.
+- The specific interaction type communicates important architectural intent to your team.
+- The relationship has unique characteristics that warrant explicit naming.
+
+**Good custom relationship examples:**
+- `-[authenticates]->` — Service authenticates with an auth provider
+- `-[monitors]->` — Service monitors another service's health
+- `-[transforms]->` — Service transforms data from another service
+- `-[encrypts]->` — Service encrypts data using a key service
+
+**Unnecessary custom relationship examples** (use built-in types instead):
+- `-[gets]->` → Use [`reads`](#reads)
+- `-[sends]->` → Use [`publishes`](#publishes) or [`writes`](#writes)
+- `-[calls]->` → Use [`invokes`](#invokes)
+- `-[queries]->` → Use [`reads`](#reads)
+
+### Naming Conventions
+
+Custom relationship kinds should:
+- Use lowercase kebab-case: `-[authenticates]->`, `-[monitors]->`, `-[rate-limits]->`
+- Be verb-based and action-oriented
+- Be concise (1-2 words preferred)
+- Avoid redundancy with built-in types
+
+### Trade-offs
+
+**Benefits:**
+- Precise domain-specific semantics
+- Clearer architectural intent
+- Better team communication
+
+**Costs:**
+- Custom kinds receive only **structural validation** (CloudMer validates syntax, not semantics)
+- Generates **info-level diagnostic** `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent) in `normal` mode
+- Generates **error-level diagnostic** in `strict` validation mode
+- No provider-specific semantic validation (e.g., CloudMer won't validate if the services actually support your custom interaction type)
+
+**Recommendation:** Start with built-in types. Only introduce custom kinds when the semantic value outweighs the validation trade-off.
+
+---
+
