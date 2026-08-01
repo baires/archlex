@@ -167,10 +167,45 @@ function getDirectionDirective(
   return direction;
 }
 
-function applyGraphIconsToLayout(
+function getLegacyDirective(
+  ast: DocumentAst,
+  name: string,
+): string | undefined {
+  const directive = ast.statements.find(
+    (statement) =>
+      statement.type === "directive" &&
+      "name" in statement &&
+      statement.name === name,
+  );
+  return directive && "value" in directive
+    ? (directive.value as string)
+    : undefined;
+}
+
+function collectInjectedIconNodeIds(
+  preparedGraph: CloudGraph,
+  graph: CloudGraph,
+): ReadonlySet<string> {
+  const preparedNodes = new Map(
+    preparedGraph.nodes.map((node) => [node.id, node]),
+  );
+  const ids = new Set<string>();
+
+  for (const node of graph.nodes) {
+    const preparedNode = preparedNodes.get(node.id);
+    if (preparedNode && !preparedNode.icon && node.icon) ids.add(node.id);
+  }
+
+  return ids;
+}
+
+function applyInjectedIconsToLayout(
   layout: LayoutGraph,
   graph: CloudGraph,
+  injectedIconNodeIds: ReadonlySet<string>,
 ): LayoutGraph {
+  if (injectedIconNodeIds.size === 0) return layout;
+
   const graphNodes = new Map(graph.nodes.map((node) => [node.id, node]));
 
   const applyToNode = (
@@ -183,15 +218,16 @@ function applyGraphIconsToLayout(
     );
     const iconChanged =
       sourceNode !== undefined &&
-      (node.icon !== sourceNode.icon || node.iconKey !== sourceNode.iconKey);
+      injectedIconNodeIds.has(node.id) &&
+      node.icon !== sourceNode.icon;
 
     if (!childrenChanged && !iconChanged) return node;
 
     return {
       ...node,
       ...(children ? { children } : {}),
-      ...(sourceNode
-        ? { icon: sourceNode.icon, iconKey: sourceNode.iconKey }
+      ...(sourceNode && injectedIconNodeIds.has(node.id)
+        ? { icon: sourceNode.icon }
         : {}),
     };
   };
@@ -674,6 +710,9 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const graph = renderOptions?.icons
         ? applyIconRegistry(prepared.graph, renderOptions.icons)
         : prepared.graph;
+      const injectedIconNodeIds = renderOptions?.icons
+        ? collectInjectedIconNodeIds(prepared.graph, graph)
+        : new Set<string>();
       const layoutRes = await this.layout(graph, {
         direction: renderOptions?.direction ?? prepared.direction,
         signal: renderOptions?.signal,
@@ -682,7 +721,11 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         ...prepared.diagnostics,
         ...layoutRes.diagnostics,
       ];
-      const layout = applyGraphIconsToLayout(layoutRes.graph, graph);
+      const layout = applyInjectedIconsToLayout(
+        layoutRes.graph,
+        graph,
+        injectedIconNodeIds,
+      );
       const svgRes = this.renderGraph(
         layout,
         combinedDiagnostics,
@@ -705,7 +748,11 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         validation: renderOptions?.validation,
       });
       return this.renderPrepared(prepared, {
-        direction: renderOptions?.direction,
+        direction: (renderOptions?.direction ??
+          getLegacyDirective(
+            prepared.ast,
+            "direction",
+          )) as LayoutOptions["direction"],
         theme: renderOptions?.theme,
         signal: renderOptions?.signal,
         icons: renderOptions?.icons,

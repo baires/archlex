@@ -1,4 +1,6 @@
 import type { SanitizedIcon } from "@archlex/icons-core";
+import { createInlineLayoutEngine } from "@archlex/layout-elk";
+import type { LayoutEngine } from "@archlex/model";
 import { describe, expect, it, vi } from "vitest";
 import { awsProvider, createArchLex, gcpProvider } from "./index.js";
 
@@ -17,6 +19,57 @@ const alternateAppRunnerIcon: SanitizedIcon = {
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#abcdef" d="M0 0h64v64H0z"/></svg>',
 };
+
+function createDirectionRecordingLayoutEngine(): {
+  readonly engine: LayoutEngine;
+  readonly directions: Array<string | undefined>;
+} {
+  const delegate = createInlineLayoutEngine();
+  const directions: Array<string | undefined> = [];
+  return {
+    directions,
+    engine: {
+      id: "direction-recording-layout",
+      async layout(graph, options) {
+        directions.push(options?.direction);
+        return delegate.layout(graph, options);
+      },
+    },
+  };
+}
+
+function createCustomIconLayoutEngine(icon: string): LayoutEngine {
+  return {
+    id: "custom-layout",
+    async layout() {
+      return {
+        graph: {
+          width: 120,
+          height: 100,
+          nodes: [
+            {
+              id: "apprunner",
+              x: 10,
+              y: 10,
+              width: 100,
+              height: 80,
+              label: "Custom App Runner",
+              iconKey: "custom.authoritative",
+              icon,
+            },
+          ],
+          edges: [],
+        },
+        diagnostics: [],
+        metadata: {
+          engine: "custom-layout",
+          fingerprint: "custom",
+          durationMs: 0,
+        },
+      };
+    },
+  };
+}
 
 describe("prepared rendering", () => {
   it("prepares unresolved icon requests and parse plus analysis diagnostics", () => {
@@ -47,6 +100,44 @@ describe("prepared rendering", () => {
     expect(first.graph.nodes[0]?.icon).toBe(fetchedAppRunnerIcon.svgFragment);
     expect(prepared.graph.nodes[0]?.icon).toBeUndefined();
     expect(second.svg).toBe(first.svg);
+  });
+
+  it("preserves custom layout-engine icons when no registry is supplied", async () => {
+    const layoutEngine = createCustomIconLayoutEngine(
+      '<svg viewBox="0 0 10 10"><circle fill="#fedcba" cx="5" cy="5" r="5"/></svg>',
+    );
+    const archlex = createArchLex({
+      providers: [awsProvider()],
+      layoutEngine,
+    });
+
+    const result = await archlex.render("apprunner");
+
+    expect(result.layout.nodes[0]).toMatchObject({
+      iconKey: "custom.authoritative",
+      icon: expect.stringContaining("#fedcba"),
+    });
+    expect(result.svg).toContain("#fedcba");
+    expect(result.svg).toContain('data-archlex-icon="custom.authoritative"');
+  });
+
+  it("injects only icon data into custom layout-engine output", async () => {
+    const layoutEngine = createCustomIconLayoutEngine(
+      '<svg viewBox="0 0 10 10"><rect fill="#000000" width="10" height="10"/></svg>',
+    );
+    const archlex = createArchLex({
+      providers: [awsProvider()],
+      layoutEngine,
+    });
+
+    const result = await archlex.render("apprunner", {
+      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+    });
+
+    expect(result.layout.nodes[0]).toMatchObject({
+      iconKey: "custom.authoritative",
+      icon: fetchedAppRunnerIcon.svgFragment,
+    });
   });
 
   it("renders the current registry when cached geometry is reused", async () => {
@@ -113,6 +204,44 @@ describe("prepared rendering", () => {
 
     expect(invalid.direction).toBeUndefined();
     expect(late.direction).toBeUndefined();
+  });
+
+  it("keeps legacy render behavior for a late direction directive", async () => {
+    const { engine, directions } = createDirectionRecordingLayoutEngine();
+    const archlex = createArchLex({
+      providers: [awsProvider()],
+      layoutEngine: engine,
+    });
+
+    const late = await archlex.render("rds > ecs\ndirection TB");
+    const explicit = await archlex.render("rds > ecs", { direction: "TB" });
+
+    expect(directions).toEqual(["TB", "TB"]);
+    expect(late.layout).toEqual(explicit.layout);
+    expect(late.metadata).toEqual(explicit.metadata);
+    expect(late.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      "AL-STRUCT-LATE-DIRECTIVE",
+    );
+  });
+
+  it("keeps legacy render fallback for an invalid direction directive", async () => {
+    const { engine, directions } = createDirectionRecordingLayoutEngine();
+    const archlex = createArchLex({
+      providers: [awsProvider()],
+      layoutEngine: engine,
+    });
+
+    const invalid = await archlex.render("direction SIDEWAYS\nrds > ecs");
+
+    expect(directions).toEqual(["SIDEWAYS"]);
+    expect(invalid.layout.nodes.map(({ id, x, y }) => ({ id, x, y }))).toEqual([
+      { id: "rds", x: 12, y: 176 },
+      { id: "ecs", x: 12, y: 12 },
+    ]);
+    expect(invalid.metadata).toMatchObject({ width: 152, height: 280 });
+    expect(invalid.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+      "AL-STRUCT-INVALID-DIRECTIVE",
+    );
   });
 
   it("parses and analyzes only once through the compatible render API", async () => {
