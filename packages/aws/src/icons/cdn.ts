@@ -37,5 +37,8 @@ export const AWS_ICON_NAME_MAPPING: Record<string, string> = {
   "step-functions": "step-functions",
 };
 
-// Register provider automatically
-IconLoader.registerProvider("aws", AWS_CDN_CONFIG, AWS_ICON_NAME_MAPPING);
+// Register provider automatically only in Node.js environments
+// Browser environments cannot use IconLoader due to Node.js dependencies
+if (typeof process !== "undefined" && process.versions?.node) {
+  IconLoader.registerProvider("aws", AWS_CDN_CONFIG, AWS_ICON_NAME_MAPPING);
+}

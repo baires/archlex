@@ -33,5 +33,8 @@ export const GCP_ICON_NAME_MAPPING: Record<string, string> = {
   "cloud-load-balancing": "Cloud-Load-Balancing",
 };
 
-// Register provider automatically
-IconLoader.registerProvider("gcp", GCP_CDN_CONFIG, GCP_ICON_NAME_MAPPING);
+// Register provider automatically only in Node.js environments
+// Browser environments cannot use IconLoader due to Node.js dependencies
+if (typeof process !== "undefined" && process.versions?.node) {
+  IconLoader.registerProvider("gcp", GCP_CDN_CONFIG, GCP_ICON_NAME_MAPPING);
+}
