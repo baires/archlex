@@ -18,6 +18,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@cloudmer/diagnostics": "workspace:^",
     "@cloudmer/model": "workspace:^",
     "chevrotain": "^11.0.2"
   },

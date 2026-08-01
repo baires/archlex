@@ -1,4 +1,8 @@
 import type { Diagnostic, DocumentAst, ParseResult } from "@cloudmer/model";
+import {
+  createDiagnostic,
+  diagnosticRegistry,
+} from "@cloudmer/diagnostics";
 import { parserInstance } from "./cst/index.js";
 import { CloudMerLexer } from "./lexer/index.js";
 import { convertCstToAst, tokenToSpan } from "./visitor/index.js";
@@ -16,16 +20,18 @@ export function parse(source: string): ParseResult {
     const column = err.column ?? 1;
     const length = err.length ?? 1;
     const offset = err.offset ?? 0;
-    diagnostics.push({
-      code: "CM-PARSE-001",
-      severity: "error",
-      message: `Unexpected token '${err.message}'`,
-      span: {
-        start: { line, column, offset },
-        end: { line, column: column + length, offset: offset + length },
-      },
-      elements: [],
-    });
+    diagnostics.push(
+      createDiagnostic(
+        "CM-PARSE-001",
+        { token: err.message, line, column },
+        {
+          start: { line, column, offset },
+          end: { line, column: column + length, offset: offset + length },
+        },
+        [],
+        diagnosticRegistry
+      )
+    );
   }
 
   parserInstance.input = lexResult.tokens;
@@ -37,17 +43,22 @@ export function parse(source: string): ParseResult {
     const missingEndpoint =
       err.message.includes("Identifier") &&
       /(?:>|->|<-|<->|--|-\.->|-\[[^\]]+\]->)\s*(?:\r?\n|$)/.test(source);
-    diagnostics.push({
-      code: missingBrace
-        ? "CM-PARSE-MISSING-BRACE"
-        : missingEndpoint
-          ? "CM-PARSE-MISSING-ENDPOINT"
-          : "CM-PARSE-002",
-      severity: "error",
-      message: err.message,
-      span: tokenToSpan(token),
-      elements: [],
-    });
+
+    const code = missingBrace
+      ? "CM-PARSE-MISSING-BRACE"
+      : missingEndpoint
+        ? "CM-PARSE-MISSING-ENDPOINT"
+        : "CM-PARSE-002";
+
+    diagnostics.push(
+      createDiagnostic(
+        code,
+        { details: err.message, scopeType: "scope", startLine: token.startLine ?? 1 },
+        tokenToSpan(token),
+        [],
+        diagnosticRegistry
+      )
+    );
   }
 
   const statements = convertCstToAst(cst);
@@ -76,13 +87,15 @@ export function parse(source: string): ParseResult {
     const invalidStatement = statements.find(
       (statement) => statement.type === "invalid",
     );
-    diagnostics.push({
-      code: "CM-PARSE-MISSING-ENDPOINT",
-      severity: "error",
-      message: "Relationship endpoint is missing.",
-      span: invalidStatement?.span ?? tokenToSpan({}),
-      elements: [],
-    });
+    diagnostics.push(
+      createDiagnostic(
+        "CM-PARSE-MISSING-ENDPOINT",
+        {},
+        invalidStatement?.span ?? tokenToSpan({}),
+        [],
+        diagnosticRegistry
+      )
+    );
   }
 
   if (
@@ -96,16 +109,18 @@ export function parse(source: string): ParseResult {
       (diagnostic) => diagnostic.code === "CM-PARSE-MISSING-BRACE",
     )
   ) {
-    diagnostics.push({
-      code: "CM-PARSE-MISSING-BRACE",
-      severity: "error",
-      message: "Scope is missing a closing brace.",
-      span: tokenToSpan({
-        startOffset: source.length,
-        endOffset: source.length,
-      }),
-      elements: [],
-    });
+    diagnostics.push(
+      createDiagnostic(
+        "CM-PARSE-MISSING-BRACE",
+        { scopeType: "scope", startLine: 1 },
+        tokenToSpan({
+          startOffset: source.length,
+          endOffset: source.length,
+        }),
+        [],
+        diagnosticRegistry
+      )
+    );
   }
 
   const documentAst: DocumentAst = {
