@@ -8,7 +8,11 @@ import {
   kinesisFirehoseDestinationRule,
 } from "./analytics.js";
 import { lambdaVpcPlacementRule } from "./compute.js";
-import { s3PublicAccessGuidanceRule } from "./data.js";
+import {
+  auroraSubnetPlacementRule,
+  efsVpcPlacementRule,
+  s3PublicAccessGuidanceRule,
+} from "./data.js";
 import { codePipelineStagesRule } from "./devtools.js";
 import {
   eventBridgeTargetsRule,
@@ -83,6 +87,8 @@ export function evaluateAwsRules(
   // Pass 3: Architecture Guidance Rules
   rawDiagnostics.push(...lambdaVpcPlacementRule.validate(graph));
   rawDiagnostics.push(...s3PublicAccessGuidanceRule.validate(graph));
+  rawDiagnostics.push(...efsVpcPlacementRule.validate(graph));
+  rawDiagnostics.push(...auroraSubnetPlacementRule.validate(graph));
   rawDiagnostics.push(...unattachedIamRoleRule.validate(graph));
 
   // Policy Mode Handling: strict promotes warnings to errors

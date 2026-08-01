@@ -114,6 +114,23 @@ describe("GCP Semantics & Rules Engine", () => {
     });
   });
 
+  describe("GCP-STORAGE-CLOUD-STORAGE-PUBLIC-001 (Cloud Storage Security Guidance)", () => {
+    it("emits GCP-STORAGE-CLOUD-STORAGE-PUBLIC-001 info guidance when Cloud Storage bucket connects from Cloud CDN", async () => {
+      const source = `
+        provider gcp
+        cdn: cloud-cdn
+        bucket: cloud-storage
+        cdn > bucket
+      `;
+      const res = await archlex.render(source);
+      const storageDiag = res.diagnostics.find(
+        (d) => d.code === "GCP-STORAGE-CLOUD-STORAGE-PUBLIC-001",
+      );
+      expect(storageDiag).toBeDefined();
+      expect(storageDiag?.severity).toBe("info");
+    });
+  });
+
   describe("Validation modes", () => {
     const source = `
       provider gcp

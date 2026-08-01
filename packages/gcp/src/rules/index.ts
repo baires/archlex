@@ -5,7 +5,11 @@ import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
 import { aiPlatformVpcPlacementRule } from "./ai-ml.js";
 import { dataprocVpcPlacementRule } from "./analytics.js";
 import { gkeAutopilotConfigRule } from "./containers.js";
-import { alloyDbPscRule, cloudSqlNetworkRule } from "./data.js";
+import {
+  alloyDbPscRule,
+  cloudSqlNetworkRule,
+  cloudStoragePublicAccessRule,
+} from "./data.js";
 import { iapBackendRule } from "./identity.js";
 import { eventarcTargetsRule, workflowsTargetsRule } from "./integration.js";
 import {
@@ -73,6 +77,7 @@ export function evaluateGcpRules(
   // Pass 3: Architecture Guidance Rules
   rawDiagnostics.push(...cloudSqlNetworkRule.validate(graph));
   rawDiagnostics.push(...alloyDbPscRule.validate(graph));
+  rawDiagnostics.push(...cloudStoragePublicAccessRule.validate(graph));
 
   // Policy Mode Handling: strict promotes warnings to errors
   if (mode === "strict") {

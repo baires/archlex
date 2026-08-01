@@ -94,3 +94,41 @@ export const alloyDbPscRule = defineRule({
     return diagnostics;
   },
 });
+
+export const cloudStoragePublicAccessRule = defineRule({
+  code: GCP_DIAGNOSTIC_CODES.CLOUD_STORAGE_PUBLIC,
+  severity: "info",
+  summary: "Cloud Storage bucket connected from Cloud CDN or Internet.",
+  validate(graph: CloudGraph): readonly Diagnostic[] {
+    const diagnostics: Diagnostic[] = [];
+
+    const buckets = graph.nodes.filter((n) =>
+      ["cloud-storage", "gcs"].includes(n.serviceKind.toLowerCase()),
+    );
+
+    for (const bucket of buckets) {
+      const connectsFromCdn = graph.edges.some((e) => {
+        if (e.target !== bucket.id) return false;
+        const srcNode = graph.nodes.find((n) => n.id === e.source);
+        return (
+          srcNode &&
+          ["cloud-cdn", "cdn"].includes(srcNode.serviceKind.toLowerCase())
+        );
+      });
+
+      if (connectsFromCdn) {
+        diagnostics.push({
+          code: GCP_DIAGNOSTIC_CODES.CLOUD_STORAGE_PUBLIC,
+          severity: "info",
+          message: `Cloud Storage bucket '${bucket.id}' receives direct Cloud CDN traffic. Ensure uniform bucket-level access and origin authentication are configured.`,
+          span: bucket.span,
+          elements: [bucket.id],
+          remediation:
+            "Enforce uniform bucket-level access and restrict public access with Signed URLs or OCI.",
+        });
+      }
+    }
+
+    return diagnostics;
+  },
+});

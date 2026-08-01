@@ -86,6 +86,64 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
     });
   });
 
+  describe("Service Placement Rules", () => {
+    describe("AWS-STORAGE-EFS-VPC-PLACEMENT-001 (EFS VPC Placement)", () => {
+      it("passes when EFS file system is inside a VPC", async () => {
+        const source = `
+          vpc main {
+            fs: efs
+          }
+        `;
+        const res = await archlex.render(source);
+        const efsDiags = res.diagnostics.filter(
+          (d) => d.code === "AWS-STORAGE-EFS-VPC-PLACEMENT-001",
+        );
+        expect(efsDiags).toHaveLength(0);
+      });
+
+      it("emits AWS-STORAGE-EFS-VPC-PLACEMENT-001 warning when EFS file system is outside a VPC", async () => {
+        const source = `
+          fs: efs
+        `;
+        const res = await archlex.render(source);
+        const efsDiag = res.diagnostics.find(
+          (d) => d.code === "AWS-STORAGE-EFS-VPC-PLACEMENT-001",
+        );
+        expect(efsDiag).toBeDefined();
+        expect(efsDiag?.severity).toBe("warning");
+      });
+    });
+
+    describe("AWS-DATA-AURORA-SUBNET-PLACEMENT-001 (Aurora Subnet Placement)", () => {
+      it("passes when Aurora DB is inside a subnet or VPC scope", async () => {
+        const source = `
+          vpc main {
+            subnet private {
+              db: aurora
+            }
+          }
+        `;
+        const res = await archlex.render(source);
+        const auroraDiags = res.diagnostics.filter(
+          (d) => d.code === "AWS-DATA-AURORA-SUBNET-PLACEMENT-001",
+        );
+        expect(auroraDiags).toHaveLength(0);
+      });
+
+      it("emits AWS-DATA-AURORA-SUBNET-PLACEMENT-001 warning when Aurora DB is uncontained", async () => {
+        const source = `
+          db: aurora
+        `;
+        const res = await archlex.render(source);
+        const auroraDiag = res.diagnostics.find(
+          (d) => d.code === "AWS-DATA-AURORA-SUBNET-PLACEMENT-001",
+        );
+        expect(auroraDiag).toBeDefined();
+        expect(auroraDiag?.severity).toBe("warning");
+      });
+    });
+  });
+
   it("resolves official AWS icon fragments without unsafe SVG content", () => {
     const provider = awsProvider();
     const serializedIcons = ["rds-proxy", "rds", "ecs"]
