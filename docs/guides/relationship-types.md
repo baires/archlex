@@ -493,3 +493,230 @@ Custom relationship kinds should:
 
 ---
 
+## Common Architectural Patterns
+
+This section provides real-world architectural patterns organized by category, with recommended relationship types and CloudMer syntax examples.
+
+### Data Flow Patterns
+
+**Database Access**
+
+Use [`reads`](#reads) and [`writes`](#writes) for database interactions:
+
+```cloudmer
+# API reads and writes to database
+api -[reads]-> database
+api -[writes]-> database
+
+# Separate read/write services
+read-service -[reads]-> database
+write-service -[writes]-> database
+```
+
+**Cache Operations**
+
+Model cache interactions with [`reads`](#reads) and [`writes`](#writes):
+
+```cloudmer
+# Application with cache layer
+app -[reads]-> cache
+app -[writes]-> cache
+app -[reads]-> database
+```
+
+**Storage Operations**
+
+Use [`reads`](#reads) and [`writes`](#writes) for object storage:
+
+```cloudmer
+# Service uploads and downloads files
+service -[writes]-> storage
+service -[reads]-> storage
+```
+
+**Unidirectional Data Pipelines**
+
+Chain services with appropriate relationship types:
+
+```cloudmer
+# Extract, Transform, Load pipeline
+extractor -[reads]-> source-db
+extractor -[writes]-> staging-storage
+transformer -[reads]-> staging-storage
+transformer -[writes]-> target-db
+```
+
+### Event-Driven Patterns
+
+**Message Queues**
+
+Use [`publishes`](#publishes) and [`subscribes`](#subscribes) for queue-based messaging:
+
+```cloudmer
+# Producer-consumer pattern
+producer -[publishes]-> queue
+consumer -[subscribes]-> queue
+
+# Multiple consumers
+worker-a -[subscribes]-> queue
+worker-b -[subscribes]-> queue
+```
+
+**Event Buses**
+
+Model event-driven architectures with [`publishes`](#publishes) and [`subscribes`](#subscribes):
+
+```cloudmer
+# Services publish to event bus
+order-service -[publishes]-> eventbus
+payment-service -[publishes]-> eventbus
+
+# Services subscribe to events
+notification-service -[subscribes]-> eventbus
+analytics-service -[subscribes]-> eventbus
+```
+
+**Synchronous RPC**
+
+Use [`invokes`](#invokes) for request-response patterns:
+
+```cloudmer
+# Microservice invocation
+api-gateway -[invokes]-> auth-service
+api-gateway -[invokes]-> user-service
+user-service -[invokes]-> profile-service
+```
+
+**Webhooks**
+
+Model webhook patterns with [`invokes`](#invokes) for the callback:
+
+```cloudmer
+# Service registers webhook, then receives callback
+client -[invokes]-> webhook-provider
+webhook-provider -[invokes]-> client-endpoint
+```
+
+### Control Flow Patterns
+
+**Orchestration**
+
+Use [`invokes`](#invokes) for orchestrated workflows:
+
+```cloudmer
+# Orchestrator coordinates multiple services
+orchestrator -[invokes]-> service-a
+orchestrator -[invokes]-> service-b
+orchestrator -[invokes]-> service-c
+```
+
+**Load Balancing**
+
+Use [`routes`](#routes) for traffic distribution:
+
+```cloudmer
+# Load balancer distributes traffic
+loadbalancer -[routes]-> backend-a
+loadbalancer -[routes]-> backend-b
+loadbalancer -[routes]-> backend-c
+```
+
+**API Gateway Proxying**
+
+Use [`routes`](#routes) for gateway routing:
+
+```cloudmer
+# API Gateway routes to services
+gateway -[routes]-> users-service
+gateway -[routes]-> orders-service
+gateway -[routes]-> payments-service
+```
+
+### Identity & Access Patterns
+
+**Permission Delegation**
+
+Use [`assumes-role`](#assumes-role) for IAM role assumption:
+
+```cloudmer
+# Lambda assumes role to access resources
+function -[assumes-role]-> s3-access-role
+function -[reads]-> bucket
+
+# Cross-account access
+service-account-a -[assumes-role]-> role-account-b
+```
+
+**Cross-Account Resource Access**
+
+Combine [`assumes-role`](#assumes-role) with data operations:
+
+```cloudmer
+# Service assumes role, then accesses resources
+app -[assumes-role]-> cross-account-role
+app -[reads]-> cross-account-storage
+```
+
+### Replication Patterns
+
+**Database Replication**
+
+Use [`replicates`](#replicates) for data sync:
+
+```cloudmer
+# Primary replicates to replicas
+db-primary -[replicates]-> db-replica-1
+db-primary -[replicates]-> db-replica-2
+
+# Services read from replicas
+read-service -[reads]-> db-replica-1
+```
+
+**Cross-Region Sync**
+
+Model regional data synchronization with [`replicates`](#replicates):
+
+```cloudmer
+# Storage replicates across regions
+storage-us -[replicates]-> storage-eu
+storage-us -[replicates]-> storage-asia
+```
+
+### General Connectivity
+
+**Multi-Operation Edges**
+
+Use [`connects`](#connects) when a relationship involves multiple operation types:
+
+```cloudmer
+# Service performs multiple operations on cache
+service -[connects]-> cache
+```
+
+**Ambiguous Edges**
+
+Use [`connects`](#connects) for exploratory or unclear relationships:
+
+```cloudmer
+# Early-stage architecture
+frontend -[connects]-> backend
+backend -[connects]-> datastore
+```
+
+**Exploratory Diagrams**
+
+Start with [`connects`](#connects), then refine:
+
+```cloudmer
+# Initial exploration
+app -[connects]-> service-a
+app -[connects]-> service-b
+
+# Refined after investigation
+app -[invokes]-> service-a
+app -[publishes]-> queue
+service-b -[subscribes]-> queue
+```
+
+---
+
