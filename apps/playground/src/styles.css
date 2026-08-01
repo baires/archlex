@@ -682,6 +682,12 @@ select {
 .editor-body {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+}
+
+/* Monaco Editor container */
+.editor-body > div {
+  height: 100%;
 }
 
 .source-input {

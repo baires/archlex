@@ -342,6 +342,8 @@ export function App() {
             documentLabel="architecture.cloudmer"
             onCursorChange={setCursor}
             selection={editorSelection}
+            theme={theme}
+            diagnostics={diagnostics}
           />
         }
         preview={

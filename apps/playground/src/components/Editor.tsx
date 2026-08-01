@@ -1,5 +1,12 @@
-import type { SourceSpan } from "@cloudmer/model";
+import type { Diagnostic, SourceSpan } from "@cloudmer/model";
+import { Editor as MonacoEditor, type OnMount } from "@monaco-editor/react";
+import type * as Monaco from "monaco-editor";
 import { useEffect, useRef } from "react";
+import { registerCloudMerLanguage } from "../monaco/cloudmer-language.js";
+import { registerCloudMerThemes } from "../monaco/cloudmer-theme.js";
+import { registerCompletionProvider } from "../monaco/completions.js";
+import { setDiagnosticMarkers } from "../monaco/diagnostics.js";
+import { registerHoverProvider } from "../monaco/hover.js";
 
 export interface EditorSelection {
   span: SourceSpan;
@@ -12,6 +19,8 @@ interface EditorProps {
   documentLabel: string;
   onCursorChange: (position: { line: number; column: number }) => void;
   selection: EditorSelection | null;
+  theme?: "dark" | "light";
+  diagnostics?: readonly Diagnostic[];
 }
 
 export function Editor({
@@ -20,23 +29,71 @@ export function Editor({
   documentLabel,
   onCursorChange,
   selection,
+  theme = "dark",
+  diagnostics = [],
 }: EditorProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const monacoRef = useRef<typeof Monaco | null>(null);
 
+  const handleEditorDidMount: OnMount = (editor, monaco) => {
+    editorRef.current = editor;
+    monacoRef.current = monaco;
+
+    // Register CloudMer language
+    registerCloudMerLanguage(monaco);
+
+    // Register themes
+    registerCloudMerThemes(monaco);
+
+    // Register completion provider
+    registerCompletionProvider(monaco);
+
+    // Register hover provider
+    registerHoverProvider(monaco);
+
+    // Track cursor position
+    editor.onDidChangeCursorPosition((e) => {
+      onCursorChange({
+        line: e.position.lineNumber,
+        column: e.position.column,
+      });
+    });
+
+    // Set initial diagnostics
+    const model = editor.getModel();
+    if (model) {
+      setDiagnosticMarkers(monaco, model, diagnostics);
+    }
+  };
+
+  // Update diagnostics when they change
+  useEffect(() => {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    if (!editor || !monaco) return;
+
+    const model = editor.getModel();
+    if (model) {
+      setDiagnosticMarkers(monaco, model, diagnostics);
+    }
+  }, [diagnostics]);
+
+  // Handle selection changes from diagnostics
   useEffect(() => {
     if (!selection) return;
-    const textarea = textareaRef.current;
-    if (!textarea) return;
+    const editor = editorRef.current;
+    if (!editor) return;
 
-    const start = Math.min(selection.span.start.offset, textarea.value.length);
-    const end = Math.min(selection.span.end.offset, textarea.value.length);
-    textarea.focus();
-    textarea.setSelectionRange(start, Math.max(start, end));
-    onCursorChange({
-      line: selection.span.start.line,
-      column: selection.span.start.column,
+    const { span } = selection;
+    editor.setSelection({
+      startLineNumber: span.start.line,
+      startColumn: span.start.column,
+      endLineNumber: span.end.line,
+      endColumn: span.end.column,
     });
-  }, [selection, onCursorChange]);
+    editor.revealLineInCenter(span.start.line);
+    editor.focus();
+  }, [selection]);
 
   return (
     <section className="editor-pane" aria-label="CloudMer Source Editor">
@@ -48,40 +105,39 @@ export function Editor({
       </div>
 
       <div className="editor-body">
-        <textarea
-          ref={textareaRef}
-          id="source"
-          name="source"
-          className="source-input"
-          autoComplete="off"
-          spellCheck={false}
+        <MonacoEditor
+          language="cloudmer"
+          theme={theme === "dark" ? "cloudmer-dark" : "cloudmer-light"}
           value={source}
-          onChange={(e) => onSourceChange(e.target.value)}
-          onSelect={(event) => {
-            const beforeCursor = event.currentTarget.value.slice(
-              0,
-              event.currentTarget.selectionStart,
-            );
-            const lines = beforeCursor.split("\n");
-            onCursorChange({
-              line: lines.length,
-              column: (lines.at(-1)?.length ?? 0) + 1,
-            });
+          onChange={(value: string | undefined) => onSourceChange(value || "")}
+          onMount={handleEditorDidMount}
+          options={{
+            minimap: { enabled: false },
+            fontSize: 14,
+            lineHeight: 23,
+            fontFamily: "IBM Plex Mono, monospace",
+            fontLigatures: true,
+            tabSize: 2,
+            insertSpaces: true,
+            scrollBeyondLastLine: false,
+            automaticLayout: true,
+            suggest: {
+              showKeywords: true,
+              showSnippets: false,
+            },
+            quickSuggestions: {
+              other: true,
+              comments: false,
+              strings: false,
+            },
+            wordWrap: "off",
+            lineNumbers: "on",
+            renderLineHighlight: "line",
+            cursorBlinking: "smooth",
+            cursorSmoothCaretAnimation: "on",
+            smoothScrolling: true,
+            padding: { top: 16, bottom: 16 },
           }}
-          placeholder="# Enter CloudMer DSL source code
-# Example:
-direction LR
-provider aws
-
-account production {
-  region us-east-1 {
-    vpc main-vpc {
-      subnet app-subnet {
-        app: ec2
-      }
-    }
-  }
-}"
         />
       </div>
     </section>
