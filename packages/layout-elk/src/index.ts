@@ -5,31 +5,25 @@ import type {
   LayoutResult,
 } from "@archlex/model";
 import { ArchLexAbortError, ArchLexInternalError } from "@archlex/model";
-import ELK from "elkjs/lib/elk.bundled.js";
 import {
   type ElkLayoutResult,
   buildElkGraph,
   convertElkResultToLayoutGraph,
 } from "./adapter/index.js";
 import { LayoutCache, computeGeometryFingerprint } from "./cache/index.js";
-import {
-  PROTOCOL_VERSION,
-  createWorkerRequest,
-  isStaleResponse,
-} from "./worker/index.js";
+import { loadElk, preloadElk } from "./elk-loader.js";
+import { createWorkerRequest, isStaleResponse } from "./worker/index.js";
 
 export * from "./adapter/index.js";
 export * from "./cache/index.js";
+export * from "./elk-loader.js";
 export * from "./worker/index.js";
 
-interface ELKLike {
-  layout(graph: unknown): Promise<unknown>;
-}
-
+/**
+ * Creates a lazy-loading inline layout engine.
+ * ELK is loaded on first use, reducing initial bundle size.
+ */
 export function createInlineLayoutEngine(): LayoutEngine {
-  const elkCtor = ((ELK as unknown as { default: new () => ELKLike }).default ||
-    ELK) as unknown as new () => ELKLike;
-  const elk = new elkCtor();
   const cache = new LayoutCache();
 
   return {
@@ -59,6 +53,9 @@ export function createInlineLayoutEngine(): LayoutEngine {
       }
 
       try {
+        // Lazy load ELK on first use
+        const elk = await loadElk();
+
         const elkGraph = buildElkGraph(graph, options?.direction);
         const elkResult = (await elk.layout(elkGraph)) as ElkLayoutResult;
 
@@ -91,6 +88,12 @@ export function createInlineLayoutEngine(): LayoutEngine {
     },
   };
 }
+
+/**
+ * Preloads ELK without blocking.
+ * Call this early (e.g., on app mount) to warm up the cache.
+ */
+export { preloadElk };
 
 export function createWorkerLayoutEngine(
   workerFactory: () => Worker,
