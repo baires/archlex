@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd ../.. && pnpm install && turbo build --filter=@archlex/landing",
+  "outputDirectory": "dist",
+  "framework": "astro",
+  "installCommand": "pnpm install"
+}

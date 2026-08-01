@@ -1,0 +1,78 @@
+# Getting Started
+
+## Installation
+
+Install ArchLex and the provider packages you need:
+
+```bash
+npm install @archlex/core @archlex/aws @archlex/gcp
+```
+
+Or using pnpm:
+
+```bash
+pnpm add @archlex/core @archlex/aws @archlex/gcp
+```
+
+## Requirements
+
+- **Node.js** 22.0.0 or later
+- **Modern browser** with ES2022+ support
+
+## Basic Usage
+
+Create an ArchLex instance with the providers you want to use:
+
+```typescript
+import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider()]
+});
+```
+
+Write your architecture as text:
+
+```typescript
+const source = `
+@provider aws
+@layout LR
+
+vpc {
+  public: subnet {
+    alb
+  }
+  private: subnet {
+    ecs
+    rds
+  }
+}
+
+alb -> ecs
+ecs -> rds
+`;
+```
+
+Render it to SVG:
+
+```typescript
+const result = await archlex.render(source);
+
+if (result.diagnostics.length > 0) {
+  console.log('Diagnostics:', result.diagnostics);
+}
+
+// Insert the SVG into your page
+document.getElementById('diagram').innerHTML = result.svg;
+```
+
+## Interactive Playground
+
+Try the [interactive playground](/playground) to experiment with ArchLex syntax and see live results.
+
+## Next Steps
+
+- [Language Specification](/specs/language) - Learn the full syntax
+- [Public API](/specs/public-api) - Explore the JavaScript API
+- [AWS Semantics](/specs/aws-semantics) - AWS provider catalog
+- [GCP Semantics](/specs/gcp-semantics) - GCP provider catalog

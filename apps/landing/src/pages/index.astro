@@ -1,0 +1,218 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="ArchLex – Semantic Cloud Architecture Diagrams">
+  <main>
+    <!-- Header -->
+    <header style="border-bottom: 1px solid var(--color-border);">
+      <nav class="container" style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; padding-bottom: 1rem;">
+        <div style="font-size: 1.5rem; font-weight: 700;">ArchLex</div>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+          <a href="/docs" style="font-size: 0.875rem; font-weight: 500; transition: color 0.2s;">Docs</a>
+          <a href="/playground" style="font-size: 0.875rem; font-weight: 500; transition: color 0.2s;">Playground</a>
+          <a href="https://github.com/your-org/archlex" style="font-size: 0.875rem; font-weight: 500; transition: color 0.2s;">GitHub</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="container" style="padding-top: 5rem; padding-bottom: 5rem;">
+      <div style="display: grid; gap: 3rem; align-items: center;">
+        <div>
+          <h1 style="font-size: 3.5rem; font-weight: 700; line-height: 1.1; margin-bottom: 1.5rem;">
+            Cloud architecture diagrams that understand cloud
+          </h1>
+          <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">
+            ArchLex validates your infrastructure as you write it. Multi-cloud, semantic, accessible. No drawing tools required.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+            <a href="/docs/getting-started" style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2rem; font-weight: 600; background: var(--color-primary); color: white; border-radius: 0.5rem; transition: background 0.2s;">
+              Get Started
+            </a>
+            <a href="/playground" style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2rem; font-weight: 600; background: var(--color-bg-secondary); border-radius: 0.5rem; transition: background 0.2s;">
+              Try Playground
+            </a>
+          </div>
+        </div>
+
+        <div style="background: #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);">
+          <div style="color: #9ca3af; font-size: 0.75rem; margin-bottom: 0.75rem; font-family: 'IBM Plex Mono', monospace;">diagram.archlex</div>
+          <pre style="font-size: 0.875rem; font-family: 'IBM Plex Mono', monospace; color: #f3f4f6; line-height: 1.5;"><code>{`@provider aws
+@layout LR
+
+vpc {
+  public: subnet {
+    alb
+  }
+  private: subnet {
+    ecs
+    rds
+  }
+}
+
+alb -> ecs -> rds`}</code></pre>
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #374151; font-size: 0.75rem; color: #6b7280; font-family: 'IBM Plex Mono', monospace;">
+            → Validates containment, relationships, and resources
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section style="background: var(--color-bg-secondary); padding: 5rem 0;">
+      <div class="container">
+        <h2 style="font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 4rem;">Built for infrastructure engineers</h2>
+
+        <div style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🧠</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Semantic validation</h3>
+            <p style="color: var(--color-text-secondary);">
+              Understands cloud resources, containment rules, and relationship compatibility. Catches mistakes before deployment.
+            </p>
+          </div>
+
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">☁️</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Multi-cloud</h3>
+            <p style="color: var(--color-text-secondary);">
+              AWS and GCP providers with fully qualified names. Mix clouds in one diagram.
+            </p>
+          </div>
+
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🔍</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Never punishing</h3>
+            <p style="color: var(--color-text-secondary);">
+              Invalid input produces diagnostics and a partial diagram. No blank canvas, no cryptic errors.
+            </p>
+          </div>
+
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🎯</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Deterministic</h3>
+            <p style="color: var(--color-text-secondary);">
+              Same input, same output. Stable IDs, ordering, and spans. Perfect for version control and CI/CD.
+            </p>
+          </div>
+
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">♿</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Accessible by default</h3>
+            <p style="color: var(--color-text-secondary);">
+              SVG output includes ARIA attributes, keyboard navigation, and focus states. No wrapper needed.
+            </p>
+          </div>
+
+          <div style="background: var(--color-bg); padding: 2rem; border-radius: 0.5rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.75rem;">Framework-neutral</h3>
+            <p style="color: var(--color-text-secondary);">
+              Works in React, Vue, Svelte, vanilla JS, or Node.js 22+. Embed anywhere.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="container" style="padding: 5rem 0;">
+      <h2 style="font-size: 2.5rem; font-weight: 700; text-align: center; margin-bottom: 3rem;">Install in 30 seconds</h2>
+
+      <div style="max-width: 48rem; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+        <div>
+          <div style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 0.5rem;">1. Install</div>
+          <pre style="background: #1a1a1a; color: #f3f4f6; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto;"><code style="font-family: 'IBM Plex Mono', monospace; font-size: 0.875rem;">npm install @archlex/core @archlex/aws @archlex/gcp</code></pre>
+        </div>
+
+        <div>
+          <div style="font-size: 0.875rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 0.5rem;">2. Use</div>
+          <pre style="background: #1a1a1a; color: #f3f4f6; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto;"><code style="font-family: 'IBM Plex Mono', monospace; font-size: 0.875rem;">{`import { createArchLex, awsProvider } from '@archlex/core';
+
+const archlex = createArchLex({
+  providers: [awsProvider()]
+});
+
+const result = await archlex.render(\`
+  @provider aws
+  vpc { subnet { ecs rds } }
+  ecs -> rds
+\`);
+
+document.getElementById('diagram').innerHTML = result.svg;`}</code></pre>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 3rem;">
+        <a href="/docs/getting-started" style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2rem; font-weight: 600; background: var(--color-primary); color: white; border-radius: 0.5rem;">
+          Read Full Documentation
+        </a>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="background: #2563eb; padding: 5rem 0;">
+      <div class="container" style="max-width: 56rem; text-align: center;">
+        <h2 style="font-size: 2.5rem; font-weight: 700; color: white; margin-bottom: 1.5rem;">
+          Ready to diagram your infrastructure?
+        </h2>
+        <p style="font-size: 1.25rem; color: #dbeafe; margin-bottom: 2rem;">
+          Start with the interactive playground or dive into the docs.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+          <a href="/playground" style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; background: #1e293b; color: white; border-radius: 0.5rem;">
+            Try Playground
+          </a>
+          <a href="/docs" style="display: inline-flex; align-items: center; justify-content: center; padding: 1rem 2rem; font-size: 1.125rem; font-weight: 600; color: white;">
+            View Docs →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--color-border); padding: 3rem 0;">
+      <div class="container">
+        <div style="display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div>
+            <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">ArchLex</div>
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary);">
+              Semantic cloud architecture diagrams for the modern web.
+            </p>
+          </div>
+
+          <div>
+            <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem;">Documentation</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+              <li><a href="/docs/getting-started" style="color: var(--color-text-secondary);">Getting Started</a></li>
+              <li><a href="/docs/specs/language" style="color: var(--color-text-secondary);">Language Spec</a></li>
+              <li><a href="/docs/specs/public-api" style="color: var(--color-text-secondary);">API Reference</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem;">Resources</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+              <li><a href="/playground" style="color: var(--color-text-secondary);">Playground</a></li>
+              <li><a href="/docs/errors" style="color: var(--color-text-secondary);">Error Reference</a></li>
+              <li><a href="/docs/architecture/contribution-guide" style="color: var(--color-text-secondary);">Contributing</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem;">Community</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+              <li><a href="https://github.com/your-org/archlex" style="color: var(--color-text-secondary);">GitHub</a></li>
+              <li><a href="https://github.com/your-org/archlex/issues" style="color: var(--color-text-secondary);">Issues</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--color-border); text-align: center; font-size: 0.875rem; color: var(--color-text-secondary);">
+          © {new Date().getFullYear()} ArchLex. Open source.
+        </div>
+      </div>
+    </footer>
+  </main>
+</BaseLayout>

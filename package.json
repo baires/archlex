@@ -4,6 +4,12 @@
   "type": "module",
   "scripts": {
     "build": "turbo build",
+    "build:playground": "turbo build --filter=@archlex/playground",
+    "build:landing": "turbo build --filter=@archlex/landing",
+    "build:docs": "turbo build --filter=@archlex/docs",
+    "dev:playground": "pnpm --filter @archlex/playground dev",
+    "dev:landing": "pnpm --filter @archlex/landing dev",
+    "dev:docs": "pnpm --filter @archlex/docs dev",
     "test": "vitest run && turbo test",
     "test:browser": "playwright test",
     "typecheck": "turbo typecheck",

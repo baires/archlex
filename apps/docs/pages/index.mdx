@@ -1,0 +1,52 @@
+# ArchLex Documentation
+
+**A semantic cloud architecture diagramming library for the browser and Node.js**
+
+ArchLex turns concise, provider-aware text into accessible SVG cloud architecture diagrams. It understands AWS and GCP resources, validates architectural relationships, and produces clean, deterministic output.
+
+## Key Features
+
+- **🧠 Semantic validation** - Understands cloud resources, containment rules, and relationship compatibility
+- **📝 Concise syntax** - Express architectures with shorthand like `rds-proxy > rds > ecs`
+- **☁️ Multi-cloud** - AWS and GCP providers with fully qualified resource names
+- **♿ Accessible by default** - SVG output includes ARIA attributes, keyboard navigation
+- **🎨 Themeable** - Built-in light and dark themes with official cloud provider icons
+- **🔍 Never punishing** - Invalid input produces diagnostics and a partial diagram
+- **🎯 Deterministic** - Same input always produces the same output
+- **⚡ Framework-neutral** - Works in React, Vue, Svelte, vanilla JS, or Node.js 22+
+
+## Quick Start
+
+```bash
+npm install @archlex/core @archlex/aws @archlex/gcp
+```
+
+```typescript
+import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider()]
+});
+
+const result = await archlex.render(`
+@provider aws
+@layout LR
+
+vpc {
+  public: subnet { alb }
+  private: subnet { ecs rds }
+}
+
+alb -> ecs -> rds
+`);
+
+document.getElementById('diagram').innerHTML = result.svg;
+```
+
+## Documentation Structure
+
+- **[Getting Started](/getting-started)** - Installation and basic usage
+- **[Specifications](/specs)** - Language syntax, API reference, provider semantics
+- **[Guides](/guides)** - Tutorials and how-to documentation
+- **[Architecture](/architecture)** - System design and contribution guide
+- **[Error Reference](/errors)** - Diagnostic codes and remediation

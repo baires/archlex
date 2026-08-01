@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd ../.. && pnpm install && turbo build --filter=@archlex/docs",
+  "outputDirectory": "out",
+  "framework": "nextjs",
+  "installCommand": "pnpm install"
+}
