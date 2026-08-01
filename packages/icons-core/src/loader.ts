@@ -38,6 +38,14 @@ export function createIconLoader(options: CreateIconLoaderOptions): IconLoader {
   const semaphore = new FifoSemaphore(concurrency);
   const memory = new Map<string, SanitizedIcon>();
   const inFlight = new Map<string, Promise<SanitizedIcon>>();
+  const inFlightStates = new Map<
+    string,
+    {
+      readonly controller: AbortController;
+      waiters: number;
+      settled: boolean;
+    }
+  >();
   const negativeCache = new Map<string, number>();
 
   return {
@@ -109,21 +117,78 @@ export function createIconLoader(options: CreateIconLoaderOptions): IconLoader {
     negativeCache.delete(id);
 
     const pending = inFlight.get(id);
-    if (pending) return waitForPromise(pending, signal);
+    const pendingState = inFlightStates.get(id);
+    if (pending && pendingState) {
+      return waitForSharedPromise(id, pending, pendingState, signal);
+    }
 
-    const created = fetchAndSanitize(request, signal);
+    const controller = new AbortController();
+    const state = { controller, waiters: 0, settled: false };
+    const created = fetchAndSanitize(request, controller.signal);
     inFlight.set(id, created);
-    const removeAbortedRequest = () => {
-      if (inFlight.get(id) === created) inFlight.delete(id);
-    };
-    signal?.addEventListener("abort", removeAbortedRequest, { once: true });
+    inFlightStates.set(id, state);
     void created
+      .then(
+        () => {
+          state.settled = true;
+        },
+        () => {
+          state.settled = true;
+        },
+      )
       .finally(() => {
-        signal?.removeEventListener("abort", removeAbortedRequest);
         if (inFlight.get(id) === created) inFlight.delete(id);
+        if (inFlightStates.get(id) === state) inFlightStates.delete(id);
       })
       .catch(() => undefined);
-    return waitForPromise(created, signal);
+    return waitForSharedPromise(id, created, state, signal);
+  }
+
+  function waitForSharedPromise(
+    id: string,
+    promise: Promise<SanitizedIcon>,
+    state: {
+      readonly controller: AbortController;
+      waiters: number;
+      settled: boolean;
+    },
+    signal?: AbortSignal,
+  ): Promise<SanitizedIcon> {
+    const abortIfUnobserved = () => {
+      if (state.waiters !== 0 || state.settled) return;
+      state.controller.abort();
+      if (inFlight.get(id) === promise) inFlight.delete(id);
+      if (inFlightStates.get(id) === state) inFlightStates.delete(id);
+    };
+    if (signal?.aborted) {
+      abortIfUnobserved();
+      return Promise.reject(abortError());
+    }
+    state.waiters += 1;
+
+    return new Promise((resolve, reject) => {
+      let finished = false;
+      const finish = (): boolean => {
+        if (finished) return false;
+        finished = true;
+        signal?.removeEventListener("abort", handleAbort);
+        state.waiters -= 1;
+        abortIfUnobserved();
+        return true;
+      };
+      const handleAbort = () => {
+        if (finish()) reject(abortError());
+      };
+      signal?.addEventListener("abort", handleAbort, { once: true });
+      promise.then(
+        (icon) => {
+          if (finish()) resolve(icon);
+        },
+        (error: unknown) => {
+          if (finish()) reject(error);
+        },
+      );
+    });
   }
 
   async function fetchAndSanitize(
@@ -258,21 +323,6 @@ function toDiagnostic(request: IconRequest, error: unknown): IconDiagnostic {
     code: error instanceof CdnProviderError ? error.code : "ICON_FETCH_FAILED",
     message: errorMessage(error),
   };
-}
-
-function waitForPromise<T>(
-  promise: Promise<T>,
-  signal?: AbortSignal,
-): Promise<T> {
-  if (!signal) return promise;
-  if (signal.aborted) return Promise.reject(abortError());
-  return new Promise<T>((resolve, reject) => {
-    const handleAbort = () => reject(abortError());
-    signal.addEventListener("abort", handleAbort, { once: true });
-    promise.then(resolve, reject).finally(() => {
-      signal.removeEventListener("abort", handleAbort);
-    });
-  });
 }
 
 function isAbortError(error: unknown): boolean {

@@ -209,6 +209,50 @@ describe("createIconLoader", () => {
     expect(fetchFn).toHaveBeenCalledTimes(2);
   });
 
+  it("keeps a shared fetch alive when only its creator is canceled", async () => {
+    const response = deferred<Response>();
+    const fetchFn: FetchIcon = vi.fn(
+      (_input, init) =>
+        new Promise<Response>((resolve, reject) => {
+          response.promise.then(resolve, reject);
+          init?.signal?.addEventListener(
+            "abort",
+            () => reject(new DOMException("Aborted", "AbortError")),
+            { once: true },
+          );
+        }),
+    );
+    const loader = createIconLoader({ providers: [provider()], fetchFn });
+    const creatorController = new AbortController();
+    const creator = loader.loadIcons([{ provider: "aws", key: "lambda" }], {
+      signal: creatorController.signal,
+    });
+    const joined = loader.loadIcons([{ provider: "aws", key: "lambda" }]);
+    await vi.waitFor(() => expect(fetchFn).toHaveBeenCalledTimes(1));
+
+    creatorController.abort();
+    response.resolve(new Response(SAFE_SVG));
+
+    await expect(creator).rejects.toMatchObject({ name: "AbortError" });
+    await expect(joined).resolves.toMatchObject({ diagnostics: [] });
+    expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not start a shared fetch when its only waiter cancels first", async () => {
+    const fetchFn: FetchIcon = vi.fn(async () => new Response(SAFE_SVG));
+    const loader = createIconLoader({ providers: [provider()], fetchFn });
+    const controller = new AbortController();
+
+    const load = loader.loadIcons([{ provider: "aws", key: "lambda" }], {
+      signal: controller.signal,
+    });
+    controller.abort();
+
+    await expect(load).rejects.toMatchObject({ name: "AbortError" });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
   it("prefers a fresh cache record and never fetches it", async () => {
     const cached: SanitizedIcon = {
       provider: "aws",

@@ -83,6 +83,17 @@ describe("createCdnProvider", () => {
     ).toThrow("integrity");
   });
 
+  it.each([
+    ["backslashes", ".svg\\..\\..\\latest"],
+    ["parent traversal", ".svg.."],
+    ["query characters", ".svg?raw"],
+    ["fragment characters", ".svg#raw"],
+  ])("rejects file extensions containing %s", (_description, fileExtension) => {
+    expect(() =>
+      createCdnProvider({ ...definition, fileExtension }, fetchFn),
+    ).toThrow("fileExtension");
+  });
+
   it("tries mapped, PascalCase, camelCase, and lowercase candidates in order without duplicates", async () => {
     const requestedUrls: string[] = [];
     const provider = createCdnProvider(definition, async (input) => {
@@ -167,4 +178,26 @@ describe("createCdnProvider", () => {
     ]);
     await expect(outcome).rejects.toMatchObject({ code: "ICON_FETCH_FAILED" });
   });
+
+  it.each([
+    "https://evil.test/v1/lambda.svg",
+    "https://icons.test/latest/lambda.svg",
+  ])(
+    "rejects a redirected response outside provider policy: %s",
+    async (url) => {
+      const redirectModes: Array<RequestRedirect | undefined> = [];
+      const provider = createCdnProvider(definition, async (_input, init) => {
+        redirectModes.push(init?.redirect);
+        const response = new Response("untrusted redirect body");
+        Object.defineProperty(response, "url", { value: url });
+        return response;
+      });
+
+      await expect(provider.fetchIcon("lambda")).rejects.toMatchObject({
+        code: "ICON_FETCH_FAILED",
+      });
+      expect(redirectModes).not.toHaveLength(0);
+      expect(redirectModes.every((mode) => mode === "error")).toBe(true);
+    },
+  );
 });

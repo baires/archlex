@@ -8,6 +8,7 @@ import type {
 
 const MOVING_RELEASES = new Set(["latest", "next", "main", "master"]);
 const SHA_256_HEX = /^[a-f0-9]{64}$/i;
+const FILE_EXTENSION = /^\.[A-Za-z0-9]+$/;
 
 export class CdnProviderError extends Error {
   readonly code: IconDiagnostic["code"];
@@ -23,7 +24,7 @@ export function createCdnProvider(
   definition: CdnProviderDefinition,
   fetchFn: FetchIcon,
 ): CdnProvider {
-  const { baseUrl, requiresIntegrity } = validateDefinition(definition);
+  const { baseDirectory, requiresIntegrity } = validateDefinition(definition);
 
   return {
     definition,
@@ -33,8 +34,9 @@ export function createCdnProvider(
       for (const candidate of candidateNames(definition, key)) {
         const url = new URL(
           `${encodeURIComponent(candidate)}${definition.fileExtension}`,
-          `${baseUrl.href.replace(/\/$/, "")}/`,
+          baseDirectory,
         );
+        assertProviderUrl(url, definition, baseDirectory, "candidate");
 
         try {
           const { response, bytes } = await fetchResponse(
@@ -44,6 +46,8 @@ export function createCdnProvider(
             definition.maxResponseBytes,
             definition.provider,
             key,
+            definition,
+            baseDirectory,
             options.signal,
           );
           if (!response.ok) {
@@ -113,7 +117,7 @@ export function candidateNames(
 }
 
 function validateDefinition(definition: CdnProviderDefinition): {
-  baseUrl: URL;
+  baseDirectory: URL;
   requiresIntegrity: boolean;
 } {
   let url: URL;
@@ -179,13 +183,16 @@ function validateDefinition(definition: CdnProviderDefinition): {
   ) {
     throw new Error("CDN provider maxResponseBytes must be a positive integer");
   }
-  if (
-    !definition.fileExtension.startsWith(".") ||
-    definition.fileExtension.includes("/")
-  ) {
-    throw new Error("CDN provider fileExtension must be a file extension");
+  if (!FILE_EXTENSION.test(definition.fileExtension)) {
+    throw new Error(
+      "CDN provider fileExtension must match a simple filename extension",
+    );
   }
-  return { baseUrl: url, requiresIntegrity: !hasVersionedUrl };
+  const baseDirectory = new URL(
+    `${url.pathname.replace(/\/$/, "")}/`,
+    url.origin,
+  );
+  return { baseDirectory, requiresIntegrity: !hasVersionedUrl };
 }
 
 async function fetchResponse(
@@ -195,6 +202,8 @@ async function fetchResponse(
   maximumBytes: number,
   provider: string,
   key: string,
+  definition: CdnProviderDefinition,
+  baseDirectory: URL,
   callerSignal?: AbortSignal,
 ): Promise<{ response: Response; bytes?: Uint8Array }> {
   if (callerSignal?.aborted) throw abortError();
@@ -209,7 +218,11 @@ async function fetchResponse(
   }, timeoutMs);
 
   try {
-    const response = await fetchFn(url, { signal: controller.signal });
+    const response = await fetchFn(url, {
+      signal: controller.signal,
+      redirect: "error",
+    });
+    assertResponseUrl(response, url, definition, baseDirectory);
     const bytes = response.ok
       ? await readResponseBytes(response, maximumBytes, provider, key)
       : undefined;
@@ -226,6 +239,61 @@ async function fetchResponse(
   } finally {
     clearTimeout(timeout);
     callerSignal?.removeEventListener("abort", handleCallerAbort);
+  }
+}
+
+function assertResponseUrl(
+  response: Response,
+  requestedUrl: URL,
+  definition: CdnProviderDefinition,
+  baseDirectory: URL,
+): void {
+  if (response.redirected) {
+    throw new CdnProviderError(
+      "ICON_FETCH_FAILED",
+      `Redirected responses are not allowed for ${definition.provider}`,
+    );
+  }
+  if (!response.url) return;
+
+  let responseUrl: URL;
+  try {
+    responseUrl = new URL(response.url);
+  } catch {
+    throw new CdnProviderError(
+      "ICON_FETCH_FAILED",
+      `Invalid response URL for ${definition.provider}`,
+    );
+  }
+  assertProviderUrl(responseUrl, definition, baseDirectory, "response");
+  if (responseUrl.href !== requestedUrl.href) {
+    throw new CdnProviderError(
+      "ICON_FETCH_FAILED",
+      `Unexpected response URL for ${definition.provider}`,
+    );
+  }
+}
+
+function assertProviderUrl(
+  url: URL,
+  definition: CdnProviderDefinition,
+  baseDirectory: URL,
+  kind: "candidate" | "response",
+): void {
+  const allowedHosts = definition.allowedHosts.map((host) =>
+    host.toLowerCase(),
+  );
+  const pathIsWithinBase = url.pathname.startsWith(baseDirectory.pathname);
+  if (
+    url.protocol !== "https:" ||
+    !allowedHosts.includes(url.hostname.toLowerCase()) ||
+    url.origin !== baseDirectory.origin ||
+    !pathIsWithinBase
+  ) {
+    throw new CdnProviderError(
+      "ICON_FETCH_FAILED",
+      `CDN ${kind} URL violates provider policy for ${definition.provider}`,
+    );
   }
 }
 
