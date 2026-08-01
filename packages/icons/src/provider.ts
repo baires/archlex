@@ -1,9 +1,11 @@
 import type { CdnProviderConfig } from "./types.js";
 
+/** @deprecated Use `FetchIcon` with an explicit core provider definition. */
 export interface CdnProviderOptions {
   fetchFn?: typeof fetch;
 }
 
+/** @deprecated Use `createCdnProvider` from `@archlex/icons-core`. */
 export class BaseCdnProvider {
   private readonly config: CdnProviderConfig;
   private readonly mappings: Record<string, string>;

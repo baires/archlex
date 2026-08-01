@@ -47,6 +47,9 @@ describe("Dynamic CDN Icon Loading E2E & Security", () => {
     expect(icon).toBeDefined();
     expect(icon?.svgFragment).toContain('fill="#FF9900"');
     expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://example.com/icons/app-runner.svg",
+    );
 
     // Second call should be served from cache without calling fetch
     const cachedIcon = await IconLoader.get("aws", "apprunner");

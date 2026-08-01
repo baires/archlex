@@ -21,12 +21,17 @@ export function legacyCdnIconsDisabled(): boolean {
   return process.env.ARCHLEX_DISABLE_CDN_ICONS === "true";
 }
 
+/** @internal Used only by the deprecated `@archlex/icons` Node facade. */
+export function legacyIconDebugEnabled(): boolean {
+  return process.env.ARCHLEX_DEBUG === "icons";
+}
+
 export function createNodeIconLoader(
   options: CreateNodeIconLoaderOptions,
 ): IconLoader {
   const suppliedFetch = options.fetchFn ?? globalThis.fetch.bind(globalThis);
   const cdnDisabled = legacyCdnIconsDisabled();
-  const debug = process.env.ARCHLEX_DEBUG === "icons";
+  const debug = legacyIconDebugEnabled();
   const fetchFn: FetchIcon = cdnDisabled
     ? async (input) => {
         if (debug) console.debug(`[IconLoader] CDN disabled: ${String(input)}`);

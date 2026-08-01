@@ -1,11 +1,13 @@
 import {
+  CacheManager,
   type CdnAttribution,
-  type CdnProviderDefinition,
-  type FetchIcon,
   type SanitizedIcon,
-  createNodeIconLoader,
   legacyCdnIconsDisabled,
+  legacyIconDebugEnabled,
+  sanitizeSvg as sanitizeSvgAsynchronously,
 } from "@archlex/icons-node";
+import { GENERIC_CLOUD_ICON_SVG } from "./fallback.js";
+import { BaseCdnProvider, type CdnProviderOptions } from "./provider.js";
 import { sanitizeSvg as sanitizeSvgSynchronously } from "./sanitizer.js";
 
 /** @deprecated Use `CdnProviderDefinition` from `@archlex/icons-core`. */
@@ -17,25 +19,9 @@ export interface CdnProviderConfig {
   readonly attribution: CdnAttribution;
 }
 
-interface LegacyFetchResponse {
-  readonly ok: boolean;
-  readonly status: number;
-  text(): Promise<string>;
-}
-
-type LegacyFetch = (
-  input: RequestInfo | URL,
-  init?: RequestInit,
-) => Promise<Response | LegacyFetchResponse>;
-
-interface LegacyProviderOptions {
-  readonly fetchFn?: LegacyFetch;
-}
-
 interface RegisteredProvider {
   readonly config: CdnProviderConfig;
-  readonly mappings: Readonly<Record<string, string>>;
-  readonly fetchFn?: LegacyFetch;
+  readonly provider: BaseCdnProvider;
   readonly iconsUsed: Set<string>;
 }
 
@@ -80,18 +66,19 @@ export interface ProviderAttributionReport {
 
 class LegacyIconLoader {
   private readonly providers = new Map<string, RegisteredProvider>();
+  private cache = new CacheManager();
   private stats = emptyStats();
+  private debug = legacyIconDebugEnabled();
 
   registerProvider(
     providerName: string,
     config: CdnProviderConfig,
     mappings: Record<string, string>,
-    options: LegacyProviderOptions = {},
+    options: CdnProviderOptions = {},
   ): void {
     this.providers.set(providerName, {
       config,
-      mappings,
-      fetchFn: options.fetchFn,
+      provider: new BaseCdnProvider(config, mappings, options),
       iconsUsed: new Set(),
     });
     this.stats.byProvider[providerName] ??= emptyProviderStats();
@@ -105,7 +92,14 @@ class LegacyIconLoader {
     this.stats.byProvider[providerName] ??= emptyProviderStats();
     const providerStats = this.stats.byProvider[providerName];
     providerStats.requests += 1;
-    if (legacyCdnIconsDisabled()) return undefined;
+    if (legacyCdnIconsDisabled()) {
+      if (this.debug) {
+        console.log(
+          `[IconLoader] CDN disabled, skipping ${providerName}/${iconKey}`,
+        );
+      }
+      return undefined;
+    }
 
     const registered = this.providers.get(providerName);
     if (!registered) {
@@ -114,31 +108,48 @@ class LegacyIconLoader {
       return this.loadFallback(providerName, iconKey);
     }
 
-    let fetchCount = 0;
-    const fetchFn = adaptLegacyFetch(
-      registered.fetchFn ?? globalThis.fetch.bind(globalThis),
-      () => {
-        fetchCount += 1;
-        providerStats.cdnFetches += 1;
-        this.stats.cdnFetches += 1;
-      },
-    );
-    const loader = createNodeIconLoader({
-      providers: [toProviderDefinition(providerName, registered)],
-      fetchFn,
-    });
-    const result = await loader.loadIcons([
-      { provider: providerName, key: iconKey },
-    ]);
-    const icon = result.icons.get(`${providerName}:${iconKey}`);
-    if (result.diagnostics.length > 0) {
+    const request = { provider: providerName, key: iconKey };
+    const cached = await this.cache.get(request);
+    if (cached) {
+      this.stats.cacheHits += 1;
+      registered.iconsUsed.add(iconKey);
+      return cached;
+    }
+
+    try {
+      const fetched = await registered.provider.fetchIcon(iconKey);
+      if (!fetched) {
+        providerStats.failures += 1;
+        this.stats.failures += 1;
+        return this.loadFallback(providerName, iconKey);
+      }
+
+      providerStats.cdnFetches += 1;
+      this.stats.cdnFetches += 1;
+      const icon = await sanitizeSvgAsynchronously(
+        providerName,
+        iconKey,
+        fetched.rawSvg,
+      );
+      await this.cache.set(request, icon, fetched.urlUsed);
+      registered.iconsUsed.add(iconKey);
+      return icon;
+    } catch (error) {
       providerStats.failures += 1;
       this.stats.failures += 1;
-    } else {
-      if (fetchCount === 0) this.stats.cacheHits += 1;
-      registered.iconsUsed.add(iconKey);
+      if (this.debug) {
+        console.error(
+          `[IconLoader] Error fetching ${providerName}/${iconKey}:`,
+          error,
+        );
+      }
+      const expired = await this.cache.get(request, { allowExpired: true });
+      if (expired) {
+        registered.iconsUsed.add(iconKey);
+        return expired;
+      }
+      return this.loadFallback(providerName, iconKey);
     }
-    return icon;
   }
 
   getStats(): IconStats {
@@ -156,16 +167,16 @@ class LegacyIconLoader {
 
   reset(): void {
     this.providers.clear();
+    this.cache = new CacheManager();
     this.stats = emptyStats();
+    this.debug = legacyIconDebugEnabled();
   }
 
   private async loadFallback(
     provider: string,
     key: string,
   ): Promise<SanitizedIcon> {
-    const loader = createNodeIconLoader({ providers: [] });
-    const result = await loader.loadIcons([{ provider, key }]);
-    return result.icons.get(`${provider}:${key}`) as SanitizedIcon;
+    return sanitizeSvgAsynchronously(provider, key, GENERIC_CLOUD_ICON_SVG);
   }
 }
 
@@ -185,55 +196,6 @@ export function sanitizeSvg(
   rawSvg: string,
 ): SanitizedIcon {
   return sanitizeSvgSynchronously(provider, key, rawSvg);
-}
-
-function adaptLegacyFetch(
-  legacyFetch: LegacyFetch,
-  recordSuccessfulFetch: () => void,
-): FetchIcon {
-  return async (input, init) => {
-    const response = await legacyFetch(input, init);
-    if (response.ok) recordSuccessfulFetch();
-    if (response instanceof Response) return response;
-
-    const body = response.ok ? await response.text() : null;
-    return new Response(body, {
-      status: response.status ?? (response.ok ? 200 : 500),
-    });
-  };
-}
-
-function toProviderDefinition(
-  provider: string,
-  registered: RegisteredProvider,
-): CdnProviderDefinition {
-  const releaseId = "archlex-legacy-v1";
-  const baseUrl = new URL(registered.config.baseUrl);
-  const segments = decodeURIComponent(baseUrl.pathname)
-    .split("/")
-    .filter(Boolean)
-    .map((segment) =>
-      segment.replace(/@(latest|next|main|master)$/i, `@${releaseId}`),
-    )
-    .map((segment) =>
-      /^(latest|next|main|master)$/i.test(segment) ? releaseId : segment,
-    );
-  if (!segments.some((segment) => segment.endsWith(releaseId))) {
-    segments.push(releaseId);
-  }
-  baseUrl.pathname = `/${segments.join("/")}`;
-
-  return {
-    provider,
-    baseUrl: baseUrl.href,
-    allowedHosts: [baseUrl.hostname],
-    releaseId,
-    fileExtension: registered.config.fileExtension,
-    mappings: registered.mappings,
-    attribution: registered.config.attribution,
-    timeoutMs: 10_000,
-    maxResponseBytes: 1_000_000,
-  };
 }
 
 function emptyStats(): MutableIconStats {

@@ -14,6 +14,12 @@ import type {
   IconRequest,
   SanitizedIcon,
 } from "@archlex/icons-core";
+import { sanitizeSvg } from "@archlex/icons-core";
+
+const DEFAULT_TTL_DAYS = 7;
+const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1_000;
+const MAX_DATE_TIMESTAMP = 8_640_000_000_000_000;
+const SHA_256_HEX = /^[a-f0-9]{64}$/;
 
 export interface CacheManagerConfig {
   readonly cacheDir?: string;
@@ -24,7 +30,7 @@ interface CacheReadOptions {
   readonly allowExpired?: boolean;
 }
 
-interface IconCacheEntry extends SanitizedIcon {
+export interface IconCacheEntry extends SanitizedIcon {
   readonly cachedAt: string;
   readonly expiresAt: string;
   readonly cdnSource: string;
@@ -39,11 +45,11 @@ export class CacheManager implements IconCache {
       config.cacheDir ??
       process.env.ARCHLEX_ICON_CACHE_DIR ??
       join(homedir(), ".cache", "archlex", "icons");
-    const environmentTtl = process.env.ARCHLEX_ICON_CACHE_TTL
-      ? Number.parseInt(process.env.ARCHLEX_ICON_CACHE_TTL, 10)
-      : undefined;
-    const ttlDays = config.ttlDays ?? environmentTtl ?? 7;
-    this.ttlMs = ttlDays * 24 * 60 * 60 * 1_000;
+    const ttlDays = resolveTtlDays(
+      config.ttlDays,
+      process.env.ARCHLEX_ICON_CACHE_TTL,
+    );
+    this.ttlMs = ttlDays * MILLISECONDS_PER_DAY;
   }
 
   async get(
@@ -76,23 +82,28 @@ export class CacheManager implements IconCache {
         `^${escapeRegExp(request.key)}-[a-f0-9]{64}\\.json$`,
         "i",
       );
+      const fresh: ValidatedCacheEntry[] = [];
+      const expired: ValidatedCacheEntry[] = [];
+      const now = Date.now();
       for (const file of files) {
         if (!cacheFilePattern.test(file)) continue;
-        const entry: IconCacheEntry = JSON.parse(
-          await readFile(join(providerDirectory, file), "utf8"),
+        const entry = await readValidatedEntry(
+          join(providerDirectory, file),
+          file,
+          request,
         );
-        if (entry.provider !== request.provider || entry.key !== request.key) {
-          continue;
-        }
-        if (
-          Date.now() > new Date(entry.expiresAt).getTime() &&
-          !options.allowExpired
-        ) {
-          return undefined;
-        }
-        return toSanitizedIcon(entry);
+        if (!entry) continue;
+        (now > entry.expiresAtMs ? expired : fresh).push(entry);
       }
-      return undefined;
+      const byNewestCacheTime = (
+        left: ValidatedCacheEntry,
+        right: ValidatedCacheEntry,
+      ) => right.cachedAtMs - left.cachedAtMs;
+      fresh.sort(byNewestCacheTime);
+      expired.sort(byNewestCacheTime);
+      return (
+        fresh[0]?.icon ?? (options.allowExpired ? expired[0]?.icon : undefined)
+      );
     } catch {
       return undefined;
     }
@@ -144,8 +155,12 @@ export class CacheManager implements IconCache {
       `.${fileName}.${Date.now()}-${Math.random().toString(36).slice(2)}.tmp`,
     );
 
-    await writeFile(temporaryPath, JSON.stringify(entry, null, 2), "utf8");
-    await rename(temporaryPath, filePath);
+    try {
+      await writeFile(temporaryPath, JSON.stringify(entry, null, 2), "utf8");
+      await rename(temporaryPath, filePath);
+    } finally {
+      await rm(temporaryPath, { force: true }).catch(() => undefined);
+    }
   }
 
   async purgeExpired(): Promise<number> {
@@ -187,6 +202,112 @@ function toSanitizedIcon(entry: IconCacheEntry): SanitizedIcon {
     viewBox: entry.viewBox,
     svgFragment: entry.svgFragment,
   };
+}
+
+interface ValidatedCacheEntry {
+  readonly icon: SanitizedIcon;
+  readonly cachedAtMs: number;
+  readonly expiresAtMs: number;
+}
+
+async function readValidatedEntry(
+  filePath: string,
+  fileName: string,
+  request: IconRequest,
+): Promise<ValidatedCacheEntry | undefined> {
+  try {
+    const parsed: unknown = JSON.parse(await readFile(filePath, "utf8"));
+    if (!isCacheEntry(parsed)) return undefined;
+    const entry = parsed;
+    const filenameChecksum = fileName.slice(
+      `${request.key}-`.length,
+      -".json".length,
+    );
+    if (
+      entry.provider !== request.provider ||
+      entry.key !== request.key ||
+      filenameChecksum !== entry.checksum
+    ) {
+      return undefined;
+    }
+
+    const cachedAtMs = parseIsoTimestamp(entry.cachedAt);
+    const expiresAtMs = parseIsoTimestamp(entry.expiresAt);
+    if (
+      cachedAtMs === undefined ||
+      expiresAtMs === undefined ||
+      expiresAtMs < cachedAtMs
+    ) {
+      return undefined;
+    }
+
+    const sanitized = await sanitizeSvg(
+      entry.provider,
+      entry.key,
+      entry.svgFragment,
+    );
+    if (
+      sanitized.checksum !== entry.checksum ||
+      sanitized.viewBox !== entry.viewBox ||
+      sanitized.svgFragment !== entry.svgFragment
+    ) {
+      return undefined;
+    }
+    return { icon: toSanitizedIcon(entry), cachedAtMs, expiresAtMs };
+  } catch {
+    return undefined;
+  }
+}
+
+function isCacheEntry(value: unknown): value is IconCacheEntry {
+  if (!value || typeof value !== "object") return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.key === "string" &&
+    entry.key.length > 0 &&
+    typeof entry.provider === "string" &&
+    entry.provider.length > 0 &&
+    typeof entry.checksum === "string" &&
+    SHA_256_HEX.test(entry.checksum) &&
+    typeof entry.viewBox === "string" &&
+    entry.viewBox.length > 0 &&
+    typeof entry.svgFragment === "string" &&
+    entry.svgFragment.length > 0 &&
+    typeof entry.cachedAt === "string" &&
+    typeof entry.expiresAt === "string" &&
+    typeof entry.cdnSource === "string"
+  );
+}
+
+function parseIsoTimestamp(value: string): number | undefined {
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) return undefined;
+  return new Date(timestamp).toISOString() === value ? timestamp : undefined;
+}
+
+function resolveTtlDays(
+  configuredTtl: number | undefined,
+  environmentTtl: string | undefined,
+): number {
+  if (configuredTtl !== undefined) {
+    return isValidTtl(configuredTtl) ? configuredTtl : DEFAULT_TTL_DAYS;
+  }
+  if (environmentTtl !== undefined) {
+    if (environmentTtl.trim().length === 0) return DEFAULT_TTL_DAYS;
+    const parsed = Number(environmentTtl);
+    return isValidTtl(parsed) ? parsed : DEFAULT_TTL_DAYS;
+  }
+  return DEFAULT_TTL_DAYS;
+}
+
+function isValidTtl(value: number): boolean {
+  const ttlMs = value * MILLISECONDS_PER_DAY;
+  return (
+    Number.isFinite(value) &&
+    value >= 0 &&
+    Number.isFinite(ttlMs) &&
+    ttlMs <= MAX_DATE_TIMESTAMP - Date.now()
+  );
 }
 
 function escapeRegExp(value: string): string {
