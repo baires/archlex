@@ -9,7 +9,7 @@ export default defineConfig({
       fileName: "index",
     },
     rollupOptions: {
-      external: ["@archlex/model"],
+      external: ["@archlex/model", "@archlex/icons"],
     },
   },
 });

@@ -1,3 +1,4 @@
+import { IconLoader } from "@archlex/icons";
 import type {
   CloudGraph,
   CloudProvider,
@@ -7,13 +8,16 @@ import type {
 } from "@archlex/model";
 import { resolveAwsService } from "./catalog/index.js";
 import { AWS_SANITIZED_ICONS } from "./icons/manifest.js";
+import "./icons/cdn.js";
 import { evaluateAwsRules } from "./rules/index.js";
 
 export * from "./builder.js";
 export * from "./catalog/index.js";
 export * from "./icons/manifest.js";
+export * from "./icons/cdn.js";
 export * from "./registry.js";
 export * from "./rules/index.js";
+export { IconLoader } from "@archlex/icons";
 
 export function awsProvider(): CloudProvider {
   return {
@@ -28,6 +32,9 @@ export function awsProvider(): CloudProvider {
       if (!def) return undefined;
       const iconKey = `aws.${def.id}`;
       const iconObj = AWS_SANITIZED_ICONS[`aws-${def.id}`];
+
+      // Return bundled icon if available
+      // For non-bundled icons, callers can use IconLoader.get("aws", def.id) directly
       return {
         id: def.id,
         displayName: def.displayName,
