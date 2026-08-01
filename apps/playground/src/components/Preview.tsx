@@ -29,6 +29,7 @@ export function Preview({
 }: PreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const fullscreenExitRef = useRef<HTMLButtonElement>(null);
   const mountedSvgRef = useRef<SVGSVGElement | null>(null);
   const dragRef = useRef<{
     pointerId: number;
@@ -41,6 +42,14 @@ export function Preview({
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const frameId = window.requestAnimationFrame(() => {
+      fullscreenExitRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(frameId);
+  }, [isFullscreen]);
 
   const hasNodes =
     Boolean(svg) &&
@@ -246,6 +255,7 @@ export function Preview({
             <Icon name="fit" />
           </button>
           <button
+            ref={fullscreenExitRef}
             type="button"
             onClick={onExitFullscreen}
             aria-label="Exit fullscreen preview"

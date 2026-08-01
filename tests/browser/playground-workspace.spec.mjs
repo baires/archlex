@@ -178,16 +178,22 @@ test("fullscreen preview preserves workspace and canvas state", async ({
   await page.getByRole("button", { name: "Actual size" }).click();
   await page.getByRole("button", { name: "Zoom in" }).click();
 
-  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  const enterFullscreen = page.getByRole("button", {
+    name: "Enter fullscreen preview",
+  });
+  await enterFullscreen.click();
   await expect(page.getByTestId("workspace")).toHaveClass(/is-fullscreen/);
-  await expect(
-    page.getByRole("button", { name: "Exit fullscreen preview" }),
-  ).toBeVisible();
+  const exitFullscreen = page.getByRole("button", {
+    name: "Exit fullscreen preview",
+  });
+  await expect(exitFullscreen).toBeVisible();
+  await expect(exitFullscreen).toBeFocused();
   await expect(page.getByRole("banner")).toBeHidden();
   await expect(page.getByLabel("Zoom level")).toHaveText("110%");
 
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("workspace")).not.toHaveClass(/is-fullscreen/);
+  await expect(enterFullscreen).toBeFocused();
   await expect(separator).toHaveAttribute("aria-valuenow", "42");
   await expect(page.getByLabel("Zoom level")).toHaveText("110%");
 });
@@ -200,14 +206,107 @@ test("falls back to in-app fullscreen when the browser request rejects", async (
       Promise.reject(new Error("denied"));
   });
   await page.goto("/");
-  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  const enterFullscreen = page.getByRole("button", {
+    name: "Enter fullscreen preview",
+  });
+  await enterFullscreen.click();
+  await expect(page.getByTestId("workspace")).toHaveAttribute(
+    "data-fullscreen-mode",
+    "in-app",
+  );
+  const exitFullscreen = page.getByRole("button", {
+    name: "Exit fullscreen preview",
+  });
+  await expect(exitFullscreen).toBeFocused();
+  await exitFullscreen.click();
+  await expect(page.getByTestId("workspace")).toHaveAttribute(
+    "data-fullscreen-mode",
+    "off",
+  );
+  await expect(enterFullscreen).toBeFocused();
+});
+
+test("falls back when the fullscreen API is unavailable", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Element.prototype, "requestFullscreen", {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  await page.goto("/");
+  const enterFullscreen = page.getByRole("button", {
+    name: "Enter fullscreen preview",
+  });
+  await enterFullscreen.click();
   await expect(page.getByTestId("workspace")).toHaveAttribute(
     "data-fullscreen-mode",
     "in-app",
   );
   await expect(
     page.getByRole("button", { name: "Exit fullscreen preview" }),
-  ).toBeVisible();
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(enterFullscreen).toBeFocused();
+});
+
+test("explicit native fullscreen exit restores trigger focus", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const enterFullscreen = page.getByRole("button", {
+    name: "Enter fullscreen preview",
+  });
+  await enterFullscreen.click();
+  await expect(page.getByTestId("workspace")).toHaveAttribute(
+    "data-fullscreen-mode",
+    "native",
+  );
+  await page.getByRole("button", { name: "Exit fullscreen preview" }).click();
+  await expect(page.getByTestId("workspace")).toHaveAttribute(
+    "data-fullscreen-mode",
+    "off",
+  );
+  await expect(enterFullscreen).toBeFocused();
+});
+
+test("fullscreen restores drawer, selection, and pan state", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("textbox").fill(WARNING_SOURCE);
+  await expect(page.locator("svg[data-cloudmer-version]")).toBeVisible();
+  await page.getByRole("button", { name: /1 warning/ }).click();
+
+  const drawer = page.getByRole("dialog", { name: "Diagnostics" });
+  await expect(drawer).toBeVisible();
+  const diagnosticRow = drawer.getByRole("option").first();
+  await diagnosticRow.focus();
+  await page.keyboard.press("Space");
+  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Actual size" }).click();
+  const viewport = page.locator(".preview-viewport");
+  const stage = page.locator(".preview-stage");
+  const viewportBox = await viewport.boundingBox();
+  if (!viewportBox) throw new Error("preview viewport is not visible");
+  await page.mouse.move(viewportBox.x + 80, viewportBox.y + 80);
+  await page.mouse.down();
+  await page.mouse.move(viewportBox.x + 130, viewportBox.y + 110);
+  await page.mouse.up();
+  await expect(stage).toHaveAttribute("data-pan-x", "50");
+  await expect(stage).toHaveAttribute("data-pan-y", "30");
+
+  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  await expect(drawer).toBeHidden();
+  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(stage).toHaveAttribute("data-pan-x", "50");
+  await expect(stage).toHaveAttribute("data-pan-y", "30");
+
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeVisible();
+  await expect(page.locator("svg [data-cloudmer-id].selected")).toHaveCount(1);
+  await expect(stage).toHaveAttribute("data-pan-x", "50");
+  await expect(stage).toHaveAttribute("data-pan-y", "30");
 });
 
 test("keeps warnings quiet and opens diagnostics for errors", async ({
