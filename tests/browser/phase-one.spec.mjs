@@ -1,4 +1,12 @@
 import { expect, test } from "@playwright/test";
+import {
+  installIconFixtureRoutes,
+  replaceEditorSource,
+} from "./visual-platform.mjs";
+
+test.beforeEach(async ({ page }) => {
+  await installIconFixtureRoutes(page);
+});
 
 const CHAIN_SOURCE = `direction LR
 provider aws
@@ -129,7 +137,11 @@ for (const theme of ["dark", "light"]) {
     await expect(
       page.getByRole("heading", { name: "ArchLex", exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("textbox")).toHaveValue(CHAIN_SOURCE);
+    await expect(page.getByRole("textbox")).toBeVisible();
+    const sourceLines = await page
+      .locator(".monaco-editor .view-line")
+      .allTextContents();
+    expect(sourceLines.join("\n").replaceAll("\u00a0", " ")).toBe(CHAIN_SOURCE);
 
     await setTheme(page, theme);
 
@@ -206,7 +218,7 @@ for (const theme of ["dark", "light"]) {
     page,
   }) => {
     await page.goto("/");
-    await page.getByRole("textbox").fill(NESTED_SOURCE);
+    await replaceEditorSource(page, NESTED_SOURCE);
     await setTheme(page, theme);
 
     const svg = page.locator("svg[data-archlex-version]");

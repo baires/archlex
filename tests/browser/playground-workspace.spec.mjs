@@ -1,5 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
+import {
+  installIconFixtureRoutes,
+  replaceEditorSource,
+} from "./visual-platform.mjs";
+
+test.beforeEach(async ({ page }) => {
+  await installIconFixtureRoutes(page);
+});
 
 const WARNING_SOURCE = `provider aws
 subnet orphan {
@@ -31,7 +39,7 @@ test("uses the operations-console visual foundation", async ({ page }) => {
   const body = page.locator("body");
   await expect(body).toHaveCSS("font-family", /IBM Plex Sans/);
   const styles = await page
-    .locator("style, link[rel=stylesheet]")
+    .locator("head style, head link[rel=stylesheet]")
     .evaluateAll(async (nodes) =>
       (
         await Promise.all(
@@ -85,6 +93,7 @@ test("keeps the command bar compact and supports Export menu keyboard navigation
 
   const copySvg = page.getByRole("menuitem", { name: "Copy SVG" });
   const downloadSvg = page.getByRole("menuitem", { name: "Download SVG" });
+  const downloadPng = page.getByRole("menuitem", { name: "Download PNG" });
   await expect(copySvg).toBeFocused();
 
   await page.keyboard.press("ArrowDown");
@@ -92,7 +101,7 @@ test("keeps the command bar compact and supports Export menu keyboard navigation
   await page.keyboard.press("Home");
   await expect(copySvg).toBeFocused();
   await page.keyboard.press("End");
-  await expect(downloadSvg).toBeFocused();
+  await expect(downloadPng).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(exportTrigger).toBeFocused();
   await expect(copySvg).toHaveCount(0);
@@ -116,8 +125,11 @@ test("exports the latest successful SVG without playground selection styling", a
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("textbox").fill(`provider aws
-latest: lambda`);
+  await replaceEditorSource(
+    page,
+    `provider aws
+latest: lambda`,
+  );
 
   const latestNode = page.locator(
     'svg[data-archlex-version] [data-archlex-id="latest"]',
@@ -359,7 +371,7 @@ test("fullscreen restores drawer, selection, and pan state", async ({
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("textbox").fill(WARNING_SOURCE);
+  await replaceEditorSource(page, WARNING_SOURCE);
   await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
   await page.getByRole("button", { name: /1 warning/ }).click();
 
@@ -400,33 +412,33 @@ test("keeps warnings quiet and opens diagnostics for errors", async ({
 }) => {
   await page.goto("/");
   const editor = page.getByRole("textbox");
-  await editor.fill(WARNING_SOURCE);
+  await replaceEditorSource(page, WARNING_SOURCE);
   await expect(page.getByRole("button", { name: /1 warning/ })).toBeVisible();
   await expect(page.getByRole("dialog", { name: "Diagnostics" })).toHaveCount(
     0,
   );
 
-  await editor.fill(ERROR_SOURCE);
+  await replaceEditorSource(page, ERROR_SOURCE);
   await expect(page.getByRole("dialog", { name: "Diagnostics" })).toBeVisible();
   await expect(editor).toBeFocused();
 
   await page.getByRole("button", { name: "Close diagnostics" }).click();
-  await editor.fill(SECOND_ERROR_SOURCE);
+  await replaceEditorSource(page, SECOND_ERROR_SOURCE);
   await expect(page.getByRole("dialog", { name: "Diagnostics" })).toHaveCount(
     0,
   );
 
-  await editor.fill(CLEAN_SOURCE);
+  await replaceEditorSource(page, CLEAN_SOURCE);
   await expect(
     page.getByRole("button", { name: /error.*open diagnostics/ }),
   ).toHaveCount(0);
-  await editor.fill(ERROR_SOURCE);
+  await replaceEditorSource(page, ERROR_SOURCE);
   await expect(page.getByRole("dialog", { name: "Diagnostics" })).toBeVisible();
 });
 
 test("filters and navigates compact diagnostic rows", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("textbox").fill(WARNING_SOURCE);
+  await replaceEditorSource(page, WARNING_SOURCE);
   await page.getByRole("button", { name: /1 warning/ }).click();
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
   await expect(drawer).toBeVisible();
@@ -456,7 +468,7 @@ test("moves diagnostic focus and expands remediation without selecting", async (
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("textbox").fill(MULTI_WARNING_SOURCE);
+  await replaceEditorSource(page, MULTI_WARNING_SOURCE);
   const trigger = page.getByRole("button", {
     name: /2 warnings, open diagnostics/,
   });
@@ -494,7 +506,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
 }) => {
   await page.goto("/");
   const editor = page.getByRole("textbox");
-  await editor.fill(MIXED_SOURCE);
+  await replaceEditorSource(page, MIXED_SOURCE);
   await page
     .getByRole("button", { name: /1 warning, open diagnostics/ })
     .click();
@@ -502,7 +514,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
   await expect(drawer.getByRole("option")).toHaveCount(1);
   await drawer.getByRole("button", { name: "Info", exact: true }).click();
-  await expect(drawer.getByRole("option")).toHaveCount(4);
+  await expect(drawer.getByRole("option")).toHaveCount(5);
   await expect(
     drawer.getByText(/AL-SEM-UNKNOWN-RESOURCE/).first(),
   ).toBeVisible();
@@ -510,7 +522,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
     drawer.getByText(/AWS-NETWORKING-SUBNET-CONTAINMENT-001/),
   ).toHaveCount(0);
 
-  await editor.fill(ERROR_SOURCE);
+  await replaceEditorSource(page, ERROR_SOURCE);
   const errorDrawer = page.getByRole("dialog", { name: "Diagnostics" });
   await expect(errorDrawer.getByText(/AL-PARSE-MISSING-BRACE/)).toBeVisible();
   const sourceOnlyRow = errorDrawer.getByRole("option").first();

@@ -1,5 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { visualSnapshotsSupported } from "./visual-platform.mjs";
+import {
+  installIconFixtureRoutes,
+  replaceEditorSource,
+  visualSnapshotsSupported,
+} from "./visual-platform.mjs";
+
+test.beforeEach(async ({ page }) => {
+  await installIconFixtureRoutes(page);
+});
 
 test.skip(
   !visualSnapshotsSupported(process.platform),
@@ -158,7 +166,7 @@ async function prepareWorkspace(
   }
 
   const status = page.locator(".workspace-status-bar");
-  await page.getByRole("textbox").fill(source);
+  await replaceEditorSource(page, source);
   await expect(status).toContainText("Rendering");
   const svg = page.locator("svg[data-archlex-version]");
   await expect(svg.locator(".archlex-node")).toHaveCount(expectedNodes);
@@ -199,7 +207,7 @@ async function expectWorkspaceScreenshot(page, name) {
 async function renderScenario(page, scenario, theme) {
   await resetStoredWorkspace(page, await page.viewportSize());
   await page.goto("/");
-  await page.getByRole("textbox").fill(scenario.source);
+  await replaceEditorSource(page, scenario.source);
 
   const shell = page.locator(".app-shell");
   await expect(shell).toHaveAttribute("data-theme", /dark|light/);

@@ -9,6 +9,19 @@ export interface RenderWithIconsResult {
   readonly iconWarnings: readonly IconDiagnostic[];
 }
 
+export interface GuardedOperationHandlerOptions<T> {
+  readonly operationId: number;
+  readonly currentOperationId: () => number;
+  readonly signal: AbortSignal;
+  readonly onSuccess: (value: T) => void;
+  readonly onFailure: (error: unknown) => void;
+}
+
+export interface GuardedOperationHandlers<T> {
+  readonly onSuccess: (value: T) => void;
+  readonly onFailure: (error: unknown) => void;
+}
+
 export async function renderWithIcons(
   archlex: ArchLex,
   iconLoader: IconLoader,
@@ -44,4 +57,21 @@ export function isAbortError(error: unknown): boolean {
     "name" in error &&
     error.name === "AbortError"
   );
+}
+
+export function createGuardedOperationHandlers<T>(
+  options: GuardedOperationHandlerOptions<T>,
+): GuardedOperationHandlers<T> {
+  const isCurrent = () =>
+    !options.signal.aborted &&
+    isCurrentOperation(options.operationId, options.currentOperationId());
+
+  return {
+    onSuccess(value) {
+      if (isCurrent()) options.onSuccess(value);
+    },
+    onFailure(error) {
+      if (!isAbortError(error) && isCurrent()) options.onFailure(error);
+    },
+  };
 }

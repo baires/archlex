@@ -26,8 +26,8 @@ import {
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 import { iconLoader } from "./icon-loader.js";
 import {
-  isAbortError,
-  isCurrentOperation,
+  type RenderWithIconsResult,
+  createGuardedOperationHandlers,
   renderWithIcons,
 } from "./render-pipeline.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
@@ -161,19 +161,11 @@ export function App() {
       activeControllerRef.current = controller;
 
       renderStartedAtRef.current = performance.now();
-      renderWithIcons(archlex, iconLoader, source, {
-        direction,
-        validation,
-        theme,
+      const handlers = createGuardedOperationHandlers<RenderWithIconsResult>({
+        operationId,
+        currentOperationId: () => renderOperationIdRef.current,
         signal: controller.signal,
-      })
-        .then(({ renderResult }) => {
-          if (
-            controller.signal.aborted ||
-            !isCurrentOperation(operationId, renderOperationIdRef.current)
-          ) {
-            return;
-          }
+        onSuccess: ({ renderResult }) => {
           const nextSummary = summarizeStatusDiagnostics(
             renderResult.diagnostics,
             null,
@@ -193,15 +185,8 @@ export function App() {
             Math.round(performance.now() - renderStartedAtRef.current),
           );
           setIsRendering(false);
-        })
-        .catch((error: unknown) => {
-          if (
-            controller.signal.aborted ||
-            isAbortError(error) ||
-            !isCurrentOperation(operationId, renderOperationIdRef.current)
-          ) {
-            return;
-          }
+        },
+        onFailure: (error: unknown) => {
           const issue = createRenderIssue(error);
           const nextSummary = summarizeStatusDiagnostics(
             lastSuccessfulDiagnosticsRef.current,
@@ -216,7 +201,17 @@ export function App() {
           previousSummaryRef.current = nextSummary;
           setRenderIssue(issue);
           setIsRendering(false);
-        });
+        },
+      });
+
+      renderWithIcons(archlex, iconLoader, source, {
+        direction,
+        validation,
+        theme,
+        signal: controller.signal,
+      })
+        .then(handlers.onSuccess)
+        .catch(handlers.onFailure);
     }, 150);
 
     return () => {

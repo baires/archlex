@@ -268,7 +268,6 @@ select {
   place-items: center;
   padding: 1rem;
   background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
   animation: backdrop-enter var(--transition-smooth) ease-out;
 }
 

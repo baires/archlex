@@ -14,6 +14,18 @@ export default defineConfig({
       "@archlex/parser": resolve(__dirname, "./packages/parser/src/index.ts"),
       "@archlex/aws": resolve(__dirname, "./packages/aws/src/index.ts"),
       "@archlex/gcp": resolve(__dirname, "./packages/gcp/src/index.ts"),
+      "@archlex/icons-browser": resolve(
+        __dirname,
+        "./packages/icons-browser/src/index.ts",
+      ),
+      "@archlex/icons-core": resolve(
+        __dirname,
+        "./packages/icons-core/src/index.ts",
+      ),
+      "@archlex/icons-node": resolve(
+        __dirname,
+        "./packages/icons-node/src/index.ts",
+      ),
       "@archlex/layout-elk": resolve(
         __dirname,
         "./packages/layout-elk/src/index.ts",

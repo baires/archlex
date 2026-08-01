@@ -39,20 +39,31 @@ packages/gcp/src/
 
 GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
 
-### `@archlex/icons`
+### Icon runtime packages
 
 ```text
-packages/icons/src/
-├── cache.ts       # Persistent disk-based cache manager with TTL expiration
-├── provider.ts    # CDN provider abstraction with name mapping & fallbacks
-├── loader.ts      # Singleton IconLoader orchestrator
-├── sanitizer.ts   # Security-hardened SVG validator
+packages/icons-core/src/
+├── provider.ts    # Pinned URL validation and CDN candidate fetching
+├── loader.ts      # Deduplication, concurrency, caching, and fallbacks
+├── sanitizer.ts   # Browser-safe SVG validation and Web Crypto checksums
 ├── fallback.ts    # Generic cloud icon fallback
-├── types.ts       # TypeScript interfaces and type definitions
-└── index.ts       # Public exports
+└── types.ts       # Runtime-neutral contracts
+
+packages/icons-browser/src/
+├── memory-cache.ts # Per-session sanitized icon cache
+└── index.ts        # createBrowserIconLoader()
+
+packages/icons-node/src/
+├── cache.ts        # Persistent TTL filesystem cache with atomic writes
+└── index.ts        # createNodeIconLoader()
 ```
 
-The `@archlex/icons` package provides dynamic CDN icon loading for Node.js environments. Icons not included in bundled manifests are fetched from CDN, sanitized, and cached persistently. See [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for configuration and usage.
+`@archlex/icons-core` contains no Node imports or import-time registration.
+Applications explicitly pass pure provider definitions to
+`@archlex/icons-browser` or `@archlex/icons-node`. The legacy
+`@archlex/icons` package remains a Node compatibility facade during migration.
+See the [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for the
+prepare/load/render flow and cache behavior.
 
 ### `@archlex/parser`
 
@@ -104,20 +115,28 @@ export const lambdaService = defineService({
   iconKey: "aws-lambda"
 });
 ```
-2. **For bundled icons:** Place the sanitized SVG icon fragment in `src/icons/svg/aws-lambda.svg`.
+2. **For bundled icons:** Add the official SVG under `assets/official/` and run
+   the package's `icons:generate` workflow. Never hand-edit `generated.ts`.
 3. **For CDN-only icons:** Add a name mapping in `src/icons/cdn.ts`:
 ```ts
-export const AWS_ICON_NAME_MAPPING: Record<string, string> = {
-  lambda: "Compute_AWSLambda",
+export const AWS_CDN_PROVIDER: CdnProviderDefinition = {
+  // Keep the existing pinned URL, allowlist, release, limits, and attribution.
+  mappings: {
+    lambda: "AWSLambda",
   // Add your new service here
+  },
 };
 ```
-4. Add table-driven tests in `packages/aws/src/catalog/catalog.test.ts`.
+4. Keep the provider definition pure: importing `@archlex/aws` must not
+   register a loader, read runtime configuration, or start a request.
+5. Add table-driven catalog tests and fixture-backed CDN definition tests.
 
 **Icon Resolution Priority:**
 1. Bundled icon (if present in `AWS_SANITIZED_ICONS`)
-2. CDN icon (fetched via `IconLoader.get()` in Node.js environments)
-3. No icon (returns `undefined`)
+2. Sanitized CDN icon loaded explicitly between `prepare()` and
+   `renderPrepared()`
+3. Expired Node cache entry, when available after a refresh failure
+4. Generic sanitized fallback plus a non-fatal structured warning
 
 See [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for details on CDN configuration and cache management.
 
@@ -184,7 +203,14 @@ export function azureProvider(): CloudProvider {
 }
 ```
 3. Add `@archlex/<provider>` to `packages/core` dependencies, re-export the provider from `packages/core/src/index.ts`, and extend the matrix in `tests/boundary-rules.test.ts`.
-4. Register it in `createArchLex({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`.
+4. Export a pure, version-pinned `CdnProviderDefinition`. Use HTTPS, an
+   explicit host allowlist, immutable release identification, response limits,
+   mappings, and attribution. If the URL cannot carry a pinned version, record
+   a SHA-256 integrity value for every mapped asset.
+5. Register the cloud provider in
+   `createArchLex({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`
+   and separately register its CDN definition with the selected browser or
+   Node icon adapter.
 
 ---
 
@@ -193,3 +219,8 @@ export function azureProvider(): CloudProvider {
 - **Unit Tests**: Place unit tests next to source files or in `packages/<pkg>/src/__tests__/`.
 - **Property Tests**: Use `fast-check` for grammar and recovery robustness.
 - **Boundary Verification**: Ensure `pnpm run check` runs clean without violating package dependency matrix rules.
+- **Dynamic Icon Tests**: Inject fixture-backed `fetchFn` implementations.
+  Repository tests must never depend on public CDN availability.
+- **Runtime Coverage**: For shared loader changes, verify browser and Node
+  adapters produce equivalent sanitized records, Node cache entries survive
+  loader reconstruction, and browser bundles contain no Node-only references.
