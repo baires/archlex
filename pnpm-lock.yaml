@@ -118,6 +118,9 @@ importers:
       '@cloudmer/core':
         specifier: workspace:^
         version: link:../core
+      '@cloudmer/diagnostics':
+        specifier: workspace:*
+        version: link:../diagnostics
       '@cloudmer/model':
         specifier: workspace:^
         version: link:../model

@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import { Command } from "commander";
+import { createErrorsCommand } from "./commands/errors.js";
 import { createExamplesCommand } from "./commands/examples.js";
 import { createRenderCommand } from "./commands/render.js";
 import { createValidateCommand } from "./commands/validate.js";
@@ -40,6 +41,7 @@ async function main() {
   program.addCommand(createRenderCommand());
   program.addCommand(createValidateCommand());
   program.addCommand(createExamplesCommand());
+  program.addCommand(createErrorsCommand());
 
   // Show help if no arguments
   if (process.argv.length === 2) {
