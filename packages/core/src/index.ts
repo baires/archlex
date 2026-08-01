@@ -1,6 +1,7 @@
 import { awsProvider } from "@archlex/aws";
 import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
 import { gcpProvider } from "@archlex/gcp";
+import type { IconRegistry, IconRequest } from "@archlex/icons-core";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import type {
   AnalysisResult,
@@ -28,6 +29,7 @@ import type {
 } from "@archlex/model";
 import { parse as parseSource } from "@archlex/parser";
 import { createSvgRenderer } from "@archlex/renderer-svg";
+import { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
 
 export interface ArchLexOptions {
   providers: readonly CloudProvider[];
@@ -36,16 +38,30 @@ export interface ArchLexOptions {
   renderer?: GraphRenderer;
 }
 
-export interface RenderPipelineOptions {
-  direction?: "LR" | "RL" | "TB" | "BT";
-  validation?: "normal" | "strict" | "off";
-  theme?: "light" | "dark";
-  signal?: AbortSignal;
+export interface AnalyzeOptions {
+  validation?: ValidationMode;
+  provider?: string;
 }
 
-export interface AnalyzeOptions {
-  validation?: "normal" | "strict" | "off";
-  provider?: string;
+export interface PrepareOptions extends AnalyzeOptions {}
+
+export interface RenderPreparedOptions {
+  direction?: LayoutOptions["direction"];
+  theme?: "light" | "dark";
+  signal?: AbortSignal;
+  icons?: IconRegistry;
+}
+
+export interface RenderPipelineOptions extends RenderPreparedOptions {
+  validation?: ValidationMode;
+}
+
+export interface PreparedDiagram {
+  readonly ast: DocumentAst;
+  readonly graph: CloudGraph;
+  readonly diagnostics: readonly Diagnostic[];
+  readonly iconRequests: readonly IconRequest[];
+  readonly direction?: LayoutOptions["direction"];
 }
 
 export interface ArchLex {
@@ -57,6 +73,11 @@ export interface ArchLex {
     diagnostics?: readonly Diagnostic[],
     theme?: "light" | "dark",
   ): SvgResult;
+  prepare(source: string, options?: PrepareOptions): PreparedDiagram;
+  renderPrepared(
+    prepared: PreparedDiagram,
+    options?: RenderPreparedOptions,
+  ): Promise<RenderResult>;
   render(
     source: string,
     options?: RenderPipelineOptions,
@@ -119,16 +140,66 @@ function collectDirectives(
   return values;
 }
 
-function getDirective(ast: DocumentAst, name: string): string | undefined {
-  const directive = ast.statements.find(
-    (statement) =>
-      statement.type === "directive" &&
-      "name" in statement &&
-      statement.name === name,
-  );
-  return directive && "value" in directive
-    ? (directive.value as string)
-    : undefined;
+function getDirectionDirective(
+  ast: DocumentAst,
+): LayoutOptions["direction"] | undefined {
+  let declarationsStarted = false;
+  let direction: LayoutOptions["direction"] | undefined;
+
+  for (const statement of ast.statements) {
+    if (statement.type !== "directive") {
+      declarationsStarted = true;
+      continue;
+    }
+    const directive = statement as DirectiveAst;
+    if (
+      declarationsStarted ||
+      direction !== undefined ||
+      directive.name !== "direction"
+    ) {
+      continue;
+    }
+    if (["LR", "RL", "TB", "BT"].includes(directive.value)) {
+      direction = directive.value as LayoutOptions["direction"];
+    }
+  }
+
+  return direction;
+}
+
+function applyGraphIconsToLayout(
+  layout: LayoutGraph,
+  graph: CloudGraph,
+): LayoutGraph {
+  const graphNodes = new Map(graph.nodes.map((node) => [node.id, node]));
+
+  const applyToNode = (
+    node: LayoutGraph["nodes"][number],
+  ): LayoutGraph["nodes"][number] => {
+    const sourceNode = graphNodes.get(node.id);
+    const children = node.children?.map(applyToNode);
+    const childrenChanged = children?.some(
+      (child, index) => child !== node.children?.[index],
+    );
+    const iconChanged =
+      sourceNode !== undefined &&
+      (node.icon !== sourceNode.icon || node.iconKey !== sourceNode.iconKey);
+
+    if (!childrenChanged && !iconChanged) return node;
+
+    return {
+      ...node,
+      ...(children ? { children } : {}),
+      ...(sourceNode
+        ? { icon: sourceNode.icon, iconKey: sourceNode.iconKey }
+        : {}),
+    };
+  };
+
+  const nodes = layout.nodes.map(applyToNode);
+  return nodes.some((node, index) => node !== layout.nodes[index])
+    ? { ...layout, nodes }
+    : layout;
 }
 
 export function createArchLex(options: ArchLexOptions): ArchLex {
@@ -583,44 +654,65 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       return renderer.render(graph, diagnostics, theme);
     },
 
-    async render(
-      source: string,
-      renderOptions?: RenderPipelineOptions,
-    ): Promise<RenderResult> {
+    prepare(source: string, prepareOptions?: PrepareOptions): PreparedDiagram {
       const parseRes = this.parse(source);
-      const analysisRes = this.analyze(parseRes.ast, {
-        validation: renderOptions?.validation,
-      });
+      const analysisRes = this.analyze(parseRes.ast, prepareOptions);
 
-      const layoutRes = await this.layout(analysisRes.graph, {
-        direction: (renderOptions?.direction ??
-          getDirective(
-            parseRes.ast,
-            "direction",
-          )) as LayoutOptions["direction"],
+      return {
+        ast: parseRes.ast,
+        graph: analysisRes.graph,
+        diagnostics: [...parseRes.diagnostics, ...analysisRes.diagnostics],
+        iconRequests: collectIconRequests(analysisRes.graph),
+        direction: getDirectionDirective(parseRes.ast),
+      };
+    },
+
+    async renderPrepared(
+      prepared: PreparedDiagram,
+      renderOptions?: RenderPreparedOptions,
+    ): Promise<RenderResult> {
+      const graph = renderOptions?.icons
+        ? applyIconRegistry(prepared.graph, renderOptions.icons)
+        : prepared.graph;
+      const layoutRes = await this.layout(graph, {
+        direction: renderOptions?.direction ?? prepared.direction,
         signal: renderOptions?.signal,
       });
-
       const combinedDiagnostics = [
-        ...parseRes.diagnostics,
-        ...analysisRes.diagnostics,
+        ...prepared.diagnostics,
         ...layoutRes.diagnostics,
       ];
-
+      const layout = applyGraphIconsToLayout(layoutRes.graph, graph);
       const svgRes = this.renderGraph(
-        layoutRes.graph,
+        layout,
         combinedDiagnostics,
         renderOptions?.theme,
       );
 
       return {
         ...svgRes,
-        ast: parseRes.ast,
-        graph: analysisRes.graph,
-        layout: layoutRes.graph,
+        ast: prepared.ast,
+        graph,
+        layout,
       };
+    },
+
+    async render(
+      source: string,
+      renderOptions?: RenderPipelineOptions,
+    ): Promise<RenderResult> {
+      const prepared = this.prepare(source, {
+        validation: renderOptions?.validation,
+      });
+      return this.renderPrepared(prepared, {
+        direction: renderOptions?.direction,
+        theme: renderOptions?.theme,
+        signal: renderOptions?.signal,
+        icons: renderOptions?.icons,
+      });
     },
   };
 }
 
+export { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
 export { awsProvider, gcpProvider };

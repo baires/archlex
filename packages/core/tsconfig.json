@@ -9,6 +9,7 @@
     { "path": "../model/tsconfig.json" },
     { "path": "../parser/tsconfig.json" },
     { "path": "../aws/tsconfig.json" },
+    { "path": "../icons-core/tsconfig.json" },
     { "path": "../layout-elk/tsconfig.json" },
     { "path": "../renderer-svg/tsconfig.json" }
   ],

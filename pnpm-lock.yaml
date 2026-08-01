@@ -188,6 +188,9 @@ importers:
       '@archlex/gcp':
         specifier: workspace:^
         version: link:../gcp
+      '@archlex/icons-core':
+        specifier: workspace:^
+        version: link:../icons-core
       '@archlex/layout-elk':
         specifier: workspace:^
         version: link:../layout-elk

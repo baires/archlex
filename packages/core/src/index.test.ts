@@ -1,5 +1,133 @@
-import { describe, expect, it } from "vitest";
+import type { SanitizedIcon } from "@archlex/icons-core";
+import { describe, expect, it, vi } from "vitest";
 import { awsProvider, createArchLex, gcpProvider } from "./index.js";
+
+const fetchedAppRunnerIcon: SanitizedIcon = {
+  key: "app-runner",
+  provider: "aws",
+  checksum: "sha256:app-runner",
+  viewBox: "0 0 64 64",
+  svgFragment:
+    '<svg viewBox="0 0 64 64"><path fill="#123456" d="M0 0h64v64H0z"/></svg>',
+};
+
+const alternateAppRunnerIcon: SanitizedIcon = {
+  ...fetchedAppRunnerIcon,
+  checksum: "sha256:alternate-app-runner",
+  svgFragment:
+    '<svg viewBox="0 0 64 64"><path fill="#abcdef" d="M0 0h64v64H0z"/></svg>',
+};
+
+describe("prepared rendering", () => {
+  it("prepares unresolved icon requests and parse plus analysis diagnostics", () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const prepared = archlex.prepare("apprunner ->\nunknown-service");
+
+    expect(prepared.iconRequests).toEqual([
+      { provider: "aws", key: "app-runner" },
+    ]);
+    expect(prepared.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(
+      expect.arrayContaining([
+        "AL-PARSE-MISSING-ENDPOINT",
+        "AL-SEM-UNKNOWN-RESOURCE",
+      ]),
+    );
+  });
+
+  it("renders a prepared graph with injected icons deterministically", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const prepared = archlex.prepare("apprunner");
+    const icons = new Map([["aws:app-runner", fetchedAppRunnerIcon]]);
+
+    const first = await archlex.renderPrepared(prepared, { icons });
+    const second = await archlex.renderPrepared(prepared, { icons });
+
+    expect(first.svg).toContain("#123456");
+    expect(first.graph.nodes[0]?.icon).toBe(fetchedAppRunnerIcon.svgFragment);
+    expect(prepared.graph.nodes[0]?.icon).toBeUndefined();
+    expect(second.svg).toBe(first.svg);
+  });
+
+  it("renders the current registry when cached geometry is reused", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const prepared = archlex.prepare("apprunner");
+
+    const first = await archlex.renderPrepared(prepared, {
+      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+    });
+    const second = await archlex.renderPrepared(prepared, {
+      icons: new Map([["aws:app-runner", alternateAppRunnerIcon]]),
+    });
+
+    expect(first.svg).toContain("#123456");
+    expect(second.svg).toContain("#abcdef");
+    expect(second.svg).not.toContain("#123456");
+  });
+
+  it("preserves prepared direction, overrides, and abort signals", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const prepared = archlex.prepare("direction TB\nrds > ecs");
+
+    const fromSource = await archlex.renderPrepared(prepared);
+    const overridden = await archlex.renderPrepared(prepared, {
+      direction: "LR",
+    });
+    const controller = new AbortController();
+    controller.abort();
+
+    expect(fromSource.layout.nodes[0]?.x).toBe(fromSource.layout.nodes[1]?.x);
+    expect(overridden.layout.nodes[0]?.y).toBe(overridden.layout.nodes[1]?.y);
+    await expect(
+      archlex.renderPrepared(prepared, { signal: controller.signal }),
+    ).rejects.toMatchObject({ name: "ArchLexAbortError" });
+  });
+
+  it("honors validation directives and prepare option overrides", () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const source = "validation off\nrole: iam-role";
+
+    const fromSource = archlex.prepare(source);
+    const overridden = archlex.prepare(source, { validation: "strict" });
+
+    expect(
+      fromSource.diagnostics.find(
+        (diagnostic) => diagnostic.code === "AWS-SECURITY-UNATTACHED-ROLE-001",
+      ),
+    ).toBeUndefined();
+    expect(overridden.diagnostics).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "AWS-SECURITY-UNATTACHED-ROLE-001",
+          severity: "error",
+        }),
+      ]),
+    );
+  });
+
+  it("does not carry invalid or late direction directives into layout", () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const invalid = archlex.prepare("direction SIDEWAYS\nrds");
+    const late = archlex.prepare("rds\ndirection TB");
+
+    expect(invalid.direction).toBeUndefined();
+    expect(late.direction).toBeUndefined();
+  });
+
+  it("parses and analyzes only once through the compatible render API", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parse = vi.spyOn(archlex, "parse");
+    const analyze = vi.spyOn(archlex, "analyze");
+
+    await archlex.render("apprunner", {
+      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+    });
+
+    expect(parse).toHaveBeenCalledTimes(1);
+    expect(analyze).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe("Phase 1 canonical rendering", () => {
   it("renders the complete RDS Proxy to RDS to ECS chain", async () => {
