@@ -10,7 +10,8 @@ CloudMer is a browser-first TypeScript library that turns a concise, provider-aw
 4. [Contribution guide](architecture/contribution-guide.md) — package layout, rules, catalog, and extension workflows.
 5. [Language specification](specs/language.md) and [public API](specs/public-api.md).
 6. [AWS semantics](specs/aws-semantics.md), [GCP semantics](specs/gcp-semantics.md), [layout/rendering](specs/layout-rendering.md), and [playground](specs/playground.md).
-7. [MVP roadmap](ROADMAP.md) and executable [TODO checklist](TODO.md).
+7. [Error system](errors/README.md) — diagnostic codes, remediation, and usage across all surfaces.
+8. [MVP roadmap](ROADMAP.md) and executable [TODO checklist](TODO.md).
 
 ## Authority and change policy
 
