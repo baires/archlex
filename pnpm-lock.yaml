@@ -8,12 +8,6 @@ importers:
 
   .:
     devDependencies:
-      '@biomejs/biome':
-        specifier: ^1.9.4
-        version: 1.9.4
-      '@changesets/cli':
-        specifier: ^2.27.12
-        version: 2.31.1(@types/node@22.20.1)
       '@archlex/aws':
         specifier: workspace:*
         version: link:packages/aws
@@ -23,6 +17,15 @@ importers:
       '@archlex/diagnostics':
         specifier: workspace:*
         version: link:packages/diagnostics
+      '@archlex/gcp':
+        specifier: workspace:*
+        version: link:packages/gcp
+      '@biomejs/biome':
+        specifier: ^1.9.4
+        version: 1.9.4
+      '@changesets/cli':
+        specifier: ^2.27.12
+        version: 2.31.1(@types/node@22.20.1)
       '@playwright/test':
         specifier: 1.62.0
         version: 1.62.0
@@ -127,12 +130,18 @@ importers:
 
   packages/cli:
     dependencies:
+      '@archlex/aws':
+        specifier: workspace:*
+        version: link:../aws
       '@archlex/core':
         specifier: workspace:^
         version: link:../core
       '@archlex/diagnostics':
         specifier: workspace:*
         version: link:../diagnostics
+      '@archlex/gcp':
+        specifier: workspace:*
+        version: link:../gcp
       '@archlex/model':
         specifier: workspace:^
         version: link:../model

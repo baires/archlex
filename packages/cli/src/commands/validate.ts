@@ -1,6 +1,12 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { AWS_SERVICE_CATALOG } from "@archlex/aws";
 import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  validateCatalogContainment,
+  validateCatalogManifest,
+} from "@archlex/diagnostics";
+import { GCP_SERVICE_CATALOG } from "@archlex/gcp";
 import type { ValidationMode } from "@archlex/model";
 import chalk from "chalk";
 import { Command } from "commander";
@@ -20,11 +26,12 @@ import {
 interface ValidateOptions {
   validation?: ValidationMode;
   stdin?: boolean;
+  catalog?: boolean;
 }
 
 export function createValidateCommand(): Command {
   return new Command("validate")
-    .description("Validate a ArchLex diagram without rendering")
+    .description("Validate a ArchLex diagram or internal service catalogs")
     .argument("[input]", "Input .archlex file (or use --stdin)")
     .option(
       "-v, --validation <mode>",
@@ -32,13 +39,67 @@ export function createValidateCommand(): Command {
       "strict",
     )
     .option("--stdin", "Read input from stdin")
+    .option(
+      "--catalog",
+      "Validate internal provider service catalogs (AWS & GCP)",
+    )
     .action(async (input: string | undefined, options: ValidateOptions) => {
       try {
-        await validateCommand(input, options);
+        if (options.catalog) {
+          await validateCatalogCommand();
+        } else {
+          await validateCommand(input, options);
+        }
       } catch (error) {
         handleError(error);
       }
     });
+}
+
+async function validateCatalogCommand(): Promise<void> {
+  const spinner = ora("Validating provider service catalogs").start();
+
+  const awsManifestResult = validateCatalogManifest(AWS_SERVICE_CATALOG);
+  const awsContainmentDiags = validateCatalogContainment(AWS_SERVICE_CATALOG);
+  const awsDiagnostics = [
+    ...awsManifestResult.diagnostics,
+    ...awsContainmentDiags,
+  ];
+
+  const gcpManifestResult = validateCatalogManifest(GCP_SERVICE_CATALOG);
+  const gcpContainmentDiags = validateCatalogContainment(GCP_SERVICE_CATALOG);
+  const gcpDiagnostics = [
+    ...gcpManifestResult.diagnostics,
+    ...gcpContainmentDiags,
+  ];
+
+  const totalServices = AWS_SERVICE_CATALOG.size + GCP_SERVICE_CATALOG.size;
+  const allDiagnostics = [...awsDiagnostics, ...gcpDiagnostics];
+  const hasErrors = allDiagnostics.some((d) => d.severity === "error");
+
+  if (hasErrors) {
+    spinner.fail(`Catalog validation failed (${allDiagnostics.length} issues)`);
+  } else {
+    spinner.succeed(`Catalog validation passed (${totalServices} services)`);
+  }
+
+  console.log();
+  console.log(chalk.bold("Catalog Validation Report"));
+  console.log(`  AWS Catalog: ${AWS_SERVICE_CATALOG.size} services`);
+  console.log(`  GCP Catalog: ${GCP_SERVICE_CATALOG.size} services`);
+  console.log(`  Total Services: ${totalServices} services`);
+
+  if (allDiagnostics.length > 0) {
+    console.log();
+    for (const diagnostic of allDiagnostics) {
+      console.log(formatDiagnostic(diagnostic));
+    }
+  }
+
+  if (hasErrors) {
+    console.log();
+    throw new ValidationError("Provider catalogs have validation errors");
+  }
 }
 
 async function validateCommand(

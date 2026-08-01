@@ -1,0 +1,189 @@
+#!/usr/bin/env node
+
+/**
+ * ArchLex Standalone Catalog Validation Runner Script
+ *
+ * Validates AWS and GCP service catalog definitions for:
+ * 1. Static metadata rules (IDs, display names, categories, duplicate IDs, duplicate aliases).
+ * 2. Relationship containment rules (allowedContainment target existence, self-containment loops).
+ *
+ * Usage:
+ *   node scripts/validate-catalog.mjs
+ */
+
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const ROOT = resolve(__dirname, "..");
+
+async function loadModules() {
+  let AWS_SERVICE_CATALOG;
+  let GCP_SERVICE_CATALOG;
+  let validateCatalogManifest;
+  let validateCatalogContainment;
+
+  try {
+    const awsModule = await import("@archlex/aws");
+    AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
+  } catch {
+    const awsModule = await import(resolve(ROOT, "packages/aws/dist/index.js"));
+    AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
+  }
+
+  try {
+    const gcpModule = await import("@archlex/gcp");
+    GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
+  } catch {
+    const gcpModule = await import(resolve(ROOT, "packages/gcp/dist/index.js"));
+    GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
+  }
+
+  try {
+    const diagModule = await import("@archlex/diagnostics");
+    validateCatalogManifest = diagModule.validateCatalogManifest;
+    validateCatalogContainment = diagModule.validateCatalogContainment;
+  } catch {
+    const diagModule = await import(
+      resolve(ROOT, "packages/diagnostics/dist/index.js")
+    );
+    validateCatalogManifest = diagModule.validateCatalogManifest;
+    validateCatalogContainment = diagModule.validateCatalogContainment;
+  }
+
+  return {
+    AWS_SERVICE_CATALOG,
+    GCP_SERVICE_CATALOG,
+    validateCatalogManifest,
+    validateCatalogContainment,
+  };
+}
+
+function validateProviderCatalog(
+  name,
+  catalog,
+  validateCatalogManifest,
+  validateCatalogContainment,
+) {
+  const manifestResult = validateCatalogManifest(catalog);
+  const containmentDiagnostics = validateCatalogContainment(catalog);
+  const diagnostics = [
+    ...manifestResult.diagnostics,
+    ...containmentDiagnostics,
+  ];
+  const errors = diagnostics.filter((d) => d.severity === "error");
+  const warnings = diagnostics.filter((d) => d.severity === "warning");
+
+  return {
+    name,
+    count: catalog ? catalog.size : 0,
+    valid: errors.length === 0,
+    diagnostics,
+    errors,
+    warnings,
+    manifestCount: manifestResult.diagnostics.length,
+    containmentCount: containmentDiagnostics.length,
+  };
+}
+
+async function main() {
+  const {
+    AWS_SERVICE_CATALOG,
+    GCP_SERVICE_CATALOG,
+    validateCatalogManifest,
+    validateCatalogContainment,
+  } = await loadModules();
+
+  console.log(
+    "================================================================================",
+  );
+  console.log("                        Catalog Validation Report");
+  console.log(
+    "================================================================================",
+  );
+  console.log("");
+
+  const awsReport = validateProviderCatalog(
+    "AWS",
+    AWS_SERVICE_CATALOG,
+    validateCatalogManifest,
+    validateCatalogContainment,
+  );
+  const gcpReport = validateProviderCatalog(
+    "GCP",
+    GCP_SERVICE_CATALOG,
+    validateCatalogManifest,
+    validateCatalogContainment,
+  );
+
+  const totalServices = awsReport.count + gcpReport.count;
+  const totalErrors = awsReport.errors.length + gcpReport.errors.length;
+  const totalWarnings = awsReport.warnings.length + gcpReport.warnings.length;
+
+  console.log("Summary:");
+  console.log(`  AWS Catalog: ${awsReport.count} services`);
+  console.log(`  GCP Catalog: ${gcpReport.count} services`);
+  console.log(`  Total Services: ${totalServices} services`);
+  console.log("");
+
+  for (const report of [awsReport, gcpReport]) {
+    console.log(`--- ${report.name} Provider ---`);
+    console.log(
+      `  Static Manifest Validation: ${
+        report.manifestCount === 0
+          ? "PASS"
+          : `FAIL (${report.manifestCount} issues)`
+      }`,
+    );
+    console.log(
+      `  Containment Validation: ${
+        report.containmentCount === 0
+          ? "PASS"
+          : `FAIL (${report.containmentCount} issues)`
+      }`,
+    );
+
+    if (report.diagnostics.length > 0) {
+      console.log(`  Diagnostics (${report.diagnostics.length}):`);
+      for (const diag of report.diagnostics) {
+        const icon = diag.severity === "error" ? "✖" : "⚠";
+        console.log(
+          `    ${icon} [${diag.code}] (${diag.severity}): ${diag.message}`,
+        );
+        if (diag.remediation) {
+          console.log(`      Remediation: ${diag.remediation}`);
+        }
+      }
+    } else {
+      console.log("  Status: CLEAN (0 issues found)");
+    }
+    console.log("");
+  }
+
+  console.log(
+    "================================================================================",
+  );
+  if (totalErrors > 0) {
+    console.log(
+      `RESULT: FAILED (${totalErrors} error(s), ${totalWarnings} warning(s))`,
+    );
+    console.log(
+      "================================================================================",
+    );
+    process.exit(1);
+  } else {
+    console.log(
+      `RESULT: PASSED (${totalServices} services validated, 0 errors)`,
+    );
+    console.log(
+      "================================================================================",
+    );
+    process.exit(0);
+  }
+}
+
+main().catch((err) => {
+  console.error("Catalog validation script error:", err);
+  process.exit(1);
+});

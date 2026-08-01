@@ -11,7 +11,10 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
+        "@archlex/aws",
         "@archlex/core",
+        "@archlex/diagnostics",
+        "@archlex/gcp",
         "@archlex/model",
         "chalk",
         "commander",

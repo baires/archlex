@@ -22,6 +22,7 @@
     "@archlex/aws": "workspace:*",
     "@archlex/core": "workspace:*",
     "@archlex/diagnostics": "workspace:*",
+    "@archlex/gcp": "workspace:*",
     "@playwright/test": "1.62.0",
     "@types/node": "^22.13.1",
     "@xmldom/xmldom": "0.9.10",
