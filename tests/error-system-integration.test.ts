@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 describe("Error System Integration", () => {
   test("all diagnostics include remediation", async () => {
     const cloudmer = createCloudMer({
-      providers: [awsProvider],
+      providers: [awsProvider()],
     });
 
     const testCases = [
@@ -27,19 +27,28 @@ describe("Error System Integration", () => {
       for (const diagnostic of result.diagnostics) {
         expect(diagnostic.remediation).toBeDefined();
         expect(diagnostic.remediation).toBeTruthy();
-        expect(diagnostic.code).toMatch(/^CM-(PARSE|STRUCT|SEM)-/);
+
+        // Only validate core diagnostics (CM-*) - provider diagnostics (AWS-*, GCP-*) have separate schemas
+        if (diagnostic.code.startsWith("CM-")) {
+          expect(diagnostic.code).toMatch(/^CM-(PARSE|STRUCT|SEM)-/);
+        }
       }
     }
   });
 
   test("diagnostic definitions match emitted diagnostics", async () => {
     const cloudmer = createCloudMer({
-      providers: [awsProvider],
+      providers: [awsProvider()],
     });
 
     const result = await cloudmer.render("lambda ->");
 
     for (const diagnostic of result.diagnostics) {
+      // Only validate core diagnostics - provider diagnostics aren't in the core registry
+      if (!diagnostic.code.startsWith("CM-")) {
+        continue;
+      }
+
       const definition = getDiagnosticDefinition(
         diagnostic.code as DiagnosticCode,
       );
