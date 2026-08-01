@@ -114,6 +114,9 @@ importers:
 
   packages/aws:
     dependencies:
+      '@archlex/icons':
+        specifier: workspace:^
+        version: link:../icons
       '@archlex/model':
         specifier: workspace:^
         version: link:../model

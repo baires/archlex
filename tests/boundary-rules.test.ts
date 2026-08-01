@@ -7,8 +7,8 @@ describe("Dependency Boundary Rules", () => {
   const matrix: Record<string, string[]> = {
     model: [],
     parser: ["@archlex/diagnostics", "@archlex/model", "chevrotain"],
-    aws: ["@archlex/model"],
-    gcp: ["@archlex/model"],
+    aws: ["@archlex/model", "@archlex/icons"],
+    gcp: ["@archlex/model", "@archlex/icons"],
     "layout-elk": ["@archlex/model", "elkjs"],
     "renderer-svg": ["@archlex/model"],
     core: [

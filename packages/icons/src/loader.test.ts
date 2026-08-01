@@ -1,9 +1,17 @@
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { IconLoader } from "./loader.js";
 import type { CdnProviderConfig } from "./types.js";
 
 describe("IconLoader", () => {
   beforeEach(() => {
+    // Use unique cache dir per test to avoid cache hits from previous tests
+    const uniqueCacheDir = join(
+      tmpdir(),
+      `archlex-test-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    );
+    process.env.ARCHLEX_ICON_CACHE_DIR = uniqueCacheDir;
     IconLoader.reset();
   });
 
