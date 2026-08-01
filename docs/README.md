@@ -2,27 +2,60 @@
 
 ArchLex is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS and GCP are the supported providers; semantic validation is the main product capability.
 
-## Reading order
+## Getting Started
 
-1. [Foundation design](superpowers/specs/2026-07-27-archlex-foundation-design.md) — approved product intent and MVP boundaries.
-2. [System architecture](architecture/system-architecture.md) — package boundaries, pipeline, runtimes, and failures.
-3. [Technology stack](architecture/technology-stack.md) — locked tools and compatibility policy.
-4. [Contribution guide](architecture/contribution-guide.md) — package layout, rules, catalog, and extension workflows.
-5. [Language specification](specs/language.md) and [public API](specs/public-api.md).
-6. [AWS semantics](specs/aws-semantics.md), [GCP semantics](specs/gcp-semantics.md), [layout/rendering](specs/layout-rendering.md), and [playground](specs/playground.md).
-7. [Relationship type usage guide](guides/relationship-types.md) — choosing and using the 9 built-in relationship types and custom types.
-8. [Error system](errors/README.md) — diagnostic codes, remediation, and usage across all surfaces.
-9. [MVP roadmap](ROADMAP.md) and executable [TODO checklist](TODO.md).
+New to ArchLex? Start here:
 
-## Authority and change policy
+1. **[Quick Start](../README.md#-quick-start)** - Installation and basic usage
+2. **[Language Specification](specs/language.md)** - Learn the syntax
+3. **[Public API](specs/public-api.md)** - JavaScript/TypeScript API reference
+4. **[Contribution Guide](architecture/contribution-guide.md)** - Contributing to ArchLex
 
-- The foundation design owns product intent, scope, and acceptance criteria.
-- `docs/specs/` owns observable behavior and public contracts.
-- `docs/architecture/` owns implementation boundaries and stack decisions.
-- `ROADMAP.md` owns phase order and exit gates; `TODO.md` tracks execution only.
-- If documents conflict, fix the lower-authority document. A product change updates the foundation design first.
-- Public API, grammar, diagnostic-code, or package-boundary changes require the corresponding spec update.
+## Core Documentation
 
-## Status
+### Specifications
 
-Architecture is approved. No production packages exist yet. The npm scope `@archlex/*` is provisional and packages remain private until the release phase.
+- **[Language Specification](specs/language.md)** - Complete syntax reference with grammar and examples
+- **[Public API](specs/public-api.md)** - JavaScript/TypeScript API documentation
+- **[AWS Semantics](specs/aws-semantics.md)** - AWS provider catalog and validation rules
+- **[GCP Semantics](specs/gcp-semantics.md)** - GCP provider catalog and validation rules
+- **[Layout & Rendering](specs/layout-rendering.md)** - Layout algorithms and SVG rendering
+- **[Playground](specs/playground.md)** - Interactive playground features and usage
+
+### Guides
+
+- **[Relationship Types](guides/relationship-types.md)** - Using the 9 built-in relationship types and custom types
+- **[Dynamic CDN Icons](guides/dynamic-cdn-icons.md)** - Icon loading, caching, and CDN configuration
+
+### Architecture
+
+- **[System Architecture](architecture/system-architecture.md)** - Package boundaries, pipeline, and runtime behavior
+- **[Contribution Guide](architecture/contribution-guide.md)** - Package layout, extension workflows, and testing standards
+
+### Error Reference
+
+- **[Error System Overview](errors/README.md)** - Diagnostic codes, severities, and remediation
+- **[Error Index](errors/index.md)** - Complete list of diagnostic codes
+- Individual error pages: `AL-PARSE-*`, `AL-STRUCT-*`, `AL-SEM-*`
+
+### Roadmap
+
+- **[Development Roadmap](ROADMAP.md)** - Project milestones and release planning
+
+## Documentation Standards
+
+- `docs/specs/` - Observable behavior and public contracts (language, API, providers)
+- `docs/architecture/` - Implementation boundaries and design decisions
+- `docs/guides/` - User-facing tutorials and how-to documentation
+- `docs/errors/` - Diagnostic code documentation
+
+Public API, grammar, diagnostic-code, or package-boundary changes require corresponding spec updates.
+
+## Contributing to Documentation
+
+Documentation improvements are welcome! See [CONTRIBUTING.md](../CONTRIBUTING.md) for:
+
+- Documentation structure and standards
+- How to add error documentation
+- How to update specifications
+- Pull request process

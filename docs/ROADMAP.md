@@ -1,63 +1,60 @@
-# ArchLex MVP Roadmap
+# ArchLex Roadmap
 
-Each phase starts after the preceding gate. A deliverable includes implementation, tests, and relevant documentation.
+This roadmap outlines the development phases and planned features for ArchLex.
 
-## Phase 0 — Architecture and toolchain baseline
+## Current Status
 
-**Goal:** Prove stack and boundaries before features.
+ArchLex is in active development. Core features are functional including:
 
-**Deliverables:** Linked specs; pnpm/Turborepo, strict TypeScript, Vite, Biome, Vitest, Changesets, CI; package shells/boundary rules; Chevrotain, ELK worker, Node import, DOM-free SVG, and browser-mount spikes; bundle/worker baselines.
+- ✅ Parser with complete syntax support
+- ✅ AWS and GCP provider catalogs
+- ✅ Semantic validation with diagnostic system
+- ✅ ELK-based graph layout with Web Worker support
+- ✅ Accessible SVG rendering with themes
+- ✅ Interactive playground with live preview
+- ✅ Cross-runtime support (browser and Node.js 22+)
 
-**Exit:** Root checks pass, Node 22 and Chromium import built packages, worker round-trip succeeds, and docs have no unresolved decisions.
+## Upcoming Features
 
-## Phase 1 — Minimal vertical slice
+### Short Term (v0.1.x)
 
-**Goal:** Render `rds-proxy > rds > ecs` through production-shaped stages.
+- **Enhanced AWS Catalog** - Expand service coverage and validation rules
+- **Documentation** - Complete API documentation and usage guides
+- **Testing** - Comprehensive test coverage and browser compatibility
+- **Performance** - Optimize rendering and layout performance
+- **Accessibility** - WCAG conformance validation
 
-**Deliverables:** Model types; minimal grammar; three AWS entries/icons; structural graph; ELK LR layout; deterministic SVG; orchestration; minimal playground.
+### Medium Term (v0.2.x - v0.9.x)
 
-**Exit:** The example renders byte-identically through public APIs in Node and Chromium.
+- **GCP Expansion** - Additional GCP services and semantic rules
+- **CLI Tool** - Command-line interface for diagram generation
+- **Export Formats** - PNG and PDF export support
+- **Markdown Integration** - Embed diagrams in Markdown documentation
+- **Browser Support** - Firefox and WebKit testing
 
-## Phase 2 — Language, recovery, and semantic graph
+### Long Term (v1.0+)
 
-**Goal:** Complete MVP syntax with useful partial results.
+- **Additional Providers** - Azure, Kubernetes support
+- **Language Server Protocol (LSP)** - Editor integration with autocompletion and validation
+- **Advanced Layout** - Custom layout algorithms and manual positioning
+- **Collaboration** - Shared diagrams and real-time collaboration features
+- **Performance** - Rust/Wasm optimization for large diagrams
+- **Plugins** - Extensible architecture for custom providers and rules
 
-**Deliverables:** All arrows, kinds, labels, comments, directives, named/qualified resources, scopes, stable identity, private CST conversion, recovery/source maps, and unknown fallbacks.
+## Release Philosophy
 
-**Exit:** All documented syntax has valid/invalid/recovery/span fixtures; arbitrary input cannot crash or hang.
+- **Semantic Versioning** - Following semver for predictable upgrades
+- **Backward Compatibility** - Maintaining compatibility within major versions
+- **Quality Over Speed** - Shipping stable, well-tested features
+- **Community Input** - Feature prioritization based on user feedback
 
-## Phase 3 — AWS catalog and semantics
+## How to Influence the Roadmap
 
-**Goal:** Establish cloud semantics as the main capability.
+We welcome input from the community:
 
-**Deliverables:** Versioned schemas; reproducible sanitized icons; core AWS catalog; three validation passes; relationship vocabulary; diagnostic registry; meaningful containment/relationship rules.
+- **Feature Requests** - Open an issue with your use case
+- **Bug Reports** - Help us prioritize fixes
+- **Contributions** - Submit PRs for features you need
+- **Discussions** - Participate in roadmap discussions
 
-**Exit:** Every initial entry and rule outcome is tested across normal/strict/off; invalid/unknown cases render partial diagrams.
-
-## Phase 4 — Production layout and SVG
-
-**Goal:** Produce readable, deterministic, accessible compound diagrams.
-
-**Deliverables:** Compound layout, ports, four directions, abortable worker, stale protection, cache, stable SVG, themes, accessibility, diagnostics, icons, mount helper.
-
-**Exit:** Geometry, parity, determinism, safety, axe-core, and keyboard suites pass.
-
-## Phase 5 — Reference playground
-
-**Goal:** Deliver the focused authoring/debugging environment.
-
-**Deliverables:** Monaco support; debounced/cancelled rendering; preview and synchronized selection; controls; examples; persistence; SVG copy/download; responsive accessible UI.
-
-**Exit:** Chromium e2e covers editing, recovery, stale requests, navigation, persistence, and export; only public exports are consumed.
-
-## Phase 6 — Hardening and MVP release
-
-**Goal:** Publish dependable `0.1.0` packages and playground.
-
-**Deliverables:** API/getting-started/package docs; clean-consumer tests; compatibility/performance budgets; SVG security and AWS licensing audits; complete CI; Changesets/npm provenance; deployed playground.
-
-**Exit:** Foundation acceptance criteria and release dry-run pass; clean consumers reproduce documented SVG and diagnostics.
-
-## After MVP
-
-Expand AWS rules, add Firefox/WebKit CI before `1.0`, then consider GCP, CLI/Markdown, PNG/PDF, LSP, and measured Rust/Wasm optimization.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for how to get involved.
