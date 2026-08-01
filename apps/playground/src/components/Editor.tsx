@@ -42,14 +42,18 @@ export function Editor({
     <section className="editor-pane" aria-label="CloudMer Source Editor">
       <div className="pane-header">
         <h2>{documentLabel}</h2>
-        <span className="editor-source-label">SOURCE</span>
+        <label className="editor-source-label" htmlFor="source">
+          Source
+        </label>
       </div>
 
       <div className="editor-body">
         <textarea
           ref={textareaRef}
           id="source"
+          name="source"
           className="source-input"
+          autoComplete="off"
           spellCheck={false}
           value={source}
           onChange={(e) => onSourceChange(e.target.value)}

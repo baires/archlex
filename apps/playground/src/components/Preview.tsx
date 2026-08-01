@@ -86,8 +86,6 @@ export function Preview({
       originY: pan.y,
     };
     didPanRef.current = false;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    setIsPanning(true);
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -95,8 +93,13 @@ export function Preview({
     if (!drag || drag.pointerId !== event.pointerId) return;
     const deltaX = event.clientX - drag.startX;
     const deltaY = event.clientY - drag.startY;
-    if (Math.abs(deltaX) > 2 || Math.abs(deltaY) > 2) {
+    if (!didPanRef.current && Math.abs(deltaX) <= 2 && Math.abs(deltaY) <= 2) {
+      return;
+    }
+    if (!didPanRef.current) {
       didPanRef.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setIsPanning(true);
     }
     setPan({ x: drag.originX + deltaX, y: drag.originY + deltaY });
   };
@@ -104,7 +107,9 @@ export function Preview({
   const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (dragRef.current?.pointerId !== event.pointerId) return;
     dragRef.current = null;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     setIsPanning(false);
   };
 

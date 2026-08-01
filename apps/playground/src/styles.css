@@ -76,6 +76,24 @@ select {
   outline-offset: 2px;
 }
 
+.skip-link {
+  position: absolute;
+  z-index: 1001;
+  top: 0.5rem;
+  left: 0.5rem;
+  transform: translateY(calc(-100% - 1rem));
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  background: var(--surface-1);
+  color: var(--text-1);
+  font-size: 0.8125rem;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -418,6 +436,7 @@ select {
   font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .editor-body {
@@ -770,14 +789,54 @@ select {
 
 @media (max-width: 900px) {
   .command-bar {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding-inline: 0.75rem;
   }
 
   .command-bar-controls {
-    order: 3;
+    order: initial;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    justify-content: center;
+    gap: 0.5rem;
+    overflow: visible;
+  }
+
+  .command-bar-controls .control-group label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .command-bar-controls .control-group:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .command-bar-controls .control-group:first-child select {
     width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
+    min-width: 0;
+  }
+
+  #direction-select {
+    width: 7.5rem;
+  }
+
+  #validation-select {
+    width: 5.25rem;
+  }
+
+  .command-bar-actions {
+    flex: none;
+    margin-left: 0;
   }
 }
 

@@ -266,6 +266,9 @@ export function App() {
 
   return (
     <div className="app-shell" data-theme={theme}>
+      <a className="skip-link" href="#workspace">
+        Skip to workspace
+      </a>
       <CommandBar
         direction={direction}
         validation={validation}

@@ -210,11 +210,13 @@ export function Workspace({
   return (
     <main
       ref={workspaceRef}
+      id="workspace"
       className={`workspace workspace-grid${
         isFullscreen ? " is-fullscreen" : ""
       }`}
       data-testid="workspace"
       data-fullscreen-mode={fullscreenMode}
+      tabIndex={-1}
       style={{ gridTemplateColumns: `${splitRatio * 100}% 1px 1fr` }}
     >
       <div className="workspace-tablist" role="tablist" aria-label="Workspace">

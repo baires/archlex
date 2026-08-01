@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
 const WARNING_SOURCE = `provider aws
@@ -111,6 +112,33 @@ test("retains the current SVG while a command change is rendering", async ({
   await expect(page.locator(".render-metadata")).toContainText("Ready");
 });
 
+test("exports the latest successful SVG without playground selection styling", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("textbox").fill(`provider aws
+latest: lambda`);
+
+  const latestNode = page.locator(
+    'svg[data-cloudmer-version] [data-cloudmer-id="latest"]',
+  );
+  await expect(latestNode).toBeVisible();
+  await latestNode.click();
+  await expect(latestNode).toHaveClass(/selected/);
+
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export" }).click();
+  await page.getByRole("menuitem", { name: "Download SVG" }).click();
+  const download = await downloadPromise;
+  const downloadPath = await download.path();
+  if (!downloadPath) throw new Error("Downloaded SVG path is unavailable");
+  const downloadedSvg = await readFile(downloadPath, "utf8");
+
+  expect(download.suggestedFilename()).toBe("cloudmer-diagram.svg");
+  expect(downloadedSvg).toContain('data-cloudmer-id="latest"');
+  expect(downloadedSvg).not.toMatch(/class="[^"]*\bselected\b/);
+});
+
 test("supports a persisted keyboard-resizable 40/60 workspace", async ({
   page,
 }) => {
@@ -148,9 +176,67 @@ test("supports pointer-resizable editor width", async ({ page }) => {
   await expect(separator).toHaveAttribute("aria-valuenow", "60");
 });
 
+test("supports a keyboard-only primary workflow and reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.getByLabel("Example")).toBeVisible();
+  await expect(
+    page.getByRole("textbox", { name: "Source", exact: true }),
+  ).toBeVisible();
+
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Skip to workspace" });
+  await expect(skipLink).toBeFocused();
+  await expect(page.locator(":focus-visible")).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page.getByTestId("workspace")).toBeFocused();
+
+  const separator = page.getByRole("separator", {
+    name: "Resize editor and preview",
+  });
+  await separator.focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(separator).toHaveAttribute("aria-valuenow", "38");
+  await expect
+    .poll(() =>
+      separator.evaluate((node) => getComputedStyle(node).transitionDuration),
+    )
+    .toBe("0s");
+
+  await page.getByRole("button", { name: "Enter fullscreen preview" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("button", { name: "Exit fullscreen preview" }),
+  ).toBeVisible();
+
+  const fullscreenDuration = await page
+    .locator(".preview-stage")
+    .evaluate((node) => getComputedStyle(node).transitionDuration);
+  expect(fullscreenDuration).toBe("0s");
+});
+
 test("uses editor and preview tabs on narrow screens", async ({ page }) => {
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto("/");
+  await expect(page.getByLabel("Example")).toBeVisible();
+  await expect(page.getByLabel("Layout direction")).toBeInViewport();
+  await expect(page.getByLabel("Validation mode")).toBeInViewport();
+  const commandBarHeight = await page
+    .getByRole("banner")
+    .evaluate((element) => element.getBoundingClientRect().height);
+  expect(commandBarHeight).toBeLessThanOrEqual(48);
+  expect(
+    await page.evaluate(() => ({
+      documentOverflow:
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+      commandBarOverflow:
+        document.querySelector(".command-bar").scrollWidth -
+        document.querySelector(".command-bar").clientWidth,
+    })),
+  ).toEqual({ documentOverflow: 0, commandBarOverflow: 0 });
   await expect(page.getByRole("tab", { name: "Editor" })).toHaveAttribute(
     "aria-selected",
     "true",
