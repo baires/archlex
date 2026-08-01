@@ -30,7 +30,7 @@ packages/aws/src/
 ```text
 packages/gcp/src/
 ├── catalog/       # Service definitions, category lists, and aliases
-├── icons/         # Sanitized SVG icon fragments and metadata manifest
+├── icons/         # Sanitized SVG icon fragments, metadata manifest, and CDN config
 ├── rules/         # Modular semantic validation rules grouped by domain
 ├── builder.ts     # Declarative defineService and defineRule helpers
 ├── registry.ts    # Central registry of GCP diagnostic codes
@@ -38,6 +38,21 @@ packages/gcp/src/
 ```
 
 GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
+
+### `@archlex/icons`
+
+```text
+packages/icons/src/
+├── cache.ts       # Persistent disk-based cache manager with TTL expiration
+├── provider.ts    # CDN provider abstraction with name mapping & fallbacks
+├── loader.ts      # Singleton IconLoader orchestrator
+├── sanitizer.ts   # Security-hardened SVG validator
+├── fallback.ts    # Generic cloud icon fallback
+├── types.ts       # TypeScript interfaces and type definitions
+└── index.ts       # Public exports
+```
+
+The `@archlex/icons` package provides dynamic CDN icon loading for Node.js environments. Icons not included in bundled manifests are fetched from CDN, sanitized, and cached persistently. See [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for configuration and usage.
 
 ### `@archlex/parser`
 
@@ -89,8 +104,22 @@ export const lambdaService = defineService({
   iconKey: "aws-lambda"
 });
 ```
-2. Place the sanitized SVG icon fragment in `src/icons/svg/aws-lambda.svg`.
-3. Add table-driven tests in `packages/aws/src/catalog/catalog.test.ts`.
+2. **For bundled icons:** Place the sanitized SVG icon fragment in `src/icons/svg/aws-lambda.svg`.
+3. **For CDN-only icons:** Add a name mapping in `src/icons/cdn.ts`:
+```ts
+export const AWS_ICON_NAME_MAPPING: Record<string, string> = {
+  lambda: "Compute_AWSLambda",
+  // Add your new service here
+};
+```
+4. Add table-driven tests in `packages/aws/src/catalog/catalog.test.ts`.
+
+**Icon Resolution Priority:**
+1. Bundled icon (if present in `AWS_SANITIZED_ICONS`)
+2. CDN icon (fetched via `IconLoader.get()` in Node.js environments)
+3. No icon (returns `undefined`)
+
+See [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for details on CDN configuration and cache management.
 
 ---
 
