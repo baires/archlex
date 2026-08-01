@@ -11,6 +11,7 @@
     "format": "biome format --write .",
     "check": "turbo build typecheck test && biome check .",
     "generate-docs": "tsx scripts/generate-error-docs.ts",
+    "validate:catalog": "node scripts/validate-catalog.mjs",
     "prepare": "husky"
   },
   "lint-staged": {

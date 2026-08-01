@@ -1,2 +1,4 @@
 npx lint-staged
 pnpm run typecheck
+pnpm validate:catalog
+
