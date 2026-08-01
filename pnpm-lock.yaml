@@ -68,12 +68,24 @@ importers:
 
   apps/playground:
     dependencies:
+      '@archlex/aws':
+        specifier: workspace:^
+        version: link:../../packages/aws
       '@archlex/core':
         specifier: workspace:^
         version: link:../../packages/core
       '@archlex/diagnostics':
         specifier: workspace:*
         version: link:../../packages/diagnostics
+      '@archlex/gcp':
+        specifier: workspace:^
+        version: link:../../packages/gcp
+      '@archlex/icons-browser':
+        specifier: workspace:^
+        version: link:../../packages/icons-browser
+      '@archlex/icons-core':
+        specifier: workspace:^
+        version: link:../../packages/icons-core
       '@archlex/model':
         specifier: workspace:^
         version: link:../../packages/model

@@ -1,4 +1,6 @@
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import { awsProvider } from "@archlex/aws";
+import { createArchLex } from "@archlex/core";
+import { gcpProvider } from "@archlex/gcp";
 import type { Diagnostic, ValidationMode } from "@archlex/model";
 import { useEffect, useRef, useState } from "react";
 import { CommandBar } from "./components/CommandBar.js";
@@ -22,6 +24,12 @@ import {
   shouldAutoOpenDiagnostics,
 } from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
+import { iconLoader } from "./icon-loader.js";
+import {
+  isAbortError,
+  isCurrentOperation,
+  renderWithIcons,
+} from "./render-pipeline.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
 const archlex = createArchLex({ providers: [awsProvider(), gcpProvider()] });
@@ -111,6 +119,7 @@ export function App() {
   const previousSummaryRef = useRef(summarizeStatusDiagnostics([], null));
   const lastSuccessfulDiagnosticsRef = useRef<readonly Diagnostic[]>([]);
   const selectionRequestRef = useRef(0);
+  const renderOperationIdRef = useRef(0);
   const diagnosticsTriggerRef = useRef<HTMLButtonElement | null>(null);
   const fullscreen = useWorkspaceFullscreen();
 
@@ -139,6 +148,8 @@ export function App() {
   const activeControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    const operationId = ++renderOperationIdRef.current;
+    let operationController: AbortController | null = null;
     setIsRendering(true);
 
     const timeoutId = setTimeout(() => {
@@ -146,20 +157,25 @@ export function App() {
         activeControllerRef.current.abort();
       }
       const controller = new AbortController();
+      operationController = controller;
       activeControllerRef.current = controller;
 
       renderStartedAtRef.current = performance.now();
-      archlex
-        .render(source, {
-          direction,
-          validation,
-          theme,
-          signal: controller.signal,
-        })
-        .then((result) => {
-          if (controller.signal.aborted) return;
+      renderWithIcons(archlex, iconLoader, source, {
+        direction,
+        validation,
+        theme,
+        signal: controller.signal,
+      })
+        .then(({ renderResult }) => {
+          if (
+            controller.signal.aborted ||
+            !isCurrentOperation(operationId, renderOperationIdRef.current)
+          ) {
+            return;
+          }
           const nextSummary = summarizeStatusDiagnostics(
-            result.diagnostics,
+            renderResult.diagnostics,
             null,
           );
           if (
@@ -169,9 +185,9 @@ export function App() {
             setIsDiagnosticsOpen(true);
           }
           previousSummaryRef.current = nextSummary;
-          lastSuccessfulDiagnosticsRef.current = result.diagnostics;
-          setCurrentSvg(result.svg);
-          setDiagnostics(result.diagnostics);
+          lastSuccessfulDiagnosticsRef.current = renderResult.diagnostics;
+          setCurrentSvg(renderResult.svg);
+          setDiagnostics(renderResult.diagnostics);
           setRenderIssue(null);
           setRenderDurationMs(
             Math.round(performance.now() - renderStartedAtRef.current),
@@ -179,7 +195,13 @@ export function App() {
           setIsRendering(false);
         })
         .catch((error: unknown) => {
-          if (controller.signal.aborted) return;
+          if (
+            controller.signal.aborted ||
+            isAbortError(error) ||
+            !isCurrentOperation(operationId, renderOperationIdRef.current)
+          ) {
+            return;
+          }
           const issue = createRenderIssue(error);
           const nextSummary = summarizeStatusDiagnostics(
             lastSuccessfulDiagnosticsRef.current,
@@ -199,6 +221,10 @@ export function App() {
 
     return () => {
       clearTimeout(timeoutId);
+      operationController?.abort();
+      if (activeControllerRef.current === operationController) {
+        activeControllerRef.current = null;
+      }
     };
   }, [source, direction, validation, theme]);
 
