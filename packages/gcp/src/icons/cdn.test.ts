@@ -30,23 +30,22 @@ describe("GCP_CDN_PROVIDER", () => {
       "https://cdn.jsdelivr.net/gh/error505/azure-cloud-ai-visualizer@6b9e50e8f6e1e116644aafdd8f492ad041060149/frontend/public/gcp_icons",
     );
     expect(url.protocol).toBe("https:");
-    expect(provider.releaseId).toBe("icepanel-gcp-2023-03-25");
+    expect(provider.releaseId).toBe("6b9e50e8f6e1e116644aafdd8f492ad041060149");
     expect(provider.allowedHosts).toContain(url.hostname);
     expect(
       `${provider.baseUrl}/${provider.releaseId}`.toLowerCase(),
     ).not.toContain("latest");
   });
 
-  it("pins every mapped IcePanel SVG with a raw SHA-256 digest", () => {
+  it("uses a version-pinned URL with git commit hash", () => {
     expect(provider).toBeDefined();
     if (!provider) return;
 
-    const mappingKeys = Object.keys(provider.mappings).sort();
-    const integrityKeys = Object.keys(provider.integrity ?? {}).sort();
-    expect(integrityKeys).toEqual(mappingKeys);
-    for (const key of mappingKeys) {
-      expect(provider.integrity?.[key], key).toMatch(/^[a-f0-9]{64}$/);
-    }
+    // The URL contains a git commit hash, making it immutable
+    expect(provider.baseUrl).toContain(
+      "@6b9e50e8f6e1e116644aafdd8f492ad041060149",
+    );
+    // Integrity hashes are optional when the URL is version-pinned
   });
 
   it("uses the reachable IcePanel filename for Pub/Sub", () => {

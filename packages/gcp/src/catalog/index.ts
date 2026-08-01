@@ -145,6 +145,36 @@ export const initialServices: ResourceDefinition[] = [
     aliases: ["gcp.bigquery", "bq"],
   }),
   defineService({
+    id: "dataflow",
+    displayName: "Dataflow",
+    category: "analytics",
+    aliases: ["gcp.dataflow"],
+  }),
+  defineService({
+    id: "dataproc",
+    displayName: "Dataproc",
+    category: "analytics",
+    aliases: ["gcp.dataproc"],
+  }),
+  defineService({
+    id: "looker",
+    displayName: "Looker",
+    category: "analytics",
+    aliases: ["gcp.looker"],
+  }),
+  defineService({
+    id: "dataplex",
+    displayName: "Dataplex",
+    category: "analytics",
+    aliases: ["gcp.dataplex"],
+  }),
+  defineService({
+    id: "datastream",
+    displayName: "Datastream",
+    category: "analytics",
+    aliases: ["gcp.datastream"],
+  }),
+  defineService({
     id: "vertex-ai",
     displayName: "Vertex AI",
     category: "ai-ml",
