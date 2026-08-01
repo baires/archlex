@@ -179,3 +179,118 @@ app -[writes]-> cache
 
 ---
 
+### publishes
+
+**Definition:** Asynchronous message or event emission to a topic, queue, event bus, or message broker. The source service sends messages without waiting for processing or acknowledgment.
+
+**When to use:**
+- The source service emits events to a message queue, topic, or event bus (e.g., SQS, SNS, Pub/Sub, EventBridge).
+- The interaction is asynchronous—the source doesn't wait for a response or confirmation of processing.
+- You're modeling event-driven architectures, message publishing, or fire-and-forget communication patterns.
+- Multiple consumers may process the same message (fan-out pattern).
+
+**When NOT to use:**
+- The source service consumes messages from a queue or topic (use `subscribes` instead).
+- The interaction is synchronous with an expected response (use `invokes` instead).
+- The source writes data directly to storage or database (use `writes` instead).
+- The message is a direct request-response RPC call (use `invokes` instead).
+
+**Directionality:** Source → Target (messages flow from source to target topic/queue/bus).
+
+**Examples:**
+
+```cloudmer
+# Service publishes events to SNS topic
+api -[publishes]-> topic
+
+# Lambda emits events to EventBridge
+function -[publishes]-> eventbus
+
+# Application sends messages to SQS queue
+app -[publishes]-> queue
+```
+
+**Common mistakes:**
+- Using `publishes` for synchronous API calls—use `invokes` for request-response patterns.
+- Confusing `publishes` with `subscribes`—`publishes` is message emission, `subscribes` is message consumption.
+- Using `publishes` for direct database writes—use `writes` for data persistence.
+
+---
+
+### subscribes
+
+**Definition:** Receiving or consuming messages from a queue, topic, or stream. The source service listens to and processes messages from the target.
+
+**When to use:**
+- The source service consumes messages from a queue, topic, or event stream (e.g., SQS, SNS, Pub/Sub, Kinesis).
+- The source service polls, pulls, or receives push notifications of messages from the target.
+- You're modeling event consumers, message processors, or subscriber patterns in event-driven architectures.
+- The source processes messages asynchronously from the target.
+
+**When NOT to use:**
+- The source service emits messages to a queue or topic (use `publishes` instead).
+- The interaction is synchronous with an expected response (use `invokes` instead).
+- The source reads data directly from storage or database (use `reads` instead).
+- The message is a direct request-response RPC call (use `invokes` instead).
+
+**Directionality:** Source subscribes to Target. The arrow points from source (subscriber) to target (queue/topic), indicating the source's dependency on the target for messages.
+
+**Examples:**
+
+```cloudmer
+# Lambda subscribes to SQS queue
+function -[subscribes]-> queue
+
+# Service consumes from SNS topic subscription
+processor -[subscribes]-> topic
+
+# Worker pulls from event stream
+worker -[subscribes]-> stream
+```
+
+**Common mistakes:**
+- Using `subscribes` for message emission—use `publishes` for sending messages.
+- Confusing arrow direction—the arrow points from subscriber to queue/topic, not the direction messages flow.
+- Using `subscribes` for synchronous API calls—use `invokes` for request-response patterns.
+
+---
+
+### invokes
+
+**Definition:** Synchronous function call, API request, or RPC invocation where the source waits for execution and typically expects a response.
+
+**When to use:**
+- The source service makes a synchronous HTTP/REST/GraphQL API call to the target.
+- The source invokes a function (Lambda, Cloud Function) and waits for completion.
+- The source makes an RPC or gRPC call expecting a response.
+- The interaction is request-response with the source blocking or awaiting the result.
+
+**When NOT to use:**
+- The interaction is asynchronous with no expected response (use `publishes` or `subscribes`).
+- The source only reads data from storage without invoking a compute service (use `reads`).
+- The source only writes data to storage without invoking a compute service (use `writes`).
+- The target is a passive data store rather than an active compute service.
+
+**Directionality:** Source → Target (the source initiates the call, the target executes and responds).
+
+**Examples:**
+
+```cloudmer
+# API invokes Lambda function
+api -[invokes]-> function
+
+# Service makes REST API call
+frontend -[invokes]-> backend
+
+# Orchestrator invokes multiple services
+orchestrator -[invokes]-> service-a
+orchestrator -[invokes]-> service-b
+```
+
+**Common mistakes:**
+- Using `invokes` for asynchronous event emission—use `publishes` for fire-and-forget patterns.
+- Using `invokes` for passive data retrieval from storage—use `reads` for database/storage queries.
+- Using `invokes` for data writes to storage—use `writes` for persistence operations.
+
+---
+
