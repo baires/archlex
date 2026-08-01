@@ -20,8 +20,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@archlex/model": "workspace:^",
-    "@archlex/icons": "workspace:^"
+    "@archlex/icons-core": "workspace:^",
+    "@archlex/model": "workspace:^"
   },
   "devDependencies": {
     "@xmldom/xmldom": "0.9.10",

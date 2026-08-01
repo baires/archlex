@@ -114,9 +114,9 @@ importers:
 
   packages/aws:
     dependencies:
-      '@archlex/icons':
+      '@archlex/icons-core':
         specifier: workspace:^
-        version: link:../icons
+        version: link:../icons-core
       '@archlex/model':
         specifier: workspace:^
         version: link:../model
@@ -232,6 +232,9 @@ importers:
 
   packages/gcp:
     dependencies:
+      '@archlex/icons-core':
+        specifier: workspace:^
+        version: link:../icons-core
       '@archlex/model':
         specifier: workspace:^
         version: link:../model

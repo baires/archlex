@@ -1,47 +1,41 @@
-import type { CdnProviderConfig } from "@archlex/icons";
+import type { CdnProviderDefinition } from "@archlex/icons-core";
 
-export const AWS_CDN_CONFIG: CdnProviderConfig = {
+export const AWS_CDN_PROVIDER: CdnProviderDefinition = {
   provider: "aws",
-  name: "aws-icons-npm",
-  baseUrl: "https://unpkg.com/aws-icons@latest/icons",
+  baseUrl: "https://unpkg.com/aws-icons@3.3.0/icons/architecture-service",
+  allowedHosts: ["unpkg.com"],
+  releaseId: "3.3.0",
   fileExtension: ".svg",
+  mappings: {
+    lambda: "AWSLambda",
+    s3: "AmazonSimpleStorageService",
+    "api-gateway": "AmazonAPIGateway",
+    cloudfront: "AmazonCloudFront",
+    dynamodb: "AmazonDynamoDB",
+    ec2: "AmazonEC2",
+    ecs: "AmazonElasticContainerService",
+    eks: "AmazonElasticKubernetesService",
+    elasticache: "AmazonElastiCache",
+    eventbridge: "AmazonEventBridge",
+    "iam-role": "AWSIdentityandAccessManagement",
+    rds: "AmazonRDS",
+    "rds-proxy": "AmazonRDS",
+    "route-table": "AmazonVirtualPrivateCloud",
+    route53: "AmazonRoute53",
+    "security-group": "AmazonVirtualPrivateCloud",
+    sns: "AmazonSimpleNotificationService",
+    sqs: "AmazonSimpleQueueService",
+    subnet: "AmazonVirtualPrivateCloud",
+    vpc: "AmazonVirtualPrivateCloud",
+    apprunner: "AWSAppRunner",
+    "app-runner": "AWSAppRunner",
+    "step-functions": "AWSStepFunctions",
+  },
   attribution: {
     source: "aws-icons npm package",
     license: "Apache-2.0",
     url: "https://www.npmjs.com/package/aws-icons",
   },
+  timeoutMs: 10_000,
+  maxResponseBytes: 256_000,
 };
-
-export const AWS_ICON_NAME_MAPPING: Record<string, string> = {
-  lambda: "lambda",
-  s3: "s3",
-  "api-gateway": "api-gateway",
-  cloudfront: "cloudfront",
-  dynamodb: "dynamodb",
-  ec2: "ec2",
-  ecs: "ecs",
-  eks: "eks",
-  elasticache: "elasticache",
-  eventbridge: "eventbridge",
-  "iam-role": "iam-role",
-  rds: "rds",
-  "rds-proxy": "rds-proxy",
-  "route-table": "route-table",
-  route53: "route53",
-  "security-group": "security-group",
-  sns: "sns",
-  sqs: "sqs",
-  subnet: "subnet",
-  vpc: "vpc",
-  apprunner: "app-runner",
-  "step-functions": "step-functions",
-};
-
-// Register provider automatically only in Node.js environments
-// Browser environments cannot use IconLoader due to Node.js dependencies
-// Use dynamic import to avoid loading @archlex/icons in browser bundles
-if (typeof process !== "undefined" && process.versions?.node) {
-  import("@archlex/icons").then(({ IconLoader }) => {
-    IconLoader.registerProvider("aws", AWS_CDN_CONFIG, AWS_ICON_NAME_MAPPING);
-  });
-}
