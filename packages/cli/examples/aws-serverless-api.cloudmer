@@ -1,0 +1,25 @@
+// AWS Serverless API with DynamoDB
+// API Gateway + Lambda + DynamoDB pattern
+
+provider aws
+direction TB
+validation normal
+
+account prod {
+  region us-east-1 {
+    api: apigateway["REST API"]
+    auth: lambda["Auth Function"]
+    handler: lambda["API Handler"]
+    db: dynamodb["User Data"]
+    cache: elasticache["Redis Cache"]
+  }
+}
+
+// Request flow
+api -[calls]-> auth
+auth -[authorizes]-> handler
+api -[calls]-> handler
+handler -[reads]-> cache
+handler -[writes]-> cache
+handler -[reads]-> db
+handler -[writes]-> db

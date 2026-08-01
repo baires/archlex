@@ -1,0 +1,16 @@
+// Simple AWS Lambda + S3 Pattern
+// Event-driven image processing
+
+provider aws
+direction TB
+
+account dev {
+  region us-west-2 {
+    upload: s3["Upload Bucket"]
+    processor: lambda["Image Processor"]
+    output: s3["Processed Images"]
+  }
+}
+
+upload -[triggers]-> processor
+processor -[writes]-> output

@@ -1,0 +1,36 @@
+// AWS 3-Tier Web Application Architecture
+// A classic web application with load balancer, web servers, and database
+
+provider aws
+direction LR
+validation normal
+
+account prod {
+  region us-east-1 {
+    vpc main {
+      // Public subnet - Load balancer
+      subnet public {
+        alb: alb["Web Load Balancer"]
+      }
+
+      // Private subnet - Application servers
+      subnet private-app {
+        web1: ec2["Web Server 1"]
+        web2: ec2["Web Server 2"]
+      }
+
+      // Private subnet - Database
+      subnet private-db {
+        db: rds["PostgreSQL Database"]
+      }
+    }
+  }
+}
+
+// Traffic flow
+alb -[routes]-> web1
+alb -[routes]-> web2
+web1 -[reads]-> db
+web1 -[writes]-> db
+web2 -[reads]-> db
+web2 -[writes]-> db

@@ -45,3 +45,4 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+tests/browser/visual-acceptance.spec.mjs-snapshots/**

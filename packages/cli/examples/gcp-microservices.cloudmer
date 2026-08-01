@@ -1,0 +1,40 @@
+// GCP Microservices on Kubernetes
+// Cloud Run services with Pub/Sub messaging
+
+provider gcp
+direction LR
+validation normal
+
+account production {
+  region us-central1 {
+    // API Gateway
+    gateway: cloudrun["API Gateway"]
+
+    // Microservices
+    users: cloudrun["Users Service"]
+    orders: cloudrun["Orders Service"]
+    payments: cloudrun["Payments Service"]
+
+    // Data stores
+    userdb: cloudsql["Users DB"]
+    orderdb: cloudsql["Orders DB"]
+
+    // Messaging
+    events: pubsub["Events Topic"]
+  }
+}
+
+// Service mesh
+gateway -[routes]-> users
+gateway -[routes]-> orders
+gateway -[routes]-> payments
+
+// Data access
+users -[reads]-> userdb
+users -[writes]-> userdb
+orders -[reads]-> orderdb
+orders -[writes]-> orderdb
+
+// Event-driven communication
+orders -[publishes]-> events
+payments -[subscribes]-> events
