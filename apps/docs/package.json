@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@archlex/design": "workspace:*",
     "next": "^15.1.6",
     "nextra": "^3.2.2",
     "nextra-theme-docs": "^3.2.2",
