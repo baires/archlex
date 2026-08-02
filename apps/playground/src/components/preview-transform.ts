@@ -15,6 +15,14 @@ export function clampScale(scale: number): number {
   return Math.min(MAX_PREVIEW_SCALE, Math.max(MIN_PREVIEW_SCALE, scale));
 }
 
+export function calculateWheelZoomDelta(
+  deltaY: number,
+  isPinchGesture: boolean,
+): number {
+  const direction = deltaY < 0 ? 1 : -1;
+  return direction * (isPinchGesture ? 0.01 : 0.1);
+}
+
 export function calculateAnchoredZoom(
   scale: number,
   pan: Point,

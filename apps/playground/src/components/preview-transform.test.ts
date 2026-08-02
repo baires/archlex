@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   calculateAnchoredZoom,
   calculateFitScale,
+  calculateWheelZoomDelta,
   clampScale,
 } from "./preview-transform.js";
 
@@ -45,5 +46,11 @@ describe("preview transform helpers", () => {
     expect(result.scale).toBe(3);
     expect(result.pan.x).toBeCloseTo(6.8966);
     expect(result.pan.y).toBeCloseTo(17.2414);
+  });
+
+  it("uses a gentler step for trackpad pinch than ordinary wheel zoom", () => {
+    expect(calculateWheelZoomDelta(-1, true)).toBe(0.01);
+    expect(calculateWheelZoomDelta(1, true)).toBe(-0.01);
+    expect(calculateWheelZoomDelta(-1, false)).toBe(0.1);
   });
 });

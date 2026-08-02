@@ -10,6 +10,7 @@ import { Icon } from "./Icon.js";
 import {
   calculateAnchoredZoom,
   calculateFitScale,
+  calculateWheelZoomDelta,
   clampScale,
 } from "./preview-transform.js";
 
@@ -96,15 +97,14 @@ export function Preview({
         x: event.clientX - bounds.left - bounds.width / 2,
         y: event.clientY - bounds.top - bounds.height / 2,
       };
-      const direction = event.deltaY < 0 ? 1 : -1;
-      const amount = event.ctrlKey ? 0.08 : 0.1;
+      const zoomDelta = calculateWheelZoomDelta(event.deltaY, event.ctrlKey);
 
       setScale((currentScale) => {
         const next = calculateAnchoredZoom(
           currentScale,
           panRef.current,
           anchor,
-          currentScale + direction * amount,
+          currentScale + zoomDelta,
         );
         updatePan(next.pan);
         return next.scale;
