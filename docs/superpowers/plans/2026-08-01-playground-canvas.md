@@ -316,4 +316,3 @@ Expected: commands exit 0 and no implementation files remain uncommitted.
 - [ ] **Step 3: Review every Global Constraint**
 
 Match each constraint to test output, browser observations, and the final diff. Report any unmet item explicitly rather than claiming completion.
-
