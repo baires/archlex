@@ -378,14 +378,14 @@ h1 {
 
 .section {
   position: relative;
-  padding-block: clamp(6rem, 11vw, 10rem);
+  padding-block: clamp(4.5rem, 7vw, 7rem);
   border-top: 1px solid var(--border-subtle);
 }
 
 .section-marker {
   display: flex;
   gap: var(--space-3);
-  margin-bottom: clamp(3rem, 6vw, 6rem);
+  margin-bottom: clamp(2.25rem, 3.5vw, 3.5rem);
   color: var(--text-secondary);
   font-family: var(--font-code);
   font-size: 0.65rem;
@@ -405,7 +405,7 @@ h1 {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(18rem, 0.75fr);
   align-items: end;
-  gap: clamp(2rem, 7vw, 8rem);
+  gap: clamp(2rem, 5vw, 5rem);
 }
 
 .section h2,
@@ -430,7 +430,7 @@ h1 {
 .semantic-comparison {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
-  margin-top: clamp(3rem, 7vw, 6rem);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-panel);
   overflow: hidden;
@@ -524,7 +524,7 @@ h1 {
 }
 
 .capability-list {
-  margin-top: clamp(3rem, 7vw, 6rem);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
   border-top: 1px solid var(--border-strong);
 }
 
@@ -591,7 +591,7 @@ h1 {
 }
 
 .section--system .product-frame {
-  margin-top: clamp(3rem, 6vw, 6rem);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
 }
 
 .product-frame--source-to-system .product-frame__workspace {
@@ -607,7 +607,7 @@ h1 {
 .quickstart-grid {
   display: grid;
   grid-template-columns: minmax(18rem, 0.7fr) minmax(28rem, 1.3fr);
-  gap: clamp(3rem, 8vw, 9rem);
+  gap: clamp(3rem, 6vw, 6rem);
 }
 
 .quickstart-copy {
@@ -661,8 +661,8 @@ h1 {
 .final-cta {
   overflow: hidden;
   position: relative;
-  margin-bottom: clamp(4rem, 8vw, 8rem);
-  padding: clamp(3rem, 7vw, 7rem);
+  margin-bottom: clamp(3rem, 5vw, 5rem);
+  padding: clamp(3rem, 5vw, 5rem);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-panel);
   background: var(--surface-raised);
@@ -700,8 +700,8 @@ h1 {
 .site-footer__grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
-  gap: clamp(2rem, 7vw, 8rem);
-  padding-block: clamp(3rem, 6vw, 6rem);
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-block: clamp(3rem, 4vw, 4rem);
 }
 
 .site-footer p {

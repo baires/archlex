@@ -30,6 +30,25 @@ test("fits the complete product hero inside a desktop viewport", async ({
   await expect(frame.locator("img")).toHaveCSS("object-fit", "contain");
 });
 
+test("uses compact bordered spacing between product sections", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const section = page.locator(".section").first();
+  const styles = await section.evaluate((element) => {
+    const computed = getComputedStyle(element);
+    return {
+      paddingTop: Number.parseFloat(computed.paddingTop),
+      borderTopWidth: computed.borderTopWidth,
+      borderTopStyle: computed.borderTopStyle,
+    };
+  });
+  expect(styles.paddingTop).toBeLessThanOrEqual(112);
+  expect(styles.borderTopWidth).toBe("1px");
+  expect(styles.borderTopStyle).toBe("solid");
+});
+
 test("explains semantics and provides a verified quick start", async ({
   page,
 }) => {
