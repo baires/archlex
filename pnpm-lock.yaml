@@ -99,12 +99,9 @@ importers:
 
   apps/landing:
     dependencies:
-      '@fontsource/ibm-plex-mono':
-        specifier: ^5.3.0
-        version: 5.3.0
-      '@fontsource/ibm-plex-sans':
-        specifier: ^5.3.0
-        version: 5.3.0
+      '@archlex/design':
+        specifier: workspace:*
+        version: link:../../packages/design
       astro:
         specifier: ^5.2.0
         version: 5.18.2(@types/node@22.20.1)(lightningcss@1.33.0)(rollup@4.62.3)(tsx@4.23.1)(typescript@5.9.3)(yaml@2.9.0)

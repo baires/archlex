@@ -2,26 +2,23 @@
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary' | 'text';
-  size?: 'sm' | 'md' | 'lg';
+  external?: boolean;
+  class?: string;
 }
 
-const { href, variant = 'primary', size = 'md' } = Astro.props;
-
-const baseClasses = 'inline-flex items-center justify-center font-semibold transition-colors rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2';
-
-const variantClasses = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-  secondary: 'bg-gray-800 text-white hover:bg-gray-700 focus:ring-gray-500 dark:bg-gray-700 dark:hover:bg-gray-600',
-  text: 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100',
-};
-
-const sizeClasses = {
-  sm: 'px-4 py-2 text-sm',
-  md: 'px-6 py-3 text-base',
-  lg: 'px-8 py-4 text-lg',
-};
+const {
+  href,
+  variant = 'primary',
+  external = false,
+  class: className = '',
+} = Astro.props;
 ---
 
-<a href={href} class={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]}`}>
+<a
+  href={href}
+  class:list={['button', `button--${variant}`, className]}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noreferrer' : undefined}
+>
   <slot />
 </a>
