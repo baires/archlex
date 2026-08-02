@@ -4,15 +4,30 @@ test("leads with a real product render and playground action", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("cloud");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Write the architecture. We’ll check it.",
+  );
   await expect(
-    page.getByRole("link", { name: /open playground/i }).first(),
+    page.getByRole("link", { name: /try the playground/i }).first(),
   ).toHaveAttribute("href", /playground/);
+  await expect(page.getByRole("link", { name: /view source/i })).toBeVisible();
   await expect(
     page.getByRole("img", {
       name: /multi-region AWS architecture rendered by ArchLex/i,
     }),
   ).toBeVisible();
+});
+
+test("fits the complete product hero inside a desktop viewport", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const frame = page.locator(".hero .product-frame");
+  const box = await frame.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box.y + box.height).toBeLessThanOrEqual(900);
+  await expect(frame.locator("img")).toHaveCSS("object-fit", "contain");
 });
 
 test("explains semantics and provides a verified quick start", async ({
