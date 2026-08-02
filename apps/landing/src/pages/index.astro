@@ -20,20 +20,21 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     <section class="hero shell">
       <div class="hero__copy">
         <p class="eyebrow"><span>OPEN SOURCE</span> AWS + GCP</p>
-        <h1>Your cloud diagram should understand your cloud.</h1>
+        <h1>Write the architecture. We’ll check it.</h1>
         <p class="hero__lede">
-          Write concise infrastructure. ArchLex validates what it means and turns it into an accessible architecture diagram.
+          Turn concise cloud text into a validated, accessible diagram—right in your browser.
         </p>
         <div class="hero__actions">
-          <Button href={SITE_ROUTES.playground}>Open playground <span aria-hidden="true">→</span></Button>
+          <Button href={SITE_ROUTES.playground}>Try the playground <span aria-hidden="true">→</span></Button>
           {SITE_ROUTES.github && (
-            <Button href={SITE_ROUTES.github} variant="text" external>View on GitHub ↗</Button>
+            <Button href={SITE_ROUTES.github} variant="text" external>View source ↗</Button>
           )}
         </div>
         <ul class="hero__proof" aria-label="Product capabilities">
-          <li><span>✓</span> Semantic validation</li>
+          <li><span>✓</span> AWS + GCP</li>
+          <li><span>✓</span> Semantic checks</li>
           <li><span>✓</span> Deterministic SVG</li>
-          <li><span>✓</span> Accessible output</li>
+          <li><span>✓</span> No sign-up</li>
         </ul>
       </div>
       <div class="hero__visual">

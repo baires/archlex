@@ -153,12 +153,12 @@ a {
 }
 
 .hero {
-  min-height: calc(100vh - 4.5rem);
+  min-height: calc(100svh - 4.5rem);
   display: grid;
-  grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.42fr);
+  grid-template-columns: minmax(18rem, 0.7fr) minmax(32rem, 1.5fr);
   align-items: center;
-  gap: clamp(2.5rem, 5vw, 6rem);
-  padding-block: clamp(4rem, 8vw, 8rem);
+  gap: clamp(2rem, 4vw, 4.5rem);
+  padding-block: clamp(2.25rem, 4.5svh, 3.5rem);
 }
 
 .hero__copy {
@@ -179,7 +179,7 @@ a {
 }
 
 .eyebrow {
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--space-4);
   color: var(--text-secondary);
 }
 
@@ -189,19 +189,19 @@ a {
 }
 
 h1 {
-  max-width: 12ch;
+  max-width: 10ch;
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(3.4rem, 6.4vw, 7.2rem);
+  font-size: clamp(3.4rem, 5.6vw, 6.25rem);
   font-weight: 500;
   letter-spacing: -0.055em;
-  line-height: 0.88;
+  line-height: 0.9;
   text-wrap: balance;
 }
 
 .hero__lede {
-  max-width: 35rem;
-  margin: var(--space-6) 0 0;
+  max-width: 31rem;
+  margin: var(--space-5) 0 0;
   color: var(--text-secondary);
   font-size: clamp(1rem, 1.3vw, 1.2rem);
 }
@@ -211,19 +211,19 @@ h1 {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
 }
 
 .hero__proof {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-5);
-  margin: var(--space-7) 0 0;
-  padding: var(--space-4) 0 0;
+  gap: var(--space-3) var(--space-4);
+  margin: var(--space-5) 0 0;
+  padding: var(--space-3) 0 0;
   border-top: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-family: var(--font-code);
-  font-size: 0.65rem;
+  font-size: 0.61rem;
   list-style: none;
   text-transform: uppercase;
 }
@@ -290,9 +290,9 @@ h1 {
 }
 
 .product-frame__workspace {
-  min-height: 36rem;
+  min-height: clamp(28rem, 57svh, 32rem);
   display: grid;
-  grid-template-columns: minmax(12rem, 32%) minmax(0, 68%);
+  grid-template-columns: minmax(11rem, 29%) minmax(0, 71%);
 }
 
 .product-frame__source,
@@ -347,8 +347,9 @@ h1 {
   width: 100%;
   height: calc(100% - 2.65rem);
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
+  padding: var(--space-3);
 }
 
 .product-frame figcaption {
@@ -803,6 +804,7 @@ h1 {
 
   .product-frame__render img {
     object-position: 48% center;
+    padding: 0;
   }
 
   .product-frame figcaption {

@@ -87,7 +87,7 @@ test("supports keyboard skip navigation and reduced motion", async ({
 
 test("uses the configured GitHub destination", async ({ page }) => {
   await page.goto("/");
-  const githubLink = page.getByRole("link", { name: /view on github/i });
+  const githubLink = page.getByRole("link", { name: /view source/i });
   await expect(githubLink).toHaveAttribute(
     "href",
     "https://github.com/example/archlex",
