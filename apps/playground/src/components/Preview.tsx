@@ -75,7 +75,7 @@ export function Preview({
       calculateFitScale(
         { width: viewBox.width, height: viewBox.height },
         { width: viewportBox.width, height: viewportBox.height },
-        32,
+        64,
       ),
     );
     updatePan({ x: 0, y: 0 });
@@ -116,6 +116,7 @@ export function Preview({
   }, [updatePan]);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if ((event.target as Element).closest(".preview-overlay")) return;
     if (event.button !== 0 && event.button !== 1) return;
     dragRef.current = {
       pointerId: event.pointerId,
@@ -205,13 +206,29 @@ export function Preview({
       aria-label="Architecture Diagram Preview"
       data-testid="preview"
     >
-      <div className="pane-header">
-        <h2>Preview</h2>
-        <div className="preview-header-actions">
-          {hasNodes && !isFullscreen ? (
+      <div
+        ref={viewportRef}
+        className={`preview-viewport${isPanning ? " is-panning" : ""}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+      >
+        <span className="preview-canvas-label">Preview</span>
+        <div className="preview-overlay">
+          {isRendering ? (
+            <span className="rendering-spinner" aria-live="polite">
+              Rendering…
+            </span>
+          ) : null}
+          {hasNodes ? (
             <div
               className="preview-controls"
-              aria-label="Diagram view controls"
+              aria-label={
+                isFullscreen
+                  ? "Fullscreen diagram view controls"
+                  : "Diagram view controls"
+              }
             >
               <button
                 type="button"
@@ -240,77 +257,32 @@ export function Preview({
               >
                 <Icon name="fit" />
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setScale(1);
-                  updatePan({ x: 0, y: 0 });
-                }}
-                aria-label="Actual size"
-                title="Reset to 100%"
-              >
-                100%
-              </button>
+              {isFullscreen ? (
+                <button
+                  ref={fullscreenExitRef}
+                  type="button"
+                  onClick={onExitFullscreen}
+                  aria-label="Exit fullscreen preview"
+                  title="Exit fullscreen preview"
+                >
+                  <Icon name="exit-fullscreen" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScale(1);
+                    updatePan({ x: 0, y: 0 });
+                  }}
+                  aria-label="Actual size"
+                  title="Reset to 100%"
+                >
+                  100%
+                </button>
+              )}
             </div>
           ) : null}
-          {isRendering ? (
-            <span className="rendering-spinner" aria-live="polite">
-              Rendering…
-            </span>
-          ) : null}
         </div>
-      </div>
-
-      {isFullscreen ? (
-        <div
-          className="preview-controls fullscreen-view-controls"
-          aria-label="Fullscreen diagram view controls"
-        >
-          <button
-            type="button"
-            onClick={() => zoomBy(-0.1)}
-            aria-label="Zoom out"
-            title="Zoom out"
-          >
-            <Icon name="zoom-out" />
-          </button>
-          <output aria-label="Zoom level">{Math.round(scale * 100)}%</output>
-          <button
-            type="button"
-            onClick={() => zoomBy(0.1)}
-            aria-label="Zoom in"
-            title="Zoom in"
-          >
-            <Icon name="zoom-in" />
-          </button>
-          <button
-            type="button"
-            onClick={fitDiagram}
-            aria-label="Fit diagram"
-            title="Fit diagram to viewport"
-          >
-            <Icon name="fit" />
-          </button>
-          <button
-            ref={fullscreenExitRef}
-            type="button"
-            onClick={onExitFullscreen}
-            aria-label="Exit fullscreen preview"
-            title="Exit fullscreen preview"
-          >
-            <Icon name="exit-fullscreen" />
-          </button>
-        </div>
-      ) : null}
-
-      <div
-        ref={viewportRef}
-        className={`preview-viewport${isPanning ? " is-panning" : ""}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
         {!hasNodes && !isRendering ? (
           <div className="empty-state">
             <div className="empty-icon">
