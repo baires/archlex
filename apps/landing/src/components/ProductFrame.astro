@@ -1,9 +1,9 @@
 ---
 interface Props {
-  variant?: 'hero' | 'source-to-system';
+  variant?: "hero" | "source-to-system";
 }
 
-const { variant = 'hero' } = Astro.props;
+const { variant = "hero" } = Astro.props;
 
 const heroSource = `direction LR
 provider aws
@@ -41,13 +41,15 @@ buffer_queue -[batch_invokes]-> processor_fn
 processor_fn -[persists]-> nosql_store
 processor_fn -[archives]-> lake`;
 
-const source = variant === 'source-to-system' ? systemSource : heroSource;
-const image = variant === 'source-to-system'
-  ? '/archlex-event-pipeline-dark.png'
-  : '/archlex-multi-region-dark.png';
-const alt = variant === 'source-to-system'
-  ? 'AWS event pipeline architecture rendered by ArchLex'
-  : 'Multi-region AWS architecture rendered by ArchLex';
+const source = variant === "source-to-system" ? systemSource : heroSource;
+const image =
+  variant === "source-to-system"
+    ? "/archlex-event-pipeline-dark.png"
+    : "/archlex-multi-region-dark.png";
+const alt =
+  variant === "source-to-system"
+    ? "AWS event pipeline architecture rendered by ArchLex"
+    : "Multi-region AWS architecture rendered by ArchLex";
 ---
 
 <div class:list={['product-frame', `product-frame--${variant}`]}>

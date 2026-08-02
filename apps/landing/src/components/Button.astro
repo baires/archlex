@@ -1,16 +1,16 @@
 ---
 interface Props {
   href: string;
-  variant?: 'primary' | 'secondary' | 'text';
+  variant?: "primary" | "secondary" | "text";
   external?: boolean;
   class?: string;
 }
 
 const {
   href,
-  variant = 'primary',
+  variant = "primary",
   external = false,
-  class: className = '',
+  class: className = "",
 } = Astro.props;
 ---
 

@@ -1,5 +1,5 @@
-import { readFile } from "node:fs/promises";
 import { strict as assert } from "node:assert";
+import { readFile } from "node:fs/promises";
 
 const manifest = JSON.parse(
   await readFile(new URL("./package.json", import.meta.url)),

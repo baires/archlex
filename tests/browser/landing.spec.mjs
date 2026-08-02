@@ -30,3 +30,53 @@ test("explains semantics and provides a verified quick start", async ({
     page.getByRole("heading", { name: /architecture already lives in code/i }),
   ).toBeVisible();
 });
+
+for (const viewport of [
+  { width: 1440, height: 1000 },
+  { width: 390, height: 844 },
+]) {
+  test(`has no horizontal overflow at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow).toBe(0);
+    await expect(
+      page.getByRole("link", { name: /open playground/i }).first(),
+    ).toBeVisible();
+  });
+}
+
+test("supports keyboard skip navigation and reduced motion", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ reducedMotion: "reduce" });
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+  const skipLink = page.getByRole("link", { name: "Skip to content" });
+  await expect(skipLink).toBeFocused();
+  await skipLink.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+  await expect(page.locator(".hero__copy")).toHaveCSS(
+    "animation-duration",
+    "0s",
+  );
+  await context.close();
+});
+
+test("uses the configured GitHub destination", async ({ page }) => {
+  await page.goto("/");
+  const githubLink = page.getByRole("link", { name: /view on github/i });
+  await expect(githubLink).toHaveAttribute(
+    "href",
+    "https://github.com/example/archlex",
+  );
+  await expect(githubLink).toHaveAttribute("target", "_blank");
+  await expect(githubLink).toHaveAttribute("rel", /noreferrer/);
+});

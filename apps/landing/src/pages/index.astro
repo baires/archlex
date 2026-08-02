@@ -1,14 +1,14 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Button from '../components/Button.astro';
-import ProductFrame from '../components/ProductFrame.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import SemanticProof from '../components/SemanticProof.astro';
-import Capabilities from '../components/Capabilities.astro';
-import SourceToSystem from '../components/SourceToSystem.astro';
-import QuickStart from '../components/QuickStart.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import { SITE_ROUTES } from '../config';
+import Button from "../components/Button.astro";
+import Capabilities from "../components/Capabilities.astro";
+import ProductFrame from "../components/ProductFrame.astro";
+import QuickStart from "../components/QuickStart.astro";
+import SemanticProof from "../components/SemanticProof.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SourceToSystem from "../components/SourceToSystem.astro";
+import { SITE_ROUTES } from "../config";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <BaseLayout
@@ -16,7 +16,7 @@ import { SITE_ROUTES } from '../config';
   description="Write cloud architecture as concise text. ArchLex validates the semantics and renders deterministic, accessible SVG."
 >
   <SiteHeader />
-  <main id="main-content">
+  <main id="main-content" tabindex="-1">
     <section class="hero shell">
       <div class="hero__copy">
         <p class="eyebrow"><span>OPEN SOURCE</span> AWS + GCP</p>

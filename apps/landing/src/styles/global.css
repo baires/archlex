@@ -10,9 +10,12 @@ html {
 body {
   min-width: 320px;
   margin: 0;
-  background:
-    linear-gradient(90deg, transparent 49.9%, rgb(255 255 255 / 2%) 50%, transparent 50.1%),
-    radial-gradient(circle at 72% 14%, rgb(184 255 99 / 5%), transparent 27%),
+  background: linear-gradient(
+      90deg,
+      transparent 49.9%,
+      rgb(255 255 255 / 2%) 50%,
+      transparent 50.1%
+    ), radial-gradient(circle at 72% 14%, rgb(184 255 99 / 5%), transparent 27%),
     var(--surface-canvas);
   color: var(--text-primary);
   font-family: var(--font-ui);
@@ -111,7 +114,9 @@ a {
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: background-color var(--duration-fast), border-color var(--duration-fast), color var(--duration-fast), transform var(--duration-fast);
+  transition: background-color var(--duration-fast), border-color
+    var(--duration-fast), color var(--duration-fast), transform
+    var(--duration-fast);
 }
 
 .button:hover {
@@ -357,11 +362,17 @@ h1 {
 }
 
 @keyframes reveal-copy {
-  from { opacity: 0; transform: translateY(20px); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
 }
 
 @keyframes reveal-frame {
-  from { opacity: 0; transform: translateX(28px); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
 }
 
 .section {
@@ -438,7 +449,11 @@ h1 {
 
 .comparison-panel--muted {
   color: var(--text-secondary);
-  background-image: repeating-linear-gradient(-45deg, transparent 0 12px, rgb(255 255 255 / 1.5%) 12px 13px);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 12px,
+    rgb(255 255 255 / 1.5%) 12px 13px
+  );
 }
 
 .comparison-panel--signal {
@@ -515,7 +530,10 @@ h1 {
 .capability {
   min-height: 12rem;
   display: grid;
-  grid-template-columns: 4rem minmax(15rem, 0.9fr) minmax(16rem, 1fr) minmax(15rem, 0.8fr);
+  grid-template-columns: 4rem minmax(15rem, 0.9fr) minmax(16rem, 1fr) minmax(
+      15rem,
+      0.8fr
+    );
   align-items: center;
   gap: clamp(1.5rem, 3vw, 4rem);
   border-bottom: 1px solid var(--border-subtle);
@@ -849,8 +867,12 @@ h1 {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
     animation-duration: 0s !important;
     animation-delay: 0s !important;
     transition-duration: 0s !important;
