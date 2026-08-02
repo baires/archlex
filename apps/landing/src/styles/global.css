@@ -378,8 +378,7 @@ h1 {
 
 .section {
   position: relative;
-  padding-block: clamp(4.5rem, 7vw, 7rem);
-  border-top: 1px solid var(--border-subtle);
+  padding-block: clamp(3.5rem, 1vw, 1rem);
 }
 
 .section-marker {
