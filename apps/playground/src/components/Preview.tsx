@@ -1,14 +1,17 @@
 import { mountSvg } from "@archlex/core/browser";
 import {
   type PointerEvent as ReactPointerEvent,
-  type WheelEvent as ReactWheelEvent,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { Icon } from "./Icon.js";
-import { calculateFitScale, clampScale } from "./preview-transform.js";
+import {
+  calculateAnchoredZoom,
+  calculateFitScale,
+  clampScale,
+} from "./preview-transform.js";
 
 interface PreviewProps {
   svg: string;
@@ -39,6 +42,7 @@ export function Preview({
     originY: number;
   } | null>(null);
   const didPanRef = useRef(false);
+  const panRef = useRef({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
@@ -55,6 +59,11 @@ export function Preview({
     Boolean(svg) &&
     (svg.includes("data-archlex-id") || svg.includes("archlex-scope"));
 
+  const updatePan = useCallback((nextPan: { x: number; y: number }) => {
+    panRef.current = nextPan;
+    setPan(nextPan);
+  }, []);
+
   const fitDiagram = useCallback(() => {
     const mounted = mountedSvgRef.current;
     const viewport = viewportRef.current;
@@ -69,12 +78,42 @@ export function Preview({
         32,
       ),
     );
-    setPan({ x: 0, y: 0 });
-  }, []);
+    updatePan({ x: 0, y: 0 });
+  }, [updatePan]);
 
   const zoomBy = useCallback((amount: number) => {
     setScale((current) => clampScale(current + amount));
   }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const bounds = viewport.getBoundingClientRect();
+      const anchor = {
+        x: event.clientX - bounds.left - bounds.width / 2,
+        y: event.clientY - bounds.top - bounds.height / 2,
+      };
+      const direction = event.deltaY < 0 ? 1 : -1;
+      const amount = event.ctrlKey ? 0.08 : 0.1;
+
+      setScale((currentScale) => {
+        const next = calculateAnchoredZoom(
+          currentScale,
+          panRef.current,
+          anchor,
+          currentScale + direction * amount,
+        );
+        updatePan(next.pan);
+        return next.scale;
+      });
+    };
+
+    viewport.addEventListener("wheel", handleWheel, { passive: false });
+    return () => viewport.removeEventListener("wheel", handleWheel);
+  }, [updatePan]);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 && event.button !== 1) return;
@@ -101,7 +140,7 @@ export function Preview({
       event.currentTarget.setPointerCapture(event.pointerId);
       setIsPanning(true);
     }
-    setPan({ x: drag.originX + deltaX, y: drag.originY + deltaY });
+    updatePan({ x: drag.originX + deltaX, y: drag.originY + deltaY });
   };
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -111,13 +150,6 @@ export function Preview({
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
     setIsPanning(false);
-  };
-
-  const handleWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setScale((current) =>
-      clampScale(current + (event.deltaY < 0 ? 0.1 : -0.1)),
-    );
   };
 
   useEffect(() => {
@@ -212,7 +244,7 @@ export function Preview({
                 type="button"
                 onClick={() => {
                   setScale(1);
-                  setPan({ x: 0, y: 0 });
+                  updatePan({ x: 0, y: 0 });
                 }}
                 aria-label="Actual size"
                 title="Reset to 100%"
@@ -278,7 +310,6 @@ export function Preview({
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        onWheel={handleWheel}
       >
         {!hasNodes && !isRendering ? (
           <div className="empty-state">

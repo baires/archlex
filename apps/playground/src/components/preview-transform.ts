@@ -6,8 +6,31 @@ interface Size {
   height: number;
 }
 
+export interface Point {
+  x: number;
+  y: number;
+}
+
 export function clampScale(scale: number): number {
   return Math.min(MAX_PREVIEW_SCALE, Math.max(MIN_PREVIEW_SCALE, scale));
+}
+
+export function calculateAnchoredZoom(
+  scale: number,
+  pan: Point,
+  anchor: Point,
+  nextScale: number,
+): { scale: number; pan: Point } {
+  const clampedNextScale = clampScale(nextScale);
+  const ratio = clampedNextScale / scale;
+
+  return {
+    scale: clampedNextScale,
+    pan: {
+      x: anchor.x - (anchor.x - pan.x) * ratio,
+      y: anchor.y - (anchor.y - pan.y) * ratio,
+    },
+  };
 }
 
 export function calculateFitScale(
