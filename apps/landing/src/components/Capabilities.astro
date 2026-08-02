@@ -1,0 +1,51 @@
+---
+const capabilities = [
+  {
+    id: '01',
+    label: 'DIAGNOSTICS',
+    title: 'Actionable diagnostics, never a dead end.',
+    body: 'Invalid source produces precise messages and the best partial diagram possible. Fix the system without losing the system.',
+    proof: 'AL-SEM-REL-003  relationship incompatible',
+    status: 'warning',
+  },
+  {
+    id: '02',
+    label: 'OUTPUT',
+    title: 'Stable output built for engineering workflows.',
+    body: 'Deterministic ordering, stable IDs, and accessible SVG make diagrams useful in docs, review, version control, and tooling.',
+    proof: '<svg role="img" data-archlex-version="1">',
+    status: 'valid',
+  },
+  {
+    id: '03',
+    label: 'PROVIDERS',
+    title: 'Cloud-aware from the first token.',
+    body: 'AWS and GCP catalogs bring official service imagery, aliases, containment rules, and provider-specific semantic checks.',
+    proof: 'provider aws  ·  provider gcp',
+    status: 'info',
+  },
+] as const;
+---
+
+<section class="section shell" aria-labelledby="capabilities-title">
+  <div class="section-marker" aria-hidden="true"><span>03</span> SYSTEM PROPERTIES</div>
+  <div class="section-intro section-intro--split">
+    <h2 id="capabilities-title">Built for infrastructure engineers.</h2>
+    <p>Every feature exists to keep architecture legible, reviewable, and honest.</p>
+  </div>
+  <div class="capability-list">
+    {capabilities.map((capability) => (
+      <article class="capability">
+        <div class="capability__index">{capability.id}</div>
+        <div>
+          <p class="capability__label">{capability.label}</p>
+          <h3>{capability.title}</h3>
+        </div>
+        <p class="capability__body">{capability.body}</p>
+        <code class:list={['capability__proof', `capability__proof--${capability.status}`]}>
+          {capability.proof}
+        </code>
+      </article>
+    ))}
+  </div>
+</section>

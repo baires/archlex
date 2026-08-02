@@ -1,0 +1,28 @@
+<section class="section section--proof shell" aria-labelledby="semantic-title">
+  <div class="section-marker" aria-hidden="true"><span>02</span> SEMANTIC LAYER</div>
+  <div class="section-intro">
+    <p class="eyebrow"><span>NOT JUST BOXES</span> THE MODEL IS THE PRODUCT</p>
+    <h2 id="semantic-title">Your diagrams should understand what they describe.</h2>
+    <p>
+      Drawing tools see shapes. ArchLex sees cloud resources, boundaries, and typed relationships—so the diagram can tell you when the architecture does not add up.
+    </p>
+  </div>
+  <div class="semantic-comparison">
+    <article class="comparison-panel comparison-panel--muted">
+      <div class="comparison-panel__label">DRAWING TOOL</div>
+      <div class="generic-diagram" aria-hidden="true">
+        <span>BOX</span><i>→</i><span>BOX</span><i>→</i><span>BOX</span>
+      </div>
+      <p>Everything is a rectangle. Every connection is accepted.</p>
+      <div class="comparison-status">NO SEMANTIC CONTEXT</div>
+    </article>
+    <article class="comparison-panel comparison-panel--signal">
+      <div class="comparison-panel__label">ARCHLEX</div>
+      <div class="semantic-path" aria-label="API Gateway invokes Lambda which writes to DynamoDB">
+        <span>API GATEWAY</span><i>invokes →</i><span>LAMBDA</span><i>writes →</i><span>DYNAMODB</span>
+      </div>
+      <p>Provider rules validate containment and relationship compatibility.</p>
+      <div class="comparison-status"><b>✓</b> ARCHITECTURE VALID</div>
+    </article>
+  </div>
+</section>

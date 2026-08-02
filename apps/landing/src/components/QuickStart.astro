@@ -1,0 +1,40 @@
+---
+import Button from './Button.astro';
+import { SITE_ROUTES } from '../config';
+
+const apiExample = `import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider()]
+});
+
+const result = await archlex.render(source);
+document.querySelector('#diagram').innerHTML = result.svg;`;
+---
+
+<section class="section section--quickstart shell" aria-labelledby="quickstart-title">
+  <div class="section-marker" aria-hidden="true"><span>05</span> QUICK START</div>
+  <div class="quickstart-grid">
+    <div class="quickstart-copy">
+      <p class="eyebrow"><span>OSS / ESM</span> BROWSER + NODE.JS</p>
+      <h2 id="quickstart-title">From install to architecture in one small API.</h2>
+      <p>
+        Use the core renderer directly, embed the SVG in your own interface, or start in the playground and learn the language by editing real examples.
+      </p>
+      <div class="quickstart-links">
+        <Button href={SITE_ROUTES.docs + '/getting-started'}>Read getting started →</Button>
+        <Button href={SITE_ROUTES.docs + '/specs/public-api'} variant="text">API reference</Button>
+      </div>
+    </div>
+    <div class="code-stack">
+      <div class="code-window">
+        <div class="code-window__bar"><span>01</span> INSTALL</div>
+        <pre><code>npm install @archlex/core @archlex/aws @archlex/gcp</code></pre>
+      </div>
+      <div class="code-window">
+        <div class="code-window__bar"><span>02</span> RENDER</div>
+        <pre><code>{apiExample}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>

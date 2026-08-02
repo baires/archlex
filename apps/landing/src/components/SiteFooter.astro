@@ -1,0 +1,30 @@
+---
+import { SITE_ROUTES } from '../config';
+---
+
+<footer class="site-footer">
+  <div class="shell site-footer__grid">
+    <div>
+      <a class="wordmark" href="/" aria-label="ArchLex home">
+        <span class="wordmark__mark" aria-hidden="true">A/</span><span>ARCHLEX</span>
+      </a>
+      <p>Semantic cloud architecture diagrams for engineering teams.</p>
+    </div>
+    <nav aria-label="Documentation">
+      <h3>Documentation</h3>
+      <a href="/docs/getting-started">Getting started</a>
+      <a href="/docs/specs/language">Language specification</a>
+      <a href="/docs/specs/public-api">API reference</a>
+    </nav>
+    <nav aria-label="Project resources">
+      <h3>Project</h3>
+      <a href={SITE_ROUTES.playground}>Playground</a>
+      <a href="/docs/architecture/contribution-guide">Contributing</a>
+      {SITE_ROUTES.github && <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>}
+    </nav>
+  </div>
+  <div class="shell site-footer__base">
+    <span>© {new Date().getFullYear()} ARCHLEX</span>
+    <span>OPEN SOURCE · BUILT FOR THE CLOUD</span>
+  </div>
+</footer>

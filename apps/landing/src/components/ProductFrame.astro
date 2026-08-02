@@ -5,7 +5,7 @@ interface Props {
 
 const { variant = 'hero' } = Astro.props;
 
-const source = `direction LR
+const heroSource = `direction LR
 provider aws
 validation normal
 
@@ -19,6 +19,35 @@ account global-core {
     }
   }
 }`;
+
+const systemSource = `direction LR
+provider aws
+validation normal
+
+ingress_api: api-gateway
+ingest_fn: lambda
+events_bus: eventbridge
+notification_topic: sns
+buffer_queue: sqs
+processor_fn: lambda
+lake: s3
+nosql_store: dynamodb
+
+ingress_api -[invokes]-> ingest_fn
+ingest_fn -[publishes]-> notification_topic
+notification_topic -[forwards]-> buffer_queue
+events_bus -[triggers]-> buffer_queue
+buffer_queue -[batch_invokes]-> processor_fn
+processor_fn -[persists]-> nosql_store
+processor_fn -[archives]-> lake`;
+
+const source = variant === 'source-to-system' ? systemSource : heroSource;
+const image = variant === 'source-to-system'
+  ? '/archlex-event-pipeline-dark.png'
+  : '/archlex-multi-region-dark.png';
+const alt = variant === 'source-to-system'
+  ? 'AWS event pipeline architecture rendered by ArchLex'
+  : 'Multi-region AWS architecture rendered by ArchLex';
 ---
 
 <div class:list={['product-frame', `product-frame--${variant}`]}>
@@ -34,8 +63,8 @@ account global-core {
     <figure class="product-frame__render">
       <div class="pane-label"><span>02</span> RENDER</div>
       <img
-        src="/archlex-multi-region-dark.png"
-        alt="Multi-region AWS architecture rendered by ArchLex"
+        src={image}
+        alt={alt}
         width="864"
         height="826"
       />

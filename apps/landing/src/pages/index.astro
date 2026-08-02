@@ -3,6 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Button from '../components/Button.astro';
 import ProductFrame from '../components/ProductFrame.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import SemanticProof from '../components/SemanticProof.astro';
+import Capabilities from '../components/Capabilities.astro';
+import SourceToSystem from '../components/SourceToSystem.astro';
+import QuickStart from '../components/QuickStart.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import { SITE_ROUTES } from '../config';
 ---
 
@@ -36,5 +41,19 @@ import { SITE_ROUTES } from '../config';
         <ProductFrame />
       </div>
     </section>
+    <SemanticProof />
+    <Capabilities />
+    <SourceToSystem />
+    <QuickStart />
+    <section class="final-cta shell" aria-labelledby="final-cta-title">
+      <div class="final-cta__signal" aria-hidden="true">→</div>
+      <p class="eyebrow"><span>READY WHEN YOU ARE</span> NO ACCOUNT REQUIRED</p>
+      <h2 id="final-cta-title">Your architecture already lives in code. Diagram it there too.</h2>
+      <div class="final-cta__actions">
+        <Button href={SITE_ROUTES.playground}>Open playground →</Button>
+        <Button href={SITE_ROUTES.docs} variant="text">Explore the docs</Button>
+      </div>
+    </section>
   </main>
+  <SiteFooter />
 </BaseLayout>
