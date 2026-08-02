@@ -870,7 +870,6 @@ ${iconSymbolSvg}    <style>
       g.archlex-node:focus-visible > rect.archlex-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
     </style>
   </defs>
-  <rect class="archlex-canvas" width="100%" height="100%" fill="${theme.background}"/>
   <g id="scopes">
 ${scopeSvgContent}  </g>
   <g id="edges">

@@ -3,6 +3,18 @@ import { describe, expect, it } from "vitest";
 import { serializeSvgGraph } from "./index.js";
 
 describe("relationship rendering", () => {
+  it("leaves the diagram canvas transparent", () => {
+    const result = serializeSvgGraph({
+      width: 300,
+      height: 200,
+      nodes: [],
+      edges: [],
+    });
+
+    expect(result.svg).not.toContain("archlex-canvas");
+    expect(result.svg).not.toContain('fill="#ffffff"');
+  });
+
   it("renders bidirectional, undirected, and dotted arrow treatments", () => {
     const graph: LayoutGraph = {
       width: 300,

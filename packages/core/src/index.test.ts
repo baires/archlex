@@ -287,7 +287,7 @@ describe("Phase 1 canonical rendering", () => {
     expect(second.svg).toBe(first.svg);
   });
 
-  it("forwards the selected light and dark themes to the SVG renderer", async () => {
+  it("forwards diagram colors without adding a themed canvas", async () => {
     const archlex = createArchLex({ providers: [awsProvider()] });
 
     const light = await archlex.render("rds-proxy > rds > ecs", {
@@ -297,12 +297,12 @@ describe("Phase 1 canonical rendering", () => {
       theme: "dark",
     });
 
-    expect(light.svg).toContain(
-      '<rect class="archlex-canvas" width="100%" height="100%" fill="#ffffff"',
-    );
-    expect(dark.svg).toContain(
-      '<rect class="archlex-canvas" width="100%" height="100%" fill="#111827"',
-    );
+    expect(light.svg).not.toContain("archlex-canvas");
+    expect(dark.svg).not.toContain("archlex-canvas");
+    expect(light.svg).toContain('class="archlex-node-surface"');
+    expect(light.svg).toContain('fill="#ffffff"');
+    expect(dark.svg).toContain('class="archlex-node-surface"');
+    expect(dark.svg).toContain('fill="#1f2937"');
   });
 });
 
