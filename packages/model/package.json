@@ -1,7 +1,15 @@
 {
   "name": "@archlex/model",
   "version": "0.1.0",
-  "private": true,
+  "description": "Type definitions and data models for ArchLex architecture diagrams",
+  "keywords": ["architecture", "diagrams", "types", "model"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archlex/archlex.git",
+    "directory": "packages/model"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -11,6 +19,10 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",

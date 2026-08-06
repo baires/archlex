@@ -1,7 +1,15 @@
 {
   "name": "@archlex/icons",
   "version": "0.1.0",
-  "private": true,
+  "description": "Icon loading and manipulation utilities for ArchLex (Node.js)",
+  "keywords": ["architecture", "diagrams", "icons", "svg", "node"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archlex/archlex.git",
+    "directory": "packages/icons"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -10,6 +18,10 @@
       "types": "./dist/index.d.ts",
       "node": "./dist/index.js"
     }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=22.0.0"

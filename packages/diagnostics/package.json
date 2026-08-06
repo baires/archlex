@@ -1,7 +1,21 @@
 {
   "name": "@archlex/diagnostics",
   "version": "0.1.0",
-  "private": true,
+  "description": "Diagnostic utilities for ArchLex architecture diagrams",
+  "keywords": [
+    "architecture",
+    "diagrams",
+    "diagnostics",
+    "validation",
+    "errors"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archlex/archlex.git",
+    "directory": "packages/diagnostics"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -11,6 +25,10 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",

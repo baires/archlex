@@ -1,7 +1,22 @@
 {
   "name": "@archlex/core",
   "version": "0.1.0",
-  "private": true,
+  "description": "Core architecture diagramming engine for cloud infrastructure",
+  "keywords": [
+    "architecture",
+    "diagrams",
+    "cloud",
+    "aws",
+    "gcp",
+    "infrastructure"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/archlex/archlex.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -15,6 +30,10 @@
       "import": "./dist/browser.js",
       "types": "./dist/browser.d.ts"
     }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",

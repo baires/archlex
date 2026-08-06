@@ -18,7 +18,10 @@
     "check": "turbo build typecheck test && biome check .",
     "generate-docs": "tsx scripts/generate-error-docs.ts",
     "validate:catalog": "node scripts/validate-catalog.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
   },
   "lint-staged": {
     "*.{js,ts,json,md}": ["biome check --write --no-errors-on-unmatched"]
