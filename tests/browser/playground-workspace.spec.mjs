@@ -34,6 +34,39 @@ subnet orphan {
 }
 source -[streams]-> sink`;
 
+async function readShellGeometry(page) {
+  return page.evaluate(() => {
+    const shell = document.querySelector(".app-shell");
+    if (!(shell instanceof HTMLElement)) throw new Error("Missing app shell");
+    const bounds = shell.getBoundingClientRect();
+    return {
+      left: bounds.left,
+      top: bounds.top,
+      right: innerWidth - bounds.right,
+      bottom: innerHeight - bounds.bottom,
+      horizontalOverflow:
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+      verticalOverflow:
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight,
+    };
+  });
+}
+
+test("frames the workspace without page-level overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 700 });
+  await page.goto("/");
+  expect(await readShellGeometry(page)).toEqual({
+    left: 10,
+    top: 10,
+    right: 10,
+    bottom: 10,
+    horizontalOverflow: 0,
+    verticalOverflow: 0,
+  });
+});
+
 test("uses the operations-console visual foundation", async ({ page }) => {
   await page.goto("/");
   const body = page.locator("body");
@@ -245,6 +278,14 @@ test("supports a keyboard-only primary workflow and reduced motion", async ({
 test("uses editor and preview tabs on narrow screens", async ({ page }) => {
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto("/");
+  expect(await readShellGeometry(page)).toEqual({
+    left: 4,
+    top: 4,
+    right: 4,
+    bottom: 4,
+    horizontalOverflow: 0,
+    verticalOverflow: 0,
+  });
   await expect(page.getByLabel("Example")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Diagram settings" }),
