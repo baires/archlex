@@ -9,6 +9,7 @@ export type IconName =
   | "exit-fullscreen"
   | "fit"
   | "moon"
+  | "settings"
   | "sun"
   | "warning"
   | "error"
@@ -72,6 +73,14 @@ function glyph(name: IconName) {
     case "moon":
       return (
         <path d="M20.5 14.1A8.5 8.5 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />
+      );
+    case "settings":
+      return (
+        <>
+          <path d="M4 7h10m4 0h2M4 17h2m4 0h10" />
+          <circle cx="16" cy="7" r="2" />
+          <circle cx="8" cy="17" r="2" />
+        </>
       );
     case "sun":
       return (

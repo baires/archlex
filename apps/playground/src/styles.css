@@ -62,11 +62,12 @@ select {
 }
 
 .command-bar {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  min-height: 3rem;
-  padding: 0.375rem 1.25rem;
+  gap: 0.75rem;
+  min-height: 2.875rem;
+  padding: 0.3125rem 0.75rem;
   background: var(--surface-1);
   border-bottom: 1px solid var(--line);
   animation: command-bar-enter var(--transition-smooth) ease-out;
@@ -87,7 +88,7 @@ select {
   display: none;
 }
 
-.command-bar-controls,
+.command-bar-context,
 .command-bar-actions,
 .control-group,
 .preview-controls {
@@ -119,14 +120,84 @@ select {
   font-weight: 600;
 }
 
-.command-bar-controls {
-  flex: 1;
-  justify-content: center;
-  gap: 0.75rem;
+.command-bar-context {
+  flex: 1 1 auto;
+  min-width: 8rem;
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+.command-bar-context .control-group,
+.command-bar-context select {
+  width: 100%;
+  min-width: 0;
 }
 
 .command-bar-actions {
+  flex: none;
   gap: 0.5rem;
+}
+
+.diagram-settings {
+  position: relative;
+}
+
+.settings-trigger {
+  white-space: nowrap;
+}
+
+.settings-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(20rem, calc(100vw - 1.5rem));
+  padding: 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--surface-1);
+  box-shadow: var(--shadow-raised);
+  animation: settings-enter var(--transition-fast) ease-out;
+}
+
+@keyframes settings-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.settings-field + .settings-field {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.settings-field label {
+  display: block;
+  color: var(--text-1);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.settings-field p {
+  margin: 0.125rem 0 0.5rem;
+  color: var(--text-2);
+  font-size: 0.75rem;
+}
+
+.settings-field select {
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--surface-2);
+  cursor: pointer;
 }
 
 .control-group {
@@ -1071,17 +1142,14 @@ select {
     padding-inline: 0.75rem;
   }
 
-  .command-bar-controls {
-    order: initial;
+  .command-bar-context {
     flex: 1 1 auto;
     min-width: 0;
-    width: auto;
-    justify-content: center;
-    gap: 0.5rem;
-    overflow: visible;
+    margin-inline: 0;
   }
 
-  .command-bar-controls .control-group label {
+  .command-bar-context .example-label,
+  .settings-trigger span {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1093,22 +1161,10 @@ select {
     border: 0;
   }
 
-  .command-bar-controls .control-group:first-child {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .command-bar-controls .control-group:first-child select {
-    width: 100%;
-    min-width: 0;
-  }
-
-  #direction-select {
-    width: 7.5rem;
-  }
-
-  #validation-select {
-    width: 5.25rem;
+  .settings-trigger {
+    justify-content: center;
+    width: 2rem;
+    padding-inline: 0.375rem;
   }
 
   .command-bar-actions {
@@ -1217,5 +1273,10 @@ select {
   *::before,
   *::after {
     transition-duration: 0ms !important;
+  }
+
+  .command-bar,
+  .settings-popover {
+    animation: none;
   }
 }

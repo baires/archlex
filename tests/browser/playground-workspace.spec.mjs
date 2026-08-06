@@ -60,8 +60,17 @@ test("groups infrequent actions without hiding core configuration", async ({
   await page.goto("/");
   await expect(page.getByRole("banner")).toHaveClass(/command-bar/);
   await expect(page.getByLabel("Example")).toBeVisible();
+  await expect(page.getByLabel("Layout direction")).toHaveCount(0);
+  await expect(page.getByLabel("Validation mode")).toHaveCount(0);
+  const settings = page.getByRole("button", { name: "Diagram settings" });
+  await expect(settings).toHaveAttribute("aria-expanded", "false");
+  await settings.click();
   await expect(page.getByLabel("Layout direction")).toBeVisible();
   await expect(page.getByLabel("Validation mode")).toBeVisible();
+  await page.getByLabel("Layout direction").selectOption("TB");
+  await expect(settings).toHaveAttribute("aria-expanded", "true");
+  await page.keyboard.press("Escape");
+  await expect(settings).toBeFocused();
   await expect(page.locator(".toolbar")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Export" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy SVG" })).toHaveCount(0);
@@ -107,6 +116,22 @@ test("keeps the command bar compact and supports Export menu keyboard navigation
   await expect(copySvg).toHaveCount(0);
 });
 
+test("keeps compact controls on one row at narrow desktop widths", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 820, height: 700 });
+  await page.goto("/");
+  const bar = page.getByRole("banner");
+  const box = await bar.boundingBox();
+  expect(box?.height).toBeGreaterThanOrEqual(44);
+  expect(box?.height).toBeLessThanOrEqual(48);
+
+  await page.getByRole("button", { name: "Diagram settings" }).click();
+  const popover = page.locator("#diagram-settings-popover");
+  await expect(popover).toBeVisible();
+  await expect(popover).toHaveCSS("position", "absolute");
+});
+
 test("retains the current SVG while a command change is rendering", async ({
   page,
 }) => {
@@ -115,6 +140,7 @@ test("retains the current SVG while a command change is rendering", async ({
   const renderedSvg = page.locator("svg[data-archlex-version]");
   await expect(renderedSvg).toBeVisible();
 
+  await page.getByRole("button", { name: "Diagram settings" }).click();
   await page.getByLabel("Layout direction").selectOption("TB");
   await expect(page.locator(".render-metadata")).toContainText("Rendering");
   await expect(renderedSvg).toBeVisible();
@@ -233,8 +259,9 @@ test("uses editor and preview tabs on narrow screens", async ({ page }) => {
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto("/");
   await expect(page.getByLabel("Example")).toBeVisible();
-  await expect(page.getByLabel("Layout direction")).toBeInViewport();
-  await expect(page.getByLabel("Validation mode")).toBeInViewport();
+  await expect(
+    page.getByRole("button", { name: "Diagram settings" }),
+  ).toBeInViewport();
   const commandBarHeight = await page
     .getByRole("banner")
     .evaluate((element) => element.getBoundingClientRect().height);

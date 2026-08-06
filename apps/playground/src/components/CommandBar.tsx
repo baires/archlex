@@ -1,5 +1,6 @@
 import type { ValidationMode } from "@archlex/model";
 import type { ArchitectureExample } from "../examples.js";
+import { DiagramSettings } from "./DiagramSettings.js";
 import { ExportMenu } from "./ExportMenu.js";
 import { Icon } from "./Icon.js";
 import { ImportMenu } from "./ImportMenu.js";
@@ -50,9 +51,11 @@ export function CommandBar({
         <h1 className="visually-hidden">ArchLex</h1>
       </div>
 
-      <div className="command-bar-controls">
+      <div className="command-bar-context">
         <div className="control-group">
-          <label htmlFor="example-select">Example</label>
+          <label className="example-label" htmlFor="example-select">
+            Example
+          </label>
           <select
             id="example-select"
             defaultValue=""
@@ -73,40 +76,15 @@ export function CommandBar({
             ))}
           </select>
         </div>
-
-        <div className="control-group">
-          <label htmlFor="direction-select">Layout direction</label>
-          <select
-            id="direction-select"
-            value={direction}
-            onChange={(event) =>
-              onDirectionChange(event.target.value as "LR" | "RL" | "TB" | "BT")
-            }
-          >
-            <option value="LR">Left to right</option>
-            <option value="RL">Right to left</option>
-            <option value="TB">Top to bottom</option>
-            <option value="BT">Bottom to top</option>
-          </select>
-        </div>
-
-        <div className="control-group">
-          <label htmlFor="validation-select">Validation mode</label>
-          <select
-            id="validation-select"
-            value={validation}
-            onChange={(event) =>
-              onValidationChange(event.target.value as ValidationMode)
-            }
-          >
-            <option value="normal">Normal</option>
-            <option value="strict">Strict</option>
-            <option value="off">Off</option>
-          </select>
-        </div>
       </div>
 
       <div className="command-bar-actions">
+        <DiagramSettings
+          direction={direction}
+          validation={validation}
+          onDirectionChange={onDirectionChange}
+          onValidationChange={onValidationChange}
+        />
         <button
           type="button"
           className="btn-secondary icon-button"
