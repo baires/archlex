@@ -148,7 +148,7 @@ After the release PR has produced verified `0.1.0` tarballs, sign in interactive
 
 - [ ] **Step 3: Document npm trusted publishers**
 
-For each now-existing package, select GitHub Actions, repository `archlex/archlex`, workflow filename `release.yml`, environment `release`, and allowed action `npm publish`. Test OIDC on the next patch release; after it succeeds, disallow token publishing and revoke obsolete automation tokens.
+For each now-existing package, select GitHub Actions, repository `baires/archlex`, workflow filename `release.yml`, environment `release`, and allowed action `npm publish`. Test OIDC on the next patch release; after it succeeds, disallow token publishing and revoke obsolete automation tokens.
 
 - [ ] **Step 4: Document release and recovery operations**
 

@@ -15,11 +15,11 @@
 - Apps and implementation packages remain `private: true`.
 - Published packages use ESM and require Node.js `>=22.0.0`.
 - No published manifest may contain an unresolved `workspace:` range.
-- The repository URL used in package metadata is `https://github.com/archlex/archlex`; if the actual public repository differs, replace this value consistently before executing Task 2.
+- The repository uses Apache-2.0 and its canonical URL is `https://github.com/baires/archlex`.
 
 ---
 
-### Task 1: Lock the license and public-package contract
+### Task 1: Add Apache-2.0 and lock the public-package contract
 
 **Files:**
 - Create: `LICENSE`
@@ -56,9 +56,9 @@ Expected: FAIL because `scripts/public-packages.mjs` does not exist.
 
 Export `PUBLIC_PACKAGES`, `readWorkspacePackages()`, and `PRIVATE_WORKSPACE_PACKAGES`. Use `node:fs/promises` and `node:path`; do not duplicate package paths in later scripts.
 
-- [ ] **Step 4: Add the chosen license**
+- [ ] **Step 4: Add the Apache-2.0 license**
 
-Use the maintainer-approved SPDX license text verbatim in `LICENSE`. Apache-2.0 is the recommended default because it includes an explicit patent grant; do not publish until the maintainer has approved the license. Mark the legal/license checklist entries complete only after dependency and AWS/GCP icon terms have been reviewed.
+Use the official Apache License 2.0 text verbatim in `LICENSE` and use the SPDX identifier `Apache-2.0` in package manifests. Mark the dependency-license and AWS/GCP icon terms checklist entries complete only after their separate reviews.
 
 - [ ] **Step 5: Run the contract test**
 
@@ -89,7 +89,7 @@ git commit -m "chore: define public package contract"
 
 - [ ] **Step 1: Extend the manifest test**
 
-Assert for every public manifest: version `0.1.0`; no `private`; `license` equals the approved SPDX identifier; `repository.type` is `git`; `repository.url` is `git+https://github.com/archlex/archlex.git`; `repository.directory` points to the package folder; `homepage` is `https://archlex.dev`; `bugs.url` is `https://github.com/archlex/archlex/issues`; `engines.node` is `>=22.0.0`; `publishConfig.access` is `public`; and `files` contains only `dist`, `README.md`, and `LICENSE` as applicable.
+Assert for every public manifest: version `0.1.0`; no `private`; `license` is `Apache-2.0`; `repository.type` is `git`; `repository.url` is `git+https://github.com/baires/archlex.git`; `repository.directory` points to the package folder; `homepage` is `https://archlex.dev`; `bugs.url` is `https://github.com/baires/archlex/issues`; `engines.node` is `>=22.0.0`; `publishConfig.access` is `public`; and `files` contains only `dist`, `README.md`, and `LICENSE` as applicable.
 
 - [ ] **Step 2: Run the test and confirm current manifests fail**
 
@@ -243,4 +243,3 @@ Expected: configuration parses, package verification passes, and repository chec
 git add .changeset/config.json .changeset/README.md CONTRIBUTING.md PRE-RELEASE-CHECKLIST.md
 git commit -m "chore: configure fixed package releases"
 ```
-

@@ -10,6 +10,7 @@ Create a predictable release process for the open-source ArchLex monorepo. Publi
 ## Guiding Decisions
 
 - The entire monorepo is open source, but only intentional, supported APIs are published to npm.
+- The repository uses the Apache-2.0 license and is published at `https://github.com/baires/archlex`.
 - `@archlex/core` is the batteries-included programmatic API and works without installing internal packages separately.
 - Public packages use a fixed Changesets version group and release together.
 - Conventional Commits are enforced on pull-request titles, and pull requests are squash-merged.
@@ -136,7 +137,7 @@ Tags and GitHub releases are not created until all four npm packages have been p
 
 ## Initial Release Sequence
 
-1. Choose the open-source license and add the license file.
+1. Add the approved Apache-2.0 license file.
 2. Review dependency licenses and AWS/GCP icon usage terms.
 3. Add package metadata: license, repository, homepage, bugs, author, files, exports, engines, and public publish configuration.
 4. Make only the four supported packages publishable and configure the Changesets fixed group.
