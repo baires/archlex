@@ -7,6 +7,7 @@
     "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start",
+    "preview": "npx serve out -l 3001",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
