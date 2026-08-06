@@ -8,6 +8,7 @@ on:
 
 jobs:
   check:
+    name: Build, typecheck, test, and lint
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +28,59 @@ jobs:
 
       - name: Run root check
         run: pnpm check
+
+  package-artifacts:
+    name: Verify package artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify packages
+        run: pnpm verify:packages
+
+  changeset:
+    name: Require changeset
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check if PR is from Changesets
+        id: changeset-pr
+        run: |
+          if [[ "${{ github.event.pull_request.user.login }}" == "github-actions[bot]" ]] && [[ "${{ github.event.pull_request.title }}" == *"Version Packages"* ]]; then
+            echo "is_version_pr=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_version_pr=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get changed files
+        if: steps.changeset-pr.outputs.is_version_pr != 'true'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: node scripts/require-changeset.mjs

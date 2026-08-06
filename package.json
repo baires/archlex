@@ -18,6 +18,7 @@
     "check": "turbo build typecheck test && biome check .",
     "generate-docs": "tsx scripts/generate-error-docs.ts",
     "validate:catalog": "node scripts/validate-catalog.mjs",
+    "verify:packages": "node scripts/validate-catalog.mjs",
     "prepare": "husky",
     "changeset": "changeset",
     "version": "changeset version",
