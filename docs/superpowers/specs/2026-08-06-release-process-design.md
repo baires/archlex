@@ -102,7 +102,7 @@ Merging the release pull request starts one concurrency-controlled publishing wo
 
 The public GitHub repository, public npm packages, GitHub-hosted runner, current npm CLI, and `id-token: write` workflow permission enable npm provenance attestations. Long-lived npm write tokens are not used once trusted publishing is configured. Each public package is configured on npm to trust the exact publishing workflow.
 
-The initial releases use a protected GitHub environment with explicit maintainer approval. This gate can be relaxed after the process has proven reliable.
+The initial releases use a protected GitHub environment with explicit maintainer approval. This gate can be relaxed after the process has proven reliable. Because npm trusted publishers are configured from an existing package's settings, brand-new package names require a one-time bootstrap: a maintainer stages the verified `0.1.0` artifacts while interactively authenticated, approves them with 2FA, verifies all four registry entries, and then binds each package to the trusted workflow. This bootstrap uses no stored CI write token. Subsequent releases use OIDC exclusively.
 
 ## Cloudflare Deployment Architecture
 
@@ -112,7 +112,7 @@ Web deployment is independent of npm publication:
 | --- | --- | --- | --- |
 | Landing | Cloudflare Pages | `main` | Astro static output from `apps/landing/dist` |
 | Playground | Cloudflare Pages | `main` | Vite static output from `apps/playground/dist` |
-| Documentation | Cloudflare Workers | `main` | Next/Nextra through the OpenNext Cloudflare adapter |
+| Documentation | Cloudflare Pages | `main` | Next/Nextra static export from `apps/docs/out` |
 
 The intended domain layout is:
 
@@ -120,7 +120,7 @@ The intended domain layout is:
 - `playground.archlex.dev` for the playground.
 - `docs.archlex.dev` for documentation.
 
-Each application has an independent Cloudflare project. Pull requests receive preview deployments. Production deploys come from `main`; build-watch paths prevent changes isolated to one app from rebuilding every other app. Changes to shared packages trigger every dependent application.
+Each application has an independent Cloudflare Pages project. Pull requests receive preview deployments. Production deploys come from `main`; build-watch paths prevent changes isolated to one app from rebuilding every other app. Changes to shared packages trigger every dependent application. The documentation remains a static export until it needs server-side rendering, route handlers, server actions, or another runtime-only feature; that future requirement would justify a separate migration to Cloudflare Workers.
 
 Production verification checks that each site responds successfully. The playground smoke test also renders a representative diagram. Cloudflare retains its existing production deployment when a new build fails.
 
@@ -142,11 +142,11 @@ Tags and GitHub releases are not created until all four npm packages have been p
 4. Make only the four supported packages publishable and configure the Changesets fixed group.
 5. Ensure `@archlex/core` bundles its internal runtime and that every public tarball passes inspection.
 6. Reserve and configure the `@archlex` npm organization or scope.
-7. Configure npm trusted publishing for each public package.
-8. Add GitHub pull-request validation, branch protection, squash merging, the release workflow, and protected release environment.
-9. Configure the two Cloudflare Pages projects and the documentation Worker, including domains, previews, and build-watch paths.
-10. Test all workflows with Cloudflare previews and npm dry runs.
-11. Merge the initial release pull request and publish `0.1.0`.
+7. Add GitHub pull-request validation, branch protection, squash merging, the release workflow, and protected release environment.
+8. Configure the three Cloudflare Pages projects, including domains, previews, and build-watch paths.
+9. Test all workflows with Cloudflare previews and npm dry runs.
+10. Merge the initial release pull request, stage the four new `0.1.0` packages, and approve them with maintainer 2FA.
+11. Verify all four registry entries, then configure npm trusted publishing for subsequent releases.
 12. Verify clean external installation, imports, the CLI, registry metadata, GitHub release, and all production sites.
 13. Update the README with npm installation instructions and live site URLs, then publish the launch announcement.
 
@@ -156,7 +156,7 @@ Tags and GitHub releases are not created until all four npm packages have been p
 - Publishing internal implementation packages.
 - Continuous publication on every merge.
 - A prerelease or nightly npm channel.
-- Migrating the current Next/Nextra documentation to a static framework.
+- Migrating the current statically exported Next/Nextra documentation to another framework or a Worker runtime.
 - Automatically rolling back immutable npm releases.
 
 These can be reconsidered after the `0.x` release process has operated successfully.
