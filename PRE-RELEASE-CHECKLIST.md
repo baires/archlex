@@ -65,7 +65,7 @@ This checklist covers the remaining tasks before making ArchLex public.
 - [ ] **Generate initial CHANGELOG.md** from changesets
 - [ ] **Tag release** in git
 - [ ] **Prepare npm packages** (dry-run publish)
-- [ ] **Deploy playground** to hosting (Vercel, Netlify, GitHub Pages)
+- [ ] **Deploy sites** to Cloudflare Pages (landing, playground, docs)
 - [ ] **Update README** with live playground URL
 
 ### Communication

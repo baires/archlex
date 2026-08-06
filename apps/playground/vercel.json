@@ -1,6 +1,0 @@
-{
-  "buildCommand": "cd ../.. && pnpm install && turbo build --filter=@archlex/playground",
-  "outputDirectory": "dist",
-  "framework": "vite",
-  "installCommand": "pnpm install"
-}
