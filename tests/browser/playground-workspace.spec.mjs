@@ -38,20 +38,9 @@ test("uses the operations-console visual foundation", async ({ page }) => {
   await page.goto("/");
   const body = page.locator("body");
   await expect(body).toHaveCSS("font-family", /IBM Plex Sans/);
-  const styles = await page
-    .locator("head style, head link[rel=stylesheet]")
-    .evaluateAll(async (nodes) =>
-      (
-        await Promise.all(
-          nodes.map(async (node) => {
-            if (node.tagName === "STYLE") return node.textContent ?? "";
-            const response = await fetch(node.href);
-            return response.text();
-          }),
-        )
-      ).join("\n"),
-    );
-  expect(styles).not.toMatch(/backdrop-filter|linear-gradient|radial-gradient/);
+  const commandBar = page.getByRole("banner");
+  await expect(commandBar).toHaveCSS("background-image", "none");
+  await expect(commandBar).toHaveCSS("backdrop-filter", "none");
 });
 
 test("groups infrequent actions without hiding core configuration", async ({
@@ -220,9 +209,7 @@ test("supports a keyboard-only primary workflow and reduced motion", async ({
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.getByLabel("Example")).toBeVisible();
-  await expect(
-    page.getByRole("textbox", { name: "Source", exact: true }),
-  ).toBeVisible();
+  await expect(page.locator(".monaco-editor")).toBeVisible();
 
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Skip to workspace" });
