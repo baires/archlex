@@ -235,7 +235,7 @@ function findBestLabelPosition(
   nodes: readonly LayoutNode[],
   sourceNodeId: string,
   targetNodeId: string,
-  minClearance = 12,
+  minClearance = 24,
 ): { x: number; y: number } {
   if (points.length === 0) return { x: 50, y: 0 };
   if (points.length === 1) return points[0];
@@ -355,10 +355,10 @@ function findBestLabelPosition(
   // try positioning above/below the midpoint
   const midpointCoords = calculatePositionAtDistance(totalLength / 2);
   if (midpointCoords) {
-    // Try 30px above
+    // Try 40px above
     const above = {
       x: midpointCoords.x,
-      y: midpointCoords.y - 30,
+      y: midpointCoords.y - 40,
     };
     const labelRectAbove: Rect = {
       x: above.x - labelWidth / 2 - minClearance,
@@ -377,10 +377,10 @@ function findBestLabelPosition(
     });
     if (!hasOverlapAbove) return above;
 
-    // Try 30px below
+    // Try 40px below
     const below = {
       x: midpointCoords.x,
-      y: midpointCoords.y + 30,
+      y: midpointCoords.y + 40,
     };
     const labelRectBelow: Rect = {
       x: below.x - labelWidth / 2 - minClearance,
@@ -851,20 +851,20 @@ export function serializeSvgGraph(
 
   const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="ArchLex Architecture Diagram" data-archlex-version="0.1.0" class="archlex-svg">
   <defs>
-    <marker id="arrowhead" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}"/>
+    <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 3 L 0 6 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-start" markerWidth="7" markerHeight="7" refX="0.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 7 0 L 0 3.5 L 7 7 Z" fill="${theme.arrowFill}"/>
+    <marker id="arrowhead-start" markerWidth="6" markerHeight="6" refX="2" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 6 0 L 0 3 L 6 6 Z" fill="${theme.arrowFill}"/>
     </marker>
-    <marker id="arrowhead-write" markerWidth="8" markerHeight="8" refX="7.5" refY="4" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0 0 L 8 4 L 0 8 Z" fill="${theme.arrowFill}" stroke="${theme.arrowFill}" stroke-width="0.5"/>
+    <marker id="arrowhead-write" markerWidth="7" markerHeight="7" refX="4.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="${theme.arrowFill}" stroke="${theme.arrowFill}" stroke-width="0.5"/>
     </marker>
-    <marker id="arrowhead-stream" markerWidth="7" markerHeight="9" refX="6.5" refY="4.5" orient="auto" markerUnits="strokeWidth">
-      <path d="M 0 0 L 7 4.5 L 0 9" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
+    <marker id="arrowhead-stream" markerWidth="6" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 4 L 0 8" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
-    <marker id="arrowhead-read" markerWidth="7" markerHeight="7" refX="6.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
-      <circle cx="3.5" cy="3.5" r="2.5" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
+    <marker id="arrowhead-read" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
+      <circle cx="3" cy="3" r="2" fill="none" stroke="${theme.arrowFill}" stroke-width="1.5"/>
     </marker>
 ${iconSymbolSvg}    <style>
       g.archlex-node:focus-visible > rect.archlex-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
