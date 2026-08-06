@@ -5,11 +5,36 @@ import type {
   LayoutGraph,
   LayoutNode,
 } from "@archlex/model";
-import { nodeWidthForLabel } from "@archlex/model";
+import {
+  EDGE_LABEL_HEIGHT,
+  edgeLabelBoxWidth,
+  nodeWidthForLabel,
+} from "@archlex/model";
 
 const COMPACT_RESOURCE_WIDTH = 128;
 const COMPACT_RESOURCE_HEIGHT = 92;
 const SCOPE_HEADER_CLEARANCE = 36;
+
+// Fixed px of edge line reserved on each side of a relationship label so the
+// line start/end and the arrowhead always render fully.
+const EDGE_LABEL_SIDE_PADDING = 8;
+
+// ELK spacing values (px) for the root graph and for nested scope containers.
+// BetweenLayers spacing is applied on BOTH sides of an edge label by ELK, so
+// it directly drives the visual distance between connected nodes.
+const ROOT_SPACING = {
+  nodeNode: 60,
+  edgeNode: 40,
+  edgeEdge: 24,
+  nodeNodeBetweenLayers: 42,
+} as const;
+
+const SCOPE_SPACING = {
+  nodeNode: 36,
+  edgeNode: 20,
+  nodeNodeBetweenLayers: 56,
+  paddingSides: 20,
+} as const;
 
 export interface ElkNodeInput {
   id: string;
@@ -97,10 +122,12 @@ export function buildElkGraph(
         "elk.algorithm": "layered",
         "elk.direction": elkDirection,
         "elk.edgeRouting": "ORTHOGONAL",
-        "elk.padding": `[top=${SCOPE_HEADER_CLEARANCE},left=20,bottom=20,right=20]`,
-        "elk.spacing.nodeNode": "36",
-        "elk.spacing.edgeNode": "20",
-        "elk.layered.spacing.nodeNodeBetweenLayers": "56",
+        "elk.padding": `[top=${SCOPE_HEADER_CLEARANCE},left=${SCOPE_SPACING.paddingSides},bottom=${SCOPE_SPACING.paddingSides},right=${SCOPE_SPACING.paddingSides}]`,
+        "elk.spacing.nodeNode": String(SCOPE_SPACING.nodeNode),
+        "elk.spacing.edgeNode": String(SCOPE_SPACING.edgeNode),
+        "elk.layered.spacing.nodeNodeBetweenLayers": String(
+          SCOPE_SPACING.nodeNodeBetweenLayers,
+        ),
       },
       children: childNodes,
     };
@@ -135,23 +162,39 @@ export function buildElkGraph(
       "elk.algorithm": "layered",
       "elk.direction": elkDirection,
       "elk.edgeRouting": "ORTHOGONAL",
-      "elk.spacing.nodeNode": "60",
-      "elk.spacing.edgeNode": "40",
-      "elk.spacing.edgeEdge": "24",
-      "elk.layered.spacing.nodeNodeBetweenLayers": "96",
+      "elk.spacing.nodeNode": String(ROOT_SPACING.nodeNode),
+      "elk.spacing.edgeNode": String(ROOT_SPACING.edgeNode),
+      "elk.spacing.edgeEdge": String(ROOT_SPACING.edgeEdge),
+      "elk.layered.spacing.nodeNodeBetweenLayers": String(
+        ROOT_SPACING.nodeNodeBetweenLayers,
+      ),
       "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
       "elk.layered.crossingMinimization.strategy": "LAYER_SWEEP",
       "elk.hierarchyHandling": "INCLUDE_CHILDREN",
+      "elk.edgeLabels.placement": "CENTER",
     },
     children: topLevelChildren,
-    edges: graph.edges.map((e) => ({
-      id: e.id,
-      sources: [e.source],
-      targets: [e.target],
-      arrow: e.arrow,
-      kind: e.kind,
-      label: e.label,
-    })),
+    edges: graph.edges.map((e) => {
+      const labelText = e.label?.trim() || e.kind?.trim() || "";
+      return {
+        id: e.id,
+        sources: [e.source],
+        targets: [e.target],
+        arrow: e.arrow,
+        kind: e.kind,
+        label: e.label,
+        labels: labelText
+          ? [
+              {
+                text: labelText,
+                width:
+                  edgeLabelBoxWidth(labelText) + EDGE_LABEL_SIDE_PADDING * 2,
+                height: EDGE_LABEL_HEIGHT,
+              },
+            ]
+          : [],
+      };
+    }),
   };
 }
 

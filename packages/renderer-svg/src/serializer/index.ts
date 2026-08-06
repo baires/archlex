@@ -5,7 +5,11 @@ import type {
   LayoutNode,
   SvgResult,
 } from "@archlex/model";
-import { charsPerLineForWidth } from "@archlex/model";
+import {
+  EDGE_LABEL_HEIGHT,
+  charsPerLineForWidth,
+  edgeLabelBoxWidth,
+} from "@archlex/model";
 import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
 
@@ -228,6 +232,9 @@ function rectanglesOverlap(a: Rect, b: Rect): boolean {
   );
 }
 
+const EDGE_LABEL_GAP = 8;
+const EDGE_ARROW_TIP_GAP = 6;
+
 function findBestLabelPosition(
   points: readonly { x: number; y: number }[],
   labelWidth: number,
@@ -236,9 +243,10 @@ function findBestLabelPosition(
   sourceNodeId: string,
   targetNodeId: string,
   minClearance = 24,
-): { x: number; y: number } {
-  if (points.length === 0) return { x: 50, y: 0 };
-  if (points.length === 1) return points[0];
+  endpointMargin = 0,
+): { x: number; y: number; distance: number } {
+  if (points.length === 0) return { x: 50, y: 0, distance: 0 };
+  if (points.length === 1) return { ...points[0], distance: 0 };
 
   let totalLength = 0;
   const segments: Array<{
@@ -255,7 +263,7 @@ function findBestLabelPosition(
     totalLength += length;
   }
 
-  if (totalLength < 1e-9) return points[0];
+  if (totalLength < 1e-9) return { ...points[0], distance: 0 };
 
   // Filter to leaf nodes, excluding the source and target of this edge
   const leafNodes = nodes.filter(
@@ -283,7 +291,16 @@ function findBestLabelPosition(
     return null;
   };
 
-  const testPosition = (distance: number): { x: number; y: number } | null => {
+  const testPosition = (
+    distance: number,
+    respectEndpointMargin = true,
+  ): { x: number; y: number; distance: number } | null => {
+    if (
+      respectEndpointMargin &&
+      (distance < endpointMargin || distance > totalLength - endpointMargin)
+    ) {
+      return null;
+    }
     let remaining = distance;
     for (const segment of segments) {
       if (segment.length < 1e-9) continue;
@@ -312,7 +329,7 @@ function findBestLabelPosition(
         });
 
         if (!hasOverlap) {
-          return { x, y };
+          return { x, y, distance };
         }
         return null;
       }
@@ -351,6 +368,15 @@ function findBestLabelPosition(
     if (candidate) return candidate;
   }
 
+  // Retry without the endpoint margin: in crowded diagrams a label near a
+  // route endpoint is still better than overlapping another node.
+  const relaxedMidpoint = testPosition(totalLength / 2, false);
+  if (relaxedMidpoint) return relaxedMidpoint;
+  for (const distance of candidates) {
+    const candidate = testPosition(distance, false);
+    if (candidate) return candidate;
+  }
+
   // If no position is free of overlaps along the route,
   // try positioning above/below the midpoint
   const midpointCoords = calculatePositionAtDistance(totalLength / 2);
@@ -375,7 +401,7 @@ function findBestLabelPosition(
       };
       return rectanglesOverlap(labelRectAbove, nodeRect);
     });
-    if (!hasOverlapAbove) return above;
+    if (!hasOverlapAbove) return { ...above, distance: totalLength / 2 };
 
     // Try 40px below
     const below = {
@@ -397,12 +423,19 @@ function findBestLabelPosition(
       };
       return rectanglesOverlap(labelRectBelow, nodeRect);
     });
-    if (!hasOverlapBelow) return below;
+    if (!hasOverlapBelow) return { ...below, distance: totalLength / 2 };
   }
 
   // If everything overlaps, return midpoint anyway as fallback
   // (better to have some overlap than to skip the label entirely)
-  let remainingDistance = totalLength / 2;
+  const fallbackDistance =
+    totalLength > endpointMargin * 2
+      ? Math.min(
+          Math.max(totalLength / 2, endpointMargin),
+          totalLength - endpointMargin,
+        )
+      : totalLength / 2;
+  let remainingDistance = fallbackDistance;
   for (const segment of segments) {
     if (segment.length < 1e-9) continue;
     if (remainingDistance <= segment.length) {
@@ -410,12 +443,119 @@ function findBestLabelPosition(
       return {
         x: segment.start.x + (segment.end.x - segment.start.x) * progress,
         y: segment.start.y + (segment.end.y - segment.start.y) * progress,
+        distance: fallbackDistance,
       };
     }
     remainingDistance -= segment.length;
   }
 
-  return points[points.length - 1];
+  return { ...points[points.length - 1], distance: totalLength };
+}
+
+// Orientation of the route segment containing the given arc-length distance.
+function routeOrientationAt(
+  points: readonly { x: number; y: number }[],
+  distance: number,
+): "horizontal" | "vertical" {
+  let traversed = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const dx = points[index].x - points[index - 1].x;
+    const dy = points[index].y - points[index - 1].y;
+    const length = Math.hypot(dx, dy);
+    if (length < 1e-9) continue;
+    if (traversed + length >= distance) {
+      return Math.abs(dx) >= Math.abs(dy) ? "horizontal" : "vertical";
+    }
+    traversed += length;
+  }
+  return "horizontal";
+}
+
+// Extract the sub-polyline between two arc-length distances along the route.
+function subPolyline(
+  points: readonly { x: number; y: number }[],
+  fromDistance: number,
+  toDistance: number,
+): { x: number; y: number }[] {
+  const result: { x: number; y: number }[] = [];
+  let traversed = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    const start = points[index - 1];
+    const end = points[index];
+    const length = Math.hypot(end.x - start.x, end.y - start.y);
+    const segmentStart = traversed;
+    const segmentEnd = traversed + length;
+    traversed = segmentEnd;
+    if (
+      length < 1e-9 ||
+      segmentEnd <= fromDistance ||
+      segmentStart >= toDistance
+    ) {
+      continue;
+    }
+    const t0 = Math.max(0, (fromDistance - segmentStart) / length);
+    const t1 = Math.min(1, (toDistance - segmentStart) / length);
+    if (result.length === 0) {
+      result.push({
+        x: start.x + (end.x - start.x) * t0,
+        y: start.y + (end.y - start.y) * t0,
+      });
+    }
+    result.push({
+      x: start.x + (end.x - start.x) * t1,
+      y: start.y + (end.y - start.y) * t1,
+    });
+  }
+  return result;
+}
+
+// Split the route into the parts before/after a label box, leaving a visible
+// gap between the edge line (and its arrowheads) and the label.
+function splitEdgeAroundLabel(
+  points: readonly { x: number; y: number }[],
+  labelDistance: number,
+  trim: number,
+): {
+  before: { x: number; y: number }[];
+  after: { x: number; y: number }[];
+} | null {
+  let totalLength = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    totalLength += Math.hypot(
+      points[index].x - points[index - 1].x,
+      points[index].y - points[index - 1].y,
+    );
+  }
+  if (totalLength < 1e-9) return null;
+
+  const gapStart = labelDistance - trim;
+  const gapEnd = labelDistance + trim;
+  if (gapStart <= 0 || gapEnd >= totalLength) return null;
+
+  const before = subPolyline(points, 0, gapStart);
+  const after = subPolyline(points, gapEnd, totalLength);
+  if (before.length < 2 || after.length < 2) return null;
+  return { before, after };
+}
+
+// Shorten a route at its ends so arrowheads stop a few px short of the node
+// borders instead of touching them.
+function trimRouteEnds(
+  points: readonly { x: number; y: number }[],
+  startTrim: number,
+  endTrim: number,
+): readonly { x: number; y: number }[] {
+  if (startTrim <= 0 && endTrim <= 0) return points;
+  let totalLength = 0;
+  for (let index = 1; index < points.length; index += 1) {
+    totalLength += Math.hypot(
+      points[index].x - points[index - 1].x,
+      points[index].y - points[index - 1].y,
+    );
+  }
+  if (totalLength - startTrim - endTrim < 8) return points;
+  const trimmed = subPolyline(points, startTrim, totalLength - endTrim);
+  return trimmed.length >= 2 ? trimmed : points;
 }
 
 interface ScopeStyle {
@@ -641,11 +781,28 @@ export function serializeSvgGraph(
           ? ' stroke-dasharray="6 5"'
           : "";
 
-    const pathD = buildRoundedPath(edge.points, 8);
-    if (!pathD) continue;
-
     const svgId = createInternalSvgId("edge", edge.id);
     const relationshipLabel = edge.label?.trim() || edge.kind?.trim() || "";
+
+    // Compute the label position up front so the edge path can be split
+    // around the label box, leaving a visible gap between the line (and its
+    // arrowheads) and the label.
+    const labelWidth = relationshipLabel
+      ? edgeLabelBoxWidth(relationshipLabel)
+      : 0;
+    const labelHeight = EDGE_LABEL_HEIGHT;
+    const labelPoint = relationshipLabel
+      ? findBestLabelPosition(
+          edge.points,
+          labelWidth,
+          labelHeight,
+          leafNodes,
+          edge.source,
+          edge.target,
+          24,
+          Math.max(labelWidth, labelHeight) / 2 + EDGE_LABEL_GAP,
+        )
+      : null;
 
     // Determine marker style based on relationship type
     let markerType = "arrowhead";
@@ -694,22 +851,61 @@ export function serializeSvgGraph(
       ? ` aria-label="${escapeXml(relationshipLabel)}" role="graphics-object"`
       : "";
 
-    edgeSvgContent += `  <path id="${svgId}" class="archlex-edge" data-archlex-id="${escapeXml(edge.id)}" data-archlex-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}"${edgeStrokeStyle || ' stroke-width="1.5"'}${strokeDash} fill="none" marker-start="${markerStart}" marker-end="${markerEnd}"${ariaLabelAttr}${describedByAttr}/>\n`;
-    if (relationshipLabel) {
-      const labelWidth = Math.max(50, relationshipLabel.length * 6.6 + 24);
-      const labelHeight = 24;
+    const renderEdgePath = (
+      pathPoints: readonly { x: number; y: number }[],
+      pathId: string,
+      pathMarkerStart: string,
+      pathMarkerEnd: string,
+      extraAttrs: string,
+    ): string => {
+      const pathD = buildRoundedPath(pathPoints, 8);
+      return `  <path id="${pathId}" class="archlex-edge" data-archlex-id="${escapeXml(edge.id)}" data-archlex-arrow="${escapeXml(edge.arrow)}" d="${pathD}" stroke="${strokeColor}"${edgeStrokeStyle || ' stroke-width="1.5"'}${strokeDash} fill="none" marker-start="${pathMarkerStart}" marker-end="${pathMarkerEnd}"${extraAttrs}/>\n`;
+    };
 
-      const labelPoint = findBestLabelPosition(
-        edge.points,
-        labelWidth,
-        labelHeight,
-        leafNodes,
-        edge.source,
-        edge.target,
+    const edgeSplit = labelPoint
+      ? splitEdgeAroundLabel(
+          edge.points,
+          labelPoint.distance,
+          (routeOrientationAt(edge.points, labelPoint.distance) === "horizontal"
+            ? labelWidth
+            : labelHeight) /
+            2 +
+            EDGE_LABEL_GAP,
+        )
+      : null;
+
+    const startTipTrim = markerStart !== "none" ? EDGE_ARROW_TIP_GAP : 0;
+    const endTipTrim = markerEnd !== "none" ? EDGE_ARROW_TIP_GAP : 0;
+
+    if (edgeSplit) {
+      edgeSvgContent += renderEdgePath(
+        trimRouteEnds(edgeSplit.before, startTipTrim, 0),
+        svgId,
+        markerStart,
+        "none",
+        `${ariaLabelAttr}${describedByAttr}`,
       );
-
+      edgeSvgContent += renderEdgePath(
+        trimRouteEnds(edgeSplit.after, 0, endTipTrim),
+        `${svgId}-tail`,
+        "none",
+        markerEnd,
+        "",
+      );
+    } else {
+      const pathD = buildRoundedPath(edge.points, 8);
+      if (!pathD) continue;
+      edgeSvgContent += renderEdgePath(
+        trimRouteEnds(edge.points, startTipTrim, endTipTrim),
+        svgId,
+        markerStart,
+        markerEnd,
+        `${ariaLabelAttr}${describedByAttr}`,
+      );
+    }
+    if (relationshipLabel && labelPoint) {
       edgeLabelSvgContent += `  <g class="archlex-edge-label" transform="translate(${labelPoint.x.toFixed(1)}, ${labelPoint.y.toFixed(1)})" aria-hidden="true">\n`;
-      edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="-12" width="${labelWidth.toFixed(1)}" height="24" rx="6" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
+      edgeLabelSvgContent += `    <rect x="${(-labelWidth / 2).toFixed(1)}" y="${(-labelHeight / 2).toFixed(1)}" width="${labelWidth.toFixed(1)}" height="${labelHeight}" rx="6" fill="${theme.nodeFill}" stroke="${theme.nodeStroke}" stroke-width="1"/>\n`;
       edgeLabelSvgContent += `    <text y="4.5" fill="${theme.textFill}" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">${escapeXml(relationshipLabel)}</text>\n`;
       edgeLabelSvgContent += "  </g>\n";
     }

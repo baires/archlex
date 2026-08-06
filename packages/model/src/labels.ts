@@ -14,6 +14,23 @@ export const NODE_WIDTH_TIERS = [128, 160, 192] as const;
 export const NODE_LABEL_HORIZONTAL_PADDING = 16;
 export const NODE_LABEL_CHAR_WIDTH = 7;
 
+/**
+ * Edge relationship labels are drawn as a small rounded box centered on the
+ * edge route. The box size is estimated without DOM font metrics so the ELK
+ * layout and the SVG serializer agree on how much room a label needs.
+ */
+export const EDGE_LABEL_HEIGHT = 24;
+export const EDGE_LABEL_CHAR_WIDTH = 6.6;
+export const EDGE_LABEL_HORIZONTAL_PADDING = 24;
+export const EDGE_LABEL_MIN_WIDTH = 50;
+
+export function edgeLabelBoxWidth(text: string): number {
+  return Math.max(
+    EDGE_LABEL_MIN_WIDTH,
+    text.length * EDGE_LABEL_CHAR_WIDTH + EDGE_LABEL_HORIZONTAL_PADDING,
+  );
+}
+
 export function charsPerLineForWidth(width: number): number {
   return Math.max(
     1,
