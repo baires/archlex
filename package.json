@@ -19,6 +19,7 @@
     "generate-docs": "tsx scripts/generate-error-docs.ts",
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "verify:packages": "node scripts/validate-catalog.mjs",
+    "verify:sites": "node scripts/verify-sites.mjs",
     "prepare": "husky",
     "changeset": "changeset",
     "version": "changeset version",
