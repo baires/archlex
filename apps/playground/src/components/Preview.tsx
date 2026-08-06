@@ -8,10 +8,9 @@ import {
 } from "react";
 import { Icon } from "./Icon.js";
 import {
-  calculateAnchoredZoom,
+  calculateCenteredZoom,
   calculateFitScale,
-  calculateWheelZoomDelta,
-  clampScale,
+  calculateWheelZoomFactor,
 } from "./preview-transform.js";
 
 interface PreviewProps {
@@ -82,9 +81,25 @@ export function Preview({
     updatePan({ x: 0, y: 0 });
   }, [updatePan]);
 
-  const zoomBy = useCallback((amount: number) => {
-    setScale((current) => clampScale(current + amount));
-  }, []);
+  const zoomTo = useCallback(
+    (getNextScale: (currentScale: number) => number) => {
+      setScale((currentScale) => {
+        const next = calculateCenteredZoom(
+          currentScale,
+          panRef.current,
+          getNextScale(currentScale),
+        );
+        updatePan(next.pan);
+        return next.scale;
+      });
+    },
+    [updatePan],
+  );
+
+  const zoomBy = useCallback(
+    (factor: number) => zoomTo((currentScale) => currentScale * factor),
+    [zoomTo],
+  );
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -92,28 +107,12 @@ export function Preview({
 
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const bounds = viewport.getBoundingClientRect();
-      const anchor = {
-        x: event.clientX - bounds.left - bounds.width / 2,
-        y: event.clientY - bounds.top - bounds.height / 2,
-      };
-      const zoomDelta = calculateWheelZoomDelta(event.deltaY, event.ctrlKey);
-
-      setScale((currentScale) => {
-        const next = calculateAnchoredZoom(
-          currentScale,
-          panRef.current,
-          anchor,
-          currentScale + zoomDelta,
-        );
-        updatePan(next.pan);
-        return next.scale;
-      });
+      zoomBy(calculateWheelZoomFactor(event.deltaY, event.ctrlKey));
     };
 
     viewport.addEventListener("wheel", handleWheel, { passive: false });
     return () => viewport.removeEventListener("wheel", handleWheel);
-  }, [updatePan]);
+  }, [zoomBy]);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if ((event.target as Element).closest(".preview-overlay")) return;
@@ -232,7 +231,7 @@ export function Preview({
             >
               <button
                 type="button"
-                onClick={() => zoomBy(-0.1)}
+                onClick={() => zoomBy(1 / 1.1)}
                 aria-label="Zoom out"
                 title="Zoom out"
               >
@@ -243,7 +242,7 @@ export function Preview({
               </output>
               <button
                 type="button"
-                onClick={() => zoomBy(0.1)}
+                onClick={() => zoomBy(1.1)}
                 aria-label="Zoom in"
                 title="Zoom in"
               >
@@ -296,6 +295,7 @@ export function Preview({
           className="preview-stage"
           data-pan-x={Math.round(pan.x)}
           data-pan-y={Math.round(pan.y)}
+          data-scale={scale.toFixed(4)}
           style={{
             display: hasNodes ? "block" : "none",
             transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${scale})`,

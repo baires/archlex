@@ -296,6 +296,24 @@ test("fullscreen preview preserves workspace and canvas state", async ({
   await expect(page.getByLabel("Zoom level")).toHaveText("110%");
 });
 
+test("zooms gradually around the preview center", async ({ page }) => {
+  await page.goto("/");
+  const viewport = page.locator(".preview-viewport");
+  const stage = page.locator(".preview-stage");
+
+  await page.getByRole("button", { name: "Actual size" }).click();
+  await viewport.dispatchEvent("wheel", {
+    deltaY: -4,
+    ctrlKey: true,
+    clientX: 50,
+    clientY: 50,
+  });
+
+  await expect(stage).toHaveAttribute("data-pan-x", "0");
+  await expect(stage).toHaveAttribute("data-pan-y", "0");
+  await expect(stage).toHaveAttribute("data-scale", "1.0100");
+});
+
 test("falls back to in-app fullscreen when the browser request rejects", async ({
   page,
 }) => {

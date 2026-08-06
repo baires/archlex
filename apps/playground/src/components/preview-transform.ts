@@ -25,14 +25,6 @@ export function calculateWheelZoomFactor(
   return 1 + signedChange;
 }
 
-export function calculateWheelZoomDelta(
-  deltaY: number,
-  isPinchGesture: boolean,
-): number {
-  const factor = calculateWheelZoomFactor(deltaY, isPinchGesture);
-  return factor - 1;
-}
-
 export function calculateAnchoredZoom(
   scale: number,
   pan: Point,
