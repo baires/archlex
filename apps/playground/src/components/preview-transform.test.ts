@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   calculateAnchoredZoom,
+  calculateCenteredZoom,
   calculateFitScale,
-  calculateWheelZoomDelta,
+  calculateWheelZoomFactor,
   clampScale,
 } from "./preview-transform.js";
 
@@ -48,9 +49,27 @@ describe("preview transform helpers", () => {
     expect(result.pan.y).toBeCloseTo(17.2414);
   });
 
-  it("uses a gentler step for trackpad pinch than ordinary wheel zoom", () => {
-    expect(calculateWheelZoomDelta(-1, true)).toBe(0.01);
-    expect(calculateWheelZoomDelta(1, true)).toBe(-0.01);
-    expect(calculateWheelZoomDelta(-1, false)).toBe(0.1);
+  it("scales wheel input proportionally and caps individual events", () => {
+    expect(calculateWheelZoomFactor(-1, true)).toBeGreaterThan(1);
+    expect(calculateWheelZoomFactor(-1, true)).toBeLessThan(
+      calculateWheelZoomFactor(-12, true),
+    );
+    expect(calculateWheelZoomFactor(-1000, true)).toBe(1.08);
+    expect(calculateWheelZoomFactor(1000, true)).toBe(0.92);
+  });
+
+  it("uses a stronger but still capped curve for ordinary wheel input", () => {
+    expect(calculateWheelZoomFactor(-1, false)).toBeGreaterThan(
+      calculateWheelZoomFactor(-1, true),
+    );
+    expect(calculateWheelZoomFactor(-1000, false)).toBe(1.16);
+    expect(calculateWheelZoomFactor(1000, false)).toBe(0.84);
+  });
+
+  it("zooms around viewport center while preserving existing pan", () => {
+    expect(calculateCenteredZoom(1, { x: 80, y: -40 }, 1.5)).toEqual({
+      scale: 1.5,
+      pan: { x: 120, y: -60 },
+    });
   });
 });

@@ -15,12 +15,22 @@ export function clampScale(scale: number): number {
   return Math.min(MAX_PREVIEW_SCALE, Math.max(MIN_PREVIEW_SCALE, scale));
 }
 
+export function calculateWheelZoomFactor(
+  deltaY: number,
+  isPinchGesture: boolean,
+): number {
+  const sensitivity = isPinchGesture ? 0.0025 : 0.01;
+  const cap = isPinchGesture ? 0.08 : 0.16;
+  const signedChange = Math.max(-cap, Math.min(cap, -deltaY * sensitivity));
+  return 1 + signedChange;
+}
+
 export function calculateWheelZoomDelta(
   deltaY: number,
   isPinchGesture: boolean,
 ): number {
-  const direction = deltaY < 0 ? 1 : -1;
-  return direction * (isPinchGesture ? 0.01 : 0.1);
+  const factor = calculateWheelZoomFactor(deltaY, isPinchGesture);
+  return factor - 1;
 }
 
 export function calculateAnchoredZoom(
@@ -39,6 +49,14 @@ export function calculateAnchoredZoom(
       y: anchor.y - (anchor.y - pan.y) * ratio,
     },
   };
+}
+
+export function calculateCenteredZoom(
+  scale: number,
+  pan: Point,
+  nextScale: number,
+): { scale: number; pan: Point } {
+  return calculateAnchoredZoom(scale, pan, { x: 0, y: 0 }, nextScale);
 }
 
 export function calculateFitScale(
