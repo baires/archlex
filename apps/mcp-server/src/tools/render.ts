@@ -47,8 +47,15 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
 
   const hasErrors = result.diagnostics.some((d) => d.severity === "error");
 
+  const base64Svg = btoa(unescape(encodeURIComponent(result.svg)));
+
   return {
     content: [
+      {
+        type: "image" as const,
+        data: base64Svg,
+        mimeType: "image/svg+xml",
+      },
       {
         type: "text" as const,
         text: JSON.stringify(

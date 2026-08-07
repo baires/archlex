@@ -12,9 +12,13 @@ describe("ArchLex MCP Server Tools", () => {
       const result = await handleRenderDiagram({ source, theme: "dark" });
 
       expect(result.content).toBeDefined();
-      expect(result.content[0].type).toBe("text");
+      expect(result.content[0].type).toBe("image");
+      expect(result.content[0].mimeType).toBe("image/svg+xml");
+      const textContent = result.content[1];
+      expect(textContent.type).toBe("text");
+      if (textContent.type !== "text") throw new Error("Expected text content");
 
-      const payload = JSON.parse(result.content[0].text);
+      const payload = JSON.parse(textContent.text);
       expect(payload.success).toBe(true);
       expect(payload.svg).toContain("<svg");
       expect(payload.playground_url).toContain(
@@ -26,7 +30,9 @@ describe("ArchLex MCP Server Tools", () => {
     it("returns error diagnostics for invalid syntax", async () => {
       const source = "provider aws\ninvalid -> -> syntax";
       const result = await handleRenderDiagram({ source });
-      const payload = JSON.parse(result.content[0].text);
+      const textContent = result.content[1];
+      if (textContent.type !== "text") throw new Error("Expected text content");
+      const payload = JSON.parse(textContent.text);
 
       expect(payload.diagnostics.length).toBeGreaterThan(0);
     });

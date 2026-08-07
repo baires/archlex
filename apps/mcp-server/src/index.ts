@@ -109,7 +109,7 @@ function createMcpServer() {
         {
           name: "render_diagram",
           description:
-            "Parse ArchLex DSL shorthand code, validate cloud provider rules (AWS/GCP), compute ELK graph layout, and render SVG diagram string with diagnostics and deep-link playground URL.",
+            "Parse ArchLex DSL shorthand code, validate cloud provider rules (AWS/GCP), compute ELK graph layout, and render SVG diagram. Returns an embedded base64 image preview and metadata. The AI assistant SHOULD display the rendered SVG image inline in its response.",
           inputSchema: {
             type: "object",
             properties: {
@@ -200,7 +200,12 @@ function createMcpServer() {
     const startTime = performance.now();
 
     try {
-      let result: { content: { type: "text"; text: string }[] };
+      let result: {
+        content: (
+          | { type: "text"; text: string }
+          | { type: "image"; data: string; mimeType: string }
+        )[];
+      };
       switch (name) {
         case "render_diagram":
           result = await handleRenderDiagram(
