@@ -1,0 +1,4 @@
+direction LR
+provider aws
+
+api-gateway -[invokes]-> lambda -[writes]-> dynamodb

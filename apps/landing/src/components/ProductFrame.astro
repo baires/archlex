@@ -42,35 +42,38 @@ processor_fn -[persists]-> nosql_store
 processor_fn -[archives]-> lake`;
 
 const source = variant === "source-to-system" ? systemSource : heroSource;
-const image =
-  variant === "source-to-system"
-    ? "/archlex-event-pipeline-dark.png"
-    : "/archlex-multi-region-dark.png";
-const alt =
-  variant === "source-to-system"
-    ? "AWS event pipeline architecture rendered by ArchLex"
-    : "Multi-region AWS architecture rendered by ArchLex";
 ---
 
-<div class:list={['product-frame', `product-frame--${variant}`]}>
-  <div class="product-frame__bar">
-    <span><i aria-hidden="true"></i> ARCHLEX / PLAYGROUND</span>
-    <span class="product-frame__status">READY · VALID</span>
-  </div>
-  <div class="product-frame__workspace">
-    <div class="product-frame__source">
-      <div class="pane-label"><span>01</span> SOURCE</div>
-      <pre><code>{source}</code></pre>
+{variant === "hero" ? (
+  <figure class="hero-diagram">
+    <img
+      src="/diagrams/multi-region.svg"
+      alt="Multi-region cloud architecture rendered by ArchLex"
+      width="1501"
+      height="535"
+    />
+    <figcaption>
+      <span>Two regions</span>
+      <span>Typed failover and replication</span>
+    </figcaption>
+  </figure>
+) : (
+  <div class="product-frame product-frame--source-to-system">
+    <div class="product-frame__workspace">
+      <div class="product-frame__source">
+        <div class="pane-label">Source</div>
+        <pre><code>{source}</code></pre>
+      </div>
+      <figure class="product-frame__render">
+        <div class="pane-label">Diagram</div>
+        <img
+          src="/diagrams/event-pipeline.svg"
+          alt="AWS event pipeline architecture rendered by ArchLex"
+          width="1114"
+          height="538"
+        />
+        <figcaption>Same source. Same SVG. Every time.</figcaption>
+      </figure>
     </div>
-    <figure class="product-frame__render">
-      <div class="pane-label"><span>02</span> RENDER</div>
-      <img
-        src={image}
-        alt={alt}
-        width="864"
-        height="826"
-      />
-      <figcaption>Provider-aware layout · deterministic SVG</figcaption>
-    </figure>
   </div>
-</div>
+)}

@@ -1,0 +1,31 @@
+direction LR
+provider aws
+validation normal
+
+account global-core {
+  region us-east-1 {
+    vpc primary-vpc {
+      subnet app-subnet-1 {
+        app_primary: ecs
+        db_primary: rds
+        cache_primary: elasticache
+        app_primary > cache_primary
+        app_primary > db_primary
+      }
+    }
+  }
+  region us-west-2 {
+    vpc failover-vpc {
+      subnet app-subnet-2 {
+        app_secondary: ecs
+        db_replica: rds
+        app_secondary > db_replica
+      }
+    }
+  }
+}
+
+global_dns: route53
+global_dns -[primary]-> app_primary
+global_dns -[failover]-> app_secondary
+db_primary -[replicates]-> db_replica

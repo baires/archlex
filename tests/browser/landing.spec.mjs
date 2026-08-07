@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("leads with a real product render and playground action", async ({
-  page,
-}) => {
+test("leads with a real diagram and playground action", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Write the architecture. We’ll check it.",
@@ -13,21 +11,28 @@ test("leads with a real product render and playground action", async ({
   await expect(page.getByRole("link", { name: /view source/i })).toBeVisible();
   await expect(
     page.getByRole("img", {
-      name: /multi-region AWS architecture rendered by ArchLex/i,
+      name: /multi-region cloud architecture rendered by ArchLex/i,
     }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("img", {
+      name: /multi-region cloud architecture rendered by ArchLex/i,
+    }),
+  ).toHaveAttribute("src", /\.svg$/);
+  await expect(page.getByText("SYS.ARCH / 001")).toHaveCount(0);
+  await expect(page.locator(".hero .product-frame")).toHaveCount(0);
 });
 
-test("fits the complete product hero inside a desktop viewport", async ({
+test("fits the complete diagram hero inside a desktop viewport", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  const frame = page.locator(".hero .product-frame");
-  const box = await frame.boundingBox();
+  const diagram = page.locator(".hero-diagram");
+  const box = await diagram.boundingBox();
   expect(box).not.toBeNull();
   expect(box.y + box.height).toBeLessThanOrEqual(900);
-  await expect(frame.locator("img")).toHaveCSS("object-fit", "contain");
+  await expect(diagram.locator("img")).toHaveCSS("object-fit", "contain");
 });
 
 test("uses compact bordered spacing between product sections", async ({
@@ -63,6 +68,19 @@ test("explains semantics and provides a verified quick start", async ({
   await expect(
     page.getByRole("heading", { name: /architecture already lives in code/i }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("img", {
+      name: /api gateway invokes lambda which writes to dynamodb/i,
+    }),
+  ).toHaveAttribute("src", /\.svg$/);
+  await expect(page.getByText("SEMANTIC LAYER", { exact: true })).toHaveCount(
+    0,
+  );
+  await expect(page.locator(".code-window .token--keyword")).not.toHaveCount(0);
+  await expect(page.locator(".code-window .token--string")).not.toHaveCount(0);
+  await expect(page.locator(".code-window .token--function")).not.toHaveCount(
+    0,
+  );
 });
 
 for (const viewport of [
