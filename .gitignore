@@ -6,6 +6,7 @@ node_modules/
 # Build outputs & caches
 dist/
 **/dist/
+apps/mcp-server/src/generated/
 .turbo/
 test-results/
 playwright-report/
