@@ -38,7 +38,36 @@ If running the MCP server locally with `pnpm dev:mcp`:
 
 ---
 
-## 2. Available Tools
+## 2. Server Endpoints & Testing Verification
+
+The server exposes four main endpoints tested live at `mcp.archlex.dev`:
+
+### Endpoints Overview
+
+| Endpoint | Method | Purpose |
+| :--- | :--- | :--- |
+| `/health` | `GET` | Server health status, provider readiness, and authentication status |
+| `/info` | `GET` | MCP server metadata, capability listing, and endpoint URLs |
+| `/sse` | `GET` | Server-Sent Events stream initialization for stateful client sessions |
+| `/messages` | `POST` | JSON-RPC message dispatcher for active SSE sessions & stateless fallback |
+
+### Testing & Verification Findings
+
+1. **Health Check Discovery (`GET /health`)**:
+   Returns HTTP 200 OK with `{"status":"ok","service":"archlex-mcp-server","providers":["aws","gcp"],"auth_enabled":false}` and standard `Access-Control-Allow-Origin: *` headers for fast diagnostic sanity checks without establishing full SSE streams.
+
+2. **Server-Sent Events Connection (`GET /sse`)**:
+   Initiates a persistent `text/event-stream` response and immediately dispatches `event: endpoint` payload pointing to `/messages?sessionId=<uuid>`.
+
+3. **Stateless JSON-RPC Fallback (`POST /messages`)**:
+   Direct single-request invocation via `POST /messages` without `sessionId` provides a stateless REST-like RPC fallback for CLI scripts and lightweight web clients.
+
+4. **Security & Abuse Protections**:
+   Operates in Open Access Mode by default while enforcing payload size limits (512 KB), input string length limits (100k chars), and IP rate limiting.
+
+---
+
+## 3. Available Tools
 
 ### `render_diagram`
 
@@ -72,25 +101,11 @@ Parses ArchLex shorthand code, validates cloud provider semantics (AWS & GCP), c
 
 Lightweight check of ArchLex DSL syntax and cloud semantic rules without generating full SVG output.
 
-#### Parameters
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `source` | `string` | **Yes** | ArchLex shorthand text code to validate |
-| `provider` | `"aws"` \| `"gcp"` | No | Default cloud provider for validation |
-| `validation` | `"strict"` \| `"normal"` \| `"off"` | No | Validation strictness mode |
-
 ---
 
 ### `get_cloud_catalog`
 
 Returns the complete, authoritative catalog of **379+ cloud services** across AWS and GCP, along with registered containment scopes (`vpc`, `subnet`, `account`, `region`) and valid edge relationship kinds (`connects`, `writes`, `reads`, `encrypts`, `logs`, etc.).
-
-#### Parameters
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `provider` | `"aws"` \| `"gcp"` \| `"all"` | No | Provider catalog filter (default: `"all"`) |
 
 ---
 
@@ -100,7 +115,16 @@ Generates a deep-link URL to open and edit any ArchLex diagram interactively in 
 
 ---
 
-## 3. Resources & Prompts
+## 4. Security, Open Access & Rate Limiting
+
+- **Open Access Default**: No API key or token is required for `mcp.archlex.dev`. Anyone and any LLM client can query tools for free.
+- **Optional Enterprise Auth**: Self-hosters can restrict access by configuring `MCP_AUTH_TOKEN` in Worker secrets (`Authorization: Bearer <token>` or `?token=<token>`).
+- **IP Rate Limiting**: Enforces a default sliding window of **60 requests per 60 seconds per IP**, returning `429 Too Many Requests` with standard `Retry-After` headers if exceeded.
+- **Payload Limits**: Rejects payloads exceeding 512 KB (`413 Payload Too Large`) and source DSL inputs over 100,000 characters.
+
+---
+
+## 5. Resources & Prompts
 
 ### Resources
 
@@ -111,24 +135,3 @@ Generates a deep-link URL to open and edit any ArchLex diagram interactively in 
 ### System Prompts
 
 - `architect_cloud_infrastructure`: Standard prompt instructing LLMs to output valid ArchLex DSL for specified architecture requirements.
-
----
-
-## 4. Typical LLM Workflow Example
-
-1. **Catalog Query**: The LLM calls `get_cloud_catalog({ provider: "aws" })` to discover available service kinds (e.g. `apigateway`, `lambda`, `dynamodb`, `sns`).
-2. **DSL Generation**: The LLM writes valid ArchLex shorthand code:
-   ```text
-   direction LR
-   provider aws
-
-   vpc: production {
-     subnet: public {
-       apigateway > lambda["Auth Function"]
-     }
-     subnet: private {
-       lambda["Auth Function"] -[writes]-> dynamodb["Users Table"]
-     }
-   }
-   ```
-3. **Rendering & Verification**: The LLM invokes `render_diagram({ source })`, receiving the rendered SVG and deep-link URL (`https://playground.archlex.dev/?code=...`) to present to the user.

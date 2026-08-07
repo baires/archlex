@@ -487,21 +487,41 @@ export default {
       // Stateless request execution fallback
       const server = createMcpServer();
       let responseMessage: JSONRPCMessage | undefined;
+      let resolveResponse: ((msg: JSONRPCMessage) => void) | undefined;
+      const responsePromise = new Promise<JSONRPCMessage>((resolve) => {
+        resolveResponse = resolve;
+      });
+
       const statelessTransport: Transport = {
         async start() {},
         async close() {},
         async send(message: JSONRPCMessage) {
           responseMessage = message;
+          resolveResponse?.(message);
         },
       };
 
       await server.connect(statelessTransport);
-      await statelessTransport.onmessage?.(body);
+      if (statelessTransport.onmessage) {
+        Promise.resolve(statelessTransport.onmessage(body)).catch(() => {});
+      }
 
-      return new Response(JSON.stringify(responseMessage ?? null), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      const timeoutPromise = new Promise<undefined>((resolve) =>
+        setTimeout(() => resolve(undefined), 3000),
+      );
+
+      const resultMessage = await Promise.race([
+        responsePromise,
+        timeoutPromise,
+      ]);
+
+      return new Response(
+        JSON.stringify(resultMessage ?? responseMessage ?? null),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     return new Response("Not Found", { status: 404, headers: corsHeaders });

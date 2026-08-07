@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import worker from "../src/index.js";
 import { handleGetCatalog } from "../src/tools/catalog.js";
 import { handleGeneratePlaygroundUrl } from "../src/tools/playground.js";
 import { handleRenderDiagram } from "../src/tools/render.js";
@@ -64,6 +65,27 @@ describe("ArchLex MCP Server Tools", () => {
 
       expect(payload.url).toContain("playground.archlex.dev");
       expect(payload.url).toContain(encodeURIComponent(source));
+    });
+  });
+
+  describe("HTTP Server Stateless Endpoint", () => {
+    it("handles tools/list request via POST /messages fallback", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "tools/list",
+        }),
+      });
+
+      const response = await worker.fetch(request);
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: { tools: unknown[] };
+      };
+      expect(data.result.tools.length).toBe(4);
     });
   });
 });
