@@ -30,6 +30,19 @@ export async function loadElk(): Promise<ELKLike> {
   // Start loading
   elkPromise = (async () => {
     try {
+      if (typeof globalThis.Worker === "undefined") {
+        class WorkerPolyfill {
+          onmessage?: (event: { data: unknown }) => void;
+          onerror?: (error: unknown) => void;
+          postMessage() {}
+          terminate() {}
+          addEventListener() {}
+          removeEventListener() {}
+        }
+        (globalThis as unknown as Record<string, unknown>).Worker =
+          WorkerPolyfill;
+      }
+
       // Dynamic import for code splitting
       const module = await import("elkjs/lib/elk.bundled.js");
       const ELK = (module.default || module) as unknown as new (
