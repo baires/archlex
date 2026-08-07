@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "archlex-docs",
+  "compatibility_date": "2026-08-07",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}
