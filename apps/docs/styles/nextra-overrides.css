@@ -1,0 +1,70 @@
+/* Override Nextra's default blue theme with ArchLex brand colors */
+
+:root {
+  /* Primary brand color (green) */
+  --nextra-primary-hue: 94deg;
+  --nextra-primary-saturation: 100%;
+
+  /* Light mode */
+  --nextra-primary: var(--signal);
+  --nextra-primary-hover: var(--signal-hover);
+
+  /* Links */
+  --tw-prose-links: var(--signal);
+  --tw-prose-links-hover: var(--signal-hover);
+}
+
+[data-theme="dark"] {
+  --nextra-primary: var(--signal);
+  --nextra-primary-hover: var(--signal-hover);
+  --tw-prose-links: var(--signal);
+  --tw-prose-links-hover: var(--signal-hover);
+}
+
+/* Active sidebar items */
+.nextra-sidebar-container a[data-active] {
+  color: var(--signal) !important;
+  font-weight: 600;
+}
+
+/* Active TOC items */
+.nextra-toc li.active > a {
+  color: var(--signal) !important;
+}
+
+/* Search highlight */
+mark {
+  background-color: var(--signal);
+  color: var(--signal-contrast);
+}
+
+/* Focus rings */
+:focus-visible {
+  outline-color: var(--focus-ring);
+}
+
+/* Links in content */
+.nextra-content a:not(.nextra-card) {
+  color: var(--signal);
+  text-decoration-color: var(--signal);
+}
+
+.nextra-content a:not(.nextra-card):hover {
+  color: var(--signal-hover);
+  text-decoration-color: var(--signal-hover);
+}
+
+/* Buttons */
+.nextra-button {
+  background-color: var(--signal);
+  color: var(--signal-contrast);
+}
+
+.nextra-button:hover {
+  background-color: var(--signal-hover);
+}
+
+/* Code blocks - inline code */
+code {
+  font-family: var(--font-code);
+}
