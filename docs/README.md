@@ -6,7 +6,7 @@ ArchLex is a browser-first TypeScript library that turns a concise, provider-awa
 
 New to ArchLex? Start here:
 
-1. **[Quick Start](../README.md#-quick-start)** - Installation and basic usage
+1. **[Quick Start](../README.md#quick-start)** - Installation and basic usage
 2. **[Language Specification](specs/language.md)** - Learn the syntax
 3. **[Public API](specs/public-api.md)** - JavaScript/TypeScript API reference
 4. **[Contribution Guide](architecture/contribution-guide.md)** - Contributing to ArchLex
