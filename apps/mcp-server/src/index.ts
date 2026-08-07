@@ -29,6 +29,7 @@ import {
   handleValidateDiagram,
 } from "./tools/validate.js";
 
+import { DOC_RESOURCES } from "./generated/docs-resources.js";
 import { SYSTEM_PROMPTS } from "./prompts.js";
 import { ARCHLEX_EXAMPLES, ARCHLEX_SYNTAX_GUIDE } from "./resources.js";
 
@@ -246,6 +247,13 @@ function createMcpServer() {
 
   // Register Resources
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    const syncedDocs = Object.values(DOC_RESOURCES).map((doc) => ({
+      uri: doc.uri,
+      name: doc.name,
+      mimeType: doc.mimeType,
+      description: doc.description,
+    }));
+
     return {
       resources: [
         {
@@ -254,6 +262,7 @@ function createMcpServer() {
           mimeType: "text/markdown",
           description: "Cheat sheet for writing ArchLex diagram code.",
         },
+        ...syncedDocs,
         {
           uri: "archlex://examples/aws-microservices",
           name: "AWS Microservices Example",
@@ -272,6 +281,18 @@ function createMcpServer() {
 
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const { uri } = request.params;
+
+    if (DOC_RESOURCES[uri]) {
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: DOC_RESOURCES[uri].mimeType,
+            text: DOC_RESOURCES[uri].text,
+          },
+        ],
+      };
+    }
 
     if (uri === "archlex://docs/dsl-syntax") {
       return {

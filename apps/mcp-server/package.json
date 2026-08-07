@@ -5,10 +5,15 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
+    "sync:docs": "node scripts/sync-docs.mjs",
+    "predev": "pnpm sync:docs",
     "dev": "wrangler dev",
+    "prebuild": "pnpm sync:docs",
     "build": "wrangler deploy --dry-run",
     "deploy": "wrangler deploy",
+    "pretypecheck": "pnpm sync:docs",
     "typecheck": "tsc --noEmit",
+    "pretest": "pnpm sync:docs",
     "test": "vitest run"
   },
   "dependencies": {

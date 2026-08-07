@@ -87,5 +87,48 @@ describe("ArchLex MCP Server Tools", () => {
       };
       expect(data.result.tools.length).toBe(4);
     });
+
+    it("serves synced documentation resources via resources/list and resources/read", async () => {
+      const listReq = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 2,
+          method: "resources/list",
+        }),
+      });
+
+      const listRes = await worker.fetch(listReq);
+      expect(listRes.status).toBe(200);
+      const listData = (await listRes.json()) as {
+        result: { resources: { uri: string; name: string }[] };
+      };
+
+      const docUris = listData.result.resources.map((r) => r.uri);
+      expect(docUris).toContain("archlex://docs/specs/language");
+      expect(docUris).toContain("archlex://docs/specs/aws-semantics");
+      expect(docUris).toContain("archlex://docs/errors/AL-PARSE-001");
+
+      const readReq = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 3,
+          method: "resources/read",
+          params: {
+            uri: "archlex://docs/specs/language",
+          },
+        }),
+      });
+
+      const readRes = await worker.fetch(readReq);
+      expect(readRes.status).toBe(200);
+      const readData = (await readRes.json()) as {
+        result: { contents: { text: string }[] };
+      };
+      expect(readData.result.contents[0].text).toContain("ArchLex");
+    });
   });
 });
