@@ -79,9 +79,10 @@ export function createInlineLayoutEngine(): LayoutEngine {
         };
       } catch (err: unknown) {
         if (err instanceof ArchLexAbortError) throw err;
+        const detail = err instanceof Error ? err.message : String(err);
         throw new ArchLexInternalError(
           "layout",
-          "ELK layout calculation failed",
+          `ELK layout calculation failed: ${detail}`,
           err,
         );
       }

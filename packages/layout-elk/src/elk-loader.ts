@@ -32,8 +32,10 @@ export async function loadElk(): Promise<ELKLike> {
     try {
       // Dynamic import for code splitting
       const module = await import("elkjs/lib/elk.bundled.js");
-      const ELK = (module.default || module) as unknown as ELKConstructor;
-      elkInstance = new ELK();
+      const ELK = (module.default || module) as unknown as new (
+        options?: Record<string, unknown>,
+      ) => ELKLike;
+      elkInstance = new ELK({ workerUrl: undefined });
       return elkInstance;
     } catch (error) {
       elkPromise = null; // Reset promise on error to allow retry
