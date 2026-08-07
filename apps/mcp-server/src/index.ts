@@ -28,6 +28,11 @@ import {
   type ValidateDiagramArgs,
   handleValidateDiagram,
 } from "./tools/validate.js";
+import {
+  DIAGRAM_VIEWER_HTML,
+  DIAGRAM_VIEWER_MIME_TYPE,
+  DIAGRAM_VIEWER_URI,
+} from "./ui/diagram-viewer.js";
 
 import { DOC_RESOURCES } from "./generated/docs-resources.js";
 import { SYSTEM_PROMPTS } from "./prompts.js";
@@ -98,6 +103,11 @@ function createMcpServer() {
         tools: {},
         resources: {},
         prompts: {},
+        extensions: {
+          "io.modelcontextprotocol/ui": {
+            mimeTypes: [DIAGRAM_VIEWER_MIME_TYPE],
+          },
+        },
       },
     },
   );
@@ -135,6 +145,33 @@ function createMcpServer() {
               },
             },
             required: ["source"],
+          },
+          outputSchema: {
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              svg: { type: "string" },
+              diagnostics: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    code: { type: "string" },
+                    severity: { type: "string" },
+                    message: { type: "string" },
+                  },
+                },
+              },
+              playground_url: { type: "string" },
+              nodes_count: { type: "number" },
+              edges_count: { type: "number" },
+            },
+            required: ["success", "svg"],
+          },
+          _meta: {
+            ui: {
+              resourceUri: DIAGRAM_VIEWER_URI,
+            },
           },
         },
         {
@@ -205,6 +242,7 @@ function createMcpServer() {
           | { type: "text"; text: string }
           | { type: "image"; data: string; mimeType: string }
         )[];
+        structuredContent?: Record<string, unknown>;
       };
       switch (name) {
         case "render_diagram":
@@ -262,6 +300,18 @@ function createMcpServer() {
     return {
       resources: [
         {
+          uri: DIAGRAM_VIEWER_URI,
+          name: "ArchLex Diagram Viewer",
+          mimeType: DIAGRAM_VIEWER_MIME_TYPE,
+          description:
+            "Interactive viewer for render_diagram results (MCP Apps).",
+          _meta: {
+            ui: {
+              prefersBorder: true,
+            },
+          },
+        },
+        {
           uri: "archlex://docs/dsl-syntax",
           name: "ArchLex DSL Syntax Guide",
           mimeType: "text/markdown",
@@ -286,6 +336,23 @@ function createMcpServer() {
 
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const { uri } = request.params;
+
+    if (uri === DIAGRAM_VIEWER_URI) {
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: DIAGRAM_VIEWER_MIME_TYPE,
+            text: DIAGRAM_VIEWER_HTML,
+            _meta: {
+              ui: {
+                prefersBorder: true,
+              },
+            },
+          },
+        ],
+      };
+    }
 
     if (DOC_RESOURCES[uri]) {
       return {

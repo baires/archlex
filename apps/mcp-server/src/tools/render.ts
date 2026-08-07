@@ -49,6 +49,15 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
 
   const base64Svg = btoa(unescape(encodeURIComponent(result.svg)));
 
+  const payload = {
+    success: !hasErrors,
+    svg: result.svg,
+    diagnostics: formattedDiagnostics,
+    playground_url: playgroundUrl,
+    nodes_count: result.graph.nodes.length,
+    edges_count: result.graph.edges.length,
+  };
+
   return {
     content: [
       {
@@ -58,19 +67,11 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
       },
       {
         type: "text" as const,
-        text: JSON.stringify(
-          {
-            success: !hasErrors,
-            svg: result.svg,
-            diagnostics: formattedDiagnostics,
-            playground_url: playgroundUrl,
-            nodes_count: result.graph.nodes.length,
-            edges_count: result.graph.edges.length,
-          },
-          null,
-          2,
-        ),
+        text: JSON.stringify(payload, null, 2),
       },
     ],
+    // Structured mirror of the text payload for MCP Apps hosts: the
+    // ui://archlex/diagram-viewer iframe renders from this directly.
+    structuredContent: payload,
   };
 }
