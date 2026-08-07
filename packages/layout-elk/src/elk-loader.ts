@@ -30,25 +30,37 @@ export async function loadElk(): Promise<ELKLike> {
   // Start loading
   elkPromise = (async () => {
     try {
-      if (typeof globalThis.Worker === "undefined") {
-        class WorkerPolyfill {
-          onmessage?: (event: { data: unknown }) => void;
-          onerror?: (error: unknown) => void;
-          postMessage() {}
-          terminate() {}
-          addEventListener() {}
-          removeEventListener() {}
-        }
-        (globalThis as unknown as Record<string, unknown>).Worker =
-          WorkerPolyfill;
-      }
+      const [apiModule, workerModule] = await Promise.all([
+        import("elkjs/lib/elk-api.js"),
+        import("elkjs/lib/elk-worker.js"),
+      ]);
 
-      // Dynamic import for code splitting
-      const module = await import("elkjs/lib/elk.bundled.js");
-      const ELK = (module.default || module) as unknown as new (
-        options?: Record<string, unknown>,
-      ) => ELKLike;
-      elkInstance = new ELK({ workerUrl: undefined });
+      const api = apiModule as unknown as {
+        default?: (new (
+          options: Record<string, unknown>,
+        ) => ELKLike) & {
+          default?: new (options: Record<string, unknown>) => ELKLike;
+        };
+      };
+      const worker = workerModule as unknown as {
+        Worker?: new () => unknown;
+        default?: { Worker?: new () => unknown };
+      };
+
+      const ELK =
+        api.default?.default ||
+        api.default ||
+        (api as unknown as new (
+          options: Record<string, unknown>,
+        ) => ELKLike);
+      const FakeWorker =
+        worker.Worker ||
+        worker.default?.Worker ||
+        (worker as unknown as new () => unknown);
+
+      elkInstance = new ELK({
+        workerFactory: () => new FakeWorker(),
+      });
       return elkInstance;
     } catch (error) {
       elkPromise = null; // Reset promise on error to allow retry
