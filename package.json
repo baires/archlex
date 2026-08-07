@@ -7,6 +7,7 @@
     "build:playground": "turbo build --filter=@archlex/playground",
     "build:landing": "turbo build --filter=@archlex/landing",
     "build:mcp": "turbo build --filter=@archlex/mcp-server",
+    "build:docs": "turbo build --filter=@archlex/docs",
     "dev:mcp": "pnpm --filter @archlex/mcp-server dev",
     "dev:playground": "pnpm --filter @archlex/playground dev",
     "dev:landing": "pnpm --filter @archlex/landing dev",
