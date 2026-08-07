@@ -12,6 +12,7 @@ import {
 
 import {
   type Env,
+  checkRateLimit,
   logTelemetry,
   validateAuthentication,
   validateOrigin,
@@ -390,7 +391,24 @@ export default {
       });
     }
 
-    // 4. Validate Maximum Payload Size (512 KB)
+    // 4. Rate Limiting Check
+    const rateLimit = await checkRateLimit(request, env);
+    if (!rateLimit.allowed) {
+      logTelemetry("security_event", {
+        type: "rate_limit_exceeded",
+        path: url.pathname,
+      });
+      return new Response(JSON.stringify({ error: rateLimit.message }), {
+        status: rateLimit.status,
+        headers: {
+          ...corsHeaders,
+          ...rateLimit.headers,
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    // 5. Validate Maximum Payload Size (512 KB)
     if (request.method === "POST" && !validatePayloadSize(request)) {
       logTelemetry("security_event", { type: "payload_too_large" });
       return new Response(

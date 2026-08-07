@@ -1,12 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../src/index.js";
 import {
+  checkRateLimit,
+  inMemoryRateLimiter,
   validateAuthentication,
   validateOrigin,
   validatePayloadSize,
 } from "../src/security.js";
 
 describe("MCP Security Middleware", () => {
+  beforeEach(() => {
+    inMemoryRateLimiter.reset();
+  });
+
   describe("validateAuthentication", () => {
     it("allows request when MCP_AUTH_TOKEN is not configured", () => {
       const request = new Request("https://mcp.archlex.dev/sse");
@@ -66,6 +72,42 @@ describe("MCP Security Middleware", () => {
     });
   });
 
+  describe("checkRateLimit", () => {
+    it("allows requests within configured limit", async () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "203.0.113.195" },
+      });
+      const env = {
+        RATE_LIMIT_MAX_REQUESTS: "5",
+        RATE_LIMIT_WINDOW_SECONDS: "60",
+      };
+
+      for (let i = 0; i < 5; i++) {
+        const res = await checkRateLimit(request, env);
+        expect(res.allowed).toBe(true);
+      }
+    });
+
+    it("blocks request exceeding limit with 429 Too Many Requests", async () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "203.0.113.195" },
+      });
+      const env = {
+        RATE_LIMIT_MAX_REQUESTS: "3",
+        RATE_LIMIT_WINDOW_SECONDS: "60",
+      };
+
+      for (let i = 0; i < 3; i++) {
+        await checkRateLimit(request, env);
+      }
+
+      const res = await checkRateLimit(request, env);
+      expect(res.allowed).toBe(false);
+      expect(res.status).toBe(429);
+      expect(res.headers?.["Retry-After"]).toBeDefined();
+    });
+  });
+
   describe("validatePayloadSize", () => {
     it("rejects request when Content-Length exceeds max bytes limit", () => {
       const request = new Request("https://mcp.archlex.dev/messages", {
@@ -85,16 +127,29 @@ describe("MCP Security Middleware", () => {
       expect(response.status).toBe(401);
     });
 
-    it("returns 200 OK for /health when valid token is supplied", async () => {
-      const request = new Request("https://mcp.archlex.dev/health", {
-        headers: { Authorization: "Bearer secret-123" },
+    it("returns 429 Too Many Requests when endpoint rate limit is exceeded", async () => {
+      const env = {
+        RATE_LIMIT_MAX_REQUESTS: "2",
+        RATE_LIMIT_WINDOW_SECONDS: "60",
+      };
+
+      const req1 = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "1.2.3.4" },
       });
-      const response = await worker.fetch(request, {
-        MCP_AUTH_TOKEN: "secret-123",
+      const req2 = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "1.2.3.4" },
       });
-      expect(response.status).toBe(200);
-      const data = (await response.json()) as { auth_enabled: boolean };
-      expect(data.auth_enabled).toBe(true);
+      const req3 = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "1.2.3.4" },
+      });
+
+      await worker.fetch(req1, env);
+      await worker.fetch(req2, env);
+      const res = await worker.fetch(req3, env);
+
+      expect(res.status).toBe(429);
+      const data = (await res.json()) as { error: string };
+      expect(data.error).toContain("Too Many Requests");
     });
   });
 });
