@@ -65,7 +65,7 @@ document.getElementById('diagram').innerHTML = result.svg;
 The project includes an interactive playground for live editing and testing:
 
 ```bash
-git clone https://github.com/your-org/archlex.git
+git clone https://github.com/baires/archlex.git
 cd archlex
 pnpm install
 pnpm --filter playground dev

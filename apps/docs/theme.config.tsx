@@ -3,9 +3,9 @@ import React from 'react';
 const config = {
   logo: <span style={{ fontWeight: 700, fontSize: '1.25rem' }}>ArchLex</span>,
   project: {
-    link: 'https://github.com/your-org/archlex',
+    link: 'https://github.com/baires/archlex',
   },
-  docsRepositoryBase: 'https://github.com/your-org/archlex/tree/main/apps/docs',
+  docsRepositoryBase: 'https://github.com/baires/archlex/tree/main/apps/docs',
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
