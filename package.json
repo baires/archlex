@@ -16,7 +16,7 @@
     "test:browser": "playwright test",
     "typecheck": "turbo typecheck",
     "lint": "biome check .",
-    "format": "biome format --write .",
+    "format": "biome check --write .",
     "check": "turbo build typecheck test && biome check .",
     "generate-docs": "tsx scripts/generate-error-docs.ts",
     "validate:catalog": "node scripts/validate-catalog.mjs",

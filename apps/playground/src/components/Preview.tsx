@@ -53,7 +53,7 @@ export function Preview({
       fullscreenExitRef.current?.focus();
     });
     return () => window.cancelAnimationFrame(frameId);
-  }, [isFullscreen, isRendering]);
+  }, [isFullscreen]);
 
   const hasNodes =
     Boolean(svg) &&
