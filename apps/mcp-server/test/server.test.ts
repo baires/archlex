@@ -47,10 +47,12 @@ describe("ArchLex MCP Server Tools", () => {
       const result = await handleGetCatalog({ provider: "all" });
       const payload = JSON.parse(result.content[0].text);
 
-      expect(payload.aws).toBeDefined();
-      expect(payload.gcp).toBeDefined();
-      expect(payload.relationship_kinds).toContain("connects");
-      expect(payload.containment_scopes).toContain("vpc");
+      expect(payload.providers.aws).toBeDefined();
+      expect(payload.providers.aws.services.length).toBeGreaterThan(100);
+      expect(payload.providers.gcp).toBeDefined();
+      expect(payload.providers.gcp.services.length).toBeGreaterThan(100);
+      expect(payload.relationshipKinds).toContain("connects");
+      expect(payload.containmentScopes).toContain("vpc");
     });
   });
 

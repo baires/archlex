@@ -5,7 +5,7 @@ import type {
   ServiceMetadata,
   ValidationMode,
 } from "@archlex/model";
-import { resolveAwsService } from "./catalog/index.js";
+import { initialServices, resolveAwsService } from "./catalog/index.js";
 import { AWS_SANITIZED_ICONS } from "./icons/manifest.js";
 import { evaluateAwsRules } from "./rules/index.js";
 
@@ -38,6 +38,9 @@ export function awsProvider(): CloudProvider {
         iconKey,
         iconSvg: iconObj ? iconObj.svgFragment : undefined,
       };
+    },
+    listServices() {
+      return initialServices;
     },
     validateGraph(
       graph: CloudGraph,

@@ -238,6 +238,7 @@ export interface CloudProvider {
   catalogVersion: string;
   supports(serviceKind: string): boolean;
   resolveService(serviceKind: string): ServiceMetadata | undefined;
+  listServices?(): readonly ResourceDefinition[];
   validateGraph(
     graph: CloudGraph,
     mode?: ValidationMode,

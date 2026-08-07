@@ -5,7 +5,7 @@ import type {
   ServiceMetadata,
   ValidationMode,
 } from "@archlex/model";
-import { resolveGcpService } from "./catalog/index.js";
+import { initialServices, resolveGcpService } from "./catalog/index.js";
 import { GCP_SANITIZED_ICONS } from "./icons/manifest.js";
 import { evaluateGcpRules } from "./rules/index.js";
 
@@ -38,6 +38,9 @@ export function gcpProvider(): CloudProvider {
         iconKey,
         iconSvg: iconObj ? iconObj.svgFragment : undefined,
       };
+    },
+    listServices() {
+      return initialServices;
     },
     validateGraph(
       graph: CloudGraph,

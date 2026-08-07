@@ -64,6 +64,66 @@ export interface PreparedDiagram {
   readonly direction?: LayoutOptions["direction"];
 }
 
+export const KNOWN_RELATIONSHIPS = [
+  "connects",
+  "reads",
+  "writes",
+  "publishes",
+  "subscribes",
+  "invokes",
+  "routes",
+  "replicates",
+  "assumes-role",
+  "encrypts",
+  "decrypts",
+  "monitors",
+  "logs",
+  "caches",
+  "proxies",
+  "traces",
+  "alerts",
+  "processes",
+  "transforms",
+  "orchestrates",
+  "triggers",
+  "schedules",
+  "builds",
+  "deploys",
+  "analyzes",
+  "transcodes",
+  "packages",
+  "migrates",
+  "discovers",
+  "catalogs",
+  "protects",
+  "governs",
+] as const;
+
+export interface CatalogMetadata {
+  directives: {
+    provider: readonly string[];
+    direction: readonly ["LR", "RL", "TB", "BT"];
+    validation: readonly ["strict", "normal", "off"];
+  };
+  containmentScopes: readonly string[];
+  relationshipKinds: readonly string[];
+  providers: Record<
+    string,
+    {
+      id: string;
+      name: string;
+      catalogVersion: string;
+      services: readonly {
+        id: string;
+        displayName: string;
+        category: string;
+        aliases: readonly string[];
+        allowedContainment?: readonly string[];
+      }[];
+    }
+  >;
+}
+
 export interface ArchLex {
   parse(source: string): ParseResult;
   analyze(ast: DocumentAst, options?: AnalyzeOptions): AnalysisResult;
@@ -82,6 +142,7 @@ export interface ArchLex {
     source: string,
     options?: RenderPipelineOptions,
   ): Promise<RenderResult>;
+  getCatalog(providerFilter?: string): CatalogMetadata;
 }
 
 function collectDirectives(
@@ -757,6 +818,43 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         signal: renderOptions?.signal,
         icons: renderOptions?.icons,
       });
+    },
+
+    getCatalog(providerFilter?: string): CatalogMetadata {
+      const providersObj: CatalogMetadata["providers"] = {};
+      for (const [id, provider] of providerMap.entries()) {
+        if (
+          providerFilter &&
+          providerFilter !== "all" &&
+          id !== providerFilter
+        ) {
+          continue;
+        }
+        const services = provider.listServices ? provider.listServices() : [];
+        providersObj[id] = {
+          id: provider.id,
+          name: provider.name,
+          catalogVersion: provider.catalogVersion,
+          services: services.map((s) => ({
+            id: s.id,
+            displayName: s.displayName,
+            category: s.category,
+            aliases: s.aliases,
+            allowedContainment: s.allowedContainment,
+          })),
+        };
+      }
+
+      return {
+        directives: {
+          provider: Array.from(providerMap.keys()),
+          direction: ["LR", "RL", "TB", "BT"],
+          validation: ["strict", "normal", "off"],
+        },
+        containmentScopes: ["account", "region", "vpc", "subnet", "cluster"],
+        relationshipKinds: KNOWN_RELATIONSHIPS,
+        providers: providersObj,
+      };
     },
   };
 }
