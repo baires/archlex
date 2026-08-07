@@ -57,3 +57,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
+apps/mcp-server/.wrangler/

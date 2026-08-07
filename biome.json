@@ -23,6 +23,7 @@
       "**/.turbo/**",
       "**/.next/**",
       "**/.astro/**",
+      "**/.wrangler/**",
       "**/apps/mcp-server/src/generated/**",
       "**/out/**",
       "**/dist/**",
