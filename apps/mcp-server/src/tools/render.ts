@@ -61,13 +61,6 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
   return {
     content: [
       {
-        type: "resource" as const,
-        resource: {
-          uri: "ui://archlex/diagram-viewer",
-          mimeType: "text/html;profile=mcp-app",
-        },
-      },
-      {
         type: "image" as const,
         data: base64Svg,
         mimeType: "image/svg+xml",
