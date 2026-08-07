@@ -98,6 +98,26 @@ packages/design/**
 
 **Custom domain:** `docs.archlex.dev`
 
+### Remote MCP Server
+
+**Cloudflare Worker Project Name:** `archlex-mcp`
+
+**Build & Deployment Configuration:**
+- **Type:** Cloudflare Worker (V8 Edge Isolate)
+- **Local Dev:** `pnpm dev:mcp` (`wrangler dev`)
+- **Deploy command:** `pnpm --filter @archlex/mcp-server deploy` (`wrangler deploy`)
+- **Root directory:** `apps/mcp-server`
+- **Node compatibility:** `nodejs_compat`
+
+**Endpoints:**
+- `GET /sse`: Server-Sent Events MCP transport endpoint
+- `POST /messages`: MCP JSON-RPC message endpoint
+- `GET /health`: Health status endpoint
+- `GET /info`: Server capability & discovery metadata
+
+**Custom domain:** `mcp.archlex.dev`
+
+
 ## Setup Instructions
 
 ### 1. Create Cloudflare Pages Projects

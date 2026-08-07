@@ -1,0 +1,28 @@
+{
+  "name": "@archlex/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "wrangler deploy --dry-run",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@archlex/aws": "workspace:*",
+    "@archlex/core": "workspace:*",
+    "@archlex/gcp": "workspace:*",
+    "@archlex/layout-elk": "workspace:*",
+    "@archlex/model": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.5.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250204.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5",
+    "wrangler": "^3.109.2"
+  }
+}
