@@ -241,6 +241,7 @@ function createMcpServer() {
         content: (
           | { type: "text"; text: string }
           | { type: "image"; data: string; mimeType: string }
+          | { type: "resource"; resource: { uri: string; mimeType?: string } }
         )[];
         structuredContent?: Record<string, unknown>;
       };
