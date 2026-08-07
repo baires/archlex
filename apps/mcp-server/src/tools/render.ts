@@ -14,11 +14,19 @@ export interface RenderDiagramArgs {
   validation?: "strict" | "normal" | "off";
 }
 
+const MAX_SOURCE_LENGTH = 100_000;
+
 export async function handleRenderDiagram(args: RenderDiagramArgs) {
   const { source, theme = "dark", direction, validation } = args;
 
   if (!source || typeof source !== "string") {
     throw new Error("Missing or invalid required parameter 'source'.");
+  }
+
+  if (source.length > MAX_SOURCE_LENGTH) {
+    throw new Error(
+      `Input source exceeds maximum allowed limit of ${MAX_SOURCE_LENGTH} characters.`,
+    );
   }
 
   const result = await archlex.render(source, {

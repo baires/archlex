@@ -10,6 +10,13 @@ import {
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
+import {
+  type Env,
+  logTelemetry,
+  validateAuthentication,
+  validateOrigin,
+  validatePayloadSize,
+} from "./security.js";
 import { type GetCatalogArgs, handleGetCatalog } from "./tools/catalog.js";
 import {
   type GeneratePlaygroundUrlArgs,
@@ -188,20 +195,51 @@ function createMcpServer() {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
+    const startTime = performance.now();
 
-    switch (name) {
-      case "render_diagram":
-        return handleRenderDiagram(args as unknown as RenderDiagramArgs);
-      case "validate_diagram":
-        return handleValidateDiagram(args as unknown as ValidateDiagramArgs);
-      case "get_cloud_catalog":
-        return handleGetCatalog(args as unknown as GetCatalogArgs);
-      case "generate_playground_url":
-        return handleGeneratePlaygroundUrl(
-          args as unknown as GeneratePlaygroundUrlArgs,
-        );
-      default:
-        throw new Error(`Unknown tool name: ${name}`);
+    try {
+      let result: { content: { type: "text"; text: string }[] };
+      switch (name) {
+        case "render_diagram":
+          result = await handleRenderDiagram(
+            args as unknown as RenderDiagramArgs,
+          );
+          break;
+        case "validate_diagram":
+          result = await handleValidateDiagram(
+            args as unknown as ValidateDiagramArgs,
+          );
+          break;
+        case "get_cloud_catalog":
+          result = await handleGetCatalog(args as unknown as GetCatalogArgs);
+          break;
+        case "generate_playground_url":
+          result = await handleGeneratePlaygroundUrl(
+            args as unknown as GeneratePlaygroundUrlArgs,
+          );
+          break;
+        default:
+          throw new Error(`Unknown tool name: ${name}`);
+      }
+
+      const durationMs = Math.round(performance.now() - startTime);
+      logTelemetry("tool_invocation", {
+        tool: name,
+        success: true,
+        durationMs,
+      });
+
+      return result;
+    } catch (err: unknown) {
+      const durationMs = Math.round(performance.now() - startTime);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      logTelemetry("error", {
+        tool: name,
+        success: false,
+        error: errorMessage,
+        durationMs,
+      });
+      throw err;
     }
   });
 
@@ -309,14 +347,14 @@ function createMcpServer() {
 const activeTransports = new Map<string, WorkerSSEServerTransport>();
 
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env?: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    // CORS preflight
+    // 1. CORS Preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Origin": env?.ALLOWED_ORIGINS || "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
         },
@@ -324,8 +362,45 @@ export default {
     }
 
     const corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": env?.ALLOWED_ORIGINS || "*",
     };
+
+    // 2. Validate Origin Header
+    if (!validateOrigin(request, env)) {
+      logTelemetry("security_event", {
+        type: "invalid_origin",
+        origin: request.headers.get("Origin"),
+      });
+      return new Response(JSON.stringify({ error: "Forbidden origin" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // 3. Validate Authentication (if env.MCP_AUTH_TOKEN is configured)
+    const authCheck = validateAuthentication(request, env);
+    if (!authCheck.authorized) {
+      logTelemetry("security_event", {
+        type: "unauthorized",
+        path: url.pathname,
+      });
+      return new Response(JSON.stringify({ error: authCheck.message }), {
+        status: authCheck.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // 4. Validate Maximum Payload Size (512 KB)
+    if (request.method === "POST" && !validatePayloadSize(request)) {
+      logTelemetry("security_event", { type: "payload_too_large" });
+      return new Response(
+        JSON.stringify({ error: "Payload Too Large: Max size is 512 KB" }),
+        {
+          status: 413,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     // Endpoint: /health
     if (url.pathname === "/health") {
@@ -335,6 +410,7 @@ export default {
           service: "archlex-mcp-server",
           version: "0.1.0",
           providers: ["aws", "gcp"],
+          auth_enabled: Boolean(env?.MCP_AUTH_TOKEN),
         }),
         {
           status: 200,
@@ -358,6 +434,7 @@ export default {
           ],
           sse_endpoint: "/sse",
           messages_endpoint: "/messages",
+          auth_required: Boolean(env?.MCP_AUTH_TOKEN),
         }),
         {
           status: 200,
