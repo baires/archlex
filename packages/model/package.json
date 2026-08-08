@@ -1,6 +1,6 @@
 {
   "name": "@archlex/model",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Type definitions and data models for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "types", "model"],
   "repository": {

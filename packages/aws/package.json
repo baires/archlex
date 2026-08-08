@@ -1,6 +1,6 @@
 {
   "name": "@archlex/aws",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AWS provider for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "aws", "cloud", "icons"],
   "repository": {

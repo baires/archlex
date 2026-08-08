@@ -1,5 +1,17 @@
 # @archlex/gcp
 
+## 0.2.1
+
+### Patch Changes
+
+- 69fac46: Remove the redundant `typecheck` script from packages whose `build` already
+  runs `tsc --emitDeclarationOnly` (a full type check), eliminating a second
+  `tsc --noEmit` pass in CI. Apps and packages with non-tsc builds keep their
+  standalone `typecheck` script.
+- Updated dependencies [69fac46]
+  - @archlex/icons-core@0.2.1
+  - @archlex/model@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
