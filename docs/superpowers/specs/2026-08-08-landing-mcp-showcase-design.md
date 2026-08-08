@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a major product pillar to the ArchLex landing page that explains and enables the remote MCP server. Visitors should understand why MCP matters, configure a supported AI client without leaving the page, or copy a prompt that asks their agent to perform the setup.
+Add a standards-current Streamable HTTP endpoint to the ArchLex MCP server and a major product pillar to the landing page that explains and enables it. Visitors should understand why MCP matters, configure a supported AI client without leaving the page, or copy a prompt that asks their agent to perform the setup.
 
 The section belongs between `Capabilities` and `SourceToSystem`. This position extends the landing-page narrative from cloud-aware product proof, to AI access to that intelligence, to the underlying source-to-diagram workflow.
 
@@ -18,9 +18,27 @@ The showcase supports five setup views:
 - VS Code
 - Generic MCP
 
-Only verified client instructions will appear. Each client-specific command or configuration must be checked against its current official documentation before implementation. Generic MCP will identify the ArchLex remote endpoint and transport without implying a universal configuration format.
+The verified setup content is:
 
-The landing page remains static. Runtime MCP health checks, authentication flows, client detection, installation automation, and additional clients are out of scope.
+- Codex: `codex mcp add archlex --url https://mcp.archlex.dev/mcp`
+- Claude Code: `claude mcp add --transport http archlex https://mcp.archlex.dev/mcp`
+- Cursor: an `.cursor/mcp.json` example with `mcpServers.archlex.url` set to the `/mcp` URL.
+- VS Code: a `.vscode/mcp.json` example with `servers.archlex.type` set to `"http"` and `servers.archlex.url` set to the `/mcp` URL.
+- Generic MCP: the Streamable HTTP URL and a note to use the client's remote HTTP server configuration.
+
+Only verified client instructions will appear. Client-specific commands and configuration shapes must remain aligned with their official documentation. Generic MCP will identify the ArchLex remote endpoint and transport without implying a universal configuration format. The common remote endpoint is `https://mcp.archlex.dev/mcp` using Streamable HTTP.
+
+The landing page remains static. Runtime MCP health checks, authentication flows, client detection, installation automation, and additional clients are out of scope. The existing `/sse` and `/messages` routes remain available for backward compatibility.
+
+## MCP transport compatibility
+
+Add `GET`, `POST`, and `DELETE` handling at `/mcp` with the MCP SDK's Web Standards Streamable HTTP server transport. This transport is designed for `Request`, `Response`, and `ReadableStream`, so it is compatible with the existing Cloudflare Worker runtime without an Express adapter.
+
+The endpoint uses stateless request handling. Each request creates a fresh transport and MCP server, connects them, delegates the request, and closes request-local resources afterward. Stateless mode fits the Worker's horizontally scaled execution model and the current server's request-independent tools; it does not rely on in-memory sessions surviving between Worker isolates.
+
+The shared `createMcpServer()` registration remains the source of truth for tools, resources, prompts, and MCP Apps metadata across both transports. Existing authentication, origin validation, rate limiting, payload limits, CORS handling, and telemetry execute before `/mcp` dispatch just as they do for legacy routes.
+
+The `/info` response advertises `streamable_http_endpoint: "/mcp"` alongside the legacy endpoint fields. Server and guide documentation make `/mcp` the recommended remote endpoint and identify `/sse` plus `/messages` as compatibility routes.
 
 ## Content hierarchy
 
@@ -105,7 +123,17 @@ The section does not claim the MCP server is currently healthy. It describes sta
 
 ## Verification
 
-Before implementation, verify setup syntax for Codex, Claude, Cursor, and VS Code against current official client documentation. Record only instructions that work with the deployed ArchLex remote MCP endpoint.
+The setup syntax has been checked against current official documentation for Codex, Claude Code, Cursor, and VS Code. Before release, exercise each example against the implemented `/mcp` endpoint and retain only instructions that establish a working connection.
+
+MCP server coverage should verify:
+
+- `POST /mcp` completes the MCP initialize handshake with the negotiated protocol version.
+- A subsequent stateless `tools/list` request returns the same four tools as the legacy transport.
+- JSON responses use the MCP content type and preserve CORS headers.
+- Unsupported methods and malformed protocol requests return protocol-compliant errors.
+- Existing authentication, origin, rate-limit, and payload-size protections apply to `/mcp`.
+- `/info` advertises `/mcp`, `/sse`, and `/messages` accurately.
+- Existing SSE and stateless `/messages` tests continue to pass unchanged.
 
 Automated coverage should verify:
 
@@ -119,8 +147,8 @@ Automated coverage should verify:
 - Reduced-motion preferences do not depend on animation for meaning.
 - The initial server-rendered state contains useful setup content without client-side execution.
 
-Verification commands follow repository requirements, including the landing package typecheck and build, relevant browser tests, linting, and the comprehensive repository check when feasible.
+Verification runs `pnpm --filter @archlex/mcp-server test`, `pnpm --filter @archlex/mcp-server typecheck`, `pnpm --filter @archlex/landing typecheck`, `pnpm --filter @archlex/landing build`, `pnpm exec playwright test --config=playwright.landing.config.mjs`, `pnpm lint`, and the repository-wide `pnpm check`.
 
 ## Success criteria
 
-The work is successful when a visitor can understand the MCP value proposition, choose one of the four verified clients or Generic MCP, copy accurate setup instructions, copy an agent-assisted setup prompt, and discover a meaningful first request—all within a cohesive, responsive, keyboard-accessible landing-page section.
+The work is successful when the deployed Worker accepts standards-current Streamable HTTP clients at `/mcp` without breaking legacy transports, and a visitor can understand the MCP value proposition, choose one of the four verified clients or Generic MCP, copy accurate setup instructions, copy an agent-assisted setup prompt, and discover a meaningful first request—all within a cohesive, responsive, keyboard-accessible landing-page section.
