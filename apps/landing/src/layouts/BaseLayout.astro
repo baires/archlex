@@ -14,18 +14,35 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#090c0b" />
+    <meta name="theme-color" content="#f8f8f4" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const themeColor = document.querySelector('meta[name="theme-color"]');
+        const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+        let preference = "system";
+        try {
+          const stored = localStorage.getItem("archlex-theme");
+          if (stored === "light" || stored === "dark") preference = stored;
+        } catch {}
+        if (preference === "light" || preference === "dark") {
+          root.dataset.theme = preference;
+        }
+        const dark = preference === "dark" || (preference === "system" && darkQuery.matches);
+        themeColor?.setAttribute("content", dark ? "#11120f" : "#f8f8f4");
+      })();
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>

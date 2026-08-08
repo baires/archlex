@@ -51,6 +51,37 @@ a {
   translate: 0;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.theme-control {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+
+.theme-control select {
+  max-width: 5.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
 .shell {
   width: min(100% - 3rem, 1520px);
   margin-inline: auto;

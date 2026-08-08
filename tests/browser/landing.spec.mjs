@@ -237,3 +237,35 @@ test("uses the configured GitHub destination", async ({ page }) => {
   await expect(githubLink).toHaveAttribute("target", "_blank");
   await expect(githubLink).toHaveAttribute("rel", /noreferrer/);
 });
+
+test("follows the system theme until the visitor chooses an override", async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: "dark" });
+  const page = await context.newPage();
+  await page.goto("/");
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+  await expect(page.getByLabel("Theme")).toHaveValue("system");
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute("content", "#11120f");
+
+  await page.getByLabel("Theme").selectOption("light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  expect(await page.evaluate(() => localStorage.getItem("archlex-theme"))).toBe("light");
+
+  await page.reload();
+  await expect(page.getByLabel("Theme")).toHaveValue("light");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  await page.getByLabel("Theme").selectOption("system");
+  await expect(page.locator("html")).not.toHaveAttribute("data-theme");
+  expect(await page.evaluate(() => localStorage.getItem("archlex-theme"))).toBeNull();
+  await context.close();
+});
+
+test("survives unavailable theme storage", async ({ page }) => {
+  await page.addInitScript(() => {
+    Storage.prototype.getItem = () => { throw new Error("storage denied"); };
+    Storage.prototype.setItem = () => { throw new Error("storage denied"); };
+  });
+  await page.goto("/");
+  await page.getByLabel("Theme").selectOption("dark");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});

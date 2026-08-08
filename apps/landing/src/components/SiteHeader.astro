@@ -1,6 +1,7 @@
 ---
 import { SITE_ROUTES } from "../config";
 import Button from "./Button.astro";
+import ThemeControl from "./ThemeControl.astro";
 ---
 
 <header class="site-header">
@@ -14,6 +15,7 @@ import Button from "./Button.astro";
       {SITE_ROUTES.github && (
         <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>
       )}
+      <ThemeControl />
       <Button href={SITE_ROUTES.playground} variant="secondary" class="site-nav__cta">
         Playground <span aria-hidden="true">↗</span>
       </Button>

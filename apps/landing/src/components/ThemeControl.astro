@@ -1,0 +1,50 @@
+<label class="theme-control">
+  <span class="theme-control__icon" aria-hidden="true">◐</span>
+  <span class="visually-hidden">Theme</span>
+  <select data-theme-control aria-label="Theme">
+    <option value="system">System</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>
+</label>
+<span class="visually-hidden" data-theme-status role="status" aria-live="polite"></span>
+
+<script>
+  type Theme = "system" | "light" | "dark";
+  const control = document.querySelector<HTMLSelectElement>("[data-theme-control]");
+  const status = document.querySelector<HTMLElement>("[data-theme-status]");
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+
+  const readPreference = (): Theme => {
+    try {
+      const stored = localStorage.getItem("archlex-theme");
+      return stored === "light" || stored === "dark" ? stored : "system";
+    } catch {
+      return "system";
+    }
+  };
+
+  const applyTheme = (theme: Theme, persist: boolean): void => {
+    if (theme === "system") delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = theme;
+    const dark = theme === "dark" || (theme === "system" && media.matches);
+    themeColor?.setAttribute("content", dark ? "#11120f" : "#f8f8f4");
+    if (persist) {
+      try {
+        if (theme === "system") localStorage.removeItem("archlex-theme");
+        else localStorage.setItem("archlex-theme", theme);
+      } catch {}
+    }
+    if (status) status.textContent = `${theme[0].toUpperCase()}${theme.slice(1)} theme selected.`;
+  };
+
+  if (control) {
+    const initial = readPreference();
+    control.value = initial;
+    control.addEventListener("change", () => applyTheme(control.value as Theme, true));
+    media.addEventListener("change", () => {
+      if (control.value === "system") applyTheme("system", false);
+    });
+  }
+</script>
