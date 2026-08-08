@@ -149,3 +149,99 @@ const examplePrompt =
     </div>
   </div>
 </section>
+
+<script>
+  const consoleElement = document.querySelector<HTMLElement>(
+    "[data-mcp-console]",
+  );
+
+  if (consoleElement) {
+    const tabs = Array.from(
+      consoleElement.querySelectorAll<HTMLButtonElement>('[role="tab"]'),
+    );
+    const panels = Array.from(
+      consoleElement.querySelectorAll<HTMLElement>('[role="tabpanel"]'),
+    );
+    const status = consoleElement.querySelector<HTMLElement>('[role="status"]');
+
+    const activate = (tab: HTMLButtonElement): void => {
+      for (const candidate of tabs) {
+        const selected = candidate === tab;
+        candidate.setAttribute("aria-selected", String(selected));
+        candidate.tabIndex = selected ? 0 : -1;
+      }
+      for (const panel of panels) {
+        panel.hidden = panel.id !== tab.getAttribute("aria-controls");
+      }
+    };
+
+    consoleElement.dataset.enhanced = "true";
+    activate(tabs[0]);
+
+    for (const tab of tabs) {
+      tab.addEventListener("click", () => activate(tab));
+      tab.addEventListener("keydown", (event: KeyboardEvent) => {
+        const index = tabs.indexOf(tab);
+        let destination: HTMLButtonElement | undefined;
+        if (event.key === "ArrowRight") {
+          destination = tabs[(index + 1) % tabs.length];
+        } else if (event.key === "ArrowLeft") {
+          destination = tabs[(index - 1 + tabs.length) % tabs.length];
+        } else if (event.key === "Home") {
+          destination = tabs[0];
+        } else if (event.key === "End") {
+          destination = tabs[tabs.length - 1];
+        }
+        if (destination) {
+          event.preventDefault();
+          destination.focus();
+          activate(destination);
+        }
+      });
+    }
+
+    const copyButtons = consoleElement.querySelectorAll<HTMLButtonElement>(
+      "[data-copy-target]",
+    );
+
+    for (const button of copyButtons) {
+      button.addEventListener("click", async () => {
+        const targetId = button.getAttribute("data-copy-target");
+        const label = button.getAttribute("data-copy-label") ?? "Setup";
+        const originalText = button.textContent ?? "Copy";
+        const target = targetId
+          ? consoleElement.querySelector<HTMLElement>(`#${targetId}`)
+          : null;
+        const text = target?.textContent ?? "";
+        if (!target || !text) return;
+
+        const announce = (message: string): void => {
+          if (status) status.textContent = message;
+        };
+
+        const fallbackSelect = (): void => {
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          const selection = window.getSelection();
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          announce(`${label} selected — copy manually.`);
+        };
+
+        try {
+          if (!navigator.clipboard?.writeText) {
+            throw new Error("Clipboard API unavailable");
+          }
+          await navigator.clipboard.writeText(text);
+          announce(`${label} copied.`);
+          button.textContent = "Copied";
+          setTimeout(() => {
+            button.textContent = originalText;
+          }, 2000);
+        } catch {
+          fallbackSelect();
+        }
+      });
+    }
+  }
+</script>

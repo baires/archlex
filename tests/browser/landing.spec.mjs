@@ -122,6 +122,52 @@ test("supports keyboard skip navigation and reduced motion", async ({
   await context.close();
 });
 
+test("switches MCP clients with tabs and arrow keys", async ({ page }) => {
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  const codex = mcp.getByRole("tab", { name: "Codex" });
+  const claude = mcp.getByRole("tab", { name: "Claude Code" });
+
+  await expect(codex).toHaveAttribute("aria-selected", "true");
+  await codex.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(claude).toBeFocused();
+  await expect(claude).toHaveAttribute("aria-selected", "true");
+  await expect(
+    mcp.getByRole("tabpanel", { name: "Claude Code" }),
+  ).toBeVisible();
+  await expect(mcp.getByRole("tabpanel", { name: "Codex" })).toBeHidden();
+});
+
+test("copies setup text and announces success", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
+  );
+  await expect(mcp.getByRole("status")).toHaveText(/codex setup copied/i);
+});
+
+test("selects setup text when clipboard access fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.reject(new Error("denied")) },
+    });
+  });
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+
+  await expect(mcp.getByRole("status")).toHaveText(/selected.*copy manually/i);
+  expect(await page.evaluate(() => window.getSelection()?.toString())).toContain(
+    "codex mcp add archlex",
+  );
+});
+
 test("presents MCP as the fourth product pillar", async ({ page }) => {
   await page.goto("/");
   const mcp = page.locator("#mcp");
