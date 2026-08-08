@@ -163,9 +163,9 @@ test("selects setup text when clipboard access fails", async ({ page }) => {
   await mcp.getByRole("button", { name: /copy codex setup/i }).click();
 
   await expect(mcp.getByRole("status")).toHaveText(/selected.*copy manually/i);
-  expect(await page.evaluate(() => window.getSelection()?.toString())).toContain(
-    "codex mcp add archlex",
-  );
+  expect(
+    await page.evaluate(() => window.getSelection()?.toString()),
+  ).toContain("codex mcp add archlex");
 });
 
 test("presents MCP as the fourth product pillar", async ({ page }) => {
