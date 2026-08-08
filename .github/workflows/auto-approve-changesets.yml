@@ -1,0 +1,20 @@
+name: Auto-approve changesets PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+
+jobs:
+  auto-approve:
+    name: Auto-approve changesets PR
+    runs-on: ubuntu-latest
+    if: github.actor == 'github-actions[bot]' && startsWith(github.event.pull_request.title, 'chore: release packages')
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Approve PR
+        run: gh pr review "${{ github.event.pull_request.number }}" --approve --repo "${{ github.repository }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
