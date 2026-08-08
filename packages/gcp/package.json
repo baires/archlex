@@ -1,6 +1,6 @@
 {
   "name": "@archlex/gcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "GCP provider for ArchLex architecture diagrams",
   "keywords": [
     "architecture",
@@ -27,7 +27,11 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public"
   },
