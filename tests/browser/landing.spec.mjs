@@ -122,6 +122,49 @@ test("supports keyboard skip navigation and reduced motion", async ({
   await context.close();
 });
 
+test("presents MCP as the fourth product pillar", async ({ page }) => {
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+
+  await expect(
+    mcp.getByRole("heading", {
+      name: "Give your architecture agent cloud judgment.",
+    }),
+  ).toBeVisible();
+  await expect(mcp.getByRole("tab")).toHaveCount(5);
+  await expect(
+    mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp"),
+  ).toBeVisible();
+  await expect(
+    mcp.getByText("4 tools · AWS + GCP · no API key · playground deep links"),
+  ).toBeVisible();
+
+  const sectionIds = await page
+    .locator("main > section")
+    .evaluateAll((sections) => sections.map((section) => section.id));
+  expect(sectionIds.indexOf("mcp")).toBeGreaterThan(
+    sectionIds.indexOf("capabilities"),
+  );
+  expect(sectionIds.indexOf("mcp")).toBeLessThan(
+    sectionIds.indexOf("source-to-system"),
+  );
+});
+
+test("keeps every setup readable without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/");
+
+  const mcp = page.locator("#mcp");
+  await expect(mcp.getByText(/codex mcp add archlex/)).toBeVisible();
+  await expect(
+    mcp.getByText(/claude mcp add --transport http archlex/),
+  ).toBeVisible();
+  await expect(mcp.getByText('"mcpServers"')).toBeVisible();
+  await expect(mcp.getByText('"servers"')).toBeVisible();
+  await context.close();
+});
+
 test("uses the configured GitHub destination", async ({ page }) => {
   await page.goto("/");
   const githubLink = page.getByRole("link", { name: /view source/i });

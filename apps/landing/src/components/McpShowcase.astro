@@ -1,0 +1,151 @@
+---
+import { SITE_ROUTES } from "../config";
+
+interface McpClient {
+  readonly id: "codex" | "claude" | "cursor" | "vscode" | "generic";
+  readonly label: string;
+  readonly instruction: string;
+  readonly language: "bash" | "json" | "text";
+  readonly setup: string;
+}
+
+const clients = [
+  {
+    id: "codex",
+    label: "Codex",
+    instruction: "Add ArchLex to the shared Codex MCP configuration.",
+    language: "bash",
+    setup: "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
+  },
+  {
+    id: "claude",
+    label: "Claude Code",
+    instruction: "Register ArchLex as a remote HTTP server.",
+    language: "bash",
+    setup:
+      "claude mcp add --transport http archlex https://mcp.archlex.dev/mcp",
+  },
+  {
+    id: "cursor",
+    label: "Cursor",
+    instruction: "Add this server to .cursor/mcp.json.",
+    language: "json",
+    setup: JSON.stringify(
+      { mcpServers: { archlex: { url: "https://mcp.archlex.dev/mcp" } } },
+      null,
+      2,
+    ),
+  },
+  {
+    id: "vscode",
+    label: "VS Code",
+    instruction: "Add this server to .vscode/mcp.json.",
+    language: "json",
+    setup: JSON.stringify(
+      {
+        servers: {
+          archlex: { type: "http", url: "https://mcp.archlex.dev/mcp" },
+        },
+      },
+      null,
+      2,
+    ),
+  },
+  {
+    id: "generic",
+    label: "Generic MCP",
+    instruction:
+      "Use this URL in any client that supports remote Streamable HTTP.",
+    language: "text",
+    setup: "https://mcp.archlex.dev/mcp",
+  },
+] as const satisfies readonly McpClient[];
+
+const setupPrompt =
+  "Set up the ArchLex MCP server for this project using the official remote Streamable HTTP endpoint at https://mcp.archlex.dev/mcp. Verify the connection, list the available ArchLex tools, and tell me when it is ready. Do not change unrelated MCP servers.";
+const examplePrompt =
+  "Design a resilient AWS event ingestion system, validate it, and open the result in ArchLex Playground.";
+---
+
+<section id="mcp" class="section section--mcp shell" aria-labelledby="mcp-title">
+  <div class="section-intro section-intro--split">
+    <div>
+      <p class="eyebrow"><span>MCP server</span> Remote · open access</p>
+      <h2 id="mcp-title">Give your architecture agent cloud judgment.</h2>
+    </div>
+    <p>
+      The ArchLex MCP server brings semantic validation, the AWS + GCP catalogs, and deterministic
+      rendering to any MCP-capable agent. No API key required.
+    </p>
+  </div>
+
+  <div class="mcp-console" data-mcp-console>
+    <div class="mcp-tabs" role="tablist" aria-label="MCP client setup">
+      {clients.map((client, index) => (
+        <button
+          type="button"
+          class="mcp-tab"
+          role="tab"
+          id={`mcp-tab-${client.id}`}
+          aria-controls={`mcp-panel-${client.id}`}
+          aria-selected={index === 0 ? "true" : "false"}
+        >
+          {client.label}
+        </button>
+      ))}
+    </div>
+    <div class="mcp-console__main">
+      {clients.map((client) => (
+        <div
+          class="mcp-panel"
+          role="tabpanel"
+          id={`mcp-panel-${client.id}`}
+          aria-labelledby={`mcp-tab-${client.id}`}
+        >
+          <div class="mcp-panel__bar">
+            <p class="mcp-panel__instruction">{client.instruction}</p>
+            <button
+              type="button"
+              class="mcp-copy"
+              data-copy-target={`mcp-setup-${client.id}`}
+              data-copy-label={`${client.label} setup`}
+            >
+              Copy {client.label} setup
+            </button>
+          </div>
+          <div class="mcp-code">
+            <pre><code id={`mcp-setup-${client.id}`} data-language={client.language}>{client.setup}</code></pre>
+          </div>
+        </div>
+      ))}
+
+      <div class="mcp-agent-prompt">
+        <div class="mcp-panel__bar">
+          <p class="mcp-panel__instruction">Or let your agent set it up for you:</p>
+          <button
+            type="button"
+            class="mcp-copy"
+            data-copy-target="mcp-agent-prompt-text"
+            data-copy-label="Agent prompt"
+          >
+            Copy agent prompt
+          </button>
+        </div>
+        <pre><code id="mcp-agent-prompt-text">{setupPrompt}</code></pre>
+      </div>
+
+      <div class="mcp-example">
+        <p class="mcp-example__label">Then ask:</p>
+        <pre><code id="mcp-example-prompt-text">{examplePrompt}</code></pre>
+      </div>
+
+      <p class="mcp-proof">4 tools · AWS + GCP · no API key · playground deep links</p>
+
+      <p class="mcp-status" role="status" aria-live="polite"></p>
+
+      <p class="mcp-docs">
+        <a href={SITE_ROUTES.mcpDocs}>Full transport and client setup guide ↗</a>
+      </p>
+    </div>
+  </div>
+</section>
