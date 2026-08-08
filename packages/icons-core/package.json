@@ -1,6 +1,6 @@
 {
   "name": "@archlex/icons-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Core icon utilities for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "icons", "svg"],
   "repository": {
