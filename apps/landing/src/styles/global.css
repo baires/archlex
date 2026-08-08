@@ -5,6 +5,8 @@
 html {
   background: var(--surface-canvas);
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -15,6 +17,7 @@ body {
   font-family: var(--font-ui);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 a {
@@ -196,6 +199,8 @@ h1 {
   font-weight: 500;
   letter-spacing: -0.06em;
   line-height: 0.94;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .hero__lede {
@@ -271,6 +276,8 @@ h1 {
 
 .story-row__content {
   color: var(--text-secondary);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .story-row__content p {
@@ -319,6 +326,7 @@ h1 {
   padding: var(--space-6);
   border-radius: var(--radius-code);
   background: var(--surface-sunken);
+  min-width: 0;
 }
 
 .mcp-setup__intro {
@@ -393,6 +401,7 @@ h1 {
   font-family: var(--font-code);
   font-size: 0.8rem;
   line-height: 1.6;
+  word-break: break-all;
 }
 
 .mcp-copy {
@@ -438,6 +447,7 @@ h1 {
   font-family: var(--font-code);
   font-size: 0.8rem;
   line-height: 1.6;
+  word-break: break-all;
 }
 
 .mcp-example {
@@ -463,6 +473,7 @@ h1 {
   font-family: var(--font-code);
   font-size: 0.8rem;
   line-height: 1.6;
+  word-break: break-all;
 }
 
 .mcp-proof {
@@ -635,6 +646,16 @@ h1 {
   .mcp-tabs {
     overflow-x: auto;
     scrollbar-width: thin;
+  }
+
+  .mcp-setup {
+    padding: var(--space-4);
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .mcp-tab {
+    flex-shrink: 0;
   }
 
   .site-footer__grid {

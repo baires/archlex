@@ -117,32 +117,16 @@ test("selects setup text when clipboard access fails", async ({ page }) => {
   ).toContain("codex mcp add archlex");
 });
 
-test("presents MCP as the fourth product pillar", async ({ page }) => {
+test("presents MCP as the second conversion path in story row three", async ({ page }) => {
   await page.goto("/");
   const mcp = page.locator("#mcp");
-
-  await expect(
-    mcp.getByRole("heading", {
-      name: "Give your architecture agent cloud judgment.",
-    }),
-  ).toBeVisible();
+  await expect(mcp.getByRole("heading", { name: "Cloud judgment for your agent." })).toBeVisible();
   await expect(mcp.getByRole("tab")).toHaveCount(5);
-  await expect(
-    mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp"),
-  ).toBeVisible();
-  await expect(
-    mcp.getByText("4 tools · AWS + GCP · no API key · playground deep links"),
-  ).toBeVisible();
-
-  const sectionIds = await page
-    .locator("main > section")
-    .evaluateAll((sections) => sections.map((section) => section.id));
-  expect(sectionIds.indexOf("mcp")).toBeGreaterThan(
-    sectionIds.indexOf("capabilities"),
-  );
-  expect(sectionIds.indexOf("mcp")).toBeLessThan(
-    sectionIds.indexOf("source-to-system"),
-  );
+  await expect(mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp")).toBeVisible();
+  await expect(mcp.getByText("4 tools · AWS + GCP · no API key")).toBeVisible();
+  await expect(mcp.getByText(/Design a resilient AWS event ingestion system/)).toBeVisible();
+  await expect(mcp.getByRole("link", { name: /full setup guide/i })).toHaveAttribute("href", /guides\/mcp-server/);
+  await expect(mcp.locator(".story-row__index")).toHaveText("03");
 });
 
 test("keeps every setup readable without JavaScript", async ({ browser }) => {
