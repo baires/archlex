@@ -1,86 +1,35 @@
 import { expect, test } from "@playwright/test";
 
-test("leads with a real diagram and playground action", async ({ page }) => {
+test("leads with the Playground-first Quiet Ledger story", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Write the architecture. We’ll check it.",
+    "Diagrams that know what they mean.",
   );
-  await expect(
-    page.getByRole("link", { name: /try the playground/i }).first(),
-  ).toHaveAttribute("href", /playground/);
-  await expect(page.getByRole("link", { name: /view source/i })).toBeVisible();
-  await expect(
-    page.getByRole("img", {
-      name: /multi-region cloud architecture rendered by ArchLex/i,
-    }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("img", {
-      name: /multi-region cloud architecture rendered by ArchLex/i,
-    }),
-  ).toHaveAttribute("src", /\.svg$/);
-  await expect(page.getByText("SYS.ARCH / 001")).toHaveCount(0);
-  await expect(page.locator(".hero .product-frame")).toHaveCount(0);
+  await expect(page.getByText("Cloud architecture, understood")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open playground" }).first()).toHaveAttribute("href", /playground/);
+  await expect(page.getByRole("link", { name: "Connect MCP" })).toHaveAttribute("href", "#mcp");
+  await expect(page.locator(".diagram-stage img")).toHaveAttribute("src", /\.svg$/);
 });
 
-test("fits the complete diagram hero inside a desktop viewport", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test("orders the product story as semantics, review, MCP, then packages", async ({ page }) => {
   await page.goto("/");
-  const diagram = page.locator(".hero-diagram");
-  const box = await diagram.boundingBox();
-  expect(box).not.toBeNull();
-  expect(box.y + box.height).toBeLessThanOrEqual(900);
-  await expect(diagram.locator("img")).toHaveCSS("object-fit", "contain");
+  await expect(page.locator(".story-row")).toHaveCount(4);
+  await expect(page.locator(".story-row__index")).toHaveText(["01", "02", "03", "04"]);
+  await expect(page.locator(".story-row h2")).toHaveText([
+    "Not just boxes.",
+    "Readable in code review.",
+    "Cloud judgment for your agent.",
+    "Use it anywhere.",
+  ]);
+  await expect(page.getByText("npm install @archlex/core @archlex/aws @archlex/gcp")).toBeVisible();
 });
 
-test("uses compact bordered spacing between product sections", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1440, height: 900 });
+test("keeps narrative sections borderless", async ({ page }) => {
   await page.goto("/");
-  const section = page.locator(".section").first();
-  const styles = await section.evaluate((element) => {
-    const computed = getComputedStyle(element);
-    return {
-      paddingTop: Number.parseFloat(computed.paddingTop),
-      borderTopWidth: computed.borderTopWidth,
-      borderTopStyle: computed.borderTopStyle,
-    };
-  });
-  expect(styles.paddingTop).toBeLessThanOrEqual(112);
-  expect(styles.borderTopWidth).toBe("1px");
-  expect(styles.borderTopStyle).toBe("solid");
-});
-
-test("explains semantics and provides a verified quick start", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await expect(
-    page.getByRole("heading", { name: /diagrams should understand/i }),
-  ).toBeVisible();
-  await expect(page.getByText(/actionable diagnostics/i).first()).toBeVisible();
-  await expect(
-    page.getByText("npm install @archlex/core @archlex/aws @archlex/gcp"),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: /architecture already lives in code/i }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("img", {
-      name: /api gateway invokes lambda which writes to dynamodb/i,
-    }),
-  ).toHaveAttribute("src", /\.svg$/);
-  await expect(page.getByText("SEMANTIC LAYER", { exact: true })).toHaveCount(
-    0,
-  );
-  await expect(page.locator(".code-window .token--keyword")).not.toHaveCount(0);
-  await expect(page.locator(".code-window .token--string")).not.toHaveCount(0);
-  await expect(page.locator(".code-window .token--function")).not.toHaveCount(
-    0,
-  );
+  for (const row of await page.locator(".story-row").all()) {
+    await expect(row).toHaveCSS("border-top-width", "0px");
+    await expect(row).toHaveCSS("border-bottom-width", "0px");
+  }
 });
 
 for (const viewport of [
@@ -229,11 +178,8 @@ test("adapts the MCP console for narrow screens", async ({ page }) => {
 
 test("uses the configured GitHub destination", async ({ page }) => {
   await page.goto("/");
-  const githubLink = page.getByRole("link", { name: /view source/i });
-  await expect(githubLink).toHaveAttribute(
-    "href",
-    "https://github.com/example/archlex",
-  );
+  const githubLink = page.getByRole("link", { name: "GitHub" }).first();
+  await expect(githubLink).toHaveAttribute("href", "https://github.com/example/archlex");
   await expect(githubLink).toHaveAttribute("target", "_blank");
   await expect(githubLink).toHaveAttribute("rel", /noreferrer/);
 });

@@ -1,0 +1,9 @@
+---
+interface Props { index: string; title: string; id?: string }
+const { index, title, id } = Astro.props;
+---
+<section class="story-row" id={id} aria-labelledby={id ? `${id}-title` : undefined}>
+  <span class="story-row__index" aria-hidden="true">{index}</span>
+  <h2 id={id ? `${id}-title` : undefined}>{title}</h2>
+  <div class="story-row__content"><slot /></div>
+</section>

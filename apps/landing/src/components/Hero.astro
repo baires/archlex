@@ -1,0 +1,15 @@
+---
+import { SITE_ROUTES } from "../config";
+import Button from "./Button.astro";
+---
+<section class="hero shell shell--reading" aria-labelledby="hero-title">
+  <div class="hero__copy">
+    <p class="eyebrow">Cloud architecture, understood</p>
+    <h1 id="hero-title">Diagrams that know what they mean.</h1>
+    <p class="hero__lede">Write cloud architecture as text. ArchLex checks the semantics and renders a diagram your team can trust.</p>
+    <div class="hero__actions">
+      <Button href={SITE_ROUTES.playground}>Open playground</Button>
+      <Button href="#mcp" variant="text">Connect MCP <span aria-hidden="true">→</span></Button>
+    </div>
+  </div>
+</section>

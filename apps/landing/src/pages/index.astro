@@ -1,13 +1,12 @@
 ---
 import Button from "../components/Button.astro";
-import Capabilities from "../components/Capabilities.astro";
+import DiagramStage from "../components/DiagramStage.astro";
+import Hero from "../components/Hero.astro";
 import McpShowcase from "../components/McpShowcase.astro";
-import ProductFrame from "../components/ProductFrame.astro";
-import QuickStart from "../components/QuickStart.astro";
-import SemanticProof from "../components/SemanticProof.astro";
+import PackageQuickStart from "../components/PackageQuickStart.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
-import SourceToSystem from "../components/SourceToSystem.astro";
+import StoryRow from "../components/StoryRow.astro";
 import { SITE_ROUTES } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
@@ -18,42 +17,43 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 >
   <SiteHeader />
   <main id="main-content" tabindex="-1">
-    <section class="hero shell">
-      <div class="hero__copy">
-        <p class="eyebrow"><span>OPEN SOURCE</span> AWS + GCP</p>
-        <h1>Write the architecture. We’ll check it.</h1>
-        <p class="hero__lede">
-          Turn concise cloud text into a validated, accessible diagram—right in your browser.
-        </p>
-        <div class="hero__actions">
-          <Button href={SITE_ROUTES.playground}>Try the playground <span aria-hidden="true">→</span></Button>
-          {SITE_ROUTES.github && (
-            <Button href={SITE_ROUTES.github} variant="text" external>View source ↗</Button>
-          )}
-        </div>
-        <ul class="hero__proof" aria-label="Product capabilities">
-          <li><span>✓</span> AWS + GCP</li>
-          <li><span>✓</span> Semantic checks</li>
-          <li><span>✓</span> Deterministic SVG</li>
-          <li><span>✓</span> No sign-up</li>
-        </ul>
-      </div>
-      <div class="hero__visual">
-        <ProductFrame />
-      </div>
-    </section>
-    <SemanticProof />
-    <Capabilities />
-    <McpShowcase />
-    <SourceToSystem />
-    <QuickStart />
-    <section class="final-cta shell" aria-labelledby="final-cta-title">
-      <div class="final-cta__signal" aria-hidden="true">→</div>
-      <p class="eyebrow"><span>Open source</span> No account required</p>
-      <h2 id="final-cta-title">Your architecture already lives in code. Diagram it there too.</h2>
+    <Hero />
+    <DiagramStage />
+    <div class="story-sequence">
+      <StoryRow index="01" title="Not just boxes.">
+        <p>ArchLex understands cloud resources, boundaries, and typed relationships—not just shapes.</p>
+        <figure class="semantic-proof">
+          <img src="/diagrams/serverless-api.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" />
+          <figcaption><span aria-hidden="true">✓</span> Architecture valid</figcaption>
+        </figure>
+      </StoryRow>
+
+      <StoryRow index="02" title="Readable in code review.">
+        <p>Concise source stays clear in a diff. Deterministic, accessible SVG keeps every rendered review consistent.</p>
+        <pre class="source-proof"><code>provider aws
+api: api-gateway
+worker: lambda
+data: dynamodb
+
+api -[invokes]-> worker
+worker -[writes]-> data</code></pre>
+      </StoryRow>
+
+      <StoryRow index="03" title="Cloud judgment for your agent." id="mcp">
+        <McpShowcase />
+      </StoryRow>
+
+      <StoryRow index="04" title="Use it anywhere.">
+        <PackageQuickStart />
+      </StoryRow>
+    </div>
+
+    <section class="final-cta shell shell--reading" aria-labelledby="final-cta-title">
+      <p class="eyebrow">Open source · no account required</p>
+      <h2 id="final-cta-title">See your architecture clearly.</h2>
       <div class="final-cta__actions">
-        <Button href={SITE_ROUTES.playground}>Open playground →</Button>
-        <Button href={SITE_ROUTES.docs} variant="text">Explore the docs</Button>
+        <Button href={SITE_ROUTES.playground}>Open playground</Button>
+        <Button href={SITE_ROUTES.docs} variant="text">Read the docs <span aria-hidden="true">→</span></Button>
       </div>
     </section>
   </main>

@@ -12,15 +12,16 @@ import { SITE_ROUTES } from "../config";
     </div>
     <nav aria-label="Documentation">
       <h3>Documentation</h3>
-      <a href="/docs/getting-started">Getting started</a>
+      <a href={SITE_ROUTES.docs}>Docs</a>
+      <a href={SITE_ROUTES.mcpDocs}>MCP guide</a>
       <a href="/docs/specs/language">Language specification</a>
       <a href="/docs/specs/public-api">API reference</a>
     </nav>
     <nav aria-label="Project resources">
       <h3>Project</h3>
       <a href={SITE_ROUTES.playground}>Playground</a>
-      <a href="/docs/architecture/contribution-guide">Contributing</a>
       {SITE_ROUTES.github && <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>}
+      <a href="/docs/architecture/contribution-guide">Contributing</a>
     </nav>
   </div>
   <div class="shell site-footer__base">
