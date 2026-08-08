@@ -232,3 +232,118 @@ describe("ArchLex MCP Server Tools", () => {
     });
   });
 });
+
+describe("Streamable HTTP endpoint", () => {
+  const protocolVersion = "2025-03-26";
+
+  function mcpRequest(body: unknown, method = "POST"): Request {
+    return new Request("https://mcp.archlex.dev/mcp", {
+      method,
+      headers: {
+        Accept: "application/json, text/event-stream",
+        "Content-Type": "application/json",
+        "MCP-Protocol-Version": protocolVersion,
+        Origin: "https://archlex.dev",
+      },
+      body: method === "POST" ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  it("initializes through POST /mcp", async () => {
+    const response = await worker.fetch(
+      mcpRequest({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion,
+          capabilities: {},
+          clientInfo: { name: "archlex-test", version: "1.0.0" },
+        },
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
+    expect(response.headers.get("Content-Type")).toContain("application/json");
+    const data = (await response.json()) as {
+      result: { protocolVersion: string; serverInfo: { name: string } };
+    };
+    expect(data.result.protocolVersion).toBe(protocolVersion);
+    expect(data.result.serverInfo.name).toBe("archlex-mcp-server");
+  });
+
+  it("lists the four tools through stateless POST /mcp", async () => {
+    const response = await worker.fetch(
+      mcpRequest({ jsonrpc: "2.0", id: 2, method: "tools/list" }),
+    );
+    const data = (await response.json()) as {
+      result: { tools: { name: string }[] };
+    };
+
+    expect(data.result.tools.map((tool) => tool.name)).toEqual([
+      "render_diagram",
+      "validate_diagram",
+      "get_cloud_catalog",
+      "generate_playground_url",
+    ]);
+  });
+
+  it("advertises the current and compatibility endpoints", async () => {
+    const response = await worker.fetch(
+      new Request("https://mcp.archlex.dev/info"),
+    );
+    const data = (await response.json()) as Record<string, unknown>;
+
+    expect(data.streamable_http_endpoint).toBe("/mcp");
+    expect(data.sse_endpoint).toBe("/sse");
+    expect(data.messages_endpoint).toBe("/messages");
+  });
+
+  it.each([
+    {
+      name: "invalid origin",
+      request: new Request("https://mcp.archlex.dev/mcp", {
+        method: "POST",
+        headers: {
+          Origin: "https://evil.example",
+          "Content-Type": "application/json",
+        },
+        body: "{}",
+      }),
+      env: { ALLOWED_ORIGINS: "https://archlex.dev" },
+      status: 403,
+    },
+    {
+      name: "missing bearer token",
+      request: new Request("https://mcp.archlex.dev/mcp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      }),
+      env: { MCP_AUTH_TOKEN: "secret" },
+      status: 401,
+    },
+  ])("rejects $name before MCP dispatch", async ({ request, env, status }) => {
+    expect((await worker.fetch(request, env)).status).toBe(status);
+  });
+
+  it("rejects oversized /mcp payloads", async () => {
+    const response = await worker.fetch(
+      new Request("https://mcp.archlex.dev/mcp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": "524289",
+        },
+        body: "{}",
+      }),
+    );
+    expect(response.status).toBe(413);
+  });
+
+  it("rejects unsupported /mcp methods through the protocol transport", async () => {
+    const response = await worker.fetch(mcpRequest(undefined, "PUT"));
+    expect(response.status).toBe(405);
+  });
+});

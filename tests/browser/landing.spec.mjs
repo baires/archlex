@@ -122,6 +122,111 @@ test("supports keyboard skip navigation and reduced motion", async ({
   await context.close();
 });
 
+test("switches MCP clients with tabs and arrow keys", async ({ page }) => {
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  const codex = mcp.getByRole("tab", { name: "Codex" });
+  const claude = mcp.getByRole("tab", { name: "Claude Code" });
+
+  await expect(codex).toHaveAttribute("aria-selected", "true");
+  await codex.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(claude).toBeFocused();
+  await expect(claude).toHaveAttribute("aria-selected", "true");
+  await expect(
+    mcp.getByRole("tabpanel", { name: "Claude Code" }),
+  ).toBeVisible();
+  await expect(mcp.getByRole("tabpanel", { name: "Codex" })).toBeHidden();
+});
+
+test("copies setup text and announces success", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+    "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
+  );
+  await expect(mcp.getByRole("status")).toHaveText(/codex setup copied/i);
+});
+
+test("selects setup text when clipboard access fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.reject(new Error("denied")) },
+    });
+  });
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+
+  await expect(mcp.getByRole("status")).toHaveText(/selected.*copy manually/i);
+  expect(
+    await page.evaluate(() => window.getSelection()?.toString()),
+  ).toContain("codex mcp add archlex");
+});
+
+test("presents MCP as the fourth product pillar", async ({ page }) => {
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+
+  await expect(
+    mcp.getByRole("heading", {
+      name: "Give your architecture agent cloud judgment.",
+    }),
+  ).toBeVisible();
+  await expect(mcp.getByRole("tab")).toHaveCount(5);
+  await expect(
+    mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp"),
+  ).toBeVisible();
+  await expect(
+    mcp.getByText("4 tools · AWS + GCP · no API key · playground deep links"),
+  ).toBeVisible();
+
+  const sectionIds = await page
+    .locator("main > section")
+    .evaluateAll((sections) => sections.map((section) => section.id));
+  expect(sectionIds.indexOf("mcp")).toBeGreaterThan(
+    sectionIds.indexOf("capabilities"),
+  );
+  expect(sectionIds.indexOf("mcp")).toBeLessThan(
+    sectionIds.indexOf("source-to-system"),
+  );
+});
+
+test("keeps every setup readable without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto("/");
+
+  const mcp = page.locator("#mcp");
+  await expect(mcp.getByText(/codex mcp add archlex/)).toBeVisible();
+  await expect(
+    mcp.getByText(/claude mcp add --transport http archlex/),
+  ).toBeVisible();
+  await expect(mcp.getByText('"mcpServers"')).toBeVisible();
+  await expect(mcp.getByText('"servers"')).toBeVisible();
+  await context.close();
+});
+
+test("adapts the MCP console for narrow screens", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  const tabs = mcp.locator(".mcp-tabs");
+
+  await expect(tabs).toHaveCSS("overflow-x", "auto");
+  await expect(mcp.getByRole("tab", { name: "Generic MCP" })).toBeVisible();
+  const documentOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  expect(documentOverflow).toBe(0);
+});
+
 test("uses the configured GitHub destination", async ({ page }) => {
   await page.goto("/");
   const githubLink = page.getByRole("link", { name: /view source/i });

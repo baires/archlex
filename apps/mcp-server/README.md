@@ -4,24 +4,60 @@ Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Wo
 
 ## Live Endpoints
 
+- `GET|POST|DELETE /mcp` – Streamable HTTP transport (recommended)
 - `GET /health` – Health check and auth status
 - `GET /info` – Server capability metadata & tool listing
-- `GET /sse` – Server-Sent Events stream initialization
-- `POST /messages` – JSON-RPC message handler (session & stateless fallback)
+- `GET /sse` – Legacy Server-Sent Events stream initialization (kept for backward compatibility)
+- `POST /messages` – Legacy JSON-RPC message handler (session & stateless fallback)
 
 ## Client Configuration
 
-Add to `claude_desktop_config.json`:
+The recommended endpoint is the Streamable HTTP transport at `https://mcp.archlex.dev/mcp`. The legacy `/sse` and `/messages` routes remain available for older clients.
+
+### Codex
+
+```bash
+codex mcp add archlex --url https://mcp.archlex.dev/mcp
+```
+
+### Claude Code
+
+```bash
+claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json` (project-scoped):
 
 ```json
 {
   "mcpServers": {
     "archlex": {
-      "url": "https://mcp.archlex.dev/sse"
+      "url": "https://mcp.archlex.dev/mcp"
     }
   }
 }
 ```
+
+### VS Code
+
+Add to `.vscode/mcp.json` (project-scoped):
+
+```json
+{
+  "servers": {
+    "archlex": {
+      "type": "http",
+      "url": "https://mcp.archlex.dev/mcp"
+    }
+  }
+}
+```
+
+### Generic MCP clients
+
+Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streamable HTTP transport.
 
 ## Tools
 
