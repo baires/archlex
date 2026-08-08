@@ -45,7 +45,7 @@
 - Consumes: `createMcpServer(): Server` and the existing security middleware in `fetch(request, env)`.
 - Produces: `handleStreamableHttpRequest(request: Request, corsHeaders: Readonly<Record<string, string>>): Promise<Response>` and `GET|POST|DELETE https://mcp.archlex.dev/mcp`.
 
-- [ ] **Step 1: Write failing protocol tests**
+- [x] **Step 1: Write failing protocol tests**
 
 Add a helper and focused suite to `apps/mcp-server/test/server.test.ts`:
 
@@ -166,7 +166,7 @@ it("rejects unsupported /mcp methods through the protocol transport", async () =
 
 These tests catch accidental routing around the existing protections.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 Run:
 
@@ -176,7 +176,7 @@ pnpm --filter @archlex/mcp-server test -- --run test/server.test.ts
 
 Expected: FAIL because `/mcp` returns `404` and `/info` omits `streamable_http_endpoint`.
 
-- [ ] **Step 3: Implement request-local Streamable HTTP handling**
+- [x] **Step 3: Implement request-local Streamable HTTP handling**
 
 In `apps/mcp-server/src/index.ts`, import the Worker-compatible transport:
 
@@ -222,7 +222,7 @@ if (url.pathname === "/mcp") {
 
 Add `streamable_http_endpoint: "/mcp"` to `/info`. Keep `/sse` and `/messages` unchanged. The protocol tests must retain the initialize handshake and the four-tool assertion; do not bypass SDK protocol validation.
 
-- [ ] **Step 4: Run focused tests and typecheck to verify GREEN**
+- [x] **Step 4: Run focused tests and typecheck to verify GREEN**
 
 Run:
 
@@ -233,7 +233,7 @@ pnpm --filter @archlex/mcp-server typecheck
 
 Expected: all MCP server tests pass and TypeScript reports no errors.
 
-- [ ] **Step 5: Commit the transport**
+- [x] **Step 5: Commit the transport**
 
 ```bash
 git add apps/mcp-server/src/index.ts apps/mcp-server/test/server.test.ts
@@ -252,7 +252,7 @@ git commit -m "feat(mcp): add Streamable HTTP endpoint"
 - Consumes: the `/mcp` contract from Task 1.
 - Produces: one canonical set of copy-ready client instructions used to review the landing content in Task 3.
 
-- [ ] **Step 1: Replace the recommended endpoint and preserve compatibility notes**
+- [x] **Step 1: Replace the recommended endpoint and preserve compatibility notes**
 
 In both documents, make `/mcp` the first endpoint and identify `/sse` and `/messages` as legacy-compatible routes. Use these exact examples:
 
@@ -297,7 +297,7 @@ claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
 
 State the correct file locations: `.cursor/mcp.json` for project-scoped Cursor configuration and `.vscode/mcp.json` for project-scoped VS Code configuration. Keep the optional bearer-token documentation for private deployments.
 
-- [ ] **Step 2: Verify documentation formatting and generated-resource sync**
+- [x] **Step 2: Verify documentation formatting and generated-resource sync**
 
 Run:
 
@@ -309,7 +309,7 @@ git status --short
 
 Expected: Biome passes; sync completes; `apps/mcp-server/src/generated/docs-resources.ts` changes because `docs/guides/mcp-server.md` is embedded by the server.
 
-- [ ] **Step 3: Commit the documentation**
+- [x] **Step 3: Commit the documentation**
 
 ```bash
 git add apps/mcp-server/README.md docs/guides/mcp-server.md apps/mcp-server/src/generated/docs-resources.ts
@@ -332,7 +332,7 @@ git commit -m "docs(mcp): recommend Streamable HTTP clients"
 - Consumes: the client instructions established in Task 2 and `SITE_ROUTES.docs`.
 - Produces: server-rendered `#mcp` section, `[data-mcp-console]`, tabs named `Codex`, `Claude Code`, `Cursor`, `VS Code`, and `Generic MCP`, plus copy targets identified by stable element IDs.
 
-- [ ] **Step 1: Write failing content, ordering, and no-JavaScript tests**
+- [x] **Step 1: Write failing content, ordering, and no-JavaScript tests**
 
 Add to `tests/browser/landing.spec.mjs`:
 
@@ -373,7 +373,7 @@ test("keeps every setup readable without JavaScript", async ({ browser }) => {
 
 Give the section in `Capabilities.astro` `id="capabilities"` and the section in `SourceToSystem.astro` `id="source-to-system"`. Rewrite the ordering assertion to compare those stable IDs with `mcp`.
 
-- [ ] **Step 2: Run the landing tests and verify RED**
+- [x] **Step 2: Run the landing tests and verify RED**
 
 Run:
 
@@ -383,7 +383,7 @@ pnpm exec playwright test --config=playwright.landing.config.mjs --grep "MCP|fou
 
 Expected: FAIL because `#mcp` and `McpShowcase.astro` do not exist.
 
-- [ ] **Step 3: Add typed client data and semantic markup**
+- [x] **Step 3: Add typed client data and semantic markup**
 
 Add `mcpDocs: `${SITE_ROUTES.docs}/guides/mcp-server`` without self-reference by defining it directly in `apps/landing/src/config.ts`:
 
@@ -457,7 +457,7 @@ Render `<section id="mcp" class="section section--mcp shell">`, a heading, one `
 
 Import and place `<McpShowcase />` between `<Capabilities />` and `<SourceToSystem />` in `index.astro`.
 
-- [ ] **Step 4: Run tests and typecheck to verify GREEN**
+- [x] **Step 4: Run tests and typecheck to verify GREEN**
 
 Run:
 
@@ -468,7 +468,7 @@ pnpm --filter @archlex/landing typecheck
 
 Expected: the new content tests pass and Astro typechecking reports no errors.
 
-- [ ] **Step 5: Commit the server-rendered pillar**
+- [x] **Step 5: Commit the server-rendered pillar**
 
 ```bash
 git add apps/landing/src/config.ts apps/landing/src/components/McpShowcase.astro apps/landing/src/pages/index.astro apps/landing/src/components/Capabilities.astro apps/landing/src/components/SourceToSystem.astro tests/browser/landing.spec.mjs
@@ -487,7 +487,7 @@ git commit -m "feat(landing): add MCP product pillar"
 - Consumes: the tab, panel, copy-target, and status IDs from Task 3.
 - Produces: `data-enhanced="true"`, roving `tabindex`, selected panel state, keyboard activation, Clipboard API success feedback, and selection fallback.
 
-- [ ] **Step 1: Write failing interaction tests**
+- [x] **Step 1: Write failing interaction tests**
 
 Add real-browser tests:
 
@@ -537,7 +537,7 @@ test("selects setup text when clipboard access fails", async ({ page }) => {
 });
 ```
 
-- [ ] **Step 2: Run interaction tests and verify RED**
+- [x] **Step 2: Run interaction tests and verify RED**
 
 Run:
 
@@ -547,7 +547,7 @@ pnpm exec playwright test --config=playwright.landing.config.mjs --grep "MCP cli
 
 Expected: FAIL because all panels remain visible and copy buttons have no behavior.
 
-- [ ] **Step 3: Implement progressive enhancement**
+- [x] **Step 3: Implement progressive enhancement**
 
 Add an inline `<script>` to `McpShowcase.astro`. Scope every query to `[data-mcp-console]`; avoid global tab or button selectors. Implement:
 
@@ -583,7 +583,7 @@ if (consoleElement) {
 
 For each `[data-copy-target]` button, read `textContent` from the named target. Call `navigator.clipboard.writeText(text)` when available. On rejection or absence, create a `Range`, select the target contents with `window.getSelection()`, and announce `“<label> selected — copy manually.”` On success, announce `“<label> copied.”`, temporarily change visible button text to `Copied`, then restore it after 2 seconds. Store the original label in a local variable; do not derive it after mutation.
 
-- [ ] **Step 4: Run the interaction tests and verify GREEN**
+- [x] **Step 4: Run the interaction tests and verify GREEN**
 
 Run:
 
@@ -594,7 +594,7 @@ pnpm --filter @archlex/landing typecheck
 
 Expected: all three interaction tests pass and TypeScript reports no errors.
 
-- [ ] **Step 5: Commit the interactions**
+- [x] **Step 5: Commit the interactions**
 
 ```bash
 git add apps/landing/src/components/McpShowcase.astro tests/browser/landing.spec.mjs
@@ -613,7 +613,7 @@ git commit -m "feat(landing): enhance MCP setup console"
 - Consumes: `.mcp-showcase`, `.mcp-console`, `.mcp-tabs`, `.mcp-panel`, `.mcp-code`, `.mcp-agent-prompt`, `.mcp-proof`, and `[data-enhanced="true"]` markup classes from Task 3.
 - Produces: desktop side rail, mobile scrollable tab row, contained code overflow, visible focus, and zero page-level horizontal overflow.
 
-- [ ] **Step 1: Add failing responsive assertions**
+- [x] **Step 1: Add failing responsive assertions**
 
 Extend the existing desktop/mobile overflow loop and add:
 
@@ -633,7 +633,7 @@ test("adapts the MCP console for narrow screens", async ({ page }) => {
 });
 ```
 
-- [ ] **Step 2: Run the responsive test and verify RED**
+- [x] **Step 2: Run the responsive test and verify RED**
 
 Run:
 
@@ -643,7 +643,7 @@ pnpm exec playwright test --config=playwright.landing.config.mjs --grep "adapts 
 
 Expected: FAIL because `.mcp-tabs` has no horizontal overflow rule or console layout.
 
-- [ ] **Step 3: Implement the visual direction in `global.css`**
+- [x] **Step 3: Implement the visual direction in `global.css`**
 
 Add a cohesive section using existing variables:
 
@@ -722,7 +722,7 @@ Add a cohesive section using existing variables:
 
 Add the remaining console rules with these contracts: `.mcp-console__main` uses `padding: clamp(1.25rem, 3vw, 2.5rem)`; `.mcp-panel__bar` and `.mcp-proof` use flex wrapping with `gap: var(--space-3)`; `.mcp-copy` reuses the code-font uppercase button treatment with a `1px` border and signal-color hover; `.mcp-agent-prompt` uses a signal-colored left border; `.mcp-code pre`, `.mcp-agent-prompt pre`, and `.mcp-example pre` use `white-space: pre-wrap`, `overflow-wrap: anywhere`, and the existing code font; `[data-enhanced="true"] .mcp-panel[hidden]` uses `display: none`; and the polite status is visually hidden with the standard clipped-text technique while remaining exposed to assistive technology. Add transitions only for color and border. Inside the existing `prefers-reduced-motion: reduce` block, set transition duration to `0s` for `.mcp-tab` and `.mcp-copy`.
 
-- [ ] **Step 4: Run responsive and full landing tests to verify GREEN**
+- [x] **Step 4: Run responsive and full landing tests to verify GREEN**
 
 Run:
 
@@ -733,7 +733,7 @@ pnpm exec playwright test --config=playwright.landing.config.mjs
 
 Expected: the MCP responsive test and every existing landing test pass at desktop and mobile sizes.
 
-- [ ] **Step 5: Commit the visual treatment**
+- [x] **Step 5: Commit the visual treatment**
 
 ```bash
 git add apps/landing/src/styles/global.css tests/browser/landing.spec.mjs
@@ -751,7 +751,7 @@ git commit -m "style(landing): refine MCP agent console"
 - Consumes: all prior tasks.
 - Produces: verified Worker protocol behavior and a production-build landing section.
 
-- [ ] **Step 1: Run focused package checks**
+- [x] **Step 1: Run focused package checks**
 
 ```bash
 pnpm --filter @archlex/mcp-server test
@@ -764,7 +764,7 @@ pnpm exec playwright test --config=playwright.landing.config.mjs
 
 Expected: every command exits `0`; Playwright reports zero failing landing tests.
 
-- [ ] **Step 2: Smoke-test the local Worker with an SDK client**
+- [x] **Step 2: Smoke-test the local Worker with an SDK client**
 
 Start the Worker in the background as required by the app instructions, then connect with the SDK's `StreamableHTTPClientTransport` to `http://127.0.0.1:8787/mcp`. Initialize, call `listTools()`, and assert the four expected names. Use a temporary script created under a `mktemp -d` directory and remove that temporary directory after the run.
 
@@ -777,11 +777,11 @@ get_cloud_catalog
 generate_playground_url
 ```
 
-- [ ] **Step 3: Reconfirm client configuration shapes**
+- [x] **Step 3: Reconfirm client configuration shapes**
 
 Compare the rendered production HTML with the approved literals: Codex and Claude Code must show their complete CLI commands; Cursor must use top-level `mcpServers`; VS Code must use top-level `servers` plus `type: "http"`; Generic MCP must name Streamable HTTP. This is a content review, while the SDK client smoke test in Step 2 proves endpoint compatibility.
 
-- [ ] **Step 4: Run repository-wide verification**
+- [x] **Step 4: Run repository-wide verification**
 
 ```bash
 pnpm lint
@@ -792,7 +792,7 @@ git status --short
 
 Expected: lint and check exit `0`; no whitespace errors; only intentional task files differ. Preserve the user's existing untracked `AGENTS.md` files.
 
-- [ ] **Step 5: Review the final diff against the design**
+- [x] **Step 5: Review the final diff against the design**
 
 Confirm each item with direct evidence:
 
