@@ -10,7 +10,7 @@ jobs:
   auto-approve:
     name: Auto-approve changesets PR
     runs-on: ubuntu-latest
-    if: github.actor == 'github-actions[bot]' && startsWith(github.event.pull_request.title, 'chore: release packages')
+    if: github.actor == 'github-actions[bot]' && startsWith(github.event.pull_request.title, 'chore')
     permissions:
       pull-requests: write
     steps:
