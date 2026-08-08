@@ -1,15 +1,30 @@
 import { strict as assert } from "node:assert";
 import { readFile } from "node:fs/promises";
 
-const manifest = JSON.parse(
-  await readFile(new URL("./package.json", import.meta.url)),
-);
+const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
+const manifest = JSON.parse(await read("./package.json"));
+const index = await read("./index.css");
+const fonts = await read("./fonts.css");
+const tokens = await read("./tokens.css");
+const themes = await read("./themes.css");
 
 assert.equal(manifest.name, "@archlex/design");
 assert.equal(manifest.exports["."], "./index.css");
 assert.equal(manifest.exports["./themes.css"], "./themes.css");
-
-const css = await readFile(new URL("./index.css", import.meta.url), "utf8");
-assert.match(css, /fonts\.css/);
-assert.match(css, /tokens\.css/);
-assert.match(css, /themes\.css/);
+assert.ok(manifest.dependencies["@fontsource-variable/instrument-sans"]);
+assert.ok(manifest.dependencies["@fontsource/commit-mono"]);
+assert.match(index, /fonts\.css/);
+assert.match(index, /tokens\.css/);
+assert.match(index, /themes\.css/);
+assert.match(fonts, /@fontsource-variable\/instrument-sans\/wght\.css/);
+assert.match(fonts, /@fontsource\/commit-mono\/400\.css/);
+assert.match(fonts, /--font-ui:\s*"Instrument Sans Variable"/);
+assert.match(fonts, /--font-code:\s*"Commit Mono"/);
+assert.match(tokens, /--radius-control:\s*999px/);
+assert.match(tokens, /--radius-code:\s*10px/);
+assert.match(themes, /--surface-canvas:\s*#f8f8f4/);
+assert.match(themes, /--text-primary:\s*#171814/);
+assert.match(themes, /--signal:\s*#356d12/);
+assert.match(themes, /\[data-theme="dark"\][\s\S]*--surface-canvas:\s*#11120f/);
+assert.match(themes, /\[data-theme="dark"\][\s\S]*--signal:\s*#a9e876/);
+assert.match(themes, /--surface-0:\s*var\(--surface-canvas\)/);

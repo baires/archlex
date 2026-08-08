@@ -8,13 +8,15 @@
   --space-7: 3rem;
   --space-8: 4rem;
   --space-9: 6rem;
-  --radius-control: 2px;
-  --radius-panel: 6px;
+  --radius-control: 999px;
+  --radius-code: 10px;
+  --radius-panel: 12px;
   --border-hairline: 1px;
-  --shadow-raised: 0 18px 50px rgb(0 0 0 / 22%);
+  --shadow-raised: 0 18px 50px rgb(0 0 0 / 8%);
   --focus-width: 2px;
   --focus-offset: 3px;
-  --duration-fast: 120ms;
-  --duration-base: 180ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-reveal: 600ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
