@@ -2,12 +2,7 @@
   "name": "@archlex/model",
   "version": "0.2.1",
   "description": "Type definitions and data models for ArchLex architecture diagrams",
-  "keywords": [
-    "architecture",
-    "diagrams",
-    "types",
-    "model"
-  ],
+  "keywords": ["architecture", "diagrams", "types", "model"],
   "repository": {
     "type": "git",
     "url": "https://github.com/archlex/archlex.git",
@@ -25,11 +20,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },

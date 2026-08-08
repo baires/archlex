@@ -2,13 +2,7 @@
   "name": "@archlex/parser",
   "version": "0.2.1",
   "description": "ArchLex DSL parser for architecture diagrams",
-  "keywords": [
-    "architecture",
-    "diagrams",
-    "parser",
-    "dsl",
-    "language"
-  ],
+  "keywords": ["architecture", "diagrams", "parser", "dsl", "language"],
   "repository": {
     "type": "git",
     "url": "https://github.com/archlex/archlex.git",
@@ -26,11 +20,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },

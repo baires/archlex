@@ -2,14 +2,7 @@
   "name": "@archlex/cli",
   "version": "0.2.1",
   "description": "Command-line interface for ArchLex architecture diagrams",
-  "keywords": [
-    "architecture",
-    "diagrams",
-    "cli",
-    "cloud",
-    "aws",
-    "gcp"
-  ],
+  "keywords": ["architecture", "diagrams", "cli", "cloud", "aws", "gcp"],
   "repository": {
     "type": "git",
     "url": "https://github.com/archlex/archlex.git",
@@ -29,11 +22,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },

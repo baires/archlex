@@ -2,13 +2,7 @@
   "name": "@archlex/aws",
   "version": "0.2.1",
   "description": "AWS provider for ArchLex architecture diagrams",
-  "keywords": [
-    "architecture",
-    "diagrams",
-    "aws",
-    "cloud",
-    "icons"
-  ],
+  "keywords": ["architecture", "diagrams", "aws", "cloud", "icons"],
   "repository": {
     "type": "git",
     "url": "https://github.com/archlex/archlex.git",
@@ -26,11 +20,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "publishConfig": {
     "access": "public"
   },
