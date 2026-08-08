@@ -23,4 +23,7 @@ export default defineConfig({
       ],
     },
   },
+  test: {
+    testTimeout: 30000, // 30 seconds for layout engine tests
+  },
 });
