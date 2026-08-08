@@ -57,6 +57,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # changesets/action checks this exact name; without it the action
+          # falls back to OIDC trusted publishing, which cannot create new
+          # packages on npm and fails with E404 on first publish.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
           # Skip git hooks (lint-staged, turbo typecheck, catalog validation)
           # for the bot's version-bump commit — the pipeline already checked.
