@@ -35,7 +35,6 @@
     "build": "vite build && tsc --emitDeclarationOnly",
     "icons:generate": "node scripts/import-official-icons.mjs",
     "icons:check": "node scripts/import-official-icons.mjs --check",
-    "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
