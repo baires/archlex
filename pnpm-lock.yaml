@@ -214,6 +214,9 @@ importers:
         specifier: workspace:^
         version: link:../model
     devDependencies:
+      '@archlex/icons':
+        specifier: workspace:^
+        version: link:../icons
       '@xmldom/xmldom':
         specifier: 0.9.10
         version: 0.9.10
@@ -347,6 +350,9 @@ importers:
         specifier: workspace:^
         version: link:../model
     devDependencies:
+      '@archlex/icons':
+        specifier: workspace:^
+        version: link:../icons
       '@xmldom/xmldom':
         specifier: 0.9.10
         version: 0.9.10

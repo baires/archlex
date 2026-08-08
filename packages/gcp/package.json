@@ -43,6 +43,7 @@
     "@archlex/model": "workspace:^"
   },
   "devDependencies": {
+    "@archlex/icons": "workspace:^",
     "@xmldom/xmldom": "0.9.10",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
