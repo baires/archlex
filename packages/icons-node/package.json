@@ -17,7 +17,6 @@
   },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
-    "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
