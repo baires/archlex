@@ -211,6 +211,22 @@ test("keeps every setup readable without JavaScript", async ({ browser }) => {
   await context.close();
 });
 
+test("adapts the MCP console for narrow screens", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  const mcp = page.locator("#mcp");
+  const tabs = mcp.locator(".mcp-tabs");
+
+  await expect(tabs).toHaveCSS("overflow-x", "auto");
+  await expect(mcp.getByRole("tab", { name: "Generic MCP" })).toBeVisible();
+  const documentOverflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  expect(documentOverflow).toBe(0);
+});
+
 test("uses the configured GitHub destination", async ({ page }) => {
   await page.goto("/");
   const githubLink = page.getByRole("link", { name: /view source/i });

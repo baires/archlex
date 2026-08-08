@@ -703,6 +703,187 @@ h1 {
   color: #788a80;
 }
 
+.section--mcp {
+  overflow: clip;
+}
+
+.mcp-console {
+  display: grid;
+  grid-template-columns: minmax(11rem, 0.28fr) minmax(0, 1fr);
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-panel);
+  background: #0d1411;
+  box-shadow: var(--shadow-raised);
+}
+
+.mcp-tabs {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-strong);
+  background: #0a0f0d;
+}
+
+.mcp-tab {
+  min-height: 3.5rem;
+  padding: var(--space-4);
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-code);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.mcp-tab:hover {
+  color: var(--text-primary);
+}
+
+.mcp-tab[aria-selected="true"] {
+  background: var(--signal);
+  color: var(--signal-contrast);
+}
+
+.mcp-console__main {
+  min-width: 0;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+}
+
+.mcp-console__main > * + * {
+  margin-top: var(--space-5);
+}
+
+.mcp-panel,
+.mcp-agent-prompt,
+.mcp-example {
+  min-width: 0;
+}
+
+[data-enhanced="true"] .mcp-panel[hidden] {
+  display: none;
+}
+
+.mcp-panel__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mcp-panel__instruction {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.mcp-copy {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-code);
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.mcp-copy:hover {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.mcp-code {
+  max-width: 100%;
+  margin-top: var(--space-3);
+  overflow-x: auto;
+  border: 1px solid var(--border-subtle);
+  background: #090d0b;
+}
+
+.mcp-code pre,
+.mcp-agent-prompt pre,
+.mcp-example pre {
+  margin: 0;
+  padding: var(--space-4);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: #c2cec7;
+  font-family: var(--font-code);
+  font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+  line-height: 1.75;
+}
+
+.mcp-agent-prompt {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--signal);
+}
+
+.mcp-agent-prompt pre {
+  padding-left: 0;
+}
+
+.mcp-example__label {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-family: var(--font-code);
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.mcp-example pre {
+  border: 1px solid var(--border-subtle);
+  background: #090d0b;
+}
+
+.mcp-proof {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: 0;
+  color: var(--signal);
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.mcp-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.mcp-docs {
+  margin-bottom: 0;
+  font-family: var(--font-code);
+  font-size: 0.85rem;
+}
+
+.mcp-docs a {
+  color: var(--text-secondary);
+  transition: color 150ms ease;
+}
+
+.mcp-docs a:hover {
+  color: var(--signal);
+}
+
 .final-cta {
   overflow: hidden;
   position: relative;
@@ -922,6 +1103,23 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .mcp-console {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mcp-tabs {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-strong);
+    scrollbar-width: thin;
+  }
+
+  .mcp-tab {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
   .final-cta {
     padding: 2rem 1.5rem 3rem;
   }
@@ -941,5 +1139,9 @@ h1 {
     animation-duration: 0s !important;
     animation-delay: 0s !important;
     transition-duration: 0s !important;
+  }
+  .mcp-tab,
+  .mcp-copy {
+    transition-duration: 0s;
   }
 }
