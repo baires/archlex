@@ -2,25 +2,62 @@
 
 The ArchLex Model Context Protocol (MCP) server enables Large Language Models (Claude, Cursor, ChatGPT, custom AI agents) to generate, validate, inspect, and render cloud architecture diagrams.
 
-It runs as a high-performance Cloudflare Worker at `mcp.archlex.dev` supporting Server-Sent Events (SSE) and HTTP POST JSON-RPC.
+It runs as a high-performance Cloudflare Worker at `mcp.archlex.dev` supporting the Streamable HTTP transport (recommended) plus legacy Server-Sent Events (SSE) and HTTP POST JSON-RPC routes for backward compatibility.
 
 ---
 
 ## 1. Connecting Your LLM Client
 
-### Claude Desktop Configuration
+The recommended endpoint is the Streamable HTTP transport at `https://mcp.archlex.dev/mcp`.
 
-Add the ArchLex Remote MCP Server to your `claude_desktop_config.json`:
+### Codex
+
+```bash
+codex mcp add archlex --url https://mcp.archlex.dev/mcp
+```
+
+### Claude Code
+
+```bash
+claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
+```
+
+### Cursor
+
+Add the server to `.cursor/mcp.json` (project-scoped):
 
 ```json
 {
   "mcpServers": {
     "archlex": {
-      "url": "https://mcp.archlex.dev/sse"
+      "url": "https://mcp.archlex.dev/mcp"
     }
   }
 }
 ```
+
+### VS Code
+
+Add the server to `.vscode/mcp.json` (project-scoped):
+
+```json
+{
+  "servers": {
+    "archlex": {
+      "type": "http",
+      "url": "https://mcp.archlex.dev/mcp"
+    }
+  }
+}
+```
+
+### Generic MCP Clients
+
+Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streamable HTTP transport.
+
+### Legacy SSE Clients
+
+Older clients that only support SSE can still use the legacy-compatible routes at `https://mcp.archlex.dev/sse` (stream initialization) and `https://mcp.archlex.dev/messages` (JSON-RPC dispatch).
 
 ### Local Development Setup
 
@@ -30,7 +67,7 @@ If running the MCP server locally with `pnpm dev:mcp`:
 {
   "mcpServers": {
     "archlex-local": {
-      "url": "http://localhost:8787/sse"
+      "url": "http://localhost:8787/mcp"
     }
   }
 }
@@ -40,16 +77,17 @@ If running the MCP server locally with `pnpm dev:mcp`:
 
 ## 2. Server Endpoints & Testing Verification
 
-The server exposes four main endpoints tested live at `mcp.archlex.dev`:
+The server exposes five endpoints tested live at `mcp.archlex.dev`:
 
 ### Endpoints Overview
 
 | Endpoint | Method | Purpose |
 | :--- | :--- | :--- |
+| `/mcp` | `GET` \| `POST` \| `DELETE` | Streamable HTTP transport (recommended, stateless) |
 | `/health` | `GET` | Server health status, provider readiness, and authentication status |
 | `/info` | `GET` | MCP server metadata, capability listing, and endpoint URLs |
-| `/sse` | `GET` | Server-Sent Events stream initialization for stateful client sessions |
-| `/messages` | `POST` | JSON-RPC message dispatcher for active SSE sessions & stateless fallback |
+| `/sse` | `GET` | Legacy Server-Sent Events stream initialization for stateful client sessions |
+| `/messages` | `POST` | Legacy JSON-RPC message dispatcher for active SSE sessions & stateless fallback |
 
 ### Testing & Verification Findings
 
