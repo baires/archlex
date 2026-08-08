@@ -1,4 +1,5 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import {
   CallToolRequestSchema,
@@ -440,6 +441,30 @@ function createMcpServer() {
 // Active session transports
 const activeTransports = new Map<string, WorkerSSEServerTransport>();
 
+async function handleStreamableHttpRequest(
+  request: Request,
+  corsHeaders: Readonly<Record<string, string>>,
+): Promise<Response> {
+  const server = createMcpServer();
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+
+  await server.connect(transport);
+  const response = await transport.handleRequest(request);
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(corsHeaders)) {
+    headers.set(name, value);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env?: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -513,6 +538,11 @@ export default {
       );
     }
 
+    // Endpoint: /mcp (Streamable HTTP, stateless)
+    if (url.pathname === "/mcp") {
+      return handleStreamableHttpRequest(request, corsHeaders);
+    }
+
     // Endpoint: /health
     if (url.pathname === "/health") {
       return new Response(
@@ -543,6 +573,7 @@ export default {
             "get_cloud_catalog",
             "generate_playground_url",
           ],
+          streamable_http_endpoint: "/mcp",
           sse_endpoint: "/sse",
           messages_endpoint: "/messages",
           auth_required: Boolean(env?.MCP_AUTH_TOKEN),
