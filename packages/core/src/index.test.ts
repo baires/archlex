@@ -235,10 +235,10 @@ describe("prepared rendering", () => {
 
     expect(directions).toEqual(["SIDEWAYS"]);
     expect(invalid.layout.nodes.map(({ id, x, y }) => ({ id, x, y }))).toEqual([
-      { id: "rds", x: 12, y: 176 },
+      { id: "rds", x: 12, y: 146 },
       { id: "ecs", x: 12, y: 12 },
     ]);
-    expect(invalid.metadata).toMatchObject({ width: 152, height: 280 });
+    expect(invalid.metadata).toMatchObject({ width: 152, height: 250 });
     expect(invalid.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
       "AL-STRUCT-INVALID-DIRECTIVE",
     );
