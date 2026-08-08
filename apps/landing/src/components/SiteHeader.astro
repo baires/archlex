@@ -11,10 +11,12 @@ import ThemeControl from "./ThemeControl.astro";
       <span>ARCHLEX</span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
-      <a href={SITE_ROUTES.docs}>Docs</a>
-      {SITE_ROUTES.github && (
-        <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>
-      )}
+      <div class="site-nav__secondary">
+        <a href={SITE_ROUTES.docs}>Docs</a>
+        {SITE_ROUTES.github && (
+          <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>
+        )}
+      </div>
       <ThemeControl />
       <Button href={SITE_ROUTES.playground}>Playground <span aria-hidden="true">↗</span></Button>
     </nav>

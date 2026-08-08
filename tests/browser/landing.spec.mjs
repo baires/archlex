@@ -36,26 +36,28 @@ for (const viewport of [
   { width: 1440, height: 1000 },
   { width: 390, height: 844 },
 ]) {
-  test(`has no horizontal overflow at ${viewport.width}px`, async ({
-    page,
-  }) => {
+  test(`has no horizontal overflow at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
-    const overflow = await page.evaluate(
-      () =>
-        document.documentElement.scrollWidth -
-        document.documentElement.clientWidth,
-    );
-    expect(overflow).toBe(0);
-    await expect(
-      page.getByRole("link", { name: /open playground/i }).first(),
-    ).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBe(0);
+    await expect(page.getByRole("link", { name: "Open playground" }).first()).toBeVisible();
+    await expect(page.getByLabel("Theme")).toBeVisible();
   });
 }
 
-test("supports keyboard skip navigation and reduced motion", async ({
-  browser,
-}) => {
+test("keeps secondary navigation discoverable on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.locator("header").getByRole("link", { name: "Docs" })).toBeHidden();
+  await expect(page.locator("footer").getByRole("link", { name: "Docs" })).toBeVisible();
+  await expect(page.locator("header").getByRole("link", { name: /playground/i })).toBeVisible();
+  const rowPositions = await page.locator(".story-row").first().locator("h2, .story-row__content").evaluateAll(
+    (elements) => elements.map((element) => Math.round(element.getBoundingClientRect().top)),
+  );
+  expect(rowPositions[1]).toBeGreaterThan(rowPositions[0]);
+});
+
+test("supports skip navigation and reduced motion", async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: "reduce" });
   const page = await context.newPage();
   await page.goto("/");
@@ -64,10 +66,7 @@ test("supports keyboard skip navigation and reduced motion", async ({
   await expect(skipLink).toBeFocused();
   await skipLink.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
-  await expect(page.locator(".hero__copy")).toHaveCSS(
-    "animation-duration",
-    "0s",
-  );
+  await expect(page.locator(".hero__copy")).toHaveCSS("animation-duration", "0s");
   await context.close();
 });
 

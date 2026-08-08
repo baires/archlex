@@ -135,7 +135,14 @@ a {
   text-transform: uppercase;
 }
 
-.site-nav > a:not(.button):hover {
+.site-nav__secondary {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 2rem);
+}
+
+.site-nav > a:not(.button):hover,
+.site-nav__secondary > a:hover {
   color: var(--text-primary);
 }
 
