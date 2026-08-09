@@ -93,6 +93,22 @@ export function DiagramSettings({
               <option value="off">Off</option>
             </select>
           </div>
+          <div className="settings-divider" aria-hidden="true" />
+          <div className="settings-info">
+            <p className="settings-info-title">Use with AI agents</p>
+            <p className="settings-info-description">
+              Connect our MCP server to Claude, Cursor, or any MCP-capable agent
+              for cloud architecture validation.
+            </p>
+            <a
+              href="https://docs.archlex.dev/guides/mcp-server"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="settings-link"
+            >
+              Setup guide →
+            </a>
+          </div>
         </div>
       ) : null}
     </div>
