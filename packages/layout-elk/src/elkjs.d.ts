@@ -14,3 +14,8 @@ declare module "elkjs/lib/elk.bundled.js" {
   const ELKConstructor: new () => ELK;
   export default ELKConstructor;
 }
+
+declare module "elkjs/lib/elk-worker.min.js?worker&inline" {
+  const ELKWorker: new () => Worker;
+  export default ELKWorker;
+}
