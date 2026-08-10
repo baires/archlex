@@ -96,6 +96,22 @@ export async function loadElk(): Promise<ELKLike> {
   // Start loading
   elkPromise = (async () => {
     try {
+      // In browsers, use a real module worker. Temporarily clearing `self`
+      // here can race with unrelated scripts that rely on the browser global
+      // (for example Monaco's worker bootstrap).
+      if (typeof window !== "undefined" && globalThis.self === window) {
+        const [apiModule, workerModule] = await Promise.all([
+          import("elkjs/lib/elk-api.js"),
+          import("elkjs/lib/elk-worker.min.js?worker&inline"),
+        ]);
+        const ELK = getElkConstructor(apiModule);
+        const ElkWorker = getWorkerConstructor(workerModule);
+        elkInstance = new ELK({
+          workerFactory: () => new ElkWorker(),
+        });
+        return elkInstance;
+      }
+
       // Sequential: the self-shadowing wrapper is not reentrant.
       const apiModule = await withSelfShadowed(
         () => import("elkjs/lib/elk-api.js"),
