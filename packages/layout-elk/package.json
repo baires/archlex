@@ -1,8 +1,14 @@
 {
   "name": "@archlex/layout-elk",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "ELK-based layout engine for ArchLex architecture diagrams",
-  "keywords": ["architecture", "diagrams", "layout", "elk", "graph"],
+  "keywords": [
+    "architecture",
+    "diagrams",
+    "layout",
+    "elk",
+    "graph"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/archlex/archlex.git",
@@ -20,7 +26,11 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "publishConfig": {
     "access": "public"
   },

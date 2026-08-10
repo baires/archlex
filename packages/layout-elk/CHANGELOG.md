@@ -1,5 +1,11 @@
 # @archlex/layout-elk
 
+## 0.2.2
+
+### Patch Changes
+
+- 9edbf6a: Keep browser globals intact while loading ELK and use an inline browser worker to avoid races with other startup scripts.
+
 ## 0.2.1
 
 ### Patch Changes
