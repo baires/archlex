@@ -24,7 +24,7 @@
     "verify:sites": "node scripts/verify-sites.mjs",
     "prepare": "husky",
     "changeset": "changeset",
-    "version": "changeset version",
+    "version": "changeset version && biome check --write .",
     "release": "pnpm build && changeset publish"
   },
   "lint-staged": {
