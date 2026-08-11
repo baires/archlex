@@ -5,7 +5,7 @@
   "keywords": ["architecture", "diagrams", "layout", "elk", "graph"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/archlex/archlex.git",
+    "url": "https://github.com/baires/archlex.git",
     "directory": "packages/layout-elk"
   },
   "license": "MIT",
