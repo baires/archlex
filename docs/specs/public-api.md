@@ -29,15 +29,17 @@ interface ArchLexOptions {
   renderer?: GraphRenderer;
 }
 
+type ThemeName = "light" | "dark";
+
 interface RenderPipelineOptions {
   direction?: "LR" | "RL" | "TB" | "BT";
   validation?: "normal" | "strict" | "off";
-  theme?: "light" | "dark" | Theme;
+  theme?: ThemeName;
   signal?: AbortSignal;
 }
 ```
 
-Per-call values override source directives, which override constructor defaults. Defaults are the sole registered provider, `LR`, `normal`, and `light`.
+Per-call `theme` option overrides source `theme` directive, which overrides the renderer's default (`"dark"`). Direction and validation follow the same pattern. Provider defaults to the sole registered provider or requires explicit selection when multiple are registered.
 
 ## Results
 

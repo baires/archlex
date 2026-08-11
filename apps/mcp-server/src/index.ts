@@ -132,7 +132,7 @@ function createMcpServer() {
               theme: {
                 type: "string",
                 enum: ["light", "dark"],
-                description: "SVG rendering theme (default: 'dark')",
+                description: "SVG rendering theme",
               },
               direction: {
                 type: "string",

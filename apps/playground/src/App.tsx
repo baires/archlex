@@ -178,6 +178,21 @@ export function App() {
           }
           previousSummaryRef.current = nextSummary;
           lastSuccessfulDiagnosticsRef.current = renderResult.diagnostics;
+
+          // Sync theme toggle to source directive when source changes
+          const themeDirective = renderResult.ast.statements.find(
+            (s) => s.type === "directive" && "name" in s && s.name === "theme",
+          );
+          if (themeDirective && "value" in themeDirective) {
+            const directiveValue = themeDirective.value as string;
+            if (
+              (directiveValue === "light" || directiveValue === "dark") &&
+              directiveValue !== theme
+            ) {
+              setTheme(directiveValue);
+            }
+          }
+
           setCurrentSvg(renderResult.svg);
           setDiagnostics(renderResult.diagnostics);
           setRenderIssue(null);

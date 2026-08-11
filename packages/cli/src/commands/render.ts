@@ -44,7 +44,7 @@ export function createRenderCommand(): Command {
       "Validation mode (normal, strict, off)",
       "normal",
     )
-    .option("-t, --theme <theme>", "Theme for rendering (light, dark)", "dark")
+    .option("-t, --theme <theme>", "Theme for rendering (light, dark)")
     .option("-s, --scale <number>", "Scale factor for PNG export", "2")
     .option(
       "-b, --background-color <color>",

@@ -192,6 +192,7 @@ export interface RenderResult extends SvgResult {
 
 export type ValidationMode = "normal" | "strict" | "off";
 export type ValidationPass = "structural" | "provider" | "guidance";
+export type ThemeName = "light" | "dark";
 
 export interface ResourceDefinition {
   id: string;
@@ -262,7 +263,7 @@ export interface GraphRenderer {
   render(
     layoutGraph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
-    themeName?: "light" | "dark",
+    themeName?: ThemeName,
   ): SvgResult;
 }
 

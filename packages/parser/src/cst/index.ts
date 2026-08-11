@@ -51,6 +51,7 @@ export class ArchLexCstParser extends CstParser {
 
   public directive = this.RULE("directive", () => {
     this.CONSUME(DirectiveName, { LABEL: "name" });
+    this.OPTION(() => this.CONSUME(Colon));
     this.OR([
       { ALT: () => this.CONSUME(Identifier, { LABEL: "value" }) },
       { ALT: () => this.CONSUME(StringLiteral, { LABEL: "value" }) },
