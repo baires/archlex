@@ -604,3 +604,73 @@ describe("Multi-provider dispatch", () => {
     expect(result.svg).toContain('data-archlex-icon="gcp.cloud-run"');
   });
 });
+
+describe("theme directive", () => {
+  it("reports invalid theme value", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const prepared = archlex.prepare("theme blue\nrds");
+
+    expect(prepared.diagnostics.map((d) => d.code)).toContain(
+      "AL-STRUCT-INVALID-DIRECTIVE",
+    );
+    expect(prepared.theme).toBeUndefined();
+  });
+
+  it("reports duplicate theme directive", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const prepared = archlex.prepare("theme dark\ntheme light\nrds");
+
+    expect(prepared.diagnostics.map((d) => d.code)).toContain(
+      "AL-STRUCT-DUPLICATE-DIRECTIVE",
+    );
+    expect(prepared.theme).toBe("dark");
+  });
+
+  it("reports late theme directive", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const prepared = archlex.prepare("rds\ntheme dark");
+
+    expect(prepared.diagnostics.map((d) => d.code)).toContain(
+      "AL-STRUCT-LATE-DIRECTIVE",
+    );
+  });
+
+  it("exposes theme in prepared diagram", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const prepared = archlex.prepare("theme light\nrds");
+
+    expect(prepared.diagnostics).toEqual([]);
+    expect(prepared.theme).toBe("light");
+  });
+
+  it("uses source theme when no option provided", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const result = await archlex.render("theme light\nrds");
+
+    // Light theme uses white node fill
+    expect(result.svg).toContain('fill="#ffffff"');
+  });
+
+  it("option overrides source theme", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const result = await archlex.render("theme light\nrds", { theme: "dark" });
+
+    // Dark theme uses dark gray node fill
+    expect(result.svg).toContain('fill="#1f2937"');
+  });
+
+  it("uses renderer default when no source directive and no option", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+
+    const result = await archlex.render("rds");
+
+    // Default is dark with dark gray node fill
+    expect(result.svg).toContain('fill="#1f2937"');
+  });
+});

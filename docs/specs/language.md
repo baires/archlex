@@ -4,7 +4,7 @@
 
 Documents are UTF-8. Newlines or semicolons separate statements. Spaces and tabs are insignificant outside labels. Identifiers start with an ASCII letter or `_` and continue with letters, digits, `_`, or `-`. Qualified types use `provider.service`. Keywords are lowercase and reserved. `#` and `//` begin line comments. Double-quoted strings support `\"`, `\\`, `\n`, `\r`, and `\t`.
 
-Reserved words are `provider`, `direction`, `validation`, `account`, `region`, `vpc`, and `subnet`. IDs are case-sensitive; only provider aliases receive provider-defined normalization.
+Reserved words are `provider`, `direction`, `validation`, `theme`, `account`, `region`, `vpc`, and `subnet`. IDs are case-sensitive; only provider aliases receive provider-defined normalization.
 
 ## Directives
 
@@ -14,9 +14,10 @@ Directives occur at document scope before declarations or relationships and may 
 provider aws
 direction LR
 validation normal
+theme dark
 ```
 
-`direction` accepts `LR`, `RL`, `TB`, or `BT` and defaults to `LR`. `validation` accepts `normal`, `strict`, or `off` and defaults to `normal`. A duplicate or late directive emits a structural error; the first valid value wins.
+`direction` accepts `LR`, `RL`, `TB`, or `BT` and defaults to `LR`. `validation` accepts `normal`, `strict`, or `off` and defaults to `normal`. `theme` accepts `light` or `dark` and defaults to `dark`. Directives may optionally use a colon separator (e.g., `provider: aws`, `theme: light`). A duplicate or late directive emits a structural error; the first valid value wins.
 
 ## Resources and identity
 

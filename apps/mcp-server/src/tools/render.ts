@@ -17,7 +17,7 @@ export interface RenderDiagramArgs {
 const MAX_SOURCE_LENGTH = 100_000;
 
 export async function handleRenderDiagram(args: RenderDiagramArgs) {
-  const { source, theme = "dark", direction, validation } = args;
+  const { source, theme, direction, validation } = args;
 
   if (!source || typeof source !== "string") {
     throw new Error("Missing or invalid required parameter 'source'.");

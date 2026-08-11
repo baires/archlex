@@ -25,6 +25,7 @@ import type {
   ScopeAst,
   StatementAst,
   SvgResult,
+  ThemeName,
   ValidationMode,
 } from "@archlex/model";
 import { parse as parseSource } from "@archlex/parser";
@@ -47,7 +48,7 @@ export interface PrepareOptions extends AnalyzeOptions {}
 
 export interface RenderPreparedOptions {
   direction?: LayoutOptions["direction"];
-  theme?: "light" | "dark";
+  theme?: ThemeName;
   signal?: AbortSignal;
   icons?: IconRegistry;
 }
@@ -62,6 +63,7 @@ export interface PreparedDiagram {
   readonly diagnostics: readonly Diagnostic[];
   readonly iconRequests: readonly IconRequest[];
   readonly direction?: LayoutOptions["direction"];
+  readonly theme?: ThemeName;
 }
 
 export const KNOWN_RELATIONSHIPS = [
@@ -104,6 +106,7 @@ export interface CatalogMetadata {
     provider: readonly string[];
     direction: readonly ["LR", "RL", "TB", "BT"];
     validation: readonly ["strict", "normal", "off"];
+    theme: readonly ["light", "dark"];
   };
   containmentScopes: readonly string[];
   relationshipKinds: readonly string[];
@@ -131,7 +134,7 @@ export interface ArchLex {
   renderGraph(
     graph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
-    theme?: "light" | "dark",
+    theme?: ThemeName,
   ): SvgResult;
   prepare(source: string, options?: PrepareOptions): PreparedDiagram;
   renderPrepared(
@@ -148,9 +151,9 @@ export interface ArchLex {
 function collectDirectives(
   statements: readonly StatementAst[],
   diagnostics: Diagnostic[],
-): Partial<Record<"provider" | "direction" | "validation", string>> {
+): Partial<Record<"provider" | "direction" | "validation" | "theme", string>> {
   const values: Partial<
-    Record<"provider" | "direction" | "validation", string>
+    Record<"provider" | "direction" | "validation" | "theme", string>
   > = {};
   let declarationsStarted = false;
   for (const statement of statements) {
@@ -159,7 +162,11 @@ function collectDirectives(
       continue;
     }
     const directive = statement as DirectiveAst;
-    const name = directive.name as "provider" | "direction" | "validation";
+    const name = directive.name as
+      | "provider"
+      | "direction"
+      | "validation"
+      | "theme";
     if (declarationsStarted || values[name] !== undefined) {
       diagnostics.push(
         createDiagnostic(
@@ -179,7 +186,9 @@ function collectDirectives(
         ? ["LR", "RL", "TB", "BT"]
         : name === "validation"
           ? ["normal", "strict", "off"]
-          : undefined;
+          : name === "theme"
+            ? ["light", "dark"]
+            : undefined;
     if (allowed && !allowed.includes(directive.value)) {
       diagnostics.push(
         createDiagnostic(
@@ -226,6 +235,31 @@ function getDirectionDirective(
   }
 
   return direction;
+}
+
+function getThemeDirective(ast: DocumentAst): ThemeName | undefined {
+  let declarationsStarted = false;
+  let theme: ThemeName | undefined;
+
+  for (const statement of ast.statements) {
+    if (statement.type !== "directive") {
+      declarationsStarted = true;
+      continue;
+    }
+    const directive = statement as DirectiveAst;
+    if (
+      declarationsStarted ||
+      theme !== undefined ||
+      directive.name !== "theme"
+    ) {
+      continue;
+    }
+    if (["light", "dark"].includes(directive.value)) {
+      theme = directive.value as ThemeName;
+    }
+  }
+
+  return theme;
 }
 
 function getLegacyDirective(
@@ -761,6 +795,7 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         diagnostics: [...parseRes.diagnostics, ...analysisRes.diagnostics],
         iconRequests: collectIconRequests(analysisRes.graph),
         direction: getDirectionDirective(parseRes.ast),
+        theme: getThemeDirective(parseRes.ast),
       };
     },
 
@@ -790,7 +825,7 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const svgRes = this.renderGraph(
         layout,
         combinedDiagnostics,
-        renderOptions?.theme,
+        renderOptions?.theme ?? prepared.theme,
       );
 
       return {
@@ -850,6 +885,7 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
           provider: Array.from(providerMap.keys()),
           direction: ["LR", "RL", "TB", "BT"],
           validation: ["strict", "normal", "off"],
+          theme: ["light", "dark"],
         },
         containmentScopes: ["account", "region", "vpc", "subnet", "cluster"],
         relationshipKinds: KNOWN_RELATIONSHIPS,

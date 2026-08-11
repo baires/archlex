@@ -20,7 +20,7 @@ export const Colon = createToken({ name: "Colon", pattern: /:/ });
 export const Dot = createToken({ name: "Dot", pattern: /\./ });
 export const DirectiveName = createToken({
   name: "DirectiveName",
-  pattern: /(?:provider|direction|validation)\b/,
+  pattern: /(?:provider|direction|validation|theme)\b/,
 });
 export const ScopeKind = createToken({
   name: "ScopeKind",

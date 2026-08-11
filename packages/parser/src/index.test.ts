@@ -241,3 +241,27 @@ describe("display labels", () => {
     });
   });
 });
+
+describe("theme directive", () => {
+  it("parses theme directive without colon", () => {
+    const result = parse("theme dark");
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "directive",
+      name: "theme",
+      value: "dark",
+    });
+  });
+
+  it("parses theme directive with colon", () => {
+    const result = parse("theme: light");
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[0]).toMatchObject({
+      type: "directive",
+      name: "theme",
+      value: "light",
+    });
+  });
+});
