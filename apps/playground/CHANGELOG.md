@@ -1,5 +1,16 @@
 # @archlex/playground
 
+## 0.1.3
+
+### Patch Changes
+
+- Updated dependencies [12dd3ec]
+  - @archlex/model@0.3.0
+  - @archlex/core@0.3.0
+  - @archlex/aws@0.2.2
+  - @archlex/diagnostics@0.2.2
+  - @archlex/gcp@0.2.2
+
 ## 0.1.2
 
 ### Patch Changes

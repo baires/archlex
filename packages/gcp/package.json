@@ -1,6 +1,6 @@
 {
   "name": "@archlex/gcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "GCP provider for ArchLex architecture diagrams",
   "keywords": [
     "architecture",

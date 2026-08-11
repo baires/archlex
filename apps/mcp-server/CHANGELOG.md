@@ -1,5 +1,16 @@
 # @archlex/mcp-server
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [12dd3ec]
+  - @archlex/model@0.3.0
+  - @archlex/core@0.3.0
+  - @archlex/aws@0.2.2
+  - @archlex/gcp@0.2.2
+  - @archlex/layout-elk@0.2.3
+
 ## 0.1.3
 
 ### Patch Changes
