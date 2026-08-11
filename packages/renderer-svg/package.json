@@ -1,6 +1,6 @@
 {
   "name": "@archlex/renderer-svg",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "SVG renderer for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "svg", "renderer"],
   "repository": {

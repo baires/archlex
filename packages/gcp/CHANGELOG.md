@@ -1,5 +1,12 @@
 # @archlex/gcp
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [12dd3ec]
+  - @archlex/model@0.3.0
+
 ## 0.2.1
 
 ### Patch Changes
