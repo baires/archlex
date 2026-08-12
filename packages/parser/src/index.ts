@@ -37,9 +37,14 @@ export function parse(source: string): ParseResult {
   for (const err of parserInstance.errors) {
     const token = err.token;
     const missingBrace = err.message.includes("RBrace");
+    const lineText =
+      source
+        .slice(0, token.startOffset ?? source.length)
+        .split(/\r?\n/)
+        .pop() ?? "";
     const missingEndpoint =
       err.message.includes("Identifier") &&
-      /(?:>|->|<-|<->|--|-\.->|-\[[^\]]+\]->)\s*(?:\r?\n|$)/.test(source);
+      /(?:<->|<-|->|--|-\.->|\]->|>)\s*$/.test(lineText);
 
     const code = missingBrace
       ? "AL-PARSE-MISSING-BRACE"
