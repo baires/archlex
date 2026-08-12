@@ -116,6 +116,32 @@ account production {
     ]);
   });
 
+  it("identifies missing endpoints for labeled and varied arrow types", () => {
+    const inputs = [
+      'api -[ "HTTP" ]->\nrds',
+      "api <->\nrds",
+      "api --\nrds",
+      "api -.->\nrds",
+    ];
+
+    for (const input of inputs) {
+      const result = parse(input);
+      expect(result.diagnostics.map((diagnostic) => diagnostic.code)).toContain(
+        "AL-PARSE-MISSING-ENDPOINT",
+      );
+    }
+  });
+
+  it("handles malicious input with repeated '-[' sequences in linear time without ReDoS", () => {
+    const maliciousInput = `api ${"-[".repeat(5000)}\nrds`;
+    const startTime = performance.now();
+    const result = parse(maliciousInput);
+    const duration = performance.now() - startTime;
+
+    expect(result).toBeDefined();
+    expect(duration).toBeLessThan(200); // Must parse in milliseconds without exponential backtracking
+  });
+
   it("recovers a missing closing brace at end of input", () => {
     const result = parse("vpc app {\napi: ecs");
 
