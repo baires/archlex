@@ -203,6 +203,22 @@ export function sanitizeSvg(
         }
       }
 
+      // Inline styles from style attribute
+      const styleAttr = element.getAttribute("style");
+      if (styleAttr) {
+        for (const declaration of styleAttr.split(";")) {
+          const [rawName, rawValue] = declaration
+            .split(":")
+            .map((part) => part.trim());
+          if (rawName && rawValue) {
+            const propertyName = rawName.toLowerCase();
+            if (ALLOWED_ATTRIBUTES.has(propertyName)) {
+              element.setAttribute(propertyName, rawValue);
+            }
+          }
+        }
+      }
+
       // Check attributes
       const attributes = Array.from(element.attributes);
       for (const attr of attributes) {

@@ -592,6 +592,7 @@ const officialIconEntries = [
   ["gcp.subnet", "subnet.svg"],
   ["gcp.vertex-ai", "vertex-ai.svg"],
   ["gcp.vpc", "vpc.svg"],
+  ["gcp.private-service-connect", "private-service-connect.svg"],
 ].map(([key, filename]) => ({
   key,
   sourcePath: fileURLToPath(

@@ -76,4 +76,15 @@ describe("sanitizeSvg", () => {
       expect(icon.svgFragment).toContain(`fill="${value}"`);
     },
   );
+
+  it("converts inline style presentation properties to SVG attributes", async () => {
+    const icon = await sanitizeSvg(
+      "gcp",
+      "private-service-connect",
+      '<svg viewBox="0 0 24 24"><path d="M0 0h10v10H0z" style="fill:#669df6; stroke:#4285f4"/></svg>',
+    );
+    expect(icon.svgFragment).toContain('fill="#669df6"');
+    expect(icon.svgFragment).toContain('stroke="#4285f4"');
+    expect(icon.svgFragment).not.toContain("style=");
+  });
 });
