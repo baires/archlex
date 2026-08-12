@@ -1,5 +1,12 @@
 # @archlex/mcp-server
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [8eb714b]
+  - @archlex/gcp@0.2.3
+
 ## 0.1.4
 
 ### Patch Changes
