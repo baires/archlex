@@ -1,6 +1,6 @@
 {
   "name": "@archlex/icons",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Icon loading and manipulation utilities for ArchLex (Node.js)",
   "keywords": ["architecture", "diagrams", "icons", "svg", "node"],
   "repository": {
