@@ -219,6 +219,22 @@ function sanitizeNode(
       return;
     }
 
+    // Process inline style attribute before attribute filtering
+    const styleAttr = element.getAttribute("style");
+    if (styleAttr) {
+      for (const declaration of styleAttr.split(";")) {
+        const [rawName, rawValue] = declaration
+          .split(":")
+          .map((part) => part.trim());
+        if (rawName && rawValue) {
+          const propertyName = rawName.toLowerCase();
+          if (ALLOWED_ATTRIBUTES.has(propertyName)) {
+            element.setAttribute(propertyName, rawValue);
+          }
+        }
+      }
+    }
+
     for (const className of (element.getAttribute("class") ?? "").split(
       /\s+/,
     )) {

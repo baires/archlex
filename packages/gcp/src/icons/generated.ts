@@ -98,6 +98,12 @@ export const GCP_GENERATED_ICONS = {
     "checksum": "bde93a0fe617c66b3f12589e35aaf3ea91d56e172f0c9492920b24976d336d84",
     "svg": "<svg viewBox=\"0 0 24 24\"><g><g><rect x=\"2\" y=\"3.94\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"2\" y=\"8.45\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"2\" y=\"12.97\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"2\" y=\"17.48\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"18.67\" y=\"3.94\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"18.67\" y=\"8.45\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"18.67\" y=\"12.97\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><rect x=\"18.67\" y=\"17.48\" width=\"3.33\" height=\"2.58\" fill=\"#669df6\"/><polygon fill=\"#4285f4\" fill-rule=\"evenodd\" points=\"21.33 6.52 18.67 6.52 18.67 3.94 21.33 6.52\"/><polygon fill=\"#4285f4\" fill-rule=\"evenodd\" points=\"21.33 11.03 18.67 11.03 18.67 8.45 21.33 11.03\"/><polygon fill=\"#4285f4\" fill-rule=\"evenodd\" points=\"21.33 15.55 18.67 15.55 18.67 12.97 21.33 15.55\"/><polygon fill=\"#4285f4\" fill-rule=\"evenodd\" points=\"21.33 20.07 18.67 20.07 18.67 17.48 21.33 20.07\"/><path fill=\"#aecbfa\" fill-rule=\"evenodd\" d=\"M5.33,22H18.67V2H5.33Zm6-9H8l4.67-7.74V11H16l-4.67,7.74Z\"/><polygon fill=\"#669df6\" fill-rule=\"evenodd\" points=\"11.33 22 11.33 18.77 16 11.03 12.67 11.03 12.67 2 18.67 2 18.67 22 11.33 22\"/></g></g></svg>"
   },
+  "gcp.private-service-connect": {
+    "key": "gcp.private-service-connect",
+    "viewBox": "0 0 24 24",
+    "checksum": "d2d98cbeecb80e42d817716c1d23325528f2059043b7762f4dffa15ad4aea397",
+    "svg": "<svg viewBox=\"0 0 24 24\"><path fill=\"#669df6\" d=\"M12,6.23h0L7.28,8.33v3.15A6.73,6.73,0,0,0,10,16.79a5.75,5.75,0,0,0,2,1h0Z\"/><path fill=\"#4285f4\" d=\"M12,17.77a6.52,6.52,0,0,0,4.72-6.29V8.33L12,6.23Z\"/><path fill=\"#4285f4\" d=\"M17.08,11.62c0,.26,0,.51-.06.76H19.4v-.76Z\"/><path fill=\"#4285f4\" d=\"M6.92,11.62c0,.26,0,.51.06.76H4.6v-.76Z\"/><path fill=\"#669df6\" d=\"M3.59,12.73a.73.73,0,0,1,0-1.46v-.6a1.33,1.33,0,1,0,0,2.66Z\"/><path fill=\"#4285f4\" d=\"M20.41,12.73a.73.73,0,0,1,0-1.46v-.6a1.33,1.33,0,1,0,0,2.66Z\"/><circle cx=\"3.59\" cy=\"12\" r=\"0.73\" fill=\"#669df6\"/><circle cx=\"20.41\" cy=\"12\" r=\"0.73\" fill=\"#4285f4\"/></svg>"
+  },
   "gcp.pubsub": {
     "key": "gcp.pubsub",
     "viewBox": "0 0 24 24",
@@ -131,4 +137,4 @@ export const GCP_GENERATED_ICONS = {
 } as const;
 
 export const GCP_GENERATED_ICON_MANIFEST_CHECKSUM =
-  "c3a17a4f2cddf4d69f27e657cd1e44b6ffc2526b2a7b17e68e9eda75fded181b" as const;
+  "38220c3da0b09cbab081929b284fdb720b767018b73855e1b00fabe1a85d3864" as const;
