@@ -42,6 +42,8 @@ export function CommandBar({
   onDownloadPng,
   onEnterFullscreen,
 }: CommandBarProps) {
+  const docsUrl = import.meta.env.VITE_DOCS_URL || "https://docs.archlex.dev";
+
   return (
     <header className="command-bar" hidden={isFullscreen}>
       <div className="command-bar-brand">
@@ -79,6 +81,17 @@ export function CommandBar({
       </div>
 
       <div className="command-bar-actions">
+        <a
+          href={docsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary docs-link"
+          aria-label="Open documentation in a new tab"
+          title="Documentation"
+        >
+          <Icon name="book" />
+          <span>Docs</span>
+        </a>
         <DiagramSettings
           direction={direction}
           validation={validation}

@@ -1,4 +1,5 @@
 export type IconName =
+  | "book"
   | "chevron-down"
   | "clipboard"
   | "download"
@@ -24,6 +25,13 @@ interface IconProps {
 
 function glyph(name: IconName) {
   switch (name) {
+    case "book":
+      return (
+        <>
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </>
+      );
     case "chevron-down":
       return <path d="m6 9 6 6 6-6" />;
     case "clipboard":

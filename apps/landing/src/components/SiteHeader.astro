@@ -6,16 +6,15 @@ import ThemeControl from "./ThemeControl.astro";
 
 <header class="site-header">
   <div class="shell site-header__inner">
-    <a class="wordmark" href="/" aria-label="ArchLex home">
+    <a class="wordmark" href="/" aria-label="ArchLex home — Open Source Software">
       <span class="wordmark__mark" aria-hidden="true">A/</span>
       <span>ARCHLEX</span>
+      <span class="wordmark__oss-tag" title="Open Source Software">OSS</span>
     </a>
     <nav class="site-nav" aria-label="Primary navigation">
       <div class="site-nav__secondary">
         <a href={SITE_ROUTES.docs}>Docs</a>
-        {SITE_ROUTES.github && (
-          <a href={SITE_ROUTES.github} target="_blank" rel="noreferrer">GitHub</a>
-        )}
+        <a href={SITE_ROUTES.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub Repository (Open Source)">GitHub</a>
       </div>
       <ThemeControl />
       <Button href={SITE_ROUTES.playground}>Playground <span aria-hidden="true">↗</span></Button>

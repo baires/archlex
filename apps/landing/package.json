@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@archlex/design": "workspace:*",
-    "astro": "^5.2.0"
+    "astro": "^7.2.1",
+    "cookie": "^2.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.13.1",
