@@ -1,5 +1,11 @@
 # @archlex/mcp-server
 
+## 0.1.6
+
+### Patch Changes
+
+- @archlex/core@0.3.1
+
 ## 0.1.5
 
 ### Patch Changes
