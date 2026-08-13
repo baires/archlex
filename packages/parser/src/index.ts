@@ -2,7 +2,11 @@ import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
 import type { Diagnostic, DocumentAst, ParseResult } from "@archlex/model";
 import { parserInstance } from "./cst/index.js";
 import { ArchLexLexer } from "./lexer/index.js";
-import { convertCstToAst, tokenToSpan } from "./visitor/index.js";
+import {
+  convertCstToAst,
+  isAvailableLocation,
+  tokenToSpan,
+} from "./visitor/index.js";
 
 export * from "./cst/index.js";
 export * from "./lexer/index.js";
@@ -58,7 +62,7 @@ export function parse(source: string): ParseResult {
         {
           details: err.message,
           scopeType: "scope",
-          startLine: token.startLine ?? 1,
+          startLine: isAvailableLocation(token.startLine) ? token.startLine : 1,
         },
         tokenToSpan(token),
         [],

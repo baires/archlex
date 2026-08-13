@@ -38,14 +38,17 @@ function position(
   const rawOffset =
     (isEnd ? value?.endOffset : value?.startOffset) ?? value?.startOffset;
   return {
-    line: Number.isFinite(rawLine) ? (rawLine as number) : 1,
-    column: Number.isFinite(rawColumn)
-      ? (rawColumn as number) + (isEnd ? 1 : 0)
-      : 1,
-    offset: Number.isFinite(rawOffset)
-      ? (rawOffset as number) + (isEnd ? 1 : 0)
-      : 0,
+    line: isAvailableLocation(rawLine) ? rawLine : 1,
+    column: isAvailableLocation(rawColumn) ? rawColumn + (isEnd ? 1 : 0) : 1,
+    offset: isAvailableLocation(rawOffset) ? rawOffset + (isEnd ? 1 : 0) : 0,
   };
+}
+
+// Chevrotain marks unavailable token/CST locations with -1 (NaN before v13).
+export function isAvailableLocation(
+  value: number | undefined,
+): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
 export function tokenToSpan(token: TokenLocation): SourceSpan {
