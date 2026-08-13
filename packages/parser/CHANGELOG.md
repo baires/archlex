@@ -1,5 +1,11 @@
 # @archlex/parser
 
+## 0.3.1
+
+### Patch Changes
+
+- bc79c41: Fix polynomial regular expression ReDoS vulnerability when parsing missing relationship endpoints
+
 ## 0.3.0
 
 ### Minor Changes
