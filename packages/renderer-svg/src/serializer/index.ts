@@ -291,9 +291,31 @@ function findBestLabelPosition(
     return null;
   };
 
+  const internalCorners = points.slice(1, points.length - 1);
+
+  const straddlesCorner = (x: number, y: number): boolean => {
+    const boxMinX = x - labelWidth / 2 - EDGE_LABEL_GAP;
+    const boxMaxX = x + labelWidth / 2 + EDGE_LABEL_GAP;
+    const boxMinY = y - labelHeight / 2 - EDGE_LABEL_GAP;
+    const boxMaxY = y + labelHeight / 2 + EDGE_LABEL_GAP;
+
+    for (const corner of internalCorners) {
+      if (
+        corner.x >= boxMinX &&
+        corner.x <= boxMaxX &&
+        corner.y >= boxMinY &&
+        corner.y <= boxMaxY
+      ) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const testPosition = (
     distance: number,
     respectEndpointMargin = true,
+    avoidCorners = true,
   ): { x: number; y: number; distance: number } | null => {
     if (
       respectEndpointMargin &&
@@ -310,6 +332,10 @@ function findBestLabelPosition(
           segment.start.x + (segment.end.x - segment.start.x) * progress;
         const y =
           segment.start.y + (segment.end.y - segment.start.y) * progress;
+
+        if (avoidCorners && straddlesCorner(x, y)) {
+          return null;
+        }
 
         const labelRect: Rect = {
           x: x - labelWidth / 2 - minClearance,
@@ -339,7 +365,7 @@ function findBestLabelPosition(
   };
 
   // Try midpoint first
-  const midpoint = testPosition(totalLength / 2);
+  const midpoint = testPosition(totalLength / 2, true, true);
   if (midpoint) return midpoint;
 
   // Try alternative positions along the route
@@ -362,18 +388,26 @@ function findBestLabelPosition(
   const mid = totalLength / 2;
   candidates.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
 
-  // Try each candidate
+  // Try each candidate (avoiding corners)
   for (const distance of candidates) {
-    const candidate = testPosition(distance);
+    const candidate = testPosition(distance, true, true);
+    if (candidate) return candidate;
+  }
+
+  // Fallback to positions that might straddle a corner if no straight segment is free
+  const cornerFallbackMidpoint = testPosition(totalLength / 2, true, false);
+  if (cornerFallbackMidpoint) return cornerFallbackMidpoint;
+  for (const distance of candidates) {
+    const candidate = testPosition(distance, true, false);
     if (candidate) return candidate;
   }
 
   // Retry without the endpoint margin: in crowded diagrams a label near a
   // route endpoint is still better than overlapping another node.
-  const relaxedMidpoint = testPosition(totalLength / 2, false);
+  const relaxedMidpoint = testPosition(totalLength / 2, false, false);
   if (relaxedMidpoint) return relaxedMidpoint;
   for (const distance of candidates) {
-    const candidate = testPosition(distance, false);
+    const candidate = testPosition(distance, false, false);
     if (candidate) return candidate;
   }
 
@@ -509,31 +543,118 @@ function subPolyline(
   return result;
 }
 
+function intersectSegmentAABB(
+  p0: { x: number; y: number },
+  p1: { x: number; y: number },
+  minX: number,
+  maxX: number,
+  minY: number,
+  maxY: number,
+): { t0: number; t1: number } | null {
+  const dx = p1.x - p0.x;
+  const dy = p1.y - p0.y;
+
+  let t0 = 0;
+  let t1 = 1;
+
+  const p = [-dx, dx, -dy, dy];
+  const q = [p0.x - minX, maxX - p0.x, p0.y - minY, maxY - p0.y];
+
+  for (let i = 0; i < 4; i++) {
+    if (Math.abs(p[i]) < 1e-9) {
+      if (q[i] < 0) return null;
+    } else {
+      const r = q[i] / p[i];
+      if (p[i] < 0) {
+        if (r > t1) return null;
+        if (r > t0) t0 = r;
+      } else {
+        if (r < t0) return null;
+        if (r < t1) t1 = r;
+      }
+    }
+  }
+
+  if (t0 >= t1) return null;
+  return { t0, t1 };
+}
+
 // Split the route into the parts before/after a label box, leaving a visible
 // gap between the edge line (and its arrowheads) and the label.
 function splitEdgeAroundLabel(
   points: readonly { x: number; y: number }[],
-  labelDistance: number,
-  trim: number,
+  labelCenter: { x: number; y: number },
+  labelWidth: number,
+  labelHeight: number,
+  gap = EDGE_LABEL_GAP,
 ): {
   before: { x: number; y: number }[];
   after: { x: number; y: number }[];
 } | null {
-  let totalLength = 0;
-  for (let index = 1; index < points.length; index += 1) {
-    totalLength += Math.hypot(
-      points[index].x - points[index - 1].x,
-      points[index].y - points[index - 1].y,
-    );
+  if (!points || points.length < 2) return null;
+
+  const minX = labelCenter.x - labelWidth / 2 - gap;
+  const maxX = labelCenter.x + labelWidth / 2 + gap;
+  const minY = labelCenter.y - labelHeight / 2 - gap;
+  const maxY = labelCenter.y + labelHeight / 2 + gap;
+
+  let entrySegmentIdx = -1;
+  let entryT = 0;
+  let exitSegmentIdx = -1;
+  let exitT = 1;
+
+  for (let i = 1; i < points.length; i++) {
+    const p0 = points[i - 1];
+    const p1 = points[i];
+    const hit = intersectSegmentAABB(p0, p1, minX, maxX, minY, maxY);
+    if (hit) {
+      if (entrySegmentIdx === -1) {
+        entrySegmentIdx = i;
+        entryT = hit.t0;
+      }
+      exitSegmentIdx = i;
+      exitT = hit.t1;
+    }
   }
-  if (totalLength < 1e-9) return null;
 
-  const gapStart = labelDistance - trim;
-  const gapEnd = labelDistance + trim;
-  if (gapStart <= 0 || gapEnd >= totalLength) return null;
+  if (entrySegmentIdx === -1 || exitSegmentIdx === -1) {
+    return null;
+  }
 
-  const before = subPolyline(points, 0, gapStart);
-  const after = subPolyline(points, gapEnd, totalLength);
+  const before: { x: number; y: number }[] = [];
+  for (let i = 0; i < entrySegmentIdx; i++) {
+    before.push(points[i]);
+  }
+  const entryP0 = points[entrySegmentIdx - 1];
+  const entryP1 = points[entrySegmentIdx];
+  const entryPt = {
+    x: entryP0.x + entryT * (entryP1.x - entryP0.x),
+    y: entryP0.y + entryT * (entryP1.y - entryP0.y),
+  };
+  const lastBefore = before[before.length - 1];
+  if (
+    !lastBefore ||
+    Math.hypot(entryPt.x - lastBefore.x, entryPt.y - lastBefore.y) > 1e-3
+  ) {
+    before.push(entryPt);
+  }
+
+  const after: { x: number; y: number }[] = [];
+  const exitP0 = points[exitSegmentIdx - 1];
+  const exitP1 = points[exitSegmentIdx];
+  const exitPt = {
+    x: exitP0.x + exitT * (exitP1.x - exitP0.x),
+    y: exitP0.y + exitT * (exitP1.y - exitP0.y),
+  };
+  after.push(exitPt);
+  for (let i = exitSegmentIdx; i < points.length; i++) {
+    const pt = points[i];
+    const lastAfter = after[after.length - 1];
+    if (Math.hypot(pt.x - lastAfter.x, pt.y - lastAfter.y) > 1e-3) {
+      after.push(pt);
+    }
+  }
+
   if (before.length < 2 || after.length < 2) return null;
   return { before, after };
 }
@@ -865,12 +986,10 @@ export function serializeSvgGraph(
     const edgeSplit = labelPoint
       ? splitEdgeAroundLabel(
           edge.points,
-          labelPoint.distance,
-          (routeOrientationAt(edge.points, labelPoint.distance) === "horizontal"
-            ? labelWidth
-            : labelHeight) /
-            2 +
-            EDGE_LABEL_GAP,
+          labelPoint,
+          labelWidth,
+          labelHeight,
+          EDGE_LABEL_GAP,
         )
       : null;
 
