@@ -33,7 +33,7 @@ Compatibility aliases preserve the existing playground token contract during gra
 
 ## Logo
 
-`assets/logo.svg` (exported as `@archlex/design/logo.svg`) is the canonical ArchLex
+`assets/logo.svg` is the canonical ArchLex
 owl logo. It is theme-adaptive: dark artwork on light color schemes, light artwork
 on dark ones, via `prefers-color-scheme`. `assets/apple-touch-icon.png` is the
 180×180 iOS home-screen icon (dark owl on `--surface-canvas` light). Each app serves
