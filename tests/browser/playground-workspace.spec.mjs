@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { AWS_CDN_PROVIDER } from "@archlex/aws";
 import { expect, test } from "@playwright/test";
 import {
   installIconFixtureRoutes,
@@ -611,4 +612,41 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
     )
     .toEqual({ start: 0, end: 0 });
   await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(0);
+});
+
+test("shows a usable diagram while remote icons hydrate", async ({ page }) => {
+  const appRunnerUrl = `${AWS_CDN_PROVIDER.baseUrl}/${AWS_CDN_PROVIDER.mappings["app-runner"]}.svg`;
+  let pendingIconRoute;
+  await page.route(appRunnerUrl, (route) => {
+    pendingIconRoute = route;
+  });
+
+  await page.goto("/");
+  await replaceEditorSource(page, "provider aws\napp: app-runner");
+  await expect.poll(() => pendingIconRoute).toBeTruthy();
+
+  const status = page.locator(".workspace-status-bar");
+  const appNode = page.locator(
+    'svg[data-archlex-version] [data-archlex-id="app"]',
+  );
+
+  try {
+    await expect(status).toContainText("Ready");
+    await expect(status).toContainText("Loading icons…");
+    await expect(appNode).toBeVisible();
+    await expect(appNode.locator("[data-archlex-icon]")).toHaveCount(0);
+  } finally {
+    await pendingIconRoute?.fulfill({
+      status: 200,
+      contentType: "image/svg+xml",
+      body: '<svg viewBox="0 0 24 24"><path fill="#123456" d="M0 0h24v24z"/></svg>',
+      headers: { "access-control-allow-origin": "*" },
+    });
+  }
+
+  await expect(
+    appNode.locator('[data-archlex-icon="aws.app-runner"]'),
+  ).toHaveCount(1);
+  await expect(status).not.toContainText("Loading icons…");
+  await expect(status).toContainText(/Ready · \d+ ms/);
 });

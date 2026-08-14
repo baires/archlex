@@ -6,7 +6,7 @@ import type { CdnProviderDefinition, FetchIcon } from "@archlex/icons-core";
 import { describe, expect, it, vi } from "vitest";
 import {
   createGuardedOperationHandlers,
-  renderWithIcons,
+  renderProgressively,
 } from "../apps/playground/src/render-pipeline.js";
 
 const SAFE_ICON_FIXTURE_URL = new URL(
@@ -72,16 +72,17 @@ describe("playground dynamic icon regressions", () => {
       fetchFn: fetchFromFixture(SAFE_ICON_FIXTURE_URL),
     });
 
-    const { renderResult, iconWarnings } = await renderWithIcons(
+    const operation = renderProgressively(
       archlex,
       loader,
       "lambda > app-runner",
     );
+    const hydrated = await operation.hydrated;
 
-    expect(renderResult.graph.nodes).toHaveLength(2);
-    expect(renderResult.svg).toContain("#ED7100");
-    expect(renderResult.svg).toContain("#123456");
-    expect(iconWarnings).toEqual([]);
+    expect(hydrated?.renderResult.graph.nodes).toHaveLength(2);
+    expect(hydrated?.renderResult.svg).toContain("#ED7100");
+    expect(hydrated?.renderResult.svg).toContain("#123456");
+    expect(hydrated?.iconWarnings).toEqual([]);
   });
 
   it("renders a complete fallback diagram when fixture SVG sanitization fails", async () => {
@@ -91,16 +92,13 @@ describe("playground dynamic icon regressions", () => {
       fetchFn: fetchFromFixture(INVALID_ICON_FIXTURE_URL),
     });
 
-    const { renderResult, iconWarnings } = await renderWithIcons(
-      archlex,
-      loader,
-      "app-runner",
-    );
+    const operation = renderProgressively(archlex, loader, "app-runner");
+    const hydrated = await operation.hydrated;
 
-    expect(renderResult.graph.nodes).toHaveLength(1);
-    expect(renderResult.svg).toMatch(/^<svg[\s\S]*<\/svg>$/);
-    expect(renderResult.svg).toContain("#6B7280");
-    expect(iconWarnings).toEqual([
+    expect(hydrated?.renderResult.graph.nodes).toHaveLength(1);
+    expect(hydrated?.renderResult.svg).toMatch(/^<svg[\s\S]*<\/svg>$/);
+    expect(hydrated?.renderResult.svg).toContain("#6B7280");
+    expect(hydrated?.iconWarnings).toEqual([
       expect.objectContaining({
         provider: "aws",
         key: "app-runner",

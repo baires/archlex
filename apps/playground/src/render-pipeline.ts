@@ -22,25 +22,43 @@ export interface GuardedOperationHandlers<T> {
   readonly onFailure: (error: unknown) => void;
 }
 
-export async function renderWithIcons(
+export interface ProgressiveRenderOperation {
+  readonly base: Promise<RenderResult>;
+  readonly hydrated: Promise<RenderWithIconsResult> | null;
+}
+
+export function renderProgressively(
   archlex: ArchLex,
   iconLoader: IconLoader,
   source: string,
   options: RenderWithIconsOptions = {},
-): Promise<RenderWithIconsResult> {
+): ProgressiveRenderOperation {
   const prepared = archlex.prepare(source, {
     validation: options.validation,
   });
-  const { icons, diagnostics: iconWarnings } = await iconLoader.loadIcons(
-    prepared.iconRequests,
-    { signal: options.signal },
-  );
-  const renderResult = await archlex.renderPrepared(prepared, {
-    ...options,
-    icons,
-  });
+  const base = archlex.renderPrepared(prepared, options);
 
-  return { renderResult, iconWarnings };
+  if (prepared.iconRequests.length === 0) {
+    return { base, hydrated: null };
+  }
+
+  const iconLoad = iconLoader.loadIcons(prepared.iconRequests, {
+    signal: options.signal,
+  });
+  iconLoad.catch(() => {});
+
+  const hydrated = Promise.all([base, iconLoad]).then(
+    async ([, { icons, diagnostics: iconWarnings }]) => {
+      const renderResult = await archlex.renderPrepared(prepared, {
+        ...options,
+        icons,
+      });
+      return { renderResult, iconWarnings };
+    },
+  );
+  hydrated.catch(() => {});
+
+  return { base, hydrated };
 }
 
 export function isCurrentOperation(

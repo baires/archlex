@@ -9,6 +9,7 @@ interface StatusBarProps {
   summary: DiagnosticSummary;
   activeFilter: DiagnosticFilter;
   isRendering: boolean;
+  isLoadingIcons?: boolean;
   renderDurationMs: number | null;
   operationMessage: OperationMessage;
   onOpenDiagnostics: (filter: DiagnosticFilter) => void;
@@ -36,6 +37,7 @@ export function StatusBar({
   summary,
   activeFilter,
   isRendering,
+  isLoadingIcons = false,
   renderDurationMs,
   operationMessage,
   onOpenDiagnostics,
@@ -81,6 +83,11 @@ export function StatusBar({
         <span className={isRendering ? "rendering" : "ready"}>
           {renderStatus}
         </span>
+        {isLoadingIcons ? (
+          <span className="icon-loading" aria-live="polite">
+            Loading icons…
+          </span>
+        ) : null}
       </div>
 
       <div className="visually-hidden" aria-live="polite" aria-atomic="true">
