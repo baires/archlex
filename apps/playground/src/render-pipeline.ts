@@ -22,27 +22,6 @@ export interface GuardedOperationHandlers<T> {
   readonly onFailure: (error: unknown) => void;
 }
 
-export async function renderWithIcons(
-  archlex: ArchLex,
-  iconLoader: IconLoader,
-  source: string,
-  options: RenderWithIconsOptions = {},
-): Promise<RenderWithIconsResult> {
-  const prepared = archlex.prepare(source, {
-    validation: options.validation,
-  });
-  const { icons, diagnostics: iconWarnings } = await iconLoader.loadIcons(
-    prepared.iconRequests,
-    { signal: options.signal },
-  );
-  const renderResult = await archlex.renderPrepared(prepared, {
-    ...options,
-    icons,
-  });
-
-  return { renderResult, iconWarnings };
-}
-
 export interface ProgressiveRenderOperation {
   readonly base: Promise<RenderResult>;
   readonly hydrated: Promise<RenderWithIconsResult> | null;

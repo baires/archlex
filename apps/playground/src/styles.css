@@ -595,6 +595,11 @@ select {
   letter-spacing: 0.04em;
 }
 
+.status-metadata .icon-loading {
+  color: var(--text-2);
+  font-style: italic;
+}
+
 .status-diagnostic-count {
   display: inline-flex;
   align-items: center;

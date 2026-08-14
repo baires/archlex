@@ -1,7 +1,7 @@
 import { awsProvider } from "@archlex/aws";
 import { createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
-import type { Diagnostic, ValidationMode } from "@archlex/model";
+import type { Diagnostic, RenderResult, ValidationMode } from "@archlex/model";
 import { useEffect, useRef, useState } from "react";
 import { CommandBar } from "./components/CommandBar.js";
 import {
@@ -28,7 +28,7 @@ import { iconLoader } from "./icon-loader.js";
 import {
   type RenderWithIconsResult,
   createGuardedOperationHandlers,
-  renderWithIcons,
+  renderProgressively,
 } from "./render-pipeline.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
@@ -110,6 +110,7 @@ export function App() {
   const [diagnostics, setDiagnostics] = useState<readonly Diagnostic[]>([]);
   const [renderIssue, setRenderIssue] = useState<RenderIssue | null>(null);
   const [isRendering, setIsRendering] = useState<boolean>(false);
+  const [isLoadingIcons, setIsLoadingIcons] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [operationMessage, setOperationMessage] =
     useState<OperationMessage>(null);
@@ -151,6 +152,7 @@ export function App() {
     const operationId = ++renderOperationIdRef.current;
     let operationController: AbortController | null = null;
     setIsRendering(true);
+    setIsLoadingIcons(false);
 
     const timeoutId = setTimeout(() => {
       if (activeControllerRef.current) {
@@ -161,11 +163,20 @@ export function App() {
       activeControllerRef.current = controller;
 
       renderStartedAtRef.current = performance.now();
-      const handlers = createGuardedOperationHandlers<RenderWithIconsResult>({
+
+      const operation = renderProgressively(archlex, iconLoader, source, {
+        direction,
+        validation,
+        theme,
+        signal: controller.signal,
+      });
+      setIsLoadingIcons(operation.hydrated !== null);
+
+      const baseHandlers = createGuardedOperationHandlers<RenderResult>({
         operationId,
         currentOperationId: () => renderOperationIdRef.current,
         signal: controller.signal,
-        onSuccess: ({ renderResult }) => {
+        onSuccess: (renderResult) => {
           const nextSummary = summarizeStatusDiagnostics(
             renderResult.diagnostics,
             null,
@@ -216,17 +227,29 @@ export function App() {
           previousSummaryRef.current = nextSummary;
           setRenderIssue(issue);
           setIsRendering(false);
+          setIsLoadingIcons(false);
+          controller.abort();
         },
       });
 
-      renderWithIcons(archlex, iconLoader, source, {
-        direction,
-        validation,
-        theme,
-        signal: controller.signal,
-      })
-        .then(handlers.onSuccess)
-        .catch(handlers.onFailure);
+      const hydrationHandlers =
+        createGuardedOperationHandlers<RenderWithIconsResult>({
+          operationId,
+          currentOperationId: () => renderOperationIdRef.current,
+          signal: controller.signal,
+          onSuccess: ({ renderResult }) => {
+            setCurrentSvg(renderResult.svg);
+            setIsLoadingIcons(false);
+          },
+          onFailure: () => {
+            setIsLoadingIcons(false);
+          },
+        });
+
+      operation.base.then(baseHandlers.onSuccess).catch(baseHandlers.onFailure);
+      operation.hydrated
+        ?.then(hydrationHandlers.onSuccess)
+        .catch(hydrationHandlers.onFailure);
     }, 150);
 
     return () => {
@@ -413,6 +436,7 @@ export function App() {
             summary={summary}
             activeFilter={diagnosticFilter}
             isRendering={isRendering}
+            isLoadingIcons={isLoadingIcons}
             renderDurationMs={renderDurationMs}
             operationMessage={operationMessage}
             onOpenDiagnostics={handleOpenDiagnostics}
