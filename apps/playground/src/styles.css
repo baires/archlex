@@ -109,12 +109,21 @@ select {
 }
 
 .wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text-1);
   font-family: var(--font-code);
   font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   transition: color var(--transition-fast);
+}
+
+.wordmark__mark {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
 }
 
 .wordmark:hover {

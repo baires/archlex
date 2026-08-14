@@ -7,7 +7,8 @@
     ".": "./index.css",
     "./fonts.css": "./fonts.css",
     "./tokens.css": "./tokens.css",
-    "./themes.css": "./themes.css"
+    "./themes.css": "./themes.css",
+    "./logo.svg": "./assets/logo.svg"
   },
   "scripts": {
     "build": "node package.test.mjs",
