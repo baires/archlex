@@ -43,6 +43,45 @@ export async function renderWithIcons(
   return { renderResult, iconWarnings };
 }
 
+export interface ProgressiveRenderOperation {
+  readonly base: Promise<RenderResult>;
+  readonly hydrated: Promise<RenderWithIconsResult> | null;
+}
+
+export function renderProgressively(
+  archlex: ArchLex,
+  iconLoader: IconLoader,
+  source: string,
+  options: RenderWithIconsOptions = {},
+): ProgressiveRenderOperation {
+  const prepared = archlex.prepare(source, {
+    validation: options.validation,
+  });
+  const base = archlex.renderPrepared(prepared, options);
+
+  if (prepared.iconRequests.length === 0) {
+    return { base, hydrated: null };
+  }
+
+  const iconLoad = iconLoader.loadIcons(prepared.iconRequests, {
+    signal: options.signal,
+  });
+  iconLoad.catch(() => {});
+
+  const hydrated = Promise.all([base, iconLoad]).then(
+    async ([, { icons, diagnostics: iconWarnings }]) => {
+      const renderResult = await archlex.renderPrepared(prepared, {
+        ...options,
+        icons,
+      });
+      return { renderResult, iconWarnings };
+    },
+  );
+  hydrated.catch(() => {});
+
+  return { base, hydrated };
+}
+
 export function isCurrentOperation(
   operationId: number,
   currentOperationId: number,

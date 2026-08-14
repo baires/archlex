@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import {
   isAbortError,
   isCurrentOperation,
+  renderProgressively,
   renderWithIcons,
 } from "./render-pipeline.js";
 
@@ -164,6 +165,117 @@ describe("renderWithIcons", () => {
     expect(appliedSvgs).toHaveLength(1);
     expect(appliedSvgs[0]).toContain("#abcdef");
     expect(appliedSvgs[0]).not.toContain("#123456");
+  });
+});
+
+describe("renderProgressively", () => {
+  it("resolves the base diagram while remote icon loading is pending", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const iconLoad = deferred<IconLoadResult>();
+    const iconLoader: IconLoader = {
+      loadIcons() {
+        return iconLoad.promise;
+      },
+    };
+
+    const operation = renderProgressively(
+      archlex,
+      iconLoader,
+      "app: app-runner",
+    );
+    const base = await operation.base;
+
+    expect(base.graph.nodes[0]?.icon).toBeUndefined();
+    expect(base.svg).not.toContain("#123456");
+    expect(operation.hydrated).not.toBeNull();
+
+    iconLoad.resolve({
+      icons: new Map([["aws:app-runner", CDN_ICON]]),
+      diagnostics: [],
+    });
+    await operation.hydrated;
+  });
+
+  it("hydrates a remote icon after the base diagram", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const iconLoader = loaderReturning({
+      icons: new Map([["aws:app-runner", CDN_ICON]]),
+      diagnostics: [],
+    });
+
+    const operation = renderProgressively(
+      archlex,
+      iconLoader,
+      "app: app-runner",
+    );
+    const base = await operation.base;
+    const hydrated = await operation.hydrated;
+
+    expect(base.svg).not.toContain("#123456");
+    expect(hydrated?.renderResult.svg).toContain("#123456");
+    expect(hydrated?.renderResult.graph.nodes[0]?.icon).toBe(
+      CDN_ICON.svgFragment,
+    );
+  });
+
+  it("keeps fallback warnings separate from semantic diagnostics", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const iconLoader = loaderReturning({
+      icons: new Map([["aws:app-runner", FALLBACK_ICON]]),
+      diagnostics: [FETCH_WARNING],
+    });
+
+    const operation = renderProgressively(
+      archlex,
+      iconLoader,
+      "app: app-runner",
+    );
+    const hydrated = await operation.hydrated;
+
+    expect(hydrated?.renderResult.svg).toContain("#abcdef");
+    expect(hydrated?.iconWarnings).toEqual([FETCH_WARNING]);
+    expect(
+      hydrated?.renderResult.diagnostics.some(
+        (diagnostic) => diagnostic.code === FETCH_WARNING.code,
+      ),
+    ).toBe(false);
+  });
+
+  it("skips icon loading when the prepared graph has no unresolved icons", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    let loadCount = 0;
+    const iconLoader: IconLoader = {
+      async loadIcons() {
+        loadCount += 1;
+        return { icons: new Map(), diagnostics: [] };
+      },
+    };
+
+    const operation = renderProgressively(archlex, iconLoader, "lambda");
+
+    await operation.base;
+    expect(operation.hydrated).toBeNull();
+    expect(loadCount).toBe(0);
+  });
+
+  it("keeps a successful base result when icon loading fails", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const iconLoader: IconLoader = {
+      async loadIcons() {
+        throw new Error("icon CDN unavailable");
+      },
+    };
+
+    const operation = renderProgressively(
+      archlex,
+      iconLoader,
+      "app: app-runner",
+    );
+
+    await expect(operation.base).resolves.toMatchObject({
+      graph: { nodes: [expect.objectContaining({ id: "app" })] },
+    });
+    await expect(operation.hydrated).rejects.toThrow("icon CDN unavailable");
   });
 });
 
