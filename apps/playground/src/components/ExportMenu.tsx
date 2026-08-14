@@ -98,9 +98,11 @@ export function ExportMenu({
         aria-haspopup="menu"
         aria-expanded={isOpen}
         disabled={disabled}
+        title="Export"
+        aria-label="Export menu"
         onClick={() => setIsOpen((open) => !open)}
       >
-        Export <Icon name="chevron-down" />
+        <span className="btn-label">Export</span> <Icon name="chevron-down" />
       </button>
 
       {isOpen ? (

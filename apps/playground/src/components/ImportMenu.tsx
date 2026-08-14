@@ -118,9 +118,11 @@ export function ImportMenu({ onImportFile, onOpenUrlImport }: ImportMenuProps) {
         className="btn-secondary"
         aria-haspopup="menu"
         aria-expanded={isOpen}
+        title="Import"
+        aria-label="Import menu"
         onClick={() => setIsOpen((open) => !open)}
       >
-        Import <Icon name="chevron-down" />
+        <span className="btn-label">Import</span> <Icon name="chevron-down" />
       </button>
 
       <input

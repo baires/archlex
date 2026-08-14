@@ -59,7 +59,9 @@ export function CommandBar({
             <path d="m 72.2,109.6 c -2.8,-1 -6.6,0.5 -7.5,3.8 -0.8,3.1 1.2,6.4 4.6,7 3.1,0.4 6.2,-1.5 6.5,-4.9 0.3,-2.9 -1.5,-5.1 -3.6,-5.9 z m 0,4.1 c -0.7,0 -1.4,-0.6 -1.4,-1.4 0,-0.8 0.6,-1.4 1.4,-1.4 0.8,0 1.4,0.7 1.4,1.5 0,0.7 -0.7,1.3 -1.4,1.3 z" />
             <path d="m 53.1,121.5 4.5,7.5 4.5,-7.4 -4.4,-5.1 z" />
           </svg>
-          <span aria-hidden="true">ARCHLEX</span>
+          <span className="wordmark-text" aria-hidden="true">
+            ARCHLEX
+          </span>
         </span>
         <h1 className="visually-hidden">ArchLex</h1>
       </div>
@@ -101,7 +103,7 @@ export function CommandBar({
           title="Documentation"
         >
           <Icon name="book" />
-          <span>Docs</span>
+          <span className="btn-label">Docs</span>
         </a>
         <DiagramSettings
           direction={direction}

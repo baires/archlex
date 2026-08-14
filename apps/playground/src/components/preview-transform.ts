@@ -75,3 +75,40 @@ export function calculateFitScale(
     ),
   );
 }
+
+export interface PinchState {
+  scale: number;
+  pan: Point;
+  distance: number;
+  center: Point;
+}
+
+export function calculatePinchTransform(
+  initial: PinchState,
+  current: { distance: number; center: Point },
+): { scale: number; pan: Point } {
+  if (initial.distance <= 0 || current.distance <= 0) {
+    return { scale: initial.scale, pan: initial.pan };
+  }
+
+  const scaleRatio = current.distance / initial.distance;
+  const targetScale = initial.scale * scaleRatio;
+
+  const anchored = calculateAnchoredZoom(
+    initial.scale,
+    initial.pan,
+    initial.center,
+    targetScale,
+  );
+
+  const centerDeltaX = current.center.x - initial.center.x;
+  const centerDeltaY = current.center.y - initial.center.y;
+
+  return {
+    scale: anchored.scale,
+    pan: {
+      x: anchored.pan.x + centerDeltaX,
+      y: anchored.pan.y + centerDeltaY,
+    },
+  };
+}

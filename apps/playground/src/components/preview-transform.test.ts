@@ -3,6 +3,7 @@ import {
   calculateAnchoredZoom,
   calculateCenteredZoom,
   calculateFitScale,
+  calculatePinchTransform,
   calculateWheelZoomFactor,
   clampScale,
 } from "./preview-transform.js";
@@ -71,5 +72,25 @@ describe("preview transform helpers", () => {
       scale: 1.5,
       pan: { x: 120, y: -60 },
     });
+  });
+
+  it("calculates pinch transform with zoom and touch center panning delta", () => {
+    const initial = {
+      scale: 1,
+      pan: { x: 0, y: 0 },
+      distance: 100,
+      center: { x: 50, y: 50 },
+    };
+    const current = {
+      distance: 200,
+      center: { x: 70, y: 60 },
+    };
+
+    const result = calculatePinchTransform(initial, current);
+    expect(result.scale).toBe(2); // 200/100 * 1 = 2
+    // Anchored at (50,50): pan = 50 - (50 - 0)*2 = -50.
+    // Center delta = (+20, +10). Final pan = (-30, -40).
+    expect(result.pan.x).toBe(-30);
+    expect(result.pan.y).toBe(-40);
   });
 });
