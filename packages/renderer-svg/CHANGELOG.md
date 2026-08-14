@@ -1,5 +1,11 @@
 # @archlex/renderer-svg
 
+## 0.2.3
+
+### Patch Changes
+
+- 8f128f6: fix(renderer-svg): prevent edge label splitting from breaking orthogonal corner bends
+
 ## 0.2.2
 
 ### Patch Changes
