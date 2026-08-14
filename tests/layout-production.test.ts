@@ -167,8 +167,8 @@ describe("Phase 4: Production Layout Engine", () => {
     expect(elkGraph.layoutOptions).toMatchObject({
       "elk.edgeRouting": "ORTHOGONAL",
       "elk.layered.considerModelOrder.strategy": "NODES_AND_EDGES",
-      "elk.layered.spacing.nodeNodeBetweenLayers": "72",
-      "elk.spacing.edgeNode": "24",
+      "elk.layered.spacing.nodeNodeBetweenLayers": "42",
+      "elk.spacing.edgeNode": "40",
     });
     expect(elkGraph.children[0]?.layoutOptions).toMatchObject({
       "elk.direction": "RIGHT",

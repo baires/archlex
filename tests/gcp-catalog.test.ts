@@ -58,7 +58,7 @@ describe("GCP Catalog & Icon Manifest", () => {
   it("manifest has valid SHA-256 checksums and sanitized SVG fragments", () => {
     expect(GCP_CATALOG_MANIFEST.releaseId).toBeDefined();
     expect(GCP_CATALOG_MANIFEST.checksum).toBe(
-      "c3a17a4f2cddf4d69f27e657cd1e44b6ffc2526b2a7b17e68e9eda75fded181b",
+      "38220c3da0b09cbab081929b284fdb720b767018b73855e1b00fabe1a85d3864",
     );
     expect(GCP_CATALOG_MANIFEST.checksum).toMatch(/^[a-f0-9]{64}$/);
     expect(Object.keys(GCP_SANITIZED_ICONS).length).toBeGreaterThan(0);

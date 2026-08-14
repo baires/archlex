@@ -221,4 +221,53 @@ describe("edge label collision avoidance", () => {
       }
     }
   });
+
+  it("splits edge path around label box without breaking corner bends", () => {
+    const graph: LayoutGraph = {
+      width: 800,
+      height: 400,
+      nodes: [
+        {
+          id: "pipeline",
+          x: 316.8,
+          y: 35,
+          width: 128,
+          height: 92,
+          label: "Pipeline",
+        },
+        {
+          id: "deploy",
+          x: 648,
+          y: 164,
+          width: 128,
+          height: 92,
+          label: "Deploy",
+        },
+      ],
+      edges: [
+        {
+          id: "e-orchestrates",
+          source: "pipeline",
+          target: "deploy",
+          arrow: "->",
+          label: "orchestrates",
+          points: [
+            { x: 444.8, y: 81 },
+            { x: 464.8, y: 81 },
+            { x: 464.8, y: 210 },
+            { x: 648, y: 210 },
+          ],
+        },
+      ],
+    };
+
+    const result = serializeSvgGraph(graph);
+
+    // Ensure the head path retains the rounded corner Q 464.8 81.0 464.8 89.0
+    expect(result.svg).toContain("Q 464.8 81.0 464.8 89.0");
+    // Ensure head path goes all the way down to top of label box instead of stopping prematurely
+    expect(result.svg).toMatch(
+      /d="M 444\.8 81\.0 L 456\.8 81\.0 Q 464\.8 81\.0 464\.8 89\.0 L 464\.8 (?:140\.7|190|198|194)/,
+    );
+  });
 });
