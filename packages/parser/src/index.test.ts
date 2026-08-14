@@ -133,13 +133,25 @@ account production {
   });
 
   it("handles malicious input with repeated '-[' sequences in linear time without ReDoS", () => {
-    const maliciousInput = `api ${"-[".repeat(5000)}\nrds`;
-    const startTime = performance.now();
-    const result = parse(maliciousInput);
-    const duration = performance.now() - startTime;
+    const measure = (repeats: number): number => {
+      const maliciousInput = `api ${"-[".repeat(repeats)}\nrds`;
+      const startTime = performance.now();
+      const result = parse(maliciousInput);
+      expect(result).toBeDefined();
+      return performance.now() - startTime;
+    };
+    // Min of several samples keeps GC pauses and CI runner jitter out of the measurement.
+    const sample = (repeats: number): number =>
+      Math.min(measure(repeats), measure(repeats), measure(repeats));
 
-    expect(result).toBeDefined();
-    expect(duration).toBeLessThan(200); // Must parse in milliseconds without exponential backtracking
+    measure(1000); // warm up the JIT before sampling
+    const small = sample(2500);
+    const large = sample(10000); // 4x the input
+
+    // Linear parsing scales ~4x; polynomial backtracking would blow past 8x.
+    // A scaling ratio stays stable on slow CI runners where a fixed
+    // wall-clock budget flakes.
+    expect(large).toBeLessThan(small * 8);
   });
 
   it("recovers a missing closing brace at end of input", () => {

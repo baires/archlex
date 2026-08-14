@@ -30,3 +30,14 @@ Structural primitives include `--radius-control` (999px pill), `--radius-code` (
 and motion durations.
 
 Compatibility aliases preserve the existing playground token contract during gradual adoption.
+
+## Logo
+
+`assets/logo.svg` is the canonical ArchLex
+owl logo. It is theme-adaptive: dark artwork on light color schemes, light artwork
+on dark ones, via `prefers-color-scheme`. `assets/apple-touch-icon.png` is the
+180×180 iOS home-screen icon (dark owl on `--surface-canvas` light). Each app serves
+copies of both as its favicons (`apps/*/public/favicon.svg`, `apple-touch-icon.png`,
+and `apple-touch-icon-precomposed.png`); update those copies when the logo changes.
+App headers render the same artwork inline with `fill="currentColor"` so it follows
+the manual theme toggle — keep those inline copies in sync with this file too.
