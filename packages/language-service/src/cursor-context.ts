@@ -62,6 +62,57 @@ export function getCursorContext(
       // Colon after identifier: "api:" -> resource kind
       position = "resource-kind";
     }
+  } else if (token.kind === "Identifier") {
+    // Cursor in or after identifier
+    if (prevToken?.kind === "Colon") {
+      // Identifier directly after colon: "api: lamb|da" -> resource kind
+      const beforeColon = findTokenBefore(document.tokens, tokenIndex - 1, [
+        "DirectiveName",
+        "Identifier",
+        "ScopeKind",
+      ]);
+      const directiveToken = findTokenBefore(document.tokens, tokenIndex - 1, [
+        "DirectiveName",
+      ]);
+
+      if (directiveToken && directiveToken.image === beforeColon?.image) {
+        // After directive colon: completing directive value
+        position = "directive-value";
+        directiveName = directiveToken.image;
+      } else {
+        // After resource/scope name colon: completing resource kind
+        position = "resource-kind";
+      }
+    } else if (prevToken?.kind === "DirectiveName") {
+      // Already typed directive value, but could be completing it
+      position = "directive-value";
+      directiveName = prevToken.image;
+    } else {
+      // Check if there's a colon earlier in this statement
+      const colonIndex = findLastColonInStatement(document.tokens, tokenIndex);
+      if (colonIndex >= 0) {
+        const colonToken = document.tokens[colonIndex];
+        const beforeColon = findTokenBefore(document.tokens, colonIndex, [
+          "DirectiveName",
+          "Identifier",
+          "ScopeKind",
+        ]);
+        const directiveToken = findTokenBefore(document.tokens, colonIndex, [
+          "DirectiveName",
+        ]);
+
+        if (directiveToken && directiveToken.image === beforeColon?.image) {
+          // After directive colon: completing directive value
+          position = "directive-value";
+          directiveName = directiveToken.image;
+        } else {
+          // After resource/scope name colon: completing resource kind
+          position = "resource-kind";
+        }
+      } else {
+        position = "statement-start";
+      }
+    }
   } else if (token.kind === "DirectiveName") {
     // Cursor on or after directive name
     position = "directive-value";
@@ -80,16 +131,69 @@ export function getCursorContext(
     // Inside relationship kind brackets: -[kind]->
     position = "relationship-kind";
   } else if (token.kind === "ScopeKind") {
-    // After scope keyword
-    position = "scope-kind";
+    // Token is a scope keyword - but check context
+    if (prevToken?.kind === "Colon") {
+      // After colon: "node: cluster" -> this is a resource kind, not scope
+      const beforeColon = findTokenBefore(document.tokens, tokenIndex - 1, [
+        "DirectiveName",
+        "Identifier",
+        "ScopeKind",
+      ]);
+      const directiveToken = findTokenBefore(document.tokens, tokenIndex - 1, [
+        "DirectiveName",
+      ]);
+
+      if (directiveToken && directiveToken.image === beforeColon?.image) {
+        // After directive colon: completing directive value
+        position = "directive-value";
+        directiveName = directiveToken.image;
+      } else {
+        // After resource name colon: completing resource kind
+        position = "resource-kind";
+      }
+    } else {
+      // At statement start: this is actually a scope declaration
+      position = "scope-kind";
+    }
   } else if (
     token.kind === "Newline" ||
     isAfterNewline(document.tokens, tokenIndex, offset)
   ) {
     position = "statement-start";
   } else {
-    // Default: assume statement start if we can't determine context
-    position = "statement-start";
+    // Check if we're after a colon (for cases where cursor is beyond last token)
+    const colonIndex = document.tokens.findIndex(
+      (t, i) => t.kind === "Colon" && i <= tokenIndex,
+    );
+    if (colonIndex >= 0) {
+      const colonToken = document.tokens[colonIndex];
+      if (colonToken && colonToken.endOffset < offset) {
+        // We're after a colon, check what came before it
+        const beforeColon = findTokenBefore(document.tokens, colonIndex, [
+          "DirectiveName",
+          "Identifier",
+        ]);
+        const directiveToken = findTokenBefore(document.tokens, colonIndex, [
+          "DirectiveName",
+        ]);
+
+        if (directiveToken && directiveToken.image === beforeColon?.image) {
+          // After directive colon
+          position = "directive-value";
+          directiveName = directiveToken.image;
+        } else if (beforeColon?.kind === "Identifier") {
+          // After resource name colon
+          position = "resource-kind";
+        } else {
+          position = "statement-start";
+        }
+      } else {
+        position = "statement-start";
+      }
+    } else {
+      // Default: assume statement start if we can't determine context
+      position = "statement-start";
+    }
   }
 
   return {
@@ -141,6 +245,23 @@ function findTokenBefore(
     }
   }
   return undefined;
+}
+
+function findLastColonInStatement(
+  tokens: readonly { kind: string }[],
+  fromIndex: number,
+): number {
+  // Look backwards from current position to find a colon
+  // Stop at newline (indicates a new statement)
+  for (let i = fromIndex - 1; i >= 0; i--) {
+    if (tokens[i].kind === "Newline") {
+      return -1; // Hit a newline before finding a colon
+    }
+    if (tokens[i].kind === "Colon") {
+      return i;
+    }
+  }
+  return -1;
 }
 
 function isAfterNewline(

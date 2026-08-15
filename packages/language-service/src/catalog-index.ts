@@ -16,6 +16,8 @@ export interface CatalogIndex {
   listResources(providerId: string): readonly ResourceDefinition[];
   getSupportedScopes(providerId: string): readonly string[];
   getRelationships(providerId: string): readonly RelationshipDefinition[];
+  getAllProviderIds(): readonly string[];
+  getContainmentScopes(): readonly string[];
 }
 
 interface ProviderIndex {
@@ -130,6 +132,14 @@ export function createCatalogIndex(catalog: CatalogMetadata): CatalogIndex {
     getRelationships(providerId: string): readonly RelationshipDefinition[] {
       const provider = providers.get(providerId);
       return provider?.relationships ?? [];
+    },
+
+    getAllProviderIds(): readonly string[] {
+      return Array.from(providers.keys());
+    },
+
+    getContainmentScopes(): readonly string[] {
+      return catalog.containmentScopes;
     },
   };
 }
