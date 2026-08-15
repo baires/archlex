@@ -1,6 +1,6 @@
 {
   "name": "@archlex/language-service",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Editor-neutral language intelligence for ArchLex source",
   "type": "module",
   "main": "./dist/index.js",
@@ -13,7 +13,9 @@
     }
   },
   "files": ["dist", "README.md", "LICENSE"],
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "typecheck": "tsc --noEmit",
