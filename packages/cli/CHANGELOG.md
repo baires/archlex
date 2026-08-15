@@ -1,5 +1,17 @@
 # @archlex/cli
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [29e730b]
+  - @archlex/k8s@0.2.0
+  - @archlex/model@0.4.0
+  - @archlex/core@0.3.2
+  - @archlex/aws@0.2.3
+  - @archlex/diagnostics@0.2.3
+  - @archlex/gcp@0.2.4
+
 ## 0.3.1
 
 ### Patch Changes

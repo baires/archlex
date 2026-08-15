@@ -1,5 +1,20 @@
 # @archlex/core
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [29e730b]
+  - @archlex/k8s@0.2.0
+  - @archlex/model@0.4.0
+  - @archlex/parser@0.5.0
+  - @archlex/icons-core@0.2.3
+  - @archlex/aws@0.2.3
+  - @archlex/diagnostics@0.2.3
+  - @archlex/gcp@0.2.4
+  - @archlex/layout-elk@0.2.4
+  - @archlex/renderer-svg@0.2.4
+
 ## 0.3.1
 
 ### Patch Changes

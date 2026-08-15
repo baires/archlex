@@ -1,6 +1,6 @@
 {
   "name": "@archlex/layout-elk",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "ELK-based layout engine for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "layout", "elk", "graph"],
   "repository": {
