@@ -195,6 +195,9 @@ importers:
       '@archlex/k8s':
         specifier: workspace:^
         version: link:../../packages/k8s
+      '@archlex/language-service':
+        specifier: workspace:^
+        version: link:../../packages/language-service
       '@archlex/model':
         specifier: workspace:^
         version: link:../../packages/model
@@ -479,6 +482,28 @@ importers:
       '@xmldom/xmldom':
         specifier: 0.9.10
         version: 0.9.10
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vite:
+        specifier: ^6.1.0
+        version: 6.4.3(@types/node@22.20.1)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^3.0.5
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.1)(lightningcss@1.33.0)(tsx@4.23.1)(yaml@2.9.0)
+
+  packages/language-service:
+    dependencies:
+      '@archlex/model':
+        specifier: workspace:^
+        version: link:../model
+      '@archlex/parser':
+        specifier: workspace:^
+        version: link:../parser
+    devDependencies:
+      '@archlex/core':
+        specifier: workspace:*
+        version: link:../core
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

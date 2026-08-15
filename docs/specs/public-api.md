@@ -111,6 +111,50 @@ Expected source errors produce partial results. Cancellation throws
 containment, directives, six scope kinds, and known relationship kinds. Pass
 `aws`, `gcp`, `k8s`, or `all` to filter provider data.
 
+The catalog includes search terms extracted from service names and descriptions
+for fuzzy matching in editor completions.
+
+## Language Intelligence
+
+`@archlex/language-service` provides editor-neutral language intelligence with
+context-aware completions:
+
+```ts
+import { createCompletionEngine, analyzeLanguageDocument } from "@archlex/language-service";
+
+const catalog = archlex.getCatalog();
+const engine = createCompletionEngine(catalog);
+
+const source = "provider aws\nservice: elastic kubernetes";
+const document = analyzeLanguageDocument(source);
+const completions = engine.complete(document, source.length);
+// Returns: [{ label: "Amazon EKS", insertText: "eks", kind: "resource", ... }]
+```
+
+### Features
+
+- **Catalog-driven**: All 441 services (194 AWS, 185 GCP, 62 K8s) with relationships
+- **Human-readable search**: Fuzzy matching against display names and descriptions
+- **Context-aware**: Filters by provider, scope hierarchy, grammar position, and symbol visibility
+- **Semantic ranking**: Orders by prefix match, search relevance, and relationship compatibility
+- **Canonical insertion**: Always inserts lowercase kebab-case syntax
+
+### Grammar Context
+
+The completion engine detects cursor position in the grammar:
+
+- **Directive name**: `prov█` → `provider`, `direction`, `validation`
+- **Directive value**: `provider █` → `aws`, `gcp`, `k8s`
+- **Resource kind**: `service: █` → provider-specific services
+- **Relationship type**: `a -[█` → valid relationships for declared resources
+- **Relationship target**: `a -[forwards]-> █` → declared identifiers
+
+### Editor Integration
+
+The language service is DOM-neutral and works with any editor. Convert between
+editor-specific positions/ranges and universal byte offsets. Monaco, VSCode,
+CodeMirror, and Vim mode integrations use the same completion engine.
+
 ## Browser mounting
 
 Import `mountSvg` from `@archlex/core/browser`. It parses ArchLex-generated SVG,

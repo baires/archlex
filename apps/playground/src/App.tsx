@@ -37,6 +37,8 @@ const archlex = createArchLex({
   providers: [awsProvider(), gcpProvider(), k8sProvider()],
 });
 
+const catalogMetadata = archlex.getCatalog();
+
 const STORAGE_SOURCE_KEY = "archlex_source_v1";
 const STORAGE_OPTIONS_KEY = "archlex_options_v1";
 
@@ -408,6 +410,7 @@ export function App() {
             selection={editorSelection}
             theme={theme}
             diagnostics={diagnostics}
+            catalog={catalogMetadata}
           />
         }
         preview={

@@ -7,6 +7,7 @@ import type {
 } from "@archlex/model";
 import { initialServices, resolveGcpService } from "./catalog/index.js";
 import { GCP_SANITIZED_ICONS } from "./icons/manifest.js";
+import { GCP_RELATIONSHIPS } from "./relationships.js";
 import { evaluateGcpRules } from "./rules/index.js";
 
 export * from "./builder.js";
@@ -14,6 +15,7 @@ export * from "./catalog/index.js";
 export * from "./icons/manifest.js";
 export * from "./icons/cdn.js";
 export * from "./registry.js";
+export * from "./relationships.js";
 export * from "./rules/index.js";
 
 export function gcpProvider(): CloudProvider {
@@ -21,6 +23,7 @@ export function gcpProvider(): CloudProvider {
     id: "gcp",
     name: "Google Cloud",
     catalogVersion: "2026-07-31-tier4",
+    supportedScopes: ["account", "region", "vpc", "subnet"],
     supports(serviceKind: string): boolean {
       return resolveGcpService(serviceKind) !== undefined;
     },
@@ -41,6 +44,9 @@ export function gcpProvider(): CloudProvider {
     },
     listServices() {
       return initialServices;
+    },
+    listRelationships() {
+      return GCP_RELATIONSHIPS;
     },
     validateGraph(
       graph: CloudGraph,

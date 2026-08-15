@@ -6,6 +6,7 @@ import { k8sProvider } from "@archlex/k8s";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import type {
   AnalysisResult,
+  CatalogMetadata,
   CloudEdge,
   CloudGraph,
   CloudNode,
@@ -32,6 +33,10 @@ import type {
 import { parse as parseSource } from "@archlex/parser";
 import { createSvgRenderer } from "@archlex/renderer-svg";
 import { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
+import {
+  ARCHLEX_LANGUAGE_METADATA,
+  KNOWN_RELATIONSHIPS,
+} from "./language-metadata.js";
 
 export interface ArchLexOptions {
   providers: readonly CloudProvider[];
@@ -65,67 +70,6 @@ export interface PreparedDiagram {
   readonly iconRequests: readonly IconRequest[];
   readonly direction?: LayoutOptions["direction"];
   readonly theme?: ThemeName;
-}
-
-export const KNOWN_RELATIONSHIPS = [
-  "connects",
-  "reads",
-  "writes",
-  "publishes",
-  "subscribes",
-  "invokes",
-  "routes",
-  "replicates",
-  "assumes-role",
-  "encrypts",
-  "decrypts",
-  "monitors",
-  "logs",
-  "caches",
-  "proxies",
-  "traces",
-  "alerts",
-  "processes",
-  "transforms",
-  "orchestrates",
-  "triggers",
-  "schedules",
-  "builds",
-  "deploys",
-  "analyzes",
-  "transcodes",
-  "packages",
-  "migrates",
-  "discovers",
-  "catalogs",
-  "protects",
-  "governs",
-] as const;
-
-export interface CatalogMetadata {
-  directives: {
-    provider: readonly string[];
-    direction: readonly ["LR", "RL", "TB", "BT"];
-    validation: readonly ["strict", "normal", "off"];
-    theme: readonly ["light", "dark"];
-  };
-  containmentScopes: readonly string[];
-  relationshipKinds: readonly string[];
-  providers: Record<
-    string,
-    {
-      id: string;
-      name: string;
-      catalogVersion: string;
-      services: readonly {
-        id: string;
-        displayName: string;
-        category: string;
-        aliases: readonly string[];
-        allowedContainment?: readonly string[];
-      }[];
-    }
-  >;
 }
 
 export interface ArchLex {
@@ -368,41 +312,8 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const validation =
         analyzeOptions?.validation ?? directives.validation ?? "normal";
       const knownRelationships = new Set([
-        "connects",
-        "reads",
-        "writes",
-        "publishes",
-        "subscribes",
-        "invokes",
-        "routes",
-        "replicates",
-        "assumes-role",
-        // Tier 1: Core Infrastructure
-        "encrypts",
-        "decrypts",
-        "monitors",
-        "logs",
-        "caches",
-        "proxies",
-        "traces",
-        "alerts",
-        // Tier 2: Application Services
-        "processes",
-        "transforms",
-        "orchestrates",
-        "triggers",
-        "schedules",
-        "builds",
-        "deploys",
-        "analyzes",
-        // Tier 3: Specialized Services
-        "transcodes",
-        "packages",
-        "migrates",
-        "discovers",
-        "catalogs",
-        "protects",
-        "governs",
+        ...KNOWN_RELATIONSHIPS,
+        ...(provider?.listRelationships?.().map(({ kind }) => kind) ?? []),
       ]);
       const globalNames = new Map<string, string[]>();
 
@@ -871,32 +782,47 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
           id: provider.id,
           name: provider.name,
           catalogVersion: provider.catalogVersion,
+          supportedScopes: provider.supportedScopes ?? [],
           services: services.map((s) => ({
             id: s.id,
             displayName: s.displayName,
             category: s.category,
             aliases: s.aliases,
+            searchTerms: s.searchTerms,
             allowedContainment: s.allowedContainment,
           })),
+          relationships: provider.listRelationships?.() ?? [],
         };
       }
 
+      const language: CatalogMetadata["language"] = {
+        ...ARCHLEX_LANGUAGE_METADATA,
+        directives: ARCHLEX_LANGUAGE_METADATA.directives.map((directive) =>
+          directive.name === "provider"
+            ? { ...directive, values: Array.from(providerMap.keys()) }
+            : directive,
+        ),
+      };
+
       return {
         directives: {
-          provider: Array.from(providerMap.keys()),
-          direction: ["LR", "RL", "TB", "BT"],
-          validation: ["strict", "normal", "off"],
-          theme: ["light", "dark"],
+          provider:
+            language.directives.find(({ name }) => name === "provider")
+              ?.values ?? [],
+          direction: ARCHLEX_LANGUAGE_METADATA.directives[1].values,
+          validation: ARCHLEX_LANGUAGE_METADATA.directives[2].values,
+          theme: ARCHLEX_LANGUAGE_METADATA.directives[3].values,
         },
-        containmentScopes: [
-          "account",
-          "region",
-          "vpc",
-          "subnet",
-          "cluster",
-          "namespace",
-        ],
-        relationshipKinds: KNOWN_RELATIONSHIPS,
+        containmentScopes: language.scopes.map(({ kind }) => kind),
+        relationshipKinds: Array.from(
+          new Set([
+            ...language.relationships.map(({ kind }) => kind),
+            ...Object.values(providersObj).flatMap(({ relationships }) =>
+              relationships.map(({ kind }) => kind),
+            ),
+          ]),
+        ),
+        language,
         providers: providersObj,
       };
     },
@@ -905,3 +831,8 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
 
 export { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
 export { awsProvider, gcpProvider, k8sProvider };
+export {
+  ARCHLEX_LANGUAGE_METADATA,
+  KNOWN_RELATIONSHIPS,
+} from "./language-metadata.js";
+export type { CatalogMetadata } from "@archlex/model";

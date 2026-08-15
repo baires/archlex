@@ -27,6 +27,13 @@ export type ResourceCategory = (typeof VALID_RESOURCE_CATEGORIES)[number];
 
 const ID_FORMAT_REGEX = /^[a-z0-9-]+$/;
 
+function normalizeDiscoveryTerm(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[._\s-]+/g, " ");
+}
+
 const DEFAULT_SPAN: SourceSpan = {
   start: { line: 1, column: 1, offset: 0 },
   end: { line: 1, column: 1, offset: 0 },
@@ -98,8 +105,14 @@ export function validateCatalogManifest(
       : Array.from(definitions);
 
   const diagnostics: Diagnostic[] = [];
-  const seenIds = new Set<string>();
+  const canonicalIds = new Set<string>();
   const seenAliases = new Map<string, string>();
+
+  for (const def of defArray) {
+    if (def.id) canonicalIds.add(normalizeDiscoveryTerm(def.id));
+  }
+
+  const encounteredIds = new Set<string>();
 
   for (const def of defArray) {
     // Validate individual definition schema/rules
@@ -108,7 +121,7 @@ export function validateCatalogManifest(
 
     // Duplicate ID check
     if (def.id) {
-      if (seenIds.has(def.id)) {
+      if (encounteredIds.has(def.id)) {
         diagnostics.push({
           code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
           severity: "error",
@@ -119,25 +132,76 @@ export function validateCatalogManifest(
             "Ensure all resource definitions in the manifest have unique IDs.",
         });
       } else {
-        seenIds.add(def.id);
+        encounteredIds.add(def.id);
       }
     }
 
     // Duplicate alias check
     const aliases = def.aliases || [];
     for (const alias of aliases) {
-      if (seenAliases.has(alias)) {
+      const normalizedAlias = normalizeDiscoveryTerm(alias);
+      if (!normalizedAlias) {
         diagnostics.push({
           code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
           severity: "error",
-          message: `Duplicate alias '${alias}' found on resource '${def.id}' (already registered by '${seenAliases.get(alias)}').`,
+          message: `Resource '${def.id}' contains an empty alias.`,
           span: DEFAULT_SPAN,
           elements: [def.id, alias],
+          remediation: "Remove empty aliases from the resource definition.",
+        });
+      } else if (
+        canonicalIds.has(normalizedAlias) &&
+        normalizedAlias !== normalizeDiscoveryTerm(def.id)
+      ) {
+        diagnostics.push({
+          code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
+          severity: "error",
+          message: `Alias '${alias.trim().toLowerCase()}' on resource '${def.id}' conflicts with a canonical resource ID.`,
+          span: DEFAULT_SPAN,
+          elements: [def.id, normalizedAlias],
+          remediation:
+            "Choose an alias that does not match another canonical resource ID.",
+        });
+      } else if (seenAliases.has(normalizedAlias)) {
+        diagnostics.push({
+          code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
+          severity: "error",
+          message: `Duplicate alias '${alias.trim().toLowerCase()}' found on resource '${def.id}' (already registered by '${seenAliases.get(normalizedAlias)}').`,
+          span: DEFAULT_SPAN,
+          elements: [def.id, normalizedAlias],
           remediation:
             "Ensure all resource aliases in the catalog manifest are unique.",
         });
       } else {
-        seenAliases.set(alias, def.id);
+        seenAliases.set(normalizedAlias, def.id);
+      }
+    }
+
+    const seenSearchTerms = new Set<string>();
+    for (const searchTerm of def.searchTerms ?? []) {
+      const normalizedSearchTerm = normalizeDiscoveryTerm(searchTerm);
+      if (!normalizedSearchTerm) {
+        diagnostics.push({
+          code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
+          severity: "error",
+          message: `Resource '${def.id}' contains an empty search term.`,
+          span: DEFAULT_SPAN,
+          elements: [def.id, searchTerm],
+          remediation:
+            "Remove empty search terms from the resource definition.",
+        });
+      } else if (seenSearchTerms.has(normalizedSearchTerm)) {
+        diagnostics.push({
+          code: CATALOG_DIAGNOSTIC_CODES.INVALID_METADATA,
+          severity: "error",
+          message: `Duplicate search term '${normalizedSearchTerm}' found on resource '${def.id}'.`,
+          span: DEFAULT_SPAN,
+          elements: [def.id, normalizedSearchTerm],
+          remediation:
+            "Ensure each resource has unique normalized search terms.",
+        });
+      } else {
+        seenSearchTerms.add(normalizedSearchTerm);
       }
     }
   }

@@ -5,6 +5,7 @@ export interface ServiceDefinitionInput {
   displayName: string;
   category: string;
   aliases?: string[];
+  searchTerms?: string[];
   iconKey?: string;
   iconSvg?: string;
   allowedContainment?: readonly string[];

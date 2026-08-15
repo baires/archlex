@@ -31,6 +31,13 @@ describe("AWS Catalog Services", () => {
     );
   });
 
+  it("exposes human-friendly discovery terms without treating them as syntax", () => {
+    expect(resolveAwsService("Elastic Kubernetes Service")).toBeUndefined();
+    expect(resolveAwsService("eks")?.searchTerms).toContain(
+      "Elastic Kubernetes Service",
+    );
+  });
+
   it("provides official inline artwork for every non-boundary service", () => {
     const services = [...AWS_SERVICE_CATALOG.values()].filter(
       (service) => service.category !== "boundary",

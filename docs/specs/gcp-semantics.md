@@ -12,6 +12,11 @@ healthcare, retail, maps, and management services. Use `getCatalog("gcp")` to
 inspect current IDs and aliases. Use `archlex validate --catalog` to validate
 the packaged catalogs.
 
+All 185 GCP services include **search terms** extracted from display names and descriptions for editor completions. For example:
+- Searching "serverless container" finds Cloud Run (`cloud-run`)
+- Searching "managed postgres" finds Cloud SQL (`cloud-sql`)
+- Searching "kubernetes engine" finds GKE (`gke`)
+
 Unknown kinds remain visible as generic nodes and emit
 `GCP-CATALOG-UNKNOWN-RESOURCE-001`.
 

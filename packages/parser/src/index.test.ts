@@ -1,6 +1,7 @@
 import type { RelationshipAst } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import { parse } from "./index.js";
+import { ArchLexLexer } from "./lexer/index.js";
 
 describe("Phase 1 relationship chains", () => {
   it("expands a three-resource shorthand chain into two relationships", () => {
@@ -325,5 +326,16 @@ describe("theme directive", () => {
       name: "theme",
       value: "light",
     });
+  });
+
+  it("retains comments in a non-parser token group", () => {
+    const result = ArchLexLexer.tokenize("lambda # application function");
+    expect(result.tokens.map(({ image }) => image)).toEqual(["lambda"]);
+    expect(result.groups.comments?.map(({ image }) => image)).toEqual([
+      "# application function",
+    ]);
+    expect(parse("lambda # application function").ast.statements).toHaveLength(
+      1,
+    );
   });
 });

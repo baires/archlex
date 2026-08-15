@@ -6,6 +6,7 @@ import {
   validateCatalogManifest,
 } from "./catalog-validator.js";
 import { CATALOG_DIAGNOSTIC_CODES } from "./registry.js";
+import { validateRelationshipDefinitions } from "./relationship-validator.js";
 
 describe("catalog-validator", () => {
   describe("validateCatalogDefinition", () => {
@@ -223,6 +224,112 @@ describe("catalog-validator", () => {
           d.message.includes("Duplicate alias"),
       );
       expect(duplicateAliasDiag).toBeDefined();
+    });
+
+    test("normalizes aliases before conflict detection", () => {
+      const result = validateCatalogManifest([
+        {
+          id: "first",
+          displayName: "First",
+          category: "compute",
+          aliases: ["AWS.EKS"],
+        },
+        {
+          id: "second",
+          displayName: "Second",
+          category: "compute",
+          aliases: ["aws.eks"],
+        },
+      ]);
+
+      expect(result.valid).toBe(false);
+      expect(result.diagnostics[0]?.message).toContain("aws.eks");
+    });
+
+    test("rejects an alias that conflicts with another canonical ID", () => {
+      const result = validateCatalogManifest([
+        {
+          id: "first",
+          displayName: "First",
+          category: "compute",
+          aliases: ["second"],
+        },
+        {
+          id: "second",
+          displayName: "Second",
+          category: "compute",
+          aliases: [],
+        },
+      ]);
+
+      expect(result.valid).toBe(false);
+      expect(result.diagnostics[0]?.message).toContain("second");
+    });
+
+    test("rejects duplicate normalized search terms on one resource", () => {
+      const result = validateCatalogManifest([
+        {
+          id: "eks",
+          displayName: "Amazon EKS",
+          category: "compute",
+          aliases: [],
+          searchTerms: [
+            "Elastic Kubernetes Service",
+            "elastic-kubernetes_service",
+          ],
+        },
+      ]);
+
+      expect(result.valid).toBe(false);
+    });
+
+    test("allows one discovery term on different resources", () => {
+      const result = validateCatalogManifest([
+        {
+          id: "rds",
+          displayName: "Amazon RDS",
+          category: "database",
+          aliases: [],
+          searchTerms: ["database"],
+        },
+        {
+          id: "dynamodb",
+          displayName: "Amazon DynamoDB",
+          category: "database",
+          aliases: [],
+          searchTerms: ["database"],
+        },
+      ]);
+
+      expect(result.valid).toBe(true);
+    });
+  });
+
+  describe("validateRelationshipDefinitions", () => {
+    test("rejects relationship constraints that reference unknown services", () => {
+      const diagnostics = validateRelationshipDefinitions(
+        [
+          {
+            id: "service",
+            displayName: "Service",
+            category: "networking",
+            aliases: [],
+          },
+        ],
+        [
+          {
+            kind: "targets",
+            displayName: "Targets",
+            allowedTargets: ["deployment"],
+          },
+        ],
+      );
+      expect(diagnostics).toEqual([
+        expect.objectContaining({
+          severity: "error",
+          elements: ["targets", "deployment"],
+        }),
+      ]);
     });
   });
 });

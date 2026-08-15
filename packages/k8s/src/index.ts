@@ -7,6 +7,7 @@ import type {
 } from "@archlex/model";
 import { initialServices, resolveK8sService } from "./catalog/index.js";
 import { K8S_SANITIZED_ICONS } from "./icons/manifest.js";
+import { K8S_RELATIONSHIPS } from "./relationships.js";
 import { evaluateK8sRules } from "./rules/index.js";
 
 export * from "./builder.js";
@@ -14,6 +15,7 @@ export * from "./catalog/index.js";
 export * from "./icons/manifest.js";
 export * from "./icons/cdn.js";
 export * from "./registry.js";
+export * from "./relationships.js";
 export * from "./rules/index.js";
 
 export function k8sProvider(): CloudProvider {
@@ -21,6 +23,7 @@ export function k8sProvider(): CloudProvider {
     id: "k8s",
     name: "Kubernetes",
     catalogVersion: "2026-08-14-tier1",
+    supportedScopes: ["cluster", "namespace"],
     supports(serviceKind: string): boolean {
       return resolveK8sService(serviceKind) !== undefined;
     },
@@ -41,6 +44,9 @@ export function k8sProvider(): CloudProvider {
     },
     listServices() {
       return initialServices;
+    },
+    listRelationships() {
+      return K8S_RELATIONSHIPS;
     },
     validateGraph(
       graph: CloudGraph,
