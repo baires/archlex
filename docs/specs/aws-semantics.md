@@ -12,6 +12,11 @@ IoT, hybrid, and management services. Use `getCatalog("aws")` to inspect current
 canonical IDs and aliases. Use `archlex validate --catalog` to validate the
 packaged catalogs.
 
+All 194 AWS services include **search terms** extracted from display names and descriptions for editor completions. For example:
+- Searching "elastic kubernetes" finds Amazon EKS (`eks`)
+- Searching "relational" finds Amazon RDS (`rds`) and Amazon Aurora (`aurora`)
+- Searching "serverless compute" finds AWS Lambda (`lambda`)
+
 Unknown resource kinds remain visible as generic nodes and emit
 `AWS-CATALOG-UNKNOWN-RESOURCE-001`.
 

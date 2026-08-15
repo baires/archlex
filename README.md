@@ -74,6 +74,10 @@ them through the same API.
 
 - Model resources with shorthand relationships and nested containment blocks.
 - Validate resource names, containment, and provider-specific relationships.
+- **Context-aware editor completions** with human-readable search across 441 cloud resources (194 AWS, 185 GCP, 62 K8s).
+- **Fuzzy matching** - type "elastic kubernetes" to find Amazon EKS, or "relational" for RDS and Aurora.
+- **Grammar-aware suggestions** - different completions after `:` (resources), `[` (relationships), or in directives.
+- **Semantic ranking** - results ordered by prefix match, search relevance, and relationship compatibility.
 - Render accessible SVG with ARIA attributes and keyboard focus support.
 - Choose light or dark themes with provider architecture icons.
 - Inspect structured diagnostics alongside partial diagrams when a source needs
@@ -124,6 +128,32 @@ console.log(result.svg);
 
 Change the `provider` directive and resource names to render a Google Cloud or
 Kubernetes diagram. Keep the same provider registration.
+
+## Language Intelligence
+
+`@archlex/language-service` provides editor-neutral code completion:
+
+```typescript
+import { createCompletionEngine, analyzeLanguageDocument } from "@archlex/language-service";
+
+const catalog = archlex.getCatalog();
+const engine = createCompletionEngine(catalog);
+
+const source = "provider aws\nservice: elastic kubernetes";
+const document = analyzeLanguageDocument(source);
+const completions = engine.complete(document, source.length);
+
+// Returns: [{ label: "Amazon EKS", insertText: "eks", kind: "resource", ... }]
+```
+
+**Key features:**
+- Catalog-driven suggestions for all 441 cloud resources
+- Human-readable search (type "serverless compute" to find Lambda)
+- Context-aware filtering by provider, scope, and grammar position
+- Semantic ranking by prefix match and search relevance
+- Works with Monaco, VSCode, CodeMirror, or any editor
+
+See the [language-service README](packages/language-service/README.md) for full documentation and Monaco integration examples.
 
 ## Playground
 

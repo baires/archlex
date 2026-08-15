@@ -15,6 +15,12 @@ validation command when you update packaged data:
 archlex validate --catalog
 ```
 
+All 62 Kubernetes resources include **search terms** and **aliases** for editor completions. For example:
+- Searching "pod" finds Pod (`pod`)
+- Using alias `deploy` inserts Deployment (`deployment`)
+- Using alias `svc` inserts Service (`service`)
+- Using alias `pvc` inserts PersistentVolumeClaim (`persistentvolumeclaim`)
+
 Unknown kinds remain visible as generic nodes and emit
 `K8S-CATALOG-UNKNOWN-RESOURCE-001`.
 

@@ -53,7 +53,10 @@ export function Editor({
     registerArchLexThemes(monaco);
 
     // Register completion provider with catalog
-    completionDisposableRef.current = registerCompletionProvider(monaco, catalog);
+    completionDisposableRef.current = registerCompletionProvider(
+      monaco,
+      catalog,
+    );
 
     // Register hover provider with diagnostics
     hoverDisposableRef.current = registerHoverProvider(monaco, diagnostics);

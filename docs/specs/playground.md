@@ -20,12 +20,23 @@ and namespace RBAC.
 ## Language support
 
 Monaco highlights directives, scope keywords, relationships, comments, and
-provider resources. Completion and hover data cover AWS, Google Cloud, and
-Kubernetes. Kubernetes support includes `cluster`, `namespace`, and resource
-aliases such as `deploy`, `svc`, and `pvc`.
+provider resources.
+
+The editor provides **context-aware completions** backed by the language service:
+
+- **Catalog-driven suggestions**: All 441 resources (194 AWS, 185 GCP, 62 K8s) with relationships and containment rules
+- **Human-readable search**: Type "elastic kubernetes" to find Amazon EKS, or "relational" for RDS and Aurora
+- **Grammar-aware filtering**: Different suggestions after `:` (resource kinds), `[` (relationships), or in directive positions
+- **Symbol visibility**: Declared identifiers appear as relationship targets
+- **Semantic ranking**: Results ordered by prefix match, search relevance, and relationship compatibility
+- **Canonical insertion**: Always inserts lowercase kebab-case syntax (`eks`, `cloud-run`, `statefulset`)
+
+Completions trigger automatically on `:`, `.`, `[`, `-` or manually with `Ctrl+Space`. The suggestion widget shows human-readable display names (e.g., "Amazon EKS") while inserting canonical syntax (e.g., `eks`).
+
+Kubernetes support includes `cluster`, `namespace`, and resource aliases such as `deploy`, `svc`, and `pvc`.
 
 The editor shows parse, structural, and provider diagnostics at their source
-spans. Code actions can apply supported remediation edits.
+spans. Code actions can apply supported remediation edits. Hover documentation provides directive and service descriptions.
 
 ## Progressive rendering
 
