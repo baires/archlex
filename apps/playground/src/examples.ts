@@ -47,8 +47,8 @@ export const ARCHITECTURE_EXAMPLES: readonly ArchitectureExample[] = [
     provider: "aws",
     useCase: "Getting Started",
     description: "RDS Proxy, RDS Database, and ECS Service",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 rds-proxy > rds > ecs`,
@@ -60,8 +60,8 @@ rds-proxy > rds > ecs`,
     useCase: "Getting Started",
     description:
       "Instance names and custom display labels distinguishing primary and replica databases",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 primary: rds["Primary DB"]
@@ -78,8 +78,8 @@ primary -[replicates]-> replica`,
     useCase: "Web Applications",
     description:
       "Application Load Balancer distributing to ECS container tasks connected to RDS",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 alb > ecs -[writes]->|SQL| rds`,
@@ -91,8 +91,8 @@ alb > ecs -[writes]->|SQL| rds`,
     useCase: "Serverless",
     description:
       "API Gateway invoking Lambda function accessing DynamoDB table",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 api-gateway -[invokes]-> lambda -[writes]-> dynamodb`,
   },
@@ -103,8 +103,8 @@ api-gateway -[invokes]-> lambda -[writes]-> dynamodb`,
     useCase: "Serverless",
     description:
       "Route 53 DNS, CloudFront CDN, S3 static assets, API Gateway, Lambda, and DynamoDB",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 dns: route53
 cdn: cloudfront
@@ -125,8 +125,8 @@ api -[invokes]-> fn -[queries]-> db`,
     useCase: "Web Applications",
     description:
       "ALB distributing traffic to ECS microservices cached by ElastiCache and backed by RDS",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 alb -[routes]-> ecs
@@ -139,8 +139,8 @@ ecs -[queries]-> rds`,
     provider: "aws",
     useCase: "Event-Driven",
     description: "EventBridge publishing to SQS Queue subscribed by Lambda",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 eventbridge -[publishes]-> sqs -[invokes]-> lambda`,
   },
@@ -151,8 +151,8 @@ eventbridge -[publishes]-> sqs -[invokes]-> lambda`,
     useCase: "Event-Driven",
     description:
       "API Gateway triggering SNS Topic fan-out to parallel SQS Queues for Email workers and Analytics S3 Data Lake",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 apigw: api-gateway
 publisher: lambda
@@ -176,8 +176,8 @@ topic -[fanout]-> queue_analytics > worker_analytics > data_lake`,
     useCase: "Networking",
     description:
       "Production Account with us-east-1 Region, VPC, Subnet, and container database workload",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 account production {
@@ -199,8 +199,8 @@ account production {
     useCase: "Networking",
     description:
       "Production Account with Public Subnet ALB/Security Group and isolated Private Subnets for ECS and RDS Database",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 account production {
@@ -229,8 +229,8 @@ load_balancer > firewall > api_cluster > db_cluster`,
     useCase: "AI & Machine Learning",
     description:
       "CloudFront and API Gateway feeding Lambda preprocessor to EKS GPU inference cluster backed by ElastiCache and S3",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 cdn: cloudfront
@@ -252,8 +252,8 @@ inference_cluster -[loads]-> model_bucket`,
     useCase: "Enterprise",
     description:
       "Full-stack AWS architecture featuring CloudFront CDN, API Gateway, nested VPC/Subnets, ECS tasks, ElastiCache, and RDS Proxy",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 account enterprise-prod {
@@ -291,8 +291,8 @@ account enterprise-prod {
     useCase: "Data & Analytics",
     description:
       "High-throughput event streaming with API Gateway, EventBridge, SNS, SQS, Lambda workers, DynamoDB, and S3 Data Lake",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 ingress_api: api-gateway
@@ -319,8 +319,8 @@ processor_fn -[archives]-> lake`,
     useCase: "Reliability & Scaling",
     description:
       "Cross-region active/passive failover with Route 53 DNS routing, primary and secondary VPCs, and database replication",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 validation normal
 
 account global-core {
@@ -358,8 +358,8 @@ db_primary -[replicates]-> db_replica`,
     useCase: "Media & Streaming",
     description:
       "AWS MediaLive ingesting live streams, MediaPackage packaging for delivery, and CloudFront CDN distribution",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 live_input: medialive["Live Video Input"]
 packager: mediapackage
@@ -377,8 +377,8 @@ packager -[archives]-> storage`,
     useCase: "IoT & Edge",
     description:
       "IoT Core ingesting device data, IoT Analytics processing streams, and QuickSight visualizing insights",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 devices: iot-core["IoT Devices"]
 analytics: iot-analytics
@@ -396,8 +396,8 @@ warehouse -[analyzes]-> viz`,
     useCase: "Data & Analytics",
     description:
       "Kinesis Firehose streaming to S3 Data Lake, Glue ETL transforming data, and Athena querying results",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 stream: kinesis-firehose
 raw_lake: s3["Raw Data Lake"]
@@ -417,8 +417,8 @@ processed_lake -[queries]-> query`,
     useCase: "Migration & Hybrid",
     description:
       "DMS migrating on-premises database to Aurora, with Application Discovery mapping dependencies",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 discovery: application-discovery
 on_prem_db: rds["On-Premises DB"]
@@ -438,8 +438,8 @@ app -[connects]-> target_db`,
     useCase: "DevOps & CI/CD",
     description:
       "CodePipeline orchestrating CodeBuild, CodeDeploy to ECS, with CloudFormation infrastructure",
-    source: `direction LR
-provider aws
+    source: `provider aws
+direction LR
 
 repo: codecommit
 pipeline: codepipeline
@@ -463,8 +463,8 @@ pipeline -[orchestrates]-> infra`,
     provider: "gcp",
     useCase: "Serverless",
     description: "Cloud Run service connected to a Cloud SQL database",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 validation normal
 
 cloud-run -[connects]->|Cloud SQL Auth Proxy| cloud-sql`,
@@ -476,8 +476,8 @@ cloud-run -[connects]->|Cloud SQL Auth Proxy| cloud-sql`,
     useCase: "Data & Analytics",
     description:
       "GKE publishing events to Pub/Sub, processed by Cloud Functions into BigQuery",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 gke -[publishes]-> pubsub
 pubsub -[invokes]-> cloud-functions
@@ -490,8 +490,8 @@ cloud-functions -[writes]-> bigquery`,
     useCase: "Networking",
     description:
       "Cloud Load Balancing routing to Compute Engine and Memorystore inside a regional VPC with subnets",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 validation normal
 
 account production {
@@ -517,8 +517,8 @@ app -[writes]-> cloud-storage`,
     useCase: "AI & Machine Learning",
     description:
       "Document AI extracting data from uploads, Natural Language AI analyzing content, stored in Firestore",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 uploads: cloud-storage["Document Uploads"]
 doc_ai: document-ai
@@ -538,8 +538,8 @@ database -[indexes]-> search`,
     useCase: "Data & Analytics",
     description:
       "Pub/Sub streaming to Dataflow for transformation, loading into BigQuery, visualized by Looker",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 events: pubsub["Event Stream"]
 transform: dataflow
@@ -559,8 +559,8 @@ warehouse -[governs]-> dataplex`,
     useCase: "Migration & Hybrid",
     description:
       "GKE Enterprise (Anthos) managing clusters across GCP, on-premises VMware, and AWS environments",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 control_plane: gke-enterprise["Anthos Control Plane"]
 gcp_cluster: gke["GCP GKE"]
@@ -580,8 +580,8 @@ control_plane -[manages]-> config`,
     useCase: "AI & Machine Learning",
     description:
       "Retail API serving product catalog, Recommendations AI generating personalized suggestions to customers",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 catalog: retail-api["Product Catalog"]
 recommendations: recommendations-ai
@@ -602,8 +602,8 @@ frontend -[queries]-> catalog`,
     useCase: "Security & Compliance",
     description:
       "Healthcare API storing medical records, Cloud DLP protecting sensitive data, Assured Workloads ensuring compliance",
-    source: `direction LR
-provider gcp
+    source: `provider gcp
+direction LR
 
 account healthcare-org {
   compliance: assured-workloads["Compliance Controls"]
@@ -628,8 +628,8 @@ account healthcare-org {
     useCase: "Web Applications",
     description:
       "Ingress and Services routing to frontend and API Deployments inside a namespace",
-    source: `direction LR
-provider k8s
+    source: `provider k8s
+direction LR
 validation normal
 
 cluster production {
@@ -654,8 +654,8 @@ cluster production {
     useCase: "Stateful Workloads",
     description:
       "Service exposing a StatefulSet backed by a PersistentVolumeClaim and PersistentVolume",
-    source: `direction LR
-provider k8s
+    source: `provider k8s
+direction LR
 validation normal
 
 cluster production {
@@ -679,8 +679,8 @@ cluster production {
     useCase: "Batch Processing",
     description:
       "CronJob loading runtime settings from a ConfigMap and credentials from a Secret",
-    source: `direction LR
-provider k8s
+    source: `provider k8s
+direction LR
 validation normal
 
 cluster production {
@@ -701,8 +701,8 @@ cluster production {
     useCase: "Reliability & Scaling",
     description:
       "Service and Deployment protected by horizontal autoscaling and a disruption budget",
-    source: `direction LR
-provider k8s
+    source: `provider k8s
+direction LR
 validation normal
 
 cluster production {
@@ -725,8 +725,8 @@ cluster production {
     useCase: "Security & Access",
     description:
       "RoleBinding granting a namespaced Role to an application ServiceAccount",
-    source: `direction LR
-provider k8s
+    source: `provider k8s
+direction LR
 validation normal
 
 cluster production {
