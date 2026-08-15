@@ -263,6 +263,40 @@ describe("prepared rendering", () => {
   });
 });
 
+describe("catalog language metadata", () => {
+  it("returns structured grammar and provider metadata", () => {
+    const archlex = createArchLex({
+      providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    });
+
+    const catalog = archlex.getCatalog();
+
+    expect(catalog.language.directives.map(({ name }) => name)).toEqual([
+      "provider",
+      "direction",
+      "validation",
+      "theme",
+    ]);
+    expect(catalog.language.scopes.map(({ kind }) => kind)).toEqual([
+      "account",
+      "region",
+      "vpc",
+      "subnet",
+      "cluster",
+      "namespace",
+    ]);
+    expect(catalog.language.relationships).toContainEqual(
+      expect.objectContaining({ kind: "connects" }),
+    );
+    expect(catalog.providers.aws?.supportedScopes).toEqual([
+      "account",
+      "region",
+      "vpc",
+      "subnet",
+    ]);
+  });
+});
+
 describe("Phase 1 canonical rendering", () => {
   it("renders the complete RDS Proxy to RDS to ECS chain", async () => {
     const archlex = createArchLex({ providers: [awsProvider()] });

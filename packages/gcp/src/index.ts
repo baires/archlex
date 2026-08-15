@@ -21,6 +21,7 @@ export function gcpProvider(): CloudProvider {
     id: "gcp",
     name: "Google Cloud",
     catalogVersion: "2026-07-31-tier4",
+    supportedScopes: ["account", "region", "vpc", "subnet"],
     supports(serviceKind: string): boolean {
       return resolveGcpService(serviceKind) !== undefined;
     },

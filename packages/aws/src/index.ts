@@ -21,6 +21,7 @@ export function awsProvider(): CloudProvider {
     id: "aws",
     name: "Amazon Web Services",
     catalogVersion: "2026-07-31-tier4",
+    supportedScopes: ["account", "region", "vpc", "subnet"],
     supports(serviceKind: string): boolean {
       return resolveAwsService(serviceKind) !== undefined;
     },

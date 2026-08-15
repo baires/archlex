@@ -21,6 +21,7 @@ export function k8sProvider(): CloudProvider {
     id: "k8s",
     name: "Kubernetes",
     catalogVersion: "2026-08-14-tier1",
+    supportedScopes: ["cluster", "namespace"],
     supports(serviceKind: string): boolean {
       return resolveK8sService(serviceKind) !== undefined;
     },
