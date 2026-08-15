@@ -2,6 +2,13 @@
   "name": "@archlex/design",
   "version": "0.1.0",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baires/archlex.git",
+    "directory": "packages/design"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "sideEffects": ["*.css"],
   "exports": {
     ".": "./index.css",

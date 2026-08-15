@@ -2,6 +2,13 @@
   "name": "@archlex/icons-node",
   "version": "0.2.3",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baires/archlex.git",
+    "directory": "packages/icons-node"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
