@@ -28,3 +28,20 @@ export interface LanguageDocument {
   readonly providerId?: string;
   readonly declaredDirectives: ReadonlySet<string>;
 }
+
+export type CursorPosition =
+  | "statement-start"
+  | "resource-kind"
+  | "directive-value"
+  | "relationship-kind"
+  | "scope-kind"
+  | "unknown";
+
+export interface CursorContext {
+  readonly position: CursorPosition;
+  readonly offset: number;
+  readonly providerId?: string;
+  readonly scopePath: readonly string[];
+  readonly directiveName?: string;
+  readonly partialToken?: string;
+}
