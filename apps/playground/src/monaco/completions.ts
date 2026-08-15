@@ -11,9 +11,11 @@ const KEYWORDS = [
   "region",
   "vpc",
   "subnet",
+  "cluster",
+  "namespace",
 ];
 
-const PROVIDERS = ["aws", "gcp"];
+const PROVIDERS = ["aws", "gcp", "k8s"];
 
 const DIRECTIONS = ["LR", "RL", "TB", "BT"];
 
@@ -84,6 +86,29 @@ const GCP_SERVICES = [
   "bigquery",
   "dataproc",
   "aiplatform",
+];
+
+const K8S_SERVICES = [
+  "pod",
+  "deployment",
+  "replicaset",
+  "statefulset",
+  "daemonset",
+  "job",
+  "cronjob",
+  "service",
+  "ingress",
+  "networkpolicy",
+  "configmap",
+  "secret",
+  "persistentvolume",
+  "persistentvolumeclaim",
+  "storageclass",
+  "horizontalpodautoscaler",
+  "serviceaccount",
+  "role",
+  "rolebinding",
+  "customresourcedefinition",
 ];
 
 /**
@@ -195,6 +220,7 @@ export function registerCompletionProvider(
         const sourceText = model.getValue();
         const isAws = /\bprovider\s+aws\b/.test(sourceText);
         const isGcp = /\bprovider\s+gcp\b/.test(sourceText);
+        const isK8s = /\bprovider\s+k8s\b/.test(sourceText);
 
         if (isAws) {
           for (const service of AWS_SERVICES) {
@@ -216,6 +242,18 @@ export function registerCompletionProvider(
               insertText: service,
               range,
               detail: "GCP service",
+            });
+          }
+        }
+
+        if (isK8s) {
+          for (const service of K8S_SERVICES) {
+            suggestions.push({
+              label: service,
+              kind: monaco.languages.CompletionItemKind.Class,
+              insertText: service,
+              range,
+              detail: "Kubernetes resource",
             });
           }
         }

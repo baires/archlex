@@ -1,6 +1,6 @@
 # ArchLex Documentation
 
-ArchLex is a browser-first TypeScript library that turns a concise, provider-aware language into accessible cloud architecture diagrams. AWS and GCP are the supported providers; semantic validation is the main product capability.
+ArchLex is a browser-first TypeScript library that turns a concise, provider-aware language into accessible architecture diagrams. AWS, GCP, and Kubernetes are the supported providers; semantic validation is the main product capability.
 
 ## Getting Started
 
@@ -19,6 +19,7 @@ New to ArchLex? Start here:
 - **[Public API](specs/public-api.md)** - JavaScript/TypeScript API documentation
 - **[AWS Semantics](specs/aws-semantics.md)** - AWS provider catalog and validation rules
 - **[GCP Semantics](specs/gcp-semantics.md)** - GCP provider catalog and validation rules
+- **[Kubernetes Semantics](specs/k8s-semantics.md)** - Kubernetes catalog, containment, and validation rules
 - **[Layout & Rendering](specs/layout-rendering.md)** - Layout algorithms and SVG rendering
 - **[Playground](specs/playground.md)** - Interactive playground features and usage
 

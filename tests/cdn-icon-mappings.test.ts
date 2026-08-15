@@ -1,6 +1,7 @@
 import { awsProvider } from "@archlex/aws";
 import { createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
+import { k8sProvider } from "@archlex/k8s";
 import { expect, test } from "vitest";
 import { iconLoader } from "../apps/playground/src/icon-loader.js";
 
@@ -61,4 +62,17 @@ test("GCP cloud-nat icon loads successfully", async () => {
   expect(diagnostics).toHaveLength(0);
   expect(icons.size).toBe(1);
   expect(icons.get("gcp:cloud-nat")).toBeDefined();
+});
+
+test("Kubernetes deployment icon loads successfully", async () => {
+  const archlex = createArchLex({ providers: [k8sProvider()] });
+  const prepared = archlex.prepare("provider k8s\ndeployment");
+  expect(prepared.graph.nodes[0]?.icon).toContain("<svg");
+
+  const { icons, diagnostics } = await iconLoader.loadIcons([
+    { provider: "k8s", key: "deployment" },
+  ]);
+
+  expect(diagnostics).toHaveLength(0);
+  expect(icons.get("k8s:deployment")).toBeDefined();
 });

@@ -21,6 +21,7 @@ Expected source problems are data, not exceptions. Each stage returns the best p
 | `@archlex/parser` | Chevrotain lexer/CST and CST-to-AST conversion | `model`, Chevrotain |
 | `@archlex/aws` | AWS catalog, icons, aliases, containment, semantic rules | `model` |
 | `@archlex/gcp` | GCP catalog, icons, aliases, containment, semantic rules | `model` |
+| `@archlex/k8s` | Kubernetes catalog, icons, aliases, containment, semantic rules | `model` |
 | `@archlex/layout-elk` | ELK adapter, worker protocol, positioned graph | `model`, ELK.js |
 | `@archlex/renderer-svg` | Deterministic DOM-free SVG serialization | `model` |
 | `@archlex/core` | Orchestration, structural analysis, provider registry | Library packages through public exports |
@@ -34,6 +35,7 @@ To ensure scalable growth and ease of contribution:
 
 - `@archlex/aws`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
 - `@archlex/gcp`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
+- `@archlex/k8s`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
 - `@archlex/parser`: `src/lexer/`, `src/cst/`, `src/visitor/`, `src/recovery/`, `src/index.ts`.
 - `@archlex/layout-elk`: `src/adapter/`, `src/worker/`, `src/cache/`, `src/index.ts`.
 - `@archlex/renderer-svg`: `src/serializer/`, `src/theme/`, `src/accessibility/`, `src/index.ts`.
@@ -68,4 +70,4 @@ Public packages are ESM and support Node.js 22 without browser polyfills. Browse
 
 ## Extension model
 
-Providers implement interfaces from `@archlex/model`. Adding GCP must not require grammar, layout, or renderer changes. Alternative layout engines and renderers implement the corresponding model interface and are selected by `createArchLex`.
+Providers implement interfaces from `@archlex/model`. Adding a provider that uses existing scopes must not require grammar, layout, or renderer changes; Kubernetes added the reusable `cluster` and `namespace` scope kinds. Alternative layout engines and renderers implement the corresponding model interface and are selected by `createArchLex`.

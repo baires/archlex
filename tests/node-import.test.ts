@@ -19,6 +19,15 @@ describe("Node 22 Built Package Import", () => {
     expect(typeof aws.awsProvider).toBe("function");
   });
 
+  it("imports built @archlex/k8s ESM package", async () => {
+    const k8s = await import("../packages/k8s/dist/index.js");
+    expect(k8s).toBeDefined();
+    expect(typeof k8s.k8sProvider).toBe("function");
+    expect(k8s.k8sProvider().resolveService("deployment")?.id).toBe(
+      "deployment",
+    );
+  });
+
   it("imports built @archlex/layout-elk ESM package", async () => {
     const layout = await import("../packages/layout-elk/dist/index.js");
     expect(layout).toBeDefined();

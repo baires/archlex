@@ -39,6 +39,13 @@ packages/gcp/src/
 
 GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
 
+### `@archlex/k8s`
+
+`packages/k8s` follows the same catalog, icon, rule, builder, registry, and public
+export structure. It also owns the Kubernetes-specific `cluster` and `namespace`
+containment semantics and a CDN definition pinned to an immutable
+`kubernetes/community` commit.
+
 ### Icon runtime packages
 
 ```text
@@ -175,7 +182,11 @@ export const rdsProxyNetworkRule = defineRule({
 
 ### 3. Adding a New Cloud Provider (e.g. Azure)
 
-Adding a new cloud provider requires **zero changes** to `@archlex/parser`, `@archlex/layout-elk`, or `@archlex/renderer-svg`. GCP (`packages/gcp`) is the reference implementation of this workflow.
+Adding a provider that uses existing scopes requires no changes to
+`@archlex/parser`, `@archlex/layout-elk`, or `@archlex/renderer-svg`. GCP
+(`packages/gcp`) and Kubernetes (`packages/k8s`) are reference implementations.
+If a provider needs a new reusable scope kind, extend the model and grammar with
+focused parser and boundary tests.
 
 1. Create a new package shell `packages/<provider>`.
 2. Implement the `CloudProvider` interface from `@archlex/model`:

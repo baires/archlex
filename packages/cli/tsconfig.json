@@ -11,6 +11,7 @@
     { "path": "../core/tsconfig.json" },
     { "path": "../aws/tsconfig.json" },
     { "path": "../gcp/tsconfig.json" },
+    { "path": "../k8s/tsconfig.json" },
     { "path": "../diagnostics/tsconfig.json" }
   ],
   "include": ["src/**/*"]

@@ -2,7 +2,7 @@
 
 A semantic cloud architecture diagramming library for browser and Node.js environments.
 
-ArchLex compiles text-based architecture definitions into accessible SVG diagrams. It provides built-in catalog support for AWS and GCP resources, validates architectural relationships and containment rules, and outputs deterministic SVG graphics suitable for documentation, dynamic dashboards, and web applications.
+ArchLex compiles text-based architecture definitions into accessible SVG diagrams. It provides built-in catalog support for AWS, GCP, and Kubernetes resources, validates architectural relationships and containment rules, and outputs deterministic SVG graphics suitable for documentation, dynamic dashboards, and web applications.
 
 ## Visual Output
 
@@ -59,7 +59,7 @@ db_primary -[replicates]-> db_replica
 
 - **Semantic validation** - Validates resource compatibility, nesting hierarchies, and relationships against cloud provider schemas.
 - **Concise syntax** - Declarative language supporting shorthand inline syntax and structured containment blocks.
-- **Multi-cloud support** - Provider definitions for AWS and GCP with qualified names (`aws.rds`, `gcp.cloudsql`).
+- **Multi-platform support** - Provider definitions for AWS, GCP, and Kubernetes with qualified names (`aws.rds`, `gcp.cloudsql`, `k8s.deployment`).
 - **Accessible SVG output** - Rendered output includes ARIA attributes, semantic structure, keyboard navigation, and focus management.
 - **Themeable renderer** - Pre-configured light and dark themes using official cloud provider icons.
 - **Diagnostic feedback** - Syntax or structural validation errors yield structured diagnostic objects alongside partial diagrams.
@@ -71,16 +71,16 @@ db_primary -[replicates]-> db_replica
 ### Installation
 
 ```bash
-npm install @archlex/core @archlex/aws @archlex/gcp
+npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
 ### Basic Usage
 
 ```typescript
-import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+import { createArchLex, awsProvider, gcpProvider, k8sProvider } from '@archlex/core';
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider()]
+  providers: [awsProvider(), gcpProvider(), k8sProvider()]
 });
 
 const source = `
@@ -130,6 +130,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - **[Public API](docs/specs/public-api.md)** - JavaScript and TypeScript API reference
 - **[AWS Semantics](docs/specs/aws-semantics.md)** - AWS provider service definitions and validation rules
 - **[GCP Semantics](docs/specs/gcp-semantics.md)** - GCP provider service definitions and validation rules
+- **[Kubernetes Semantics](docs/specs/k8s-semantics.md)** - Kubernetes resource definitions and validation rules
 - **[Error Reference](docs/errors/README.md)** - Diagnostic error codes and resolution steps
 - **[Relationship Types](docs/guides/relationship-types.md)** - Guide to relationship types and usage
 - **[System Architecture](docs/architecture/system-architecture.md)** - Architecture overview and execution pipeline
@@ -144,6 +145,7 @@ ArchLex is structured as a monorepo:
 - **`@archlex/renderer-svg`** - Accessible SVG renderer with theme and icon resolution
 - **`@archlex/aws`** - AWS cloud provider resource definitions and semantic rules
 - **`@archlex/gcp`** - GCP cloud provider resource definitions and semantic rules
+- **`@archlex/k8s`** - Kubernetes resource definitions, icons, and semantic rules
 - **`@archlex/model`** - Core data structures and interface definitions
 - **`@archlex/diagnostics`** - Structured diagnostic and error reporting system
 
@@ -166,5 +168,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 ArchLex incorporates official cloud architecture icons:
 - [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/)
 - [Google Cloud Architecture Icons](https://cloud.google.com/icons)
+- [Kubernetes Community Icons](https://github.com/kubernetes/community/tree/43d6605709182dedb495a864930ece08666a1e67/icons)
 
 Graph layout powered by [Eclipse Layout Kernel (ELK)](https://www.eclipse.org/elk/).

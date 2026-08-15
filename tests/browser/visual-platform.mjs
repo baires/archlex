@@ -1,12 +1,17 @@
 import { readFile } from "node:fs/promises";
 import { AWS_CDN_PROVIDER } from "@archlex/aws";
 import { GCP_CDN_PROVIDER } from "@archlex/gcp";
+import { K8S_CDN_PROVIDER } from "@archlex/k8s";
 
 const ICON_FIXTURE = await readFile(
   new URL("../fixtures/icons/runtime-service.svg", import.meta.url),
   "utf8",
 );
-const PROVIDER_BASES = [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER].map((provider) => {
+const PROVIDER_BASES = [
+  AWS_CDN_PROVIDER,
+  GCP_CDN_PROVIDER,
+  K8S_CDN_PROVIDER,
+].map((provider) => {
   const url = new URL(provider.baseUrl);
   return {
     provider: provider.provider,
@@ -45,6 +50,18 @@ export async function installIconFixtureRoutes(page) {
         status: 503,
         contentType: "text/plain",
         body: "deterministic GCP icon fixture failure",
+        headers: {
+          "access-control-allow-origin": "*",
+          "cache-control": "no-store",
+        },
+      });
+    }
+
+    if (provider?.provider === "k8s") {
+      return route.fulfill({
+        status: 200,
+        contentType: "image/svg+xml",
+        body: ICON_FIXTURE,
         headers: {
           "access-control-allow-origin": "*",
           "cache-control": "no-store",

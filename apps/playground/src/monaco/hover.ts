@@ -8,7 +8,7 @@ import type * as Monaco from "monaco-editor";
  */
 const KEYWORD_DOCS: Record<string, string> = {
   provider:
-    "**Provider directive** - Specifies the cloud provider for this diagram.\n\nSupported providers: `aws`, `gcp`",
+    "**Provider directive** - Specifies the cloud provider for this diagram.\n\nSupported providers: `aws`, `gcp`, `k8s`",
   direction:
     "**Direction directive** - Controls the layout flow of the diagram.\n\nOptions: `LR` (left-right), `RL` (right-left), `TB` (top-bottom), `BT` (bottom-top)",
   validation:
@@ -20,8 +20,13 @@ const KEYWORD_DOCS: Record<string, string> = {
   vpc: "**VPC scope** - Groups resources within a Virtual Private Cloud.\n\nSyntax: `vpc <name> { ... }`",
   subnet:
     "**Subnet scope** - Groups resources within a subnet.\n\nSyntax: `subnet <name> { ... }`",
+  cluster:
+    "**Cluster scope** - Groups Kubernetes resources within a cluster.\n\nSyntax: `cluster <name> { ... }`",
+  namespace:
+    "**Namespace scope** - Groups Kubernetes resources within a namespace.\n\nSyntax: `namespace <name> { ... }`",
   aws: "**Amazon Web Services** - AWS cloud provider",
   gcp: "**Google Cloud Platform** - GCP cloud provider",
+  k8s: "**Kubernetes** - Kubernetes architecture provider",
 };
 
 /**
@@ -46,6 +51,11 @@ const SERVICE_DOCS: Record<string, string> = {
   gke: "**Google Kubernetes Engine** - Managed Kubernetes clusters",
   pubsub: "**Pub/Sub** - Asynchronous messaging service",
   bigquery: "**BigQuery** - Serverless data warehouse",
+  deployment:
+    "**Kubernetes Deployment** - Declarative controller for replicated application workloads",
+  service:
+    "**Kubernetes Service** - Stable network endpoint for a set of workloads",
+  ingress: "**Kubernetes Ingress** - HTTP and HTTPS routing into a cluster",
 };
 
 /**

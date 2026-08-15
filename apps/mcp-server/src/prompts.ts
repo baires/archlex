@@ -6,7 +6,7 @@ export const SYSTEM_PROMPTS = {
     arguments: [
       {
         name: "provider",
-        description: "Cloud provider ('aws' or 'gcp')",
+        description: "Cloud provider ('aws', 'gcp', or 'k8s')",
         required: true,
       },
       {
@@ -26,7 +26,7 @@ Requirements: ${args.requirements}
 
 Rules:
 1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons in directives).
-2. Group resources logically into scopes like \`vpc\` or \`subnet\` where appropriate.
+2. Group resources logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
 3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`.
 4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.`,
         },

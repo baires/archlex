@@ -1,7 +1,16 @@
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 import type { LayoutEdge, LayoutNode } from "@archlex/model";
 import { describe, expect, it } from "vitest";
-import { ARCHITECTURE_EXAMPLES } from "../apps/playground/src/examples.js";
+import {
+  ARCHITECTURE_EXAMPLES,
+  EXAMPLE_PROVIDERS,
+  EXAMPLE_USE_CASES,
+} from "../apps/playground/src/examples.js";
 
 function distanceFromRectangleBoundary(
   point: { x: number; y: number },
@@ -84,7 +93,7 @@ function expectCompactVpcGeometry(
 
 describe("Phase 5: Playground Architecture Examples & Render Integration", () => {
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider()],
+    providers: [awsProvider(), gcpProvider(), k8sProvider()],
   });
 
   it("renders all built-in architecture examples without structural errors", async () => {
@@ -101,14 +110,88 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
     }
   });
 
-  it("contains unique example identifiers and valid sources", () => {
+  it("contains unique identifiers and consistent taxonomy metadata", () => {
     const ids = ARCHITECTURE_EXAMPLES.map((e) => e.id);
     expect(new Set(ids).size).toBe(ARCHITECTURE_EXAMPLES.length);
 
     for (const example of ARCHITECTURE_EXAMPLES) {
       expect(example.id).toBeDefined();
       expect(example.title).toBeDefined();
-      expect(example.source).toMatch(/^provider (aws|gcp)$/m);
+      expect(EXAMPLE_PROVIDERS).toContain(example.provider);
+      expect(EXAMPLE_USE_CASES).toContain(example.useCase);
+      expect(example.source.match(/^provider (aws|gcp|k8s)$/m)?.[1]).toBe(
+        example.provider,
+      );
+    }
+
+    const providerBlocks = ARCHITECTURE_EXAMPLES.map(
+      (example) => example.provider,
+    ).filter((provider, index, providers) => provider !== providers[index - 1]);
+    expect(providerBlocks).toEqual(EXAMPLE_PROVIDERS);
+
+    for (const provider of EXAMPLE_PROVIDERS) {
+      expect(
+        ARCHITECTURE_EXAMPLES.some((example) => example.provider === provider),
+      ).toBe(true);
+    }
+  });
+
+  it("covers five practical Kubernetes architecture scenarios", () => {
+    const kubernetesExamples = ARCHITECTURE_EXAMPLES.filter(
+      (example) => example.provider === "k8s",
+    );
+    expect(kubernetesExamples.map((example) => example.id)).toEqual([
+      "k8s-microservices",
+      "k8s-stateful-application",
+      "k8s-scheduled-batch",
+      "k8s-autoscaled-api",
+      "k8s-namespace-rbac",
+    ]);
+
+    const example = ARCHITECTURE_EXAMPLES.find(
+      (candidate) => candidate.id === "k8s-microservices",
+    );
+    expect(example?.source).toMatch(/^provider k8s$/m);
+    expect(example?.source).toMatch(/^cluster\s+\S+\s+\{$/m);
+    expect(example?.source).toMatch(/^\s+namespace\s+\S+\s+\{$/m);
+
+    const kubernetesSources = kubernetesExamples
+      .map((candidate) => candidate.source)
+      .join("\n");
+    const expectedKinds = [
+      "ingress",
+      "service",
+      "deployment",
+      "statefulset",
+      "persistentvolumeclaim",
+      "persistentvolume",
+      "cronjob",
+      "configmap",
+      "secret",
+      "horizontalpodautoscaler",
+      "poddisruptionbudget",
+      "serviceaccount",
+      "role",
+      "rolebinding",
+    ];
+
+    for (const kind of expectedKinds) {
+      expect(kubernetesSources).toMatch(new RegExp(`:\\s+${kind}(?:\\s|$)`));
+    }
+  });
+
+  it("renders Kubernetes examples without actionable diagnostics", async () => {
+    const kubernetesExamples = ARCHITECTURE_EXAMPLES.filter(
+      (example) => example.provider === "k8s",
+    );
+
+    for (const example of kubernetesExamples) {
+      const result = await archlex.render(example.source);
+      const actionableDiagnostics = result.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.severity === "error" || diagnostic.severity === "warning",
+      );
+      expect(actionableDiagnostics).toHaveLength(0);
     }
   });
 

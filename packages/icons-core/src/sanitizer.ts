@@ -40,6 +40,8 @@ const ALLOWED_ELEMENTS = new Set([
   "style",
 ]);
 
+const OMITTED_EDITOR_ELEMENTS = new Set(["metadata", "namedview"]);
+
 const ALLOWED_ATTRIBUTES = new Set([
   "viewbox",
   "width",
@@ -209,6 +211,11 @@ function sanitizeNode(
   if (node.nodeType === 1) {
     const element = node as XMLDOMElement;
     const tagName = element.nodeName.toLowerCase();
+    const localName = (element.localName ?? tagName).toLowerCase();
+    if (OMITTED_EDITOR_ELEMENTS.has(localName)) {
+      element.parentNode?.removeChild(element);
+      return;
+    }
     if (!ALLOWED_ELEMENTS.has(tagName)) {
       throw new Error(
         `Unsupported or active element <${tagName}> in SVG for ${provider}/${key}`,

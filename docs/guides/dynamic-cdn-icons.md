@@ -1,9 +1,9 @@
 # Dynamic CDN Icon Loading
 
-ArchLex loads missing cloud icons through a shared, browser-safe pipeline. AWS
-and GCP still bundle their common icons, while services without bundled artwork
-can be fetched, sanitized, and injected before rendering. The final renderer is
-synchronous with respect to icons and never starts a network request.
+ArchLex loads missing provider icons through a shared, browser-safe pipeline.
+AWS, GCP, and Kubernetes bundle common icons, while resources without bundled
+artwork can be fetched, sanitized, and injected before rendering. The final
+renderer is synchronous with respect to icons and never starts a network request.
 
 ## Runtime packages
 
@@ -19,9 +19,10 @@ synchronous with respect to icons and never starts a network request.
   browser or Node adapter.
 
 Provider packages export pure definitions: `AWS_CDN_PROVIDER` from
-`@archlex/aws` and `GCP_CDN_PROVIDER` from `@archlex/gcp`. Importing either
-package does not register a loader or perform network work. Each application
-must pass the definitions it wants to its runtime adapter.
+`@archlex/aws`, `GCP_CDN_PROVIDER` from `@archlex/gcp`, and
+`K8S_CDN_PROVIDER` from `@archlex/k8s`. Importing these packages does not
+register a loader or perform network work. Each application must pass the
+definitions it wants to its runtime adapter.
 
 ## Prepare, load, render
 
@@ -31,11 +32,14 @@ Rendering has three explicit phases:
 import { AWS_CDN_PROVIDER, awsProvider } from "@archlex/aws";
 import { createArchLex } from "@archlex/core";
 import { GCP_CDN_PROVIDER, gcpProvider } from "@archlex/gcp";
+import { K8S_CDN_PROVIDER, k8sProvider } from "@archlex/k8s";
 import { createBrowserIconLoader } from "@archlex/icons-browser";
 
-const archlex = createArchLex({ providers: [awsProvider(), gcpProvider()] });
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+});
 const iconLoader = createBrowserIconLoader({
-  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER],
+  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER, K8S_CDN_PROVIDER],
 });
 
 const prepared = archlex.prepare("provider aws\nlambda > app-runner");
@@ -81,7 +85,7 @@ Browser applications use the browser adapter:
 import { createBrowserIconLoader } from "@archlex/icons-browser";
 
 const loader = createBrowserIconLoader({
-  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER],
+  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER, K8S_CDN_PROVIDER],
   concurrency: 4,
   negativeCacheMs: 30_000,
 });
@@ -98,7 +102,7 @@ Node applications use the Node adapter:
 import { createNodeIconLoader } from "@archlex/icons-node";
 
 const loader = createNodeIconLoader({
-  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER],
+  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER, K8S_CDN_PROVIDER],
   cacheDir: "/var/cache/archlex/icons",
   ttlDays: 7,
 });
@@ -122,9 +126,9 @@ Browser code must not read these variables or import `@archlex/icons-node`.
 
 ## Icon name mappings
 
-The AWS and GCP CDN providers include comprehensive mappings from ArchLex service
-identifiers to CDN icon filenames. These mappings handle the naming differences
-between ArchLex's kebab-case service IDs and the icon packages' naming conventions.
+The AWS, GCP, and Kubernetes CDN providers include mappings from ArchLex
+resource identifiers to upstream icon paths. These mappings handle differences
+between ArchLex IDs and each icon source's naming and directory conventions.
 
 For example:
 - `aurora` → `AmazonAurora.svg`
@@ -132,6 +136,7 @@ For example:
 - `kms` → `AWSKeyManagementService.svg`
 - `cloud-nat` → `Cloud-NAT.svg`
 - `vertex-ai` → `Vertex-AI.svg`
+- `deployment` → `resources/unlabeled/deploy.svg`
 
 When a service ID has no explicit mapping, the loader tries candidates in order:
 explicit mapping, PascalCase, camelCase, then lowercase without dashes. If all
@@ -140,7 +145,9 @@ candidates return 404, the loader falls back to a generic cloud icon and emits a
 
 The AWS provider includes 100+ mappings covering compute, storage, database,
 networking, security, analytics, and ML services. The GCP provider includes 60+
-mappings covering similar categories.
+mappings across similar categories. Kubernetes maps its bundled resource,
+infrastructure, and control-plane icons to paths under the immutable upstream
+commit.
 
 ## Provider definitions and pinning
 
@@ -216,7 +223,7 @@ independently.
 ## Testing and troubleshooting
 
 Tests must inject a `fetchFn` backed by checked-in fixtures; they must never call
-the public AWS, GCP, or package CDNs. To diagnose a Node application, enable
+the public AWS, GCP, Kubernetes, or package CDNs. To diagnose a Node application, enable
 `ARCHLEX_DEBUG=icons`, verify the pinned provider URL and allowlist, and inspect
 the configured cache directory. A sanitizer or network warning should accompany
 a complete fallback diagram rather than aborting the render.

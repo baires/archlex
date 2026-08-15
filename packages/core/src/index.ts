@@ -2,6 +2,7 @@ import { awsProvider } from "@archlex/aws";
 import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
 import { gcpProvider } from "@archlex/gcp";
 import type { IconRegistry, IconRequest } from "@archlex/icons-core";
+import { k8sProvider } from "@archlex/k8s";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import type {
   AnalysisResult,
@@ -887,7 +888,14 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
           validation: ["strict", "normal", "off"],
           theme: ["light", "dark"],
         },
-        containmentScopes: ["account", "region", "vpc", "subnet", "cluster"],
+        containmentScopes: [
+          "account",
+          "region",
+          "vpc",
+          "subnet",
+          "cluster",
+          "namespace",
+        ],
         relationshipKinds: KNOWN_RELATIONSHIPS,
         providers: providersObj,
       };
@@ -896,4 +904,4 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
 }
 
 export { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
-export { awsProvider, gcpProvider };
+export { awsProvider, gcpProvider, k8sProvider };

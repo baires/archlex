@@ -15,6 +15,7 @@ export default defineConfig({
         "@archlex/core",
         "@archlex/diagnostics",
         "@archlex/gcp",
+        "@archlex/k8s",
         "@archlex/model",
         "chalk",
         "commander",

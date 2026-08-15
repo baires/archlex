@@ -1,8 +1,13 @@
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider()],
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
   defaultProvider: "aws",
   layoutEngine: createInlineLayoutEngine(),
 });

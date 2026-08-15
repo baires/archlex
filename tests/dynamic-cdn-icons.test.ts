@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { awsProvider } from "@archlex/aws";
 import { gcpProvider } from "@archlex/gcp";
 import { CacheManager, IconLoader, sanitizeSvg } from "@archlex/icons";
+import { k8sProvider } from "@archlex/k8s";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("Dynamic CDN Icon Loading E2E & Security", () => {
@@ -68,6 +69,7 @@ describe("Dynamic CDN Icon Loading E2E & Security", () => {
     for (const vector of vectors) {
       expect(() => sanitizeSvg("aws", "test", vector)).toThrow();
       expect(() => sanitizeSvg("gcp", "test", vector)).toThrow();
+      expect(() => sanitizeSvg("k8s", "test", vector)).toThrow();
     }
   });
 
@@ -89,5 +91,15 @@ describe("Dynamic CDN Icon Loading E2E & Security", () => {
     const service = provider.resolveService("cloud-functions");
     expect(service).toBeDefined();
     expect(service?.id).toBe("cloud-functions");
+  });
+
+  it("successfully loads Kubernetes icons with real provider config", () => {
+    const provider = k8sProvider();
+    expect(provider.id).toBe("k8s");
+    expect(provider.supports("deployment")).toBe(true);
+
+    const service = provider.resolveService("deployment");
+    expect(service?.id).toBe("deployment");
+    expect(service?.iconSvg).toContain("<svg");
   });
 });

@@ -8,6 +8,7 @@
  * Usage:
  *   node scripts/catalog-coverage.mjs --provider aws
  *   node scripts/catalog-coverage.mjs --provider gcp
+ *   node scripts/catalog-coverage.mjs --provider k8s
  *   node scripts/catalog-coverage.mjs --provider all (default)
  */
 
@@ -24,8 +25,10 @@ const args = process.argv.slice(2);
 const providerArg = args.find((arg) => arg.startsWith("--provider="));
 const provider = providerArg ? providerArg.split("=")[1] : "all";
 
-if (!["aws", "gcp", "all"].includes(provider)) {
-  console.error(`Invalid provider: ${provider}. Must be aws, gcp, or all.`);
+if (!["aws", "gcp", "k8s", "all"].includes(provider)) {
+  console.error(
+    `Invalid provider: ${provider}. Must be aws, gcp, k8s, or all.`,
+  );
   process.exit(1);
 }
 
@@ -53,6 +56,9 @@ function loadCatalogServiceCount(providerName) {
  * Load service count from a tier tracking file
  */
 function loadTierServiceCount(providerName, tier) {
+  if (providerName === "k8s") {
+    return tier === 1 ? loadCatalogServiceCount(providerName) : 0;
+  }
   try {
     const tierPath = join(
       ROOT,
@@ -76,6 +82,9 @@ function loadTierServiceCount(providerName, tier) {
  * Load completed services count from a tier tracking file
  */
 function loadTierCompletedCount(providerName, tier) {
+  if (providerName === "k8s") {
+    return tier === 1 ? loadCatalogServiceCount(providerName) : 0;
+  }
   try {
     const tierPath = join(
       ROOT,
@@ -189,14 +198,24 @@ function main() {
     results.gcp = reportProviderCoverage("gcp");
   }
 
+  if (provider === "all" || provider === "k8s") {
+    results.k8s = reportProviderCoverage("k8s");
+  }
+
   // Combined summary if reporting both
   if (provider === "all") {
     console.log(`\n${"=".repeat(60)}`);
     console.log("Combined Summary");
     console.log(`${"=".repeat(60)}\n`);
 
-    const totalCurrent = results.aws.currentCount + results.gcp.currentCount;
-    const totalTarget = results.aws.totalTarget + results.gcp.totalTarget;
+    const totalCurrent =
+      results.aws.currentCount +
+      results.gcp.currentCount +
+      results.k8s.currentCount;
+    const totalTarget =
+      results.aws.totalTarget +
+      results.gcp.totalTarget +
+      results.k8s.totalTarget;
     const totalCoverage = (totalCurrent / totalTarget) * 100;
 
     console.log(`Total Services: ${totalCurrent}/${totalTarget}`);
@@ -210,7 +229,7 @@ function main() {
   }
 
   console.log(
-    "\nRun this script with --provider=aws or --provider=gcp for provider-specific reports.",
+    "\nRun this script with --provider=aws, --provider=gcp, or --provider=k8s for provider-specific reports.",
   );
   console.log(
     "Update tier tracking files (docs/expansion/tier-*.md) to track progress.\n",

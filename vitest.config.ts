@@ -14,6 +14,7 @@ export default defineConfig({
       "@archlex/parser": resolve(__dirname, "./packages/parser/src/index.ts"),
       "@archlex/aws": resolve(__dirname, "./packages/aws/src/index.ts"),
       "@archlex/gcp": resolve(__dirname, "./packages/gcp/src/index.ts"),
+      "@archlex/k8s": resolve(__dirname, "./packages/k8s/src/index.ts"),
       "@archlex/icons-browser": resolve(
         __dirname,
         "./packages/icons-browser/src/index.ts",

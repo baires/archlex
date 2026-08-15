@@ -2,7 +2,12 @@ import type { SanitizedIcon } from "@archlex/icons-core";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import type { LayoutEngine } from "@archlex/model";
 import { describe, expect, it, vi } from "vitest";
-import { awsProvider, createArchLex, gcpProvider } from "./index.js";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "./index.js";
 
 const fetchedAppRunnerIcon: SanitizedIcon = {
   key: "app-runner",
@@ -602,6 +607,30 @@ describe("Multi-provider dispatch", () => {
     expect(result.svg).toContain("Cloud Run");
     expect(result.svg).toContain("Cloud SQL");
     expect(result.svg).toContain('data-archlex-icon="gcp.cloud-run"');
+  });
+
+  it("resolves Kubernetes kinds through the k8s document provider", async () => {
+    const archlex = createArchLex({
+      providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    });
+
+    const result = await archlex.render(`provider k8s
+cluster production {
+  namespace web {
+    api: deployment
+  }
+}`);
+
+    expect(result.graph.nodes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          provider: "k8s",
+          serviceKind: "deployment",
+          label: "api",
+        }),
+      ]),
+    );
+    expect(result.svg).toContain('data-archlex-icon="k8s.deployment"');
   });
 });
 

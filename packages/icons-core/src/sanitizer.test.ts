@@ -87,4 +87,21 @@ describe("sanitizeSvg", () => {
     expect(icon.svgFragment).toContain('stroke="#4285f4"');
     expect(icon.svgFragment).not.toContain("style=");
   });
+
+  it("drops inert Inkscape and RDF editor metadata", async () => {
+    const icon = await sanitizeSvg(
+      "k8s",
+      "deployment",
+      `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        <sodipodi:namedview id="editor-state" />
+        <metadata><rdf:RDF><rdf:Description /></rdf:RDF></metadata>
+        <path d="M0 0h24v24H0z" style="fill:#326ce5" />
+      </svg>`,
+    );
+
+    expect(icon.svgFragment).not.toContain("namedview");
+    expect(icon.svgFragment).not.toContain("metadata");
+    expect(icon.svgFragment).not.toContain("rdf:");
+    expect(icon.svgFragment).toContain('fill="#326ce5"');
+  });
 });
