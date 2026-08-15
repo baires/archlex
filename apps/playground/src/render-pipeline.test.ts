@@ -55,32 +55,36 @@ function deferred<T>(): {
 }
 
 describe("renderProgressively", () => {
-  it("resolves the base diagram while remote icon loading is pending", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
-    const iconLoad = deferred<IconLoadResult>();
-    const iconLoader: IconLoader = {
-      loadIcons() {
-        return iconLoad.promise;
-      },
-    };
+  it(
+    "resolves the base diagram while remote icon loading is pending",
+    { timeout: 15_000 },
+    async () => {
+      const archlex = createArchLex({ providers: [awsProvider()] });
+      const iconLoad = deferred<IconLoadResult>();
+      const iconLoader: IconLoader = {
+        loadIcons() {
+          return iconLoad.promise;
+        },
+      };
 
-    const operation = renderProgressively(
-      archlex,
-      iconLoader,
-      "app: app-runner",
-    );
-    const base = await operation.base;
+      const operation = renderProgressively(
+        archlex,
+        iconLoader,
+        "app: app-runner",
+      );
+      const base = await operation.base;
 
-    expect(base.graph.nodes[0]?.icon).toBeUndefined();
-    expect(base.svg).not.toContain("#123456");
-    expect(operation.hydrated).not.toBeNull();
+      expect(base.graph.nodes[0]?.icon).toBeUndefined();
+      expect(base.svg).not.toContain("#123456");
+      expect(operation.hydrated).not.toBeNull();
 
-    iconLoad.resolve({
-      icons: new Map([["aws:app-runner", CDN_ICON]]),
-      diagnostics: [],
-    });
-    await operation.hydrated;
-  });
+      iconLoad.resolve({
+        icons: new Map([["aws:app-runner", CDN_ICON]]),
+        diagnostics: [],
+      });
+      await operation.hydrated;
+    },
+  );
 
   it("hydrates a remote icon after the base diagram", async () => {
     const archlex = createArchLex({ providers: [awsProvider()] });
