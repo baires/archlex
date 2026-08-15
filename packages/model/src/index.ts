@@ -60,7 +60,7 @@ export interface DirectiveAst extends StatementAst {
 
 export interface ScopeAst extends StatementAst {
   type: "scope";
-  kind: "account" | "region" | "vpc" | "subnet";
+  kind: "account" | "region" | "vpc" | "subnet" | "cluster" | "namespace";
   name: string;
   statements: readonly StatementAst[];
   recovered?: boolean;
@@ -108,7 +108,14 @@ export interface CloudEdge {
 
 export interface CloudScope {
   id: string;
-  kind: "account" | "region" | "vpc" | "subnet" | "group";
+  kind:
+    | "account"
+    | "region"
+    | "vpc"
+    | "subnet"
+    | "cluster"
+    | "namespace"
+    | "group";
   name: string;
   childrenNodeIds: readonly string[];
 }

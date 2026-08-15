@@ -1,0 +1,51 @@
+{
+  "name": "@archlex/k8s",
+  "version": "0.1.0",
+  "description": "Kubernetes provider for ArchLex architecture diagrams",
+  "keywords": [
+    "architecture",
+    "diagrams",
+    "kubernetes",
+    "k8s",
+    "cloud",
+    "icons"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baires/archlex.git",
+    "directory": "packages/k8s"
+  },
+  "license": "MIT",
+  "author": "Alexis Sgarbossa",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "icons:generate": "node scripts/import-official-icons.mjs",
+    "icons:check": "node scripts/import-official-icons.mjs --check",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@archlex/icons-core": "workspace:^",
+    "@archlex/model": "workspace:^"
+  },
+  "devDependencies": {
+    "@archlex/icons": "workspace:^",
+    "@xmldom/xmldom": "0.9.10",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
+  }
+}

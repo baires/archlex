@@ -36,8 +36,11 @@ export const archlexTokensProvider: Monaco.languages.IMonarchLanguage = {
     "region",
     "vpc",
     "subnet",
+    "cluster",
+    "namespace",
     "aws",
     "gcp",
+    "k8s",
   ],
 
   directions: ["LR", "RL", "TB", "BT"],
@@ -83,10 +86,10 @@ export const archlexTokensProvider: Monaco.languages.IMonarchLanguage = {
       ],
 
       // Providers
-      [/\b(aws|gcp)\b/, "type.identifier"],
+      [/\b(aws|gcp|k8s)\b/, "type.identifier"],
 
       // Container keywords
-      [/\b(account|region|vpc|subnet)\b/, "keyword.control"],
+      [/\b(account|region|vpc|subnet|cluster|namespace)\b/, "keyword.control"],
 
       // Relationships
       [/-\[/, "operator", "@relationshipLabel"],

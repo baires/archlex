@@ -17,7 +17,9 @@ function createArchLex(options: ArchLexOptions): ArchLex;
 function mountSvg(container: Element, svg: string): SVGSVGElement;
 ```
 
-AWS is not bundled into core; consumers pass `awsProvider()`. Construction requires one provider and rejects duplicate provider IDs.
+Core re-exports the AWS, GCP, and Kubernetes provider factories for convenience,
+but consumers explicitly pass the providers they want. Construction requires at
+least one provider and rejects duplicate provider IDs.
 
 ## Options and precedence
 

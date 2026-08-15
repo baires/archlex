@@ -1,12 +1,17 @@
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider()],
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
   defaultProvider: "aws",
 });
 
 export interface GetCatalogArgs {
-  provider?: "aws" | "gcp" | "all";
+  provider?: "aws" | "gcp" | "k8s" | "all";
 }
 
 export async function handleGetCatalog(args: GetCatalogArgs = {}) {

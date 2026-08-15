@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 import type { ValidationMode } from "@archlex/model";
 import chalk from "chalk";
 import { Command } from "commander";
@@ -97,7 +102,7 @@ async function renderCommand(
   spinner.start("Rendering diagram");
 
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider()],
+    providers: [awsProvider(), gcpProvider(), k8sProvider()],
   });
 
   let result: Awaited<ReturnType<typeof archlex.render>>;

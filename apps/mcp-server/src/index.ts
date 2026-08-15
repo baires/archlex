@@ -120,7 +120,7 @@ function createMcpServer() {
         {
           name: "render_diagram",
           description:
-            "Parse ArchLex DSL shorthand code, validate cloud provider rules (AWS/GCP), compute ELK graph layout, and render SVG diagram. Returns an embedded base64 image preview and metadata. The AI assistant SHOULD display the rendered SVG image inline in its response.",
+            "Parse ArchLex DSL shorthand code, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render an SVG diagram. Returns an embedded base64 image preview and metadata. The AI assistant SHOULD display the rendered SVG image inline in its response.",
           inputSchema: {
             type: "object",
             properties: {
@@ -188,7 +188,8 @@ function createMcpServer() {
               },
               provider: {
                 type: "string",
-                description: "Cloud provider ('aws' or 'gcp')",
+                enum: ["aws", "gcp", "k8s"],
+                description: "Cloud provider ('aws', 'gcp', or 'k8s')",
               },
               validation: {
                 type: "string",
@@ -202,13 +203,13 @@ function createMcpServer() {
         {
           name: "get_cloud_catalog",
           description:
-            "Inspect supported cloud providers (AWS, GCP), available service resource kinds, containment scopes (vpc, subnet), and relationship types.",
+            "Inspect supported providers (AWS, GCP, Kubernetes), available resource kinds, containment scopes, and relationship types.",
           inputSchema: {
             type: "object",
             properties: {
               provider: {
                 type: "string",
-                enum: ["aws", "gcp", "all"],
+                enum: ["aws", "gcp", "k8s", "all"],
                 description: "Provider catalog filter",
               },
             },
@@ -331,6 +332,12 @@ function createMcpServer() {
           mimeType: "text/plain",
           description: "Example GCP architecture diagram code.",
         },
+        {
+          uri: "archlex://examples/k8s-microservices",
+          name: "Kubernetes Microservices Example",
+          mimeType: "text/plain",
+          description: "Example Kubernetes architecture diagram code.",
+        },
       ],
     };
   });
@@ -398,6 +405,18 @@ function createMcpServer() {
             uri,
             mimeType: "text/plain",
             text: ARCHLEX_EXAMPLES["gcp-data-pipeline"],
+          },
+        ],
+      };
+    }
+
+    if (uri === "archlex://examples/k8s-microservices") {
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: "text/plain",
+            text: ARCHLEX_EXAMPLES["k8s-microservices"],
           },
         ],
       };
@@ -550,7 +569,7 @@ export default {
           status: "ok",
           service: "archlex-mcp-server",
           version: "0.1.0",
-          providers: ["aws", "gcp"],
+          providers: ["aws", "gcp", "k8s"],
           auth_enabled: Boolean(env?.MCP_AUTH_TOKEN),
         }),
         {

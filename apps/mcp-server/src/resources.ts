@@ -3,7 +3,7 @@ export const ARCHLEX_SYNTAX_GUIDE = `# ArchLex DSL Syntax Guide
 ArchLex uses a concise text language for declaring cloud infrastructure architecture diagrams.
 
 ## Directives (placed at top of document)
-- \`provider aws\` or \`provider gcp\`
+- \`provider aws\`, \`provider gcp\`, or \`provider k8s\`
 - \`direction LR\` (Left-to-Right), \`RL\`, \`TB\` (Top-to-Bottom), or \`BT\`
 - \`validation normal\` (default), \`strict\`, or \`off\`
 
@@ -11,7 +11,7 @@ ArchLex uses a concise text language for declaring cloud infrastructure architec
 - Shorthand resource node: \`rds-proxy\` or \`lambda\`
 - Named instance node: \`api: lambda\`
 - Custom display label: \`primary: rds["Primary DB"]\`
-- Fully qualified provider prefix: \`aws.rds\` or \`gcp.gke\`
+- Fully qualified provider prefix: \`aws.rds\`, \`gcp.gke\`, or \`k8s.deployment\`
 
 ## Relationships / Edges
 - Forward connection shorthand: \`rds-proxy > rds > ecs\`
@@ -30,6 +30,8 @@ vpc: dev {
   }
 }
 \`\`\`
+
+Kubernetes diagrams use \`cluster\` and \`namespace\` blocks in the same way.
 `;
 
 export const ARCHLEX_EXAMPLES = {
@@ -51,4 +53,21 @@ provider gcp
 pubsub["Ingest Stream"] > cloud-functions["Process Function"]
 cloud-functions["Process Function"] -[writes]-> bigquery["Analytics DB"]
 cloud-functions["Process Function"] -[logs]-> cloud-storage["Audit Logs"]`,
+  "k8s-microservices": `direction LR
+provider k8s
+
+cluster production {
+  namespace web {
+    gateway: ingress
+    frontend_service: service
+    frontend: deployment
+    api_service: service
+    api: deployment
+
+    gateway -[routes]-> frontend_service
+    frontend_service -[targets]-> frontend
+    frontend -[calls]-> api_service
+    api_service -[targets]-> api
+  }
+}`,
 };

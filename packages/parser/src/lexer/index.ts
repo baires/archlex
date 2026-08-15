@@ -24,7 +24,7 @@ export const DirectiveName = createToken({
 });
 export const ScopeKind = createToken({
   name: "ScopeKind",
-  pattern: /(?:account|region|vpc|subnet)\b/,
+  pattern: /(?:account|region|vpc|subnet|cluster|namespace)\b/,
 });
 export const RelationshipOperator = createToken({
   name: "RelationshipOperator",

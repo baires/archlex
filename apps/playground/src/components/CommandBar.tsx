@@ -1,5 +1,10 @@
 import type { ValidationMode } from "@archlex/model";
-import type { ArchitectureExample } from "../examples.js";
+import {
+  type ArchitectureExample,
+  EXAMPLE_PROVIDERS,
+  EXAMPLE_PROVIDER_LABELS,
+  EXAMPLE_USE_CASES,
+} from "../examples.js";
 import { DiagramSettings } from "./DiagramSettings.js";
 import { ExportMenu } from "./ExportMenu.js";
 import { Icon } from "./Icon.js";
@@ -84,11 +89,30 @@ export function CommandBar({
             <option value="" disabled>
               Select example…
             </option>
-            {examples.map((example) => (
-              <option key={example.id} value={example.id}>
-                {example.title}
-              </option>
-            ))}
+            {EXAMPLE_PROVIDERS.map((provider) => {
+              const providerExamples = examples
+                .filter((example) => example.provider === provider)
+                .sort(
+                  (left, right) =>
+                    EXAMPLE_USE_CASES.indexOf(left.useCase) -
+                    EXAMPLE_USE_CASES.indexOf(right.useCase),
+                );
+
+              if (providerExamples.length === 0) return null;
+
+              return (
+                <optgroup
+                  key={provider}
+                  label={EXAMPLE_PROVIDER_LABELS[provider]}
+                >
+                  {providerExamples.map((example) => (
+                    <option key={example.id} value={example.id}>
+                      {example.useCase} · {example.title}
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
           </select>
         </div>
       </div>

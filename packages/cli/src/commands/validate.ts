@@ -1,12 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { AWS_SERVICE_CATALOG } from "@archlex/aws";
-import { awsProvider, createArchLex, gcpProvider } from "@archlex/core";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 import {
   validateCatalogContainment,
   validateCatalogManifest,
 } from "@archlex/diagnostics";
 import { GCP_SERVICE_CATALOG } from "@archlex/gcp";
+import { K8S_SERVICE_CATALOG } from "@archlex/k8s";
 import type { ValidationMode } from "@archlex/model";
 import chalk from "chalk";
 import { Command } from "commander";
@@ -41,7 +47,7 @@ export function createValidateCommand(): Command {
     .option("--stdin", "Read input from stdin")
     .option(
       "--catalog",
-      "Validate internal provider service catalogs (AWS & GCP)",
+      "Validate internal provider service catalogs (AWS, GCP & Kubernetes)",
     )
     .action(async (input: string | undefined, options: ValidateOptions) => {
       try {
@@ -73,8 +79,22 @@ async function validateCatalogCommand(): Promise<void> {
     ...gcpContainmentDiags,
   ];
 
-  const totalServices = AWS_SERVICE_CATALOG.size + GCP_SERVICE_CATALOG.size;
-  const allDiagnostics = [...awsDiagnostics, ...gcpDiagnostics];
+  const k8sManifestResult = validateCatalogManifest(K8S_SERVICE_CATALOG);
+  const k8sContainmentDiags = validateCatalogContainment(K8S_SERVICE_CATALOG);
+  const k8sDiagnostics = [
+    ...k8sManifestResult.diagnostics,
+    ...k8sContainmentDiags,
+  ];
+
+  const totalServices =
+    AWS_SERVICE_CATALOG.size +
+    GCP_SERVICE_CATALOG.size +
+    K8S_SERVICE_CATALOG.size;
+  const allDiagnostics = [
+    ...awsDiagnostics,
+    ...gcpDiagnostics,
+    ...k8sDiagnostics,
+  ];
   const hasErrors = allDiagnostics.some((d) => d.severity === "error");
 
   if (hasErrors) {
@@ -87,6 +107,7 @@ async function validateCatalogCommand(): Promise<void> {
   console.log(chalk.bold("Catalog Validation Report"));
   console.log(`  AWS Catalog: ${AWS_SERVICE_CATALOG.size} services`);
   console.log(`  GCP Catalog: ${GCP_SERVICE_CATALOG.size} services`);
+  console.log(`  K8S Catalog: ${K8S_SERVICE_CATALOG.size} services`);
   console.log(`  Total Services: ${totalServices} services`);
 
   if (allDiagnostics.length > 0) {
@@ -137,7 +158,7 @@ async function validateCommand(
   spinner.start("Validating diagram");
 
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider()],
+    providers: [awsProvider(), gcpProvider(), k8sProvider()],
   });
 
   let result: Awaited<ReturnType<typeof archlex.render>>;

@@ -8,6 +8,7 @@
  * Usage:
  *   node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking
  *   node scripts/scaffold-service.mjs --provider gcp --name "Cloud NAT" --category networking --containment vpc
+ *   node scripts/scaffold-service.mjs --provider k8s --name "Deployment" --category containers --containment namespace
  */
 
 import { argv } from "node:process";
@@ -26,8 +27,8 @@ const category = getArg("category");
 const containment = getArg("containment");
 
 // Validation
-if (!provider || !["aws", "gcp"].includes(provider)) {
-  console.error("Error: --provider must be 'aws' or 'gcp'");
+if (!provider || !["aws", "gcp", "k8s"].includes(provider)) {
+  console.error("Error: --provider must be 'aws', 'gcp', or 'k8s'");
   console.error("\nUsage:");
   console.error(
     '  node scripts/scaffold-service.mjs --provider aws --name "NAT Gateway" --category networking',
@@ -67,7 +68,7 @@ function toKebabCase(str) {
  */
 function generateAliases(id, name, provider) {
   const aliases = [];
-  const providerPrefix = provider === "aws" ? "aws" : "gcp";
+  const providerPrefix = provider;
 
   // Fully qualified name
   aliases.push(`${providerPrefix}.${id}`);
@@ -96,8 +97,7 @@ function generateAliases(id, name, provider) {
  * Generate icon key suggestion
  */
 function generateIconKey(id, provider) {
-  const providerPrefix = provider === "aws" ? "aws" : "gcp";
-  return `${providerPrefix}-${id}`;
+  return provider === "k8s" ? `k8s.${id}` : `${provider}-${id}`;
 }
 
 /**

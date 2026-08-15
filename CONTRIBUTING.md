@@ -62,6 +62,7 @@ archlex/
 │   ├── renderer-svg/   # SVG renderer
 │   ├── aws/            # AWS provider
 │   ├── gcp/            # GCP provider
+│   ├── k8s/            # Kubernetes provider
 │   ├── model/          # Shared types
 │   ├── diagnostics/    # Diagnostic system
 │   └── icons*/         # Icon loading runtime packages
@@ -137,11 +138,14 @@ export const lambdaVpcSubnetRule = defineRule({
 
 Same process as AWS, but in the `packages/gcp/` directory.
 
+Kubernetes resources follow the same process in `packages/k8s/`; use
+`pnpm --filter @archlex/k8s icons:generate` for bundled icon changes.
+
 ### 4. Adding a New Cloud Provider
 
-To add Azure, Kubernetes, or another provider:
+To add Azure or another provider:
 
-1. Create `packages/<provider>/` with the structure from `packages/gcp/`
+1. Create `packages/<provider>/` with the structure from `packages/gcp/` or `packages/k8s/`
 2. Implement the `CloudProvider` interface from `@archlex/model`
 3. Add to `packages/core` dependencies
 4. Register in `createArchLex({ providers: [...] })`

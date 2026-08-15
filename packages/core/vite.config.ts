@@ -18,6 +18,7 @@ export default defineConfig({
         "@archlex/aws",
         "@archlex/gcp",
         "@archlex/icons",
+        "@archlex/k8s",
         "@archlex/layout-elk",
         "@archlex/renderer-svg",
       ],

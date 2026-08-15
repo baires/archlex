@@ -3,7 +3,7 @@
 /**
  * ArchLex Standalone Catalog Validation Runner Script
  *
- * Validates AWS and GCP service catalog definitions for:
+ * Validates AWS, GCP, and Kubernetes service catalog definitions for:
  * 1. Static metadata rules (IDs, display names, categories, duplicate IDs, duplicate aliases).
  * 2. Relationship containment rules (allowedContainment target existence, self-containment loops).
  *
@@ -21,6 +21,7 @@ const ROOT = resolve(__dirname, "..");
 async function loadModules() {
   let AWS_SERVICE_CATALOG;
   let GCP_SERVICE_CATALOG;
+  let K8S_SERVICE_CATALOG;
   let validateCatalogManifest;
   let validateCatalogContainment;
 
@@ -45,6 +46,16 @@ async function loadModules() {
   }
 
   try {
+    const k8sModule = await import("@archlex/k8s");
+    K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
+  } catch {
+    const k8sModule = await import(
+      pathToFileURL(resolve(ROOT, "packages/k8s/dist/index.js")).href
+    );
+    K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
+  }
+
+  try {
     const diagModule = await import("@archlex/diagnostics");
     validateCatalogManifest = diagModule.validateCatalogManifest;
     validateCatalogContainment = diagModule.validateCatalogContainment;
@@ -59,6 +70,7 @@ async function loadModules() {
   return {
     AWS_SERVICE_CATALOG,
     GCP_SERVICE_CATALOG,
+    K8S_SERVICE_CATALOG,
     validateCatalogManifest,
     validateCatalogContainment,
   };
@@ -113,6 +125,7 @@ async function main() {
   const {
     AWS_SERVICE_CATALOG,
     GCP_SERVICE_CATALOG,
+    K8S_SERVICE_CATALOG,
     validateCatalogManifest,
     validateCatalogContainment,
   } = await loadModules();
@@ -138,18 +151,29 @@ async function main() {
     validateCatalogManifest,
     validateCatalogContainment,
   );
+  const k8sReport = validateProviderCatalog(
+    "K8S",
+    K8S_SERVICE_CATALOG,
+    validateCatalogManifest,
+    validateCatalogContainment,
+  );
 
-  const totalServices = awsReport.count + gcpReport.count;
-  const totalErrors = awsReport.errors.length + gcpReport.errors.length;
-  const totalWarnings = awsReport.warnings.length + gcpReport.warnings.length;
+  const totalServices = awsReport.count + gcpReport.count + k8sReport.count;
+  const totalErrors =
+    awsReport.errors.length + gcpReport.errors.length + k8sReport.errors.length;
+  const totalWarnings =
+    awsReport.warnings.length +
+    gcpReport.warnings.length +
+    k8sReport.warnings.length;
 
   console.log("Summary:");
   console.log(`  AWS Catalog: ${awsReport.count} services`);
   console.log(`  GCP Catalog: ${gcpReport.count} services`);
+  console.log(`  K8S Catalog: ${k8sReport.count} services`);
   console.log(`  Total Services: ${totalServices} services`);
   console.log("");
 
-  for (const report of [awsReport, gcpReport]) {
+  for (const report of [awsReport, gcpReport, k8sReport]) {
     console.log(`--- ${report.name} Provider ---`);
     console.log(
       `  Static Manifest Validation: ${

@@ -1,0 +1,22 @@
+direction LR
+provider k8s
+validation normal
+
+cluster production {
+  namespace web {
+    ingress_gateway: ingress
+    frontend_service: service
+    frontend: deployment
+    api_service: service
+    api: deployment
+    config: configmap
+    credentials: secret
+
+    ingress_gateway -[routes]-> frontend_service
+    frontend_service -[targets]-> frontend
+    frontend -[calls]-> api_service
+    api_service -[targets]-> api
+    api -[reads]-> config
+    api -[reads]-> credentials
+  }
+}

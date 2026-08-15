@@ -9,6 +9,7 @@ describe("Dependency Boundary Rules", () => {
     parser: ["@archlex/diagnostics", "@archlex/model", "chevrotain"],
     aws: ["@archlex/model", "@archlex/icons", "@archlex/icons-core"],
     gcp: ["@archlex/model", "@archlex/icons", "@archlex/icons-core"],
+    k8s: ["@archlex/model", "@archlex/icons", "@archlex/icons-core"],
     "layout-elk": ["@archlex/model", "elkjs"],
     "renderer-svg": ["@archlex/model"],
     core: [
@@ -16,6 +17,7 @@ describe("Dependency Boundary Rules", () => {
       "@archlex/diagnostics",
       "@archlex/gcp",
       "@archlex/icons-core",
+      "@archlex/k8s",
       "@archlex/layout-elk",
       "@archlex/model",
       "@archlex/parser",
@@ -49,6 +51,8 @@ describe("Dependency Boundary Rules", () => {
     );
     const deps = Object.keys(pkgJson.dependencies || {});
     expect(deps).not.toContain("@archlex/aws");
+    expect(deps).not.toContain("@archlex/gcp");
+    expect(deps).not.toContain("@archlex/k8s");
     expect(deps).not.toContain("@archlex/layout-elk");
     expect(deps).not.toContain("@archlex/renderer-svg");
   });
@@ -72,8 +76,12 @@ describe("Dependency Boundary Rules", () => {
 
     expect(layoutDeps).not.toContain("@archlex/parser");
     expect(layoutDeps).not.toContain("@archlex/aws");
+    expect(layoutDeps).not.toContain("@archlex/gcp");
+    expect(layoutDeps).not.toContain("@archlex/k8s");
 
     expect(renderDeps).not.toContain("@archlex/parser");
     expect(renderDeps).not.toContain("@archlex/aws");
+    expect(renderDeps).not.toContain("@archlex/gcp");
+    expect(renderDeps).not.toContain("@archlex/k8s");
   });
 });

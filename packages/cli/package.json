@@ -2,7 +2,7 @@
   "name": "@archlex/cli",
   "version": "0.3.1",
   "description": "Command-line interface for ArchLex architecture diagrams",
-  "keywords": ["architecture", "diagrams", "cli", "cloud", "aws", "gcp"],
+  "keywords": ["architecture", "diagrams", "cli", "cloud", "aws", "gcp", "k8s"],
   "repository": {
     "type": "git",
     "url": "https://github.com/baires/archlex.git",
@@ -36,6 +36,7 @@
     "@archlex/core": "workspace:^",
     "@archlex/diagnostics": "workspace:*",
     "@archlex/gcp": "workspace:*",
+    "@archlex/k8s": "workspace:*",
     "@archlex/model": "workspace:^",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",

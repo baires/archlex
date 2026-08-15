@@ -27,7 +27,7 @@ function loadDiagnosticCodes(providerName) {
 
     // Extract diagnostic codes
     const codes = [];
-    const regex = /["']([A-Z]+-[A-Z-]+-\d{3})["']/g;
+    const regex = /["']([A-Z0-9]+-[A-Z-]+-\d{3})["']/g;
 
     for (const match of content.matchAll(regex)) {
       codes.push({
@@ -50,7 +50,7 @@ function loadDiagnosticCodes(providerName) {
 function validateCodeFormat(code) {
   // Expected format: PROVIDER-DOMAIN-RULE-NNN
   // Examples: AWS-NETWORKING-SUBNET-CONTAINMENT-001, GCP-DATA-CLOUD-SQL-NETWORK-001
-  const pattern = /^[A-Z]{2,4}-[A-Z-]+-\d{3}$/;
+  const pattern = /^[A-Z0-9]{2,4}-[A-Z-]+-\d{3}$/;
 
   if (!pattern.test(code)) {
     return {
@@ -116,11 +116,13 @@ function main() {
   // Load all diagnostic codes
   const awsCodes = loadDiagnosticCodes("aws");
   const gcpCodes = loadDiagnosticCodes("gcp");
-  const allCodes = [...awsCodes, ...gcpCodes];
+  const k8sCodes = loadDiagnosticCodes("k8s");
+  const allCodes = [...awsCodes, ...gcpCodes, ...k8sCodes];
 
   console.log("Loaded Diagnostic Codes:");
   console.log(`  AWS: ${awsCodes.length} codes`);
   console.log(`  GCP: ${gcpCodes.length} codes`);
+  console.log(`  K8S: ${k8sCodes.length} codes`);
   console.log(`  Total: ${allCodes.length} codes\n`);
 
   let hasErrors = false;
@@ -198,6 +200,7 @@ function main() {
     console.log(`  Total Codes: ${allCodes.length}`);
     console.log(`  AWS Codes: ${awsCodes.length}`);
     console.log(`  GCP Codes: ${gcpCodes.length}`);
+    console.log(`  K8S Codes: ${k8sCodes.length}`);
     console.log();
   }
 }

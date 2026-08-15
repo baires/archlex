@@ -5,7 +5,7 @@ test("leads with the Playground-first Quiet Ledger story", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Diagrams that know what they mean.",
   );
-  await expect(page.getByText("Cloud architecture, understood")).toBeVisible();
+  await expect(page.getByText("Open source cloud architecture")).toBeVisible();
   await expect(
     page.getByRole("link", { name: "Open playground" }).first(),
   ).toHaveAttribute("href", /playground/);
@@ -34,10 +34,12 @@ test("orders the product story as semantics, review, MCP, then packages", async 
     "Not just boxes.",
     "Readable in code review.",
     "Cloud judgment for your agent.",
-    "Use it anywhere.",
+    "Open source. Embed anywhere.",
   ]);
   await expect(
-    page.getByText("npm install @archlex/core @archlex/aws @archlex/gcp"),
+    page.getByText(
+      "npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s",
+    ),
   ).toBeVisible();
 });
 
@@ -170,7 +172,9 @@ test("presents MCP as the second conversion path in story row three", async ({
   await expect(
     mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp"),
   ).toBeVisible();
-  await expect(mcp.getByText("4 tools · AWS + GCP · no API key")).toBeVisible();
+  await expect(
+    mcp.getByText("4 tools · AWS + GCP + Kubernetes · no API key"),
+  ).toBeVisible();
   await expect(
     mcp.getByText(/Design a resilient AWS event ingestion system/),
   ).toBeVisible();

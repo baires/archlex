@@ -78,6 +78,30 @@ account production {
     });
   });
 
+  it("parses cluster and namespace scopes for Kubernetes-style nesting", () => {
+    const result = parse(`provider k8s
+cluster prod {
+  namespace frontend {
+    web: deployment
+  }
+}`);
+
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements[1]).toMatchObject({
+      type: "scope",
+      kind: "cluster",
+      name: "prod",
+      statements: [
+        {
+          type: "scope",
+          kind: "namespace",
+          name: "frontend",
+          statements: [{ type: "resource", name: "web", kind: "deployment" }],
+        },
+      ],
+    });
+  });
+
   it.each([
     ["a > b", ">", undefined, undefined],
     ["a -> b", "->", undefined, undefined],

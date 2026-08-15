@@ -141,6 +141,20 @@ describe("ArchLex MCP Server Tools", () => {
       expect(payload.valid).toBe(true);
       expect(payload.error_count).toBe(0);
     });
+
+    it("validates Kubernetes diagrams", async () => {
+      const source = `provider k8s
+cluster production {
+  namespace web {
+    api: deployment
+  }
+}`;
+      const result = await handleValidateDiagram({ source, provider: "k8s" });
+      const payload = JSON.parse(result.content[0].text);
+
+      expect(payload.error_count).toBe(0);
+      expect(payload.nodes_count).toBe(1);
+    });
   });
 
   describe("get_cloud_catalog", () => {
@@ -152,8 +166,50 @@ describe("ArchLex MCP Server Tools", () => {
       expect(payload.providers.aws.services.length).toBeGreaterThan(100);
       expect(payload.providers.gcp).toBeDefined();
       expect(payload.providers.gcp.services.length).toBeGreaterThan(100);
+      expect(payload.providers.k8s).toBeDefined();
+      expect(payload.providers.k8s.services.length).toBeGreaterThanOrEqual(60);
       expect(payload.relationshipKinds).toContain("connects");
       expect(payload.containmentScopes).toContain("vpc");
+      expect(payload.containmentScopes).toContain("namespace");
+    });
+  });
+
+  describe("Kubernetes resources", () => {
+    it("lists and reads the Kubernetes example resource", async () => {
+      const listRequest = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 20,
+          method: "resources/list",
+        }),
+      });
+      const listResponse = await worker.fetch(listRequest);
+      const listPayload = (await listResponse.json()) as {
+        result: { resources: { uri: string }[] };
+      };
+      expect(listPayload.result.resources).toContainEqual(
+        expect.objectContaining({
+          uri: "archlex://examples/k8s-microservices",
+        }),
+      );
+
+      const readRequest = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 21,
+          method: "resources/read",
+          params: { uri: "archlex://examples/k8s-microservices" },
+        }),
+      });
+      const readResponse = await worker.fetch(readRequest);
+      const readPayload = (await readResponse.json()) as {
+        result: { contents: { text: string }[] };
+      };
+      expect(readPayload.result.contents[0].text).toMatch(/^provider k8s$/m);
     });
   });
 
