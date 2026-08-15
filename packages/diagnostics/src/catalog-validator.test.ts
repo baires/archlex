@@ -6,6 +6,7 @@ import {
   validateCatalogManifest,
 } from "./catalog-validator.js";
 import { CATALOG_DIAGNOSTIC_CODES } from "./registry.js";
+import { validateRelationshipDefinitions } from "./relationship-validator.js";
 
 describe("catalog-validator", () => {
   describe("validateCatalogDefinition", () => {
@@ -301,6 +302,34 @@ describe("catalog-validator", () => {
       ]);
 
       expect(result.valid).toBe(true);
+    });
+  });
+
+  describe("validateRelationshipDefinitions", () => {
+    test("rejects relationship constraints that reference unknown services", () => {
+      const diagnostics = validateRelationshipDefinitions(
+        [
+          {
+            id: "service",
+            displayName: "Service",
+            category: "networking",
+            aliases: [],
+          },
+        ],
+        [
+          {
+            kind: "targets",
+            displayName: "Targets",
+            allowedTargets: ["deployment"],
+          },
+        ],
+      );
+      expect(diagnostics).toEqual([
+        expect.objectContaining({
+          severity: "error",
+          elements: ["targets", "deployment"],
+        }),
+      ]);
     });
   });
 });
