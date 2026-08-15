@@ -447,13 +447,13 @@ build: codebuild
 registry: ecr
 deploy: codedeploy
 infra: cloudformation
-cluster: ecs
+service: ecs
 
 repo -[triggers]-> pipeline
 pipeline -[orchestrates]-> build
 build -[builds]-> registry
 pipeline -[orchestrates]-> deploy
-deploy -[deploys]-> cluster
+deploy -[deploys]-> service
 pipeline -[orchestrates]-> infra`,
   },
   // Google Cloud
