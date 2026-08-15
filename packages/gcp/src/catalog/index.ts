@@ -19,7 +19,7 @@ export const initialServices: ResourceDefinition[] = [
     id: "project",
     displayName: "Google Cloud Project",
     category: "boundary",
-    aliases: ["gcp.project", "gcp-project"],
+    aliases: ["gcp.project"],
   }),
 
   // Networking
@@ -61,6 +61,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Compute Engine",
     category: "compute",
     aliases: ["gcp.compute-engine", "gce", "vm"],
+    searchTerms: ["Google Compute Engine", "virtual machine"],
     allowedContainment: ["subnet"],
   }),
   defineService({
@@ -80,6 +81,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Google Kubernetes Engine",
     category: "compute",
     aliases: ["gcp.gke", "kubernetes"],
+    searchTerms: ["Google Kubernetes Engine", "managed Kubernetes"],
     allowedContainment: ["subnet"],
   }),
 
@@ -89,6 +91,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Cloud SQL",
     category: "database",
     aliases: ["gcp.cloud-sql", "sql"],
+    searchTerms: ["Google Cloud SQL", "managed relational database"],
     allowedContainment: ["subnet"],
   }),
   defineService({
@@ -121,6 +124,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Cloud Storage",
     category: "storage",
     aliases: ["gcp.cloud-storage", "gcs", "bucket"],
+    searchTerms: ["Google Cloud Storage", "object storage"],
   }),
 
   // Messaging & Events
@@ -883,7 +887,7 @@ export const initialServices: ResourceDefinition[] = [
     id: "workspace-apis",
     displayName: "Google Workspace APIs",
     category: "management",
-    aliases: ["gcp.workspace-apis", "workspace"],
+    aliases: ["gcp.workspace-apis", "workspace-api"],
     allowedContainment: ["account"],
   }),
   defineService({

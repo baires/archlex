@@ -63,6 +63,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Amazon API Gateway",
     category: "networking",
     aliases: ["apigw", "api_gateway"],
+    searchTerms: ["API Gateway", "managed API"],
   }),
 
   // Compute
@@ -77,6 +78,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Amazon ECS",
     category: "compute",
     aliases: ["container", "aws.ecs"],
+    searchTerms: ["Elastic Container Service", "managed containers"],
     allowedContainment: ["subnet"],
   }),
   defineService({
@@ -84,6 +86,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Amazon EKS",
     category: "compute",
     aliases: ["kubernetes", "aws.eks"],
+    searchTerms: ["Elastic Kubernetes Service", "managed Kubernetes"],
     allowedContainment: ["subnet"],
   }),
   defineService({
@@ -100,6 +103,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Amazon RDS",
     category: "database",
     aliases: ["database", "aws.rds"],
+    searchTerms: ["Relational Database Service", "managed relational database"],
     allowedContainment: ["subnet"],
   }),
   defineService({
@@ -127,6 +131,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "Amazon S3",
     category: "storage",
     aliases: ["bucket", "aws.s3"],
+    searchTerms: ["Simple Storage Service", "object storage"],
   }),
 
   // Messaging & Events

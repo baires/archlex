@@ -7,6 +7,7 @@ import type {
 } from "@archlex/model";
 import { initialServices, resolveAwsService } from "./catalog/index.js";
 import { AWS_SANITIZED_ICONS } from "./icons/manifest.js";
+import { AWS_RELATIONSHIPS } from "./relationships.js";
 import { evaluateAwsRules } from "./rules/index.js";
 
 export * from "./builder.js";
@@ -14,6 +15,7 @@ export * from "./catalog/index.js";
 export * from "./icons/manifest.js";
 export * from "./icons/cdn.js";
 export * from "./registry.js";
+export * from "./relationships.js";
 export * from "./rules/index.js";
 
 export function awsProvider(): CloudProvider {
@@ -42,6 +44,9 @@ export function awsProvider(): CloudProvider {
     },
     listServices() {
       return initialServices;
+    },
+    listRelationships() {
+      return AWS_RELATIONSHIPS;
     },
     validateGraph(
       graph: CloudGraph,

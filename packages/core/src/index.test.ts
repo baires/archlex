@@ -295,6 +295,19 @@ describe("catalog language metadata", () => {
       "subnet",
     ]);
   });
+
+  it("recognizes provider relationship definitions", () => {
+    const archlex = createArchLex({ providers: [k8sProvider()] });
+    const prepared = archlex.prepare(
+      "provider k8s\nservice -[targets]-> deployment",
+    );
+
+    expect(
+      prepared.diagnostics.some(
+        ({ code }) => code === "AL-SEM-UNKNOWN-RELATIONSHIP",
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("Phase 1 canonical rendering", () => {

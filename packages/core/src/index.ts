@@ -311,7 +311,10 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const provider = providerMap.get(providerId);
       const validation =
         analyzeOptions?.validation ?? directives.validation ?? "normal";
-      const knownRelationships = new Set(KNOWN_RELATIONSHIPS);
+      const knownRelationships = new Set([
+        ...KNOWN_RELATIONSHIPS,
+        ...(provider?.listRelationships?.().map(({ kind }) => kind) ?? []),
+      ]);
       const globalNames = new Map<string, string[]>();
 
       const createNode = (
@@ -811,7 +814,14 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
           theme: ARCHLEX_LANGUAGE_METADATA.directives[3].values,
         },
         containmentScopes: language.scopes.map(({ kind }) => kind),
-        relationshipKinds: language.relationships.map(({ kind }) => kind),
+        relationshipKinds: Array.from(
+          new Set([
+            ...language.relationships.map(({ kind }) => kind),
+            ...Object.values(providersObj).flatMap(({ relationships }) =>
+              relationships.map(({ kind }) => kind),
+            ),
+          ]),
+        ),
         language,
         providers: providersObj,
       };

@@ -1,5 +1,6 @@
 import type {
   Diagnostic,
+  RelationshipDefinition,
   ResourceDefinition,
   SourceSpan,
 } from "@archlex/model";
@@ -79,6 +80,54 @@ export function validateCatalogContainment(
           span: DEFAULT_SPAN,
           elements: [def.id, containerId],
           remediation: `Ensure '${containerId}' is a valid registered service ID or boundary type (${VALID_BOUNDARY_TYPES.join(", ")}).`,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
+}
+
+export function validateRelationshipDefinitions(
+  services: Map<string, ResourceDefinition> | readonly ResourceDefinition[],
+  relationships: readonly RelationshipDefinition[],
+): readonly Diagnostic[] {
+  const serviceIds = new Set(
+    (services instanceof Map
+      ? Array.from(services.values())
+      : Array.from(services)
+    ).map(({ id }) => id),
+  );
+  const seenKinds = new Set<string>();
+  const diagnostics: Diagnostic[] = [];
+
+  for (const relationship of relationships) {
+    if (seenKinds.has(relationship.kind)) {
+      diagnostics.push({
+        code: CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP,
+        severity: "error",
+        message: `Duplicate relationship kind '${relationship.kind}'.`,
+        span: DEFAULT_SPAN,
+        elements: [relationship.kind],
+        remediation: "Ensure every provider relationship kind is unique.",
+      });
+    } else {
+      seenKinds.add(relationship.kind);
+    }
+
+    for (const serviceId of [
+      ...(relationship.allowedSources ?? []),
+      ...(relationship.allowedTargets ?? []),
+    ]) {
+      if (!serviceIds.has(serviceId)) {
+        diagnostics.push({
+          code: CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP,
+          severity: "error",
+          message: `Relationship '${relationship.kind}' references unknown service '${serviceId}'.`,
+          span: DEFAULT_SPAN,
+          elements: [relationship.kind, serviceId],
+          remediation:
+            "Use canonical service IDs from the provider catalog in relationship constraints.",
         });
       }
     }

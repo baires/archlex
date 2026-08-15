@@ -146,6 +146,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "PersistentVolumeClaim",
     category: "storage",
     aliases: ["k8s.persistentvolumeclaim", "pvc"],
+    searchTerms: ["Persistent Volume Claim"],
     allowedContainment: ["namespace", "cluster"],
   }),
   defineService({
@@ -169,6 +170,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "HorizontalPodAutoscaler",
     category: "management",
     aliases: ["k8s.horizontalpodautoscaler", "hpa"],
+    searchTerms: ["Horizontal Pod Autoscaler"],
     allowedContainment: ["namespace", "cluster"],
   }),
   defineService({
@@ -213,6 +215,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "ServiceAccount",
     category: "security",
     aliases: ["k8s.serviceaccount", "sa"],
+    searchTerms: ["Service Account"],
     allowedContainment: ["namespace", "cluster"],
   }),
   defineService({
@@ -271,6 +274,7 @@ export const initialServices: ResourceDefinition[] = [
     displayName: "CustomResourceDefinition",
     category: "integration",
     aliases: ["k8s.customresourcedefinition", "crd"],
+    searchTerms: ["Custom Resource Definition"],
     allowedContainment: ["cluster"],
   }),
   defineService({

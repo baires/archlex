@@ -6,6 +6,7 @@
  * Validates AWS, GCP, and Kubernetes service catalog definitions for:
  * 1. Static metadata rules (IDs, display names, categories, duplicate IDs, duplicate aliases).
  * 2. Relationship containment rules (allowedContainment target existence, self-containment loops).
+ * 3. Provider relationship rules (unique kinds and valid source/target service IDs).
  *
  * Usage:
  *   node scripts/validate-catalog.mjs
@@ -20,67 +21,87 @@ const ROOT = resolve(__dirname, "..");
 
 async function loadModules() {
   let AWS_SERVICE_CATALOG;
+  let awsProvider;
   let GCP_SERVICE_CATALOG;
+  let gcpProvider;
   let K8S_SERVICE_CATALOG;
+  let k8sProvider;
   let validateCatalogManifest;
   let validateCatalogContainment;
+  let validateRelationshipDefinitions;
 
   try {
     const awsModule = await import("@archlex/aws");
     AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
+    awsProvider = awsModule.awsProvider;
   } catch {
     const awsModule = await import(
       pathToFileURL(resolve(ROOT, "packages/aws/dist/index.js")).href
     );
     AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
+    awsProvider = awsModule.awsProvider;
   }
 
   try {
     const gcpModule = await import("@archlex/gcp");
     GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
+    gcpProvider = gcpModule.gcpProvider;
   } catch {
     const gcpModule = await import(
       pathToFileURL(resolve(ROOT, "packages/gcp/dist/index.js")).href
     );
     GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
+    gcpProvider = gcpModule.gcpProvider;
   }
 
   try {
     const k8sModule = await import("@archlex/k8s");
     K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
+    k8sProvider = k8sModule.k8sProvider;
   } catch {
     const k8sModule = await import(
       pathToFileURL(resolve(ROOT, "packages/k8s/dist/index.js")).href
     );
     K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
+    k8sProvider = k8sModule.k8sProvider;
   }
 
   try {
     const diagModule = await import("@archlex/diagnostics");
     validateCatalogManifest = diagModule.validateCatalogManifest;
     validateCatalogContainment = diagModule.validateCatalogContainment;
+    validateRelationshipDefinitions =
+      diagModule.validateRelationshipDefinitions;
   } catch {
     const diagModule = await import(
       pathToFileURL(resolve(ROOT, "packages/diagnostics/dist/index.js")).href
     );
     validateCatalogManifest = diagModule.validateCatalogManifest;
     validateCatalogContainment = diagModule.validateCatalogContainment;
+    validateRelationshipDefinitions =
+      diagModule.validateRelationshipDefinitions;
   }
 
   return {
     AWS_SERVICE_CATALOG,
+    awsProvider,
     GCP_SERVICE_CATALOG,
+    gcpProvider,
     K8S_SERVICE_CATALOG,
+    k8sProvider,
     validateCatalogManifest,
     validateCatalogContainment,
+    validateRelationshipDefinitions,
   };
 }
 
 function validateProviderCatalog(
   name,
   catalog,
+  provider,
   validateCatalogManifest,
   validateCatalogContainment,
+  validateRelationshipDefinitions,
 ) {
   if (!catalog) {
     const missingDiag = {
@@ -97,14 +118,20 @@ function validateProviderCatalog(
       warnings: [],
       manifestCount: 1,
       containmentCount: 0,
+      relationshipCount: 0,
     };
   }
 
   const manifestResult = validateCatalogManifest(catalog);
   const containmentDiagnostics = validateCatalogContainment(catalog);
+  const relationshipDiagnostics = validateRelationshipDefinitions(
+    catalog,
+    provider().listRelationships?.() ?? [],
+  );
   const diagnostics = [
     ...manifestResult.diagnostics,
     ...containmentDiagnostics,
+    ...relationshipDiagnostics,
   ];
   const errors = diagnostics.filter((d) => d.severity === "error");
   const warnings = diagnostics.filter((d) => d.severity === "warning");
@@ -118,16 +145,21 @@ function validateProviderCatalog(
     warnings,
     manifestCount: manifestResult.diagnostics.length,
     containmentCount: containmentDiagnostics.length,
+    relationshipCount: relationshipDiagnostics.length,
   };
 }
 
 async function main() {
   const {
     AWS_SERVICE_CATALOG,
+    awsProvider,
     GCP_SERVICE_CATALOG,
+    gcpProvider,
     K8S_SERVICE_CATALOG,
+    k8sProvider,
     validateCatalogManifest,
     validateCatalogContainment,
+    validateRelationshipDefinitions,
   } = await loadModules();
 
   console.log(
@@ -142,20 +174,26 @@ async function main() {
   const awsReport = validateProviderCatalog(
     "AWS",
     AWS_SERVICE_CATALOG,
+    awsProvider,
     validateCatalogManifest,
     validateCatalogContainment,
+    validateRelationshipDefinitions,
   );
   const gcpReport = validateProviderCatalog(
     "GCP",
     GCP_SERVICE_CATALOG,
+    gcpProvider,
     validateCatalogManifest,
     validateCatalogContainment,
+    validateRelationshipDefinitions,
   );
   const k8sReport = validateProviderCatalog(
     "K8S",
     K8S_SERVICE_CATALOG,
+    k8sProvider,
     validateCatalogManifest,
     validateCatalogContainment,
+    validateRelationshipDefinitions,
   );
 
   const totalServices = awsReport.count + gcpReport.count + k8sReport.count;
@@ -187,6 +225,13 @@ async function main() {
         report.containmentCount === 0
           ? "PASS"
           : `FAIL (${report.containmentCount} issues)`
+      }`,
+    );
+    console.log(
+      `  Relationship Validation: ${
+        report.relationshipCount === 0
+          ? "PASS"
+          : `FAIL (${report.relationshipCount} issues)`
       }`,
     );
 
