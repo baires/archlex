@@ -89,3 +89,13 @@ export async function replaceEditorSource(page, source) {
   await page.keyboard.press("ControlOrMeta+A");
   await page.keyboard.insertText(source);
 }
+
+export async function focusEditorAtEnd(page) {
+  const editor = page.getByRole("textbox", { name: "Source" });
+  await editor.focus();
+  await page.keyboard.press("ControlOrMeta+End");
+}
+
+export async function readEditorSource(page) {
+  return page.locator(".editor-pane").getAttribute("data-test-source");
+}

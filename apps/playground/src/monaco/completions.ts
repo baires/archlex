@@ -108,9 +108,8 @@ export function createMonacoCompletionProvider(
     triggerCharacters: [":", ".", "[", "-"],
 
     provideCompletionItems(model, position, context) {
+      const startedAt = performance.now();
       try {
-        const startedAt = performance.now();
-
         // Get or create cached document
         const version = model.getVersionId();
         let cached = documentCache.get(model);
@@ -144,6 +143,17 @@ export function createMonacoCompletionProvider(
         // Record metrics
         const duration = performance.now() - startedAt;
         options?.metrics?.record(duration);
+
+        // Add performance entry for browser measurement
+        try {
+          performance.mark("archlex.completion.end");
+          performance.measure("archlex.completion", {
+            start: startedAt,
+            duration,
+          });
+        } catch (e) {
+          // Silently fail if performance API doesn't support this
+        }
 
         return { suggestions };
       } catch (error) {

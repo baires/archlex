@@ -149,7 +149,11 @@ export function Editor({
   }, [selection]);
 
   return (
-    <section className="editor-pane" aria-label="ArchLex Source Editor">
+    <section
+      className="editor-pane"
+      aria-label="ArchLex Source Editor"
+      data-test-source={source}
+    >
       <div className="pane-header">
         <h2>{documentLabel}</h2>
         <label className="editor-source-label" htmlFor="source">
