@@ -3,7 +3,7 @@ import { Lexer, createToken } from "chevrotain";
 export const LineComment = createToken({
   name: "LineComment",
   pattern: /(?:#|\/\/)[^\r\n]*/,
-  group: Lexer.SKIPPED,
+  group: "comments",
 });
 export const WhiteSpace = createToken({
   name: "WhiteSpace",

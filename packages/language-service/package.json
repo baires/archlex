@@ -1,0 +1,32 @@
+{
+  "name": "@archlex/language-service",
+  "version": "0.1.0",
+  "description": "Editor-neutral language intelligence for ArchLex source",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@archlex/model": "workspace:^",
+    "@archlex/parser": "workspace:^"
+  },
+  "devDependencies": {
+    "@archlex/core": "workspace:*",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^3.0.5"
+  }
+}
