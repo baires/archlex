@@ -1,278 +1,169 @@
+import {
+  type CompletionEngine,
+  type LanguageCompletion,
+  analyzeLanguageDocument,
+  createCompletionEngine,
+} from "@archlex/language-service";
+import type { CatalogMetadata } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
+interface CachedDocument {
+  version: number;
+  document: ReturnType<typeof analyzeLanguageDocument>;
+}
+
+export interface CompletionMetrics {
+  record(durationMs: number): void;
+}
+
+export interface CompletionProviderOptions {
+  metrics?: CompletionMetrics;
+  analyze?: typeof analyzeLanguageDocument;
+}
+
 /**
- * Keywords for ArchLex language
+ * Convert a language-service completion to a Monaco completion item.
  */
-const KEYWORDS = [
-  "provider",
-  "direction",
-  "validation",
-  "account",
-  "region",
-  "vpc",
-  "subnet",
-  "cluster",
-  "namespace",
-];
+export function toMonacoCompletion(
+  monaco: typeof Monaco,
+  model: Monaco.editor.ITextModel,
+  completion: LanguageCompletion,
+): Monaco.languages.CompletionItem {
+  const { replacement, insertText, kind } = completion;
 
-const PROVIDERS = ["aws", "gcp", "k8s"];
+  // Convert offset range to Monaco position range
+  const startPosition = model.getPositionAt(replacement.startOffset);
+  const endPosition = model.getPositionAt(replacement.endOffset);
 
-const DIRECTIONS = ["LR", "RL", "TB", "BT"];
+  const range = {
+    startLineNumber: startPosition.lineNumber,
+    startColumn: startPosition.column,
+    endLineNumber: endPosition.lineNumber,
+    endColumn: endPosition.column,
+  };
 
-const VALIDATION_MODES = ["normal", "strict", "off"];
+  // Map editor-neutral kinds to Monaco kinds
+  let monacoKind: Monaco.languages.CompletionItemKind;
+  switch (kind) {
+    case "directive":
+      monacoKind = monaco.languages.CompletionItemKind.Keyword;
+      break;
+    case "enum-value":
+      monacoKind = monaco.languages.CompletionItemKind.EnumMember;
+      break;
+    case "scope":
+      monacoKind = monaco.languages.CompletionItemKind.Class;
+      break;
+    case "resource":
+      monacoKind = monaco.languages.CompletionItemKind.Class;
+      break;
+    case "symbol":
+      monacoKind = monaco.languages.CompletionItemKind.Variable;
+      break;
+    case "relationship":
+      monacoKind = monaco.languages.CompletionItemKind.Value;
+      break;
+    case "snippet":
+      monacoKind = monaco.languages.CompletionItemKind.Snippet;
+      break;
+  }
+
+  // Pad sort score to ensure stable sorting
+  const sortText = `${String(completion.sortScore).padStart(8, "0")}:${completion.id}`;
+
+  const item: Monaco.languages.CompletionItem = {
+    label: completion.label,
+    kind: monacoKind,
+    insertText,
+    filterText: completion.filterText,
+    detail: completion.detail,
+    documentation: completion.documentation
+      ? { value: completion.documentation }
+      : undefined,
+    range,
+    sortText,
+  };
+
+  // Mark snippets with the appropriate rule
+  if (kind === "snippet") {
+    item.insertTextRules =
+      monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet;
+  }
+
+  return item;
+}
 
 /**
- * Common AWS services for autocomplete
+ * Create a Monaco completion provider backed by the language service.
  */
-const AWS_SERVICES = [
-  "ec2",
-  "s3",
-  "rds",
-  "lambda",
-  "dynamodb",
-  "sqs",
-  "sns",
-  "cloudwatch",
-  "iam",
-  "vpc",
-  "elb",
-  "alb",
-  "nlb",
-  "ecs",
-  "eks",
-  "fargate",
-  "cloudfront",
-  "route53",
-  "apigateway",
-  "elasticache",
-  "aurora",
-  "kinesis",
-  "glue",
-  "athena",
-  "redshift",
-  "emr",
-  "sagemaker",
-  "stepfunctions",
-  "eventbridge",
-  "cognito",
-];
+export function createMonacoCompletionProvider(
+  monaco: typeof Monaco,
+  engine: CompletionEngine,
+  options?: CompletionProviderOptions,
+): Monaco.languages.CompletionItemProvider {
+  const documentCache = new WeakMap<Monaco.editor.ITextModel, CachedDocument>();
+  const analyze = options?.analyze ?? analyzeLanguageDocument;
+
+  return {
+    triggerCharacters: [":", ".", "[", "-"],
+
+    provideCompletionItems(model, position, context) {
+      try {
+        const startedAt = performance.now();
+
+        // Get or create cached document
+        const version = model.getVersionId();
+        let cached = documentCache.get(model);
+
+        if (!cached || cached.version !== version) {
+          const source = model.getValue();
+          const document = analyze(source);
+          cached = { version, document };
+          documentCache.set(model, cached);
+        }
+
+        // Convert Monaco position to offset
+        const offset = model.getOffsetAt(position);
+
+        // Map Monaco trigger to editor-neutral trigger
+        const trigger =
+          context.triggerKind === monaco.languages.CompletionTriggerKind.Invoke
+            ? "manual"
+            : "automatic";
+
+        // Get completions from language service
+        const completions = engine.complete(cached.document, offset, {
+          trigger,
+        });
+
+        // Convert to Monaco suggestions
+        const suggestions = completions.map((completion) =>
+          toMonacoCompletion(monaco, model, completion),
+        );
+
+        // Record metrics
+        const duration = performance.now() - startedAt;
+        options?.metrics?.record(duration);
+
+        return { suggestions };
+      } catch (error) {
+        // Contain failures - return empty suggestions
+        console.error("Completion provider error:", error);
+        return { suggestions: [] };
+      }
+    },
+  };
+}
 
 /**
- * Common GCP services for autocomplete
- */
-const GCP_SERVICES = [
-  "compute",
-  "gce",
-  "gcs",
-  "cloudsql",
-  "cloudrun",
-  "cloudfunctions",
-  "firestore",
-  "bigtable",
-  "pubsub",
-  "cloudtasks",
-  "cloudscheduler",
-  "logging",
-  "monitoring",
-  "iam",
-  "vpc",
-  "loadbalancer",
-  "gke",
-  "cloudcdn",
-  "dns",
-  "apigee",
-  "memorystore",
-  "dataflow",
-  "bigquery",
-  "dataproc",
-  "aiplatform",
-];
-
-const K8S_SERVICES = [
-  "pod",
-  "deployment",
-  "replicaset",
-  "statefulset",
-  "daemonset",
-  "job",
-  "cronjob",
-  "service",
-  "ingress",
-  "networkpolicy",
-  "configmap",
-  "secret",
-  "persistentvolume",
-  "persistentvolumeclaim",
-  "storageclass",
-  "horizontalpodautoscaler",
-  "serviceaccount",
-  "role",
-  "rolebinding",
-  "customresourcedefinition",
-];
-
-/**
- * Common relationship types
- */
-const RELATIONSHIP_TYPES = [
-  "connects",
-  "reads",
-  "writes",
-  "calls",
-  "depends-on",
-  "monitors",
-  "triggers",
-  "caches",
-  "stores",
-  "authenticates",
-  "authorizes",
-  "routes",
-  "balances",
-  "scales",
-  "manages",
-];
-
-/**
- * Register autocomplete provider for ArchLex
+ * Register the language-service-backed completion provider for ArchLex.
  */
 export function registerCompletionProvider(
   monaco: typeof Monaco,
+  catalog: CatalogMetadata,
+  options?: CompletionProviderOptions,
 ): Monaco.IDisposable {
-  return monaco.languages.registerCompletionItemProvider("archlex", {
-    provideCompletionItems: (model, position) => {
-      const word = model.getWordUntilPosition(position);
-      const range = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-
-      const lineContent = model.getLineContent(position.lineNumber);
-      const textBeforeCursor = lineContent.substring(0, position.column - 1);
-
-      const suggestions: Monaco.languages.CompletionItem[] = [];
-
-      // Keywords
-      if (/^\s*\w*$/.test(textBeforeCursor)) {
-        for (const keyword of KEYWORDS) {
-          suggestions.push({
-            label: keyword,
-            kind: monaco.languages.CompletionItemKind.Keyword,
-            insertText: keyword,
-            range,
-            detail: "ArchLex keyword",
-          });
-        }
-      }
-
-      // After "provider" keyword
-      if (/\bprovider\s+\w*$/.test(textBeforeCursor)) {
-        for (const provider of PROVIDERS) {
-          suggestions.push({
-            label: provider,
-            kind: monaco.languages.CompletionItemKind.EnumMember,
-            insertText: provider,
-            range,
-            detail: "Cloud provider",
-          });
-        }
-      }
-
-      // After "direction" keyword
-      if (/\bdirection\s+\w*$/.test(textBeforeCursor)) {
-        for (const dir of DIRECTIONS) {
-          suggestions.push({
-            label: dir,
-            kind: monaco.languages.CompletionItemKind.EnumMember,
-            insertText: dir,
-            range,
-            detail: "Layout direction",
-            documentation: {
-              value:
-                dir === "LR"
-                  ? "Left to Right"
-                  : dir === "RL"
-                    ? "Right to Left"
-                    : dir === "TB"
-                      ? "Top to Bottom"
-                      : "Bottom to Top",
-            },
-          });
-        }
-      }
-
-      // After "validation" keyword
-      if (/\bvalidation\s+\w*$/.test(textBeforeCursor)) {
-        for (const mode of VALIDATION_MODES) {
-          suggestions.push({
-            label: mode,
-            kind: monaco.languages.CompletionItemKind.EnumMember,
-            insertText: mode,
-            range,
-            detail: "Validation mode",
-          });
-        }
-      }
-
-      // After colon (service kinds)
-      if (/:\s*\w*$/.test(textBeforeCursor)) {
-        const sourceText = model.getValue();
-        const isAws = /\bprovider\s+aws\b/.test(sourceText);
-        const isGcp = /\bprovider\s+gcp\b/.test(sourceText);
-        const isK8s = /\bprovider\s+k8s\b/.test(sourceText);
-
-        if (isAws) {
-          for (const service of AWS_SERVICES) {
-            suggestions.push({
-              label: service,
-              kind: monaco.languages.CompletionItemKind.Class,
-              insertText: service,
-              range,
-              detail: "AWS service",
-            });
-          }
-        }
-
-        if (isGcp) {
-          for (const service of GCP_SERVICES) {
-            suggestions.push({
-              label: service,
-              kind: monaco.languages.CompletionItemKind.Class,
-              insertText: service,
-              range,
-              detail: "GCP service",
-            });
-          }
-        }
-
-        if (isK8s) {
-          for (const service of K8S_SERVICES) {
-            suggestions.push({
-              label: service,
-              kind: monaco.languages.CompletionItemKind.Class,
-              insertText: service,
-              range,
-              detail: "Kubernetes resource",
-            });
-          }
-        }
-      }
-
-      // Inside relationship brackets [-...-]
-      if (/\-\[\s*\w*$/.test(textBeforeCursor)) {
-        for (const rel of RELATIONSHIP_TYPES) {
-          suggestions.push({
-            label: rel,
-            kind: monaco.languages.CompletionItemKind.Value,
-            insertText: `${rel}]->`,
-            range,
-            detail: "Relationship type",
-          });
-        }
-      }
-
-      return { suggestions };
-    },
-  });
+  const engine = createCompletionEngine(catalog);
+  const provider = createMonacoCompletionProvider(monaco, engine, options);
+  return monaco.languages.registerCompletionItemProvider("archlex", provider);
 }

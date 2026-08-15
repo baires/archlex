@@ -195,6 +195,9 @@ importers:
       '@archlex/k8s':
         specifier: workspace:^
         version: link:../../packages/k8s
+      '@archlex/language-service':
+        specifier: workspace:^
+        version: link:../../packages/language-service
       '@archlex/model':
         specifier: workspace:^
         version: link:../../packages/model

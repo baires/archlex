@@ -1,4 +1,4 @@
-import type { Diagnostic, SourceSpan } from "@archlex/model";
+import type { CatalogMetadata, Diagnostic, SourceSpan } from "@archlex/model";
 import { Editor as MonacoEditor, type OnMount } from "@monaco-editor/react";
 import type * as Monaco from "monaco-editor";
 import { useEffect, useRef, useState } from "react";
@@ -22,6 +22,7 @@ interface EditorProps {
   selection: EditorSelection | null;
   theme?: "dark" | "light";
   diagnostics?: readonly Diagnostic[];
+  catalog: CatalogMetadata;
 }
 
 export function Editor({
@@ -32,11 +33,13 @@ export function Editor({
   selection,
   theme = "dark",
   diagnostics = [],
+  catalog,
 }: EditorProps) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
   const monacoRef = useRef<typeof Monaco | null>(null);
   const hoverDisposableRef = useRef<Monaco.IDisposable | null>(null);
   const codeActionsDisposableRef = useRef<Monaco.IDisposable | null>(null);
+  const completionDisposableRef = useRef<Monaco.IDisposable | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   const handleEditorDidMount: OnMount = (editor, monaco) => {
@@ -49,8 +52,8 @@ export function Editor({
     // Register themes
     registerArchLexThemes(monaco);
 
-    // Register completion provider
-    registerCompletionProvider(monaco);
+    // Register completion provider with catalog
+    completionDisposableRef.current = registerCompletionProvider(monaco, catalog);
 
     // Register hover provider with diagnostics
     hoverDisposableRef.current = registerHoverProvider(monaco, diagnostics);
@@ -121,6 +124,9 @@ export function Editor({
       }
       if (codeActionsDisposableRef.current) {
         codeActionsDisposableRef.current.dispose();
+      }
+      if (completionDisposableRef.current) {
+        completionDisposableRef.current.dispose();
       }
     };
   }, [diagnostics]);
