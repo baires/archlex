@@ -1,5 +1,13 @@
 # @archlex/icons-core
 
+## 0.2.3
+
+### Patch Changes
+
+- 29e730b: Add the initial Kubernetes provider with a 62-resource catalog, official icons,
+  cluster and namespace scopes, and semantic validation. Safely normalize inert
+  editor metadata when loading official SVGs at runtime.
+
 ## 0.2.2
 
 ### Patch Changes

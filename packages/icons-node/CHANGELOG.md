@@ -1,5 +1,12 @@
 # @archlex/icons-node
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [29e730b]
+  - @archlex/icons-core@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
