@@ -290,7 +290,41 @@ function getResourceCompletions(
     }
   }
 
-  // Sort and deduplicate by providerId + canonicalId
+  // Add existing symbols as completions (for relationship endpoints)
+  // Only include symbols that are visible from the current scope
+  const visibleSymbols = document.symbols.filter((symbol) =>
+    isSymbolVisible(symbol.scopePath, context.scopePath),
+  );
+
+  for (const symbol of visibleSymbols) {
+    // Skip if this symbol matches query poorly
+    const match = scoreBestMatch(query, {
+      canonical: symbol.name,
+      aliases: [],
+      displayName: symbol.name,
+      searchTerms: [],
+    });
+
+    if (!match && query.length > 0) continue;
+
+    const baseScore = match?.score ?? 1000;
+
+    // Symbols get a bonus for being local
+    const symbolScore = baseScore - 50;
+
+    completions.push({
+      id: `symbol:${symbol.scopePath.join("/")}/${symbol.name}`,
+      label: symbol.name,
+      insertText: symbol.name,
+      filterText: symbol.name,
+      kind: "symbol",
+      detail: `${symbol.resourceKind} (symbol)`,
+      replacement,
+      sortScore: symbolScore,
+    });
+  }
+
+  // Sort and deduplicate by id
   const seen = new Set<string>();
   return completions
     .sort((a, b) => a.sortScore - b.sortScore || a.id.localeCompare(b.id))
@@ -420,12 +454,38 @@ function getRelationshipCompletions(
 
   const completions: LanguageCompletion[] = [];
 
-  for (const rel of relationshipMap.values()) {
-    const score = 0;
+  // Resolve source and target resource kinds if endpoints are available
+  const sourceResourceKind = context.relationshipContext?.sourceSymbol
+    ? resolveSymbolResourceKind(
+        document,
+        context.relationshipContext.sourceSymbol,
+        context.scopePath,
+      )
+    : undefined;
 
-    // Apply semantic compatibility penalties if endpoints are resolved
-    // (This would require resolving context.sourceName and context.targetName
-    // against document.symbols - simplified for now)
+  const targetResourceKind = context.relationshipContext?.targetSymbol
+    ? resolveSymbolResourceKind(
+        document,
+        context.relationshipContext.targetSymbol,
+        context.scopePath,
+      )
+    : undefined;
+
+  for (const rel of relationshipMap.values()) {
+    let score = 0;
+
+    // Apply semantic compatibility penalties based on allowed sources/targets
+    if (sourceResourceKind && rel.allowedSources) {
+      if (!rel.allowedSources.includes(sourceResourceKind)) {
+        score += SEMANTIC_PENALTY.incompatibleRelationshipSource;
+      }
+    }
+
+    if (targetResourceKind && rel.allowedTargets) {
+      if (!rel.allowedTargets.includes(targetResourceKind)) {
+        score += SEMANTIC_PENALTY.incompatibleRelationshipTarget;
+      }
+    }
 
     completions.push({
       id: `relationship:${rel.kind}`,
@@ -442,4 +502,59 @@ function getRelationshipCompletions(
   return completions.sort(
     (a, b) => a.sortScore - b.sortScore || a.id.localeCompare(b.id),
   );
+}
+
+/**
+ * Resolve a symbol name to its resource kind, considering scope visibility.
+ *
+ * Searches for the symbol in the current scope and parent scopes,
+ * respecting symbol visibility rules.
+ */
+function resolveSymbolResourceKind(
+  document: LanguageDocument,
+  symbolName: string,
+  currentScopePath: readonly string[],
+): string | undefined {
+  // Search for the symbol in visible scopes
+  // Visibility rules:
+  // 1. Symbols in the current scope are visible
+  // 2. Symbols in parent scopes are visible
+  // 3. Siblings and children scopes are not visible
+
+  for (const symbol of document.symbols) {
+    if (symbol.name === symbolName || symbol.resourceKind === symbolName) {
+      // Check if symbol is visible from current scope
+      if (isSymbolVisible(symbol.scopePath, currentScopePath)) {
+        return symbol.resourceKind;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Check if a symbol declared in `symbolScope` is visible from `currentScope`.
+ *
+ * Visibility rules:
+ * - Symbols in the current scope are visible
+ * - Symbols in parent scopes are visible
+ * - Symbols in child or sibling scopes are NOT visible
+ */
+function isSymbolVisible(
+  symbolScope: readonly string[],
+  currentScope: readonly string[],
+): boolean {
+  // Symbol in the same scope: always visible
+  if (symbolScope.length === currentScope.length) {
+    return symbolScope.every((seg, i) => seg === currentScope[i]);
+  }
+
+  // Symbol in a parent scope: visible if it's a prefix of current scope
+  if (symbolScope.length < currentScope.length) {
+    return symbolScope.every((seg, i) => seg === currentScope[i]);
+  }
+
+  // Symbol in a child scope: NOT visible
+  return false;
 }

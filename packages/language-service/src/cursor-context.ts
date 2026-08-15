@@ -124,12 +124,75 @@ export function getCursorContext(
     // Already typed directive value, but could be completing it
     position = "directive-value";
     directiveName = prevToken.image;
+  } else if (token.kind === "RelationshipOperator") {
+    // Inside relationship operator: -[kind]->
+    // Check if cursor is inside the brackets
+    const isInsideBrackets =
+      offset > token.startOffset &&
+      offset < token.endOffset &&
+      token.image.includes("[") &&
+      token.image.includes("]");
+
+    if (isInsideBrackets) {
+      position = "relationship-kind";
+
+      // Extract relationship endpoints for semantic filtering
+      const relationshipContext = extractRelationshipEndpoints(
+        document.tokens,
+        tokenIndex,
+      );
+
+      return {
+        position,
+        offset,
+        providerId: document.providerId,
+        scopePath,
+        directiveName,
+        partialToken,
+        relationshipContext,
+      };
+    }
+  } else if (token.kind === "LBracket" || token.kind === "RBracket") {
+    // Empty brackets or cursor inside brackets: -[]->
+    position = "relationship-kind";
+
+    // Extract relationship endpoints for semantic filtering
+    const relationshipContext = extractRelationshipEndpoints(
+      document.tokens,
+      tokenIndex,
+    );
+
+    return {
+      position,
+      offset,
+      providerId: document.providerId,
+      scopePath,
+      directiveName,
+      partialToken,
+      relationshipContext,
+    };
   } else if (
     token.kind === "LBracket" ||
     (prevToken?.kind === "LBracket" && token.kind === "Identifier")
   ) {
-    // Inside relationship kind brackets: -[kind]->
+    // Inside relationship kind brackets: -[kind]-> (legacy, if ever tokenized separately)
     position = "relationship-kind";
+
+    // Extract relationship endpoints for semantic filtering
+    const relationshipContext = extractRelationshipEndpoints(
+      document.tokens,
+      tokenIndex,
+    );
+
+    return {
+      position,
+      offset,
+      providerId: document.providerId,
+      scopePath,
+      directiveName,
+      partialToken,
+      relationshipContext,
+    };
   } else if (token.kind === "ScopeKind") {
     // Token is a scope keyword - but check context
     if (prevToken?.kind === "Colon") {
@@ -212,22 +275,27 @@ function findScopePath(
 ): readonly string[] {
   const path: string[] = [];
 
-  function walk(statements: readonly StatementAst[]) {
+  function walk(statements: readonly StatementAst[]): boolean {
     for (const statement of statements) {
       if (statement.type === "scope") {
         const scope = statement as ScopeAst;
         const scopeStart = scope.span.start.offset;
         const scopeEnd = scope.span.end.offset;
 
-        // Include cursor positions within or immediately after scope end
-        // (to handle incomplete statements at end of scope)
-        if (offset >= scopeStart && offset <= scopeEnd + 10) {
+        // Check if cursor is within this scope's range
+        // Use a small buffer (+2) only for incomplete statements at the exact end
+        if (offset >= scopeStart && offset <= scopeEnd + 2) {
           path.push(`${scope.kind}:${scope.name}`);
-          walk(scope.statements);
-          return;
+
+          // Recursively check child scopes
+          const foundInChild = walk(scope.statements);
+
+          // If not found in any child, we're in this scope
+          return true;
         }
       }
     }
+    return false;
   }
 
   walk(ast.statements);
@@ -286,4 +354,144 @@ function isAfterNewline(
   }
 
   return false;
+}
+
+/**
+ * Extract relationship source and target symbols for semantic filtering.
+ *
+ * Handles three cases:
+ * 1. RelationshipOperator token (e.g., "-[kind]->") - source before, target after
+ * 2. LBracket/RBracket tokens (e.g., "-[]->") - source before, target after arrow
+ * 3. Separate bracket tokens with identifier inside (legacy)
+ */
+function extractRelationshipEndpoints(
+  tokens: readonly { kind: string; image: string }[],
+  operatorIndex: number,
+): { sourceSymbol?: string; targetSymbol?: string } | undefined {
+  let sourceSymbol: string | undefined;
+  let targetSymbol: string | undefined;
+
+  const operatorToken = tokens[operatorIndex];
+
+  // Handle RelationshipOperator token (entire -[kind]-> as one token)
+  if (operatorToken.kind === "RelationshipOperator") {
+    // Scan backwards from operator to find source
+    for (let i = operatorIndex - 1; i >= 0; i--) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (token.kind === "Identifier") {
+        sourceSymbol = token.image;
+        break;
+      }
+    }
+
+    // Scan forwards from operator to find target
+    for (let i = operatorIndex + 1; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (token.kind === "Identifier") {
+        targetSymbol = token.image;
+        break;
+      }
+    }
+  } else if (
+    operatorToken.kind === "LBracket" ||
+    operatorToken.kind === "RBracket"
+  ) {
+    // Handle separate bracket tokens (empty brackets -[]->)
+    // Scan backwards from bracket to find source
+    for (let i = operatorIndex - 1; i >= 0; i--) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (token.kind === "Identifier") {
+        sourceSymbol = token.image;
+        break;
+      }
+    }
+
+    // Scan forwards from bracket to find target (after arrow)
+    let foundArrow = false;
+    for (let i = operatorIndex + 1; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (token.kind === "RelationshipOperator" || token.kind === "Arrow") {
+        foundArrow = true;
+        continue;
+      }
+
+      if (foundArrow && token.kind === "Identifier") {
+        targetSymbol = token.image;
+        break;
+      }
+    }
+  } else {
+    // Handle separate bracket tokens with identifier inside (legacy path)
+    // Scan backwards from bracket to find source
+    for (let i = operatorIndex - 1; i >= 0; i--) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (token.kind === "Identifier") {
+        const prevToken = i > 0 ? tokens[i - 1] : undefined;
+        const prevPrevToken = i > 1 ? tokens[i - 2] : undefined;
+
+        if (prevToken?.kind === "Dot" && prevPrevToken?.kind === "Identifier") {
+          sourceSymbol = prevPrevToken.image;
+          break;
+        }
+        sourceSymbol = token.image;
+        break;
+      }
+    }
+
+    // Scan forwards from bracket to find target
+    let foundArrow = false;
+    for (let i = operatorIndex + 1; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      if (token.kind === "Newline") {
+        break;
+      }
+
+      if (
+        token.kind === "Arrow" ||
+        token.kind === "RelationshipOperator" ||
+        token.image.includes("->") ||
+        token.image.includes("<-")
+      ) {
+        foundArrow = true;
+        continue;
+      }
+
+      if (foundArrow && token.kind === "Identifier") {
+        targetSymbol = token.image;
+        break;
+      }
+    }
+  }
+
+  if (!sourceSymbol && !targetSymbol) {
+    return undefined;
+  }
+
+  return { sourceSymbol, targetSymbol };
 }

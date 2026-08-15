@@ -44,4 +44,8 @@ export interface CursorContext {
   readonly scopePath: readonly string[];
   readonly directiveName?: string;
   readonly partialToken?: string;
+  readonly relationshipContext?: {
+    readonly sourceSymbol?: string;
+    readonly targetSymbol?: string;
+  };
 }
