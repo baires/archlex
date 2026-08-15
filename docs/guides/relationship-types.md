@@ -1,852 +1,124 @@
-# Relationship Type Usage Guide
+# Relationship Guide
 
-## Introduction
+## Choose syntax
 
-In ArchLex, relationships represent how services interact with each other in your cloud architecture. Choosing the right relationship type is crucial for semantic accuracy—it helps you and your team understand your system's actual behavior, enables better validation, and makes your diagrams communicate intent clearly.
+Use an arrow to describe direction and line style:
 
-ArchLex provides 9 built-in **neutral relationship kinds** that cover the most common interaction patterns:
+| Syntax | Meaning |
+| --- | --- |
+| `a > b` | Shorthand forward edge |
+| `a -> b` | Forward edge |
+| `a <- b` | Reverse edge |
+| `a <-> b` | Bidirectional edge |
+| `a -- b` | Undirected edge |
+| `a -.-> b` | Dotted forward edge |
 
-| Relationship Kind | Semantic Meaning | Direction |
-|------------------|------------------|-----------|
-| `connects` | Generic connectivity (fallback for ambiguous or multi-operation edges) | Bidirectional or unspecified |
-| `reads` | Read-only data retrieval from storage, cache, or database | Target → Source (data flows from target to source) |
-| `writes` | Data mutation, insertion, deletion, or updates to storage | Source → Target (data flows from source to target) |
-| `publishes` | Asynchronous message/event emission to topic, queue, or event bus | Source → Target |
-| `subscribes` | Receiving/consuming messages from queue, topic, or stream | Source subscribes to Target |
-| `invokes` | Synchronous function call, API request, or RPC with expected response | Source → Target |
-| `routes` | Traffic distribution, load balancing, proxying, or API gateway routing | Source → Target |
-| `replicates` | Data synchronization, cross-region replication, or backup workflows | Source → Target |
-| `assumes-role` | Identity delegation, IAM role assumption, permission granting | Source assumes role from Target |
+Direction affects semantics. The `direction` document directive affects layout
+only.
 
-In addition to these built-in types, you can define **custom relationship kinds** for domain-specific semantics (e.g., `-[authenticates]->`, `-[monitors]->`).
+## Add a machine-readable kind
 
----
-
-## Core Concepts
-
-### Relationship Directionality
-
-Relationships in ArchLex are **directional**. The arrow indicates the direction of the interaction:
-
-- **Source service**: The initiator or origin of the relationship (left side of the arrow).
-- **Target service**: The recipient or destination of the relationship (right side of the arrow).
-
-For example:
-- `api -[invokes]-> function` means the API service invokes the function.
-- `database <-[reads]- api` means the API reads from the database (semantically, data flows from database to API).
-
-### Built-in Neutral Kinds vs Custom Kinds
-
-- **Built-in neutral kinds** (`connects`, `reads`, `writes`, `publishes`, `subscribes`, `invokes`, `routes`, `replicates`, `assumes-role`) are recognized by ArchLex's validation engine and provide provider-specific semantic validation.
-- **Custom kinds** (e.g., `-[authenticates]->`) offer precise domain-specific semantics but receive only structural validation and an info-level diagnostic (`AWS-RELATIONSHIP-UNKNOWN-KIND`).
-
-### Relationship Kind vs Presentation Label
-
-ArchLex distinguishes between:
-- **Relationship kind**: The semantic type specified in brackets, e.g., `-[reads]->`.
-- **Presentation label**: Optional display text shown on the rendered arrow, e.g., `->|"Fetch User Data"|`.
-
-Syntax: `-[kind]->|label|`
-
-Example:
-```
-api -[reads]->|"Fetch User Data"| database
-```
-
-The `reads` kind drives validation; the label `"Fetch User Data"` enhances readability in diagrams.
-
-### Validation Modes
-
-ArchLex's validation engine respects three modes:
-- **`normal`** (default): Structural validation + provider semantic validation, with info-level diagnostics for unknown custom kinds.
-- **`strict`**: Elevates info-level diagnostics (like `AWS-RELATIONSHIP-UNKNOWN-KIND`) to errors, enforcing built-in kinds only.
-- **`off`**: Disables validation entirely (not recommended for production).
-
-Validation mode interacts with relationship types: custom kinds trigger info diagnostics in `normal` mode and errors in `strict` mode.
-
----
-
-## Relationship Type Reference
-
-This section provides detailed reference documentation for each of the 9 built-in neutral relationship kinds.
-
-### connects
-
-**Definition:** Generic connectivity between services when the specific interaction type is ambiguous, involves multiple operations, or is not yet determined.
-
-**When to use:**
-- The relationship involves multiple operations that don't fit a single semantic type (e.g., both reads and writes).
-- You're in early exploratory phases of architecture design and haven't determined the specific interaction pattern yet.
-- The interaction is genuinely ambiguous or doesn't fit any of the more specific relationship kinds.
-- You need a quick fallback to capture connectivity without blocking diagram creation.
-
-**When NOT to use:**
-- The interaction has a clear, single semantic meaning (use the specific type instead: `reads`, `writes`, `invokes`, etc.).
-- You're documenting a production system where semantic accuracy matters for validation and understanding.
-- The relationship is one-directional with a clear initiator and clear operation type.
-
-**Directionality:** Typically bidirectional or unspecified. The arrow direction in `connects` is often a layout hint rather than a strict semantic constraint.
-
-**Examples:**
+Place a kind inside square brackets:
 
 ```archlex
-# Multi-operation edge: service both reads and writes
-app -[connects]-> cache
-
-# Ambiguous early-stage architecture
-frontend -[connects]-> backend
+api -[invokes]-> worker
+worker -[writes]-> database
+database -[replicates]-> replica
 ```
 
-**Common mistakes:**
-- Overusing `connects` when more specific types like `reads`, `invokes`, or `publishes` would be semantically accurate.
-- Using `connects` for clearly unidirectional operations (e.g., API calls should be `invokes`, not `connects`).
-- Choosing `connects` out of laziness rather than genuine ambiguity—this reduces diagram value.
+ArchLex preserves the kind on `CloudEdge`. Provider rules can use it to validate
+source, target, and placement.
 
----
+Core recognizes these kinds:
 
-### reads
+| Area | Kinds |
+| --- | --- |
+| Connectivity | `connects`, `routes`, `proxies` |
+| Data | `reads`, `writes`, `caches`, `encrypts`, `decrypts` |
+| Events | `publishes`, `subscribes`, `invokes`, `triggers`, `schedules` |
+| Operations | `monitors`, `logs`, `traces`, `alerts` |
+| Processing | `processes`, `transforms`, `analyzes`, `transcodes`, `packages` |
+| Delivery | `orchestrates`, `builds`, `deploys` |
+| Governance | `assumes-role`, `protects`, `governs`, `catalogs` |
+| Lifecycle | `replicates`, `migrates`, `discovers` |
 
-**Definition:** Read-only data retrieval from storage, cache, database, or other data sources. The source service retrieves data without modifying it.
+A provider may validate only the kinds that matter for its current rules. Use
+the catalog API to read the current core list.
 
-**When to use:**
-- The source service performs SELECT queries, GET requests, or read operations on the target.
-- Data flows from the target (storage/database) to the source (compute/application).
-- The interaction is read-only and does not mutate the target's state.
-- You're modeling cache lookups, database queries, object storage retrievals, or configuration reads.
+## Add display text
 
-**When NOT to use:**
-- The source service modifies, inserts, or deletes data (use `writes` instead).
-- The interaction involves both reading and writing in a single conceptual operation (use `connects` or model as two separate edges).
-- The source invokes a synchronous API or function that happens to return data (use `invokes` for RPC semantics).
-
-**Directionality:** Target → Source (data flows from target to source). The arrow points from source to target, but semantically, the data moves in the opposite direction.
-
-**Examples:**
+Use pipe syntax when readers need protocol or route detail:
 
 ```archlex
-# API reads from database
-api -[reads]-> database
-
-# Service retrieves objects from storage
-compute -[reads]-> storage
-
-# Application fetches from cache
-app -[reads]-> cache
+api -[writes]->|PostgreSQL over TLS| database
 ```
 
-**Common mistakes:**
-- Confusing arrow direction with data flow direction. In `api -[reads]-> database`, the arrow points to the database, but data flows from database to API.
-- Using `reads` for synchronous function calls that return data—use `invokes` if the interaction is RPC-style.
-- Using `reads` when the service also writes (model separately or use `connects` if truly ambiguous).
+The kind remains `writes`. The renderer displays `PostgreSQL over TLS`. Labels
+do not change provider semantics.
 
----
-
-### writes
-
-**Definition:** Data mutation, insertion, deletion, or update to storage, cache, database, or other data sinks. The source service modifies the target's state.
-
-**When to use:**
-- The source service performs INSERT, UPDATE, DELETE, or PUT operations on the target.
-- Data flows from the source (compute/application) to the target (storage/database).
-- The interaction modifies the target's persistent or cached state.
-- You're modeling data ingestion, log writing, database mutations, or object uploads.
-
-**When NOT to use:**
-- The source service only reads data without modifying it (use `reads` instead).
-- The interaction involves both reading and writing in a single conceptual operation (use `connects` or model as two separate edges).
-- The source invokes a synchronous API or function that happens to accept data (use `invokes` for RPC semantics).
-- The source is publishing asynchronous messages to a queue or topic (use `publishes` instead).
-
-**Directionality:** Source → Target (data flows from source to target).
-
-**Examples:**
+## Build chains
 
 ```archlex
-# API writes to database
-api -[writes]-> database
-
-# Service uploads objects to storage
-compute -[writes]-> storage
-
-# Application updates cache
-app -[writes]-> cache
+gateway -[invokes]-> worker -[writes]-> database
 ```
 
-**Common mistakes:**
-- Using `writes` for asynchronous message publishing—use `publishes` for event/message emission.
-- Using `writes` when the service also reads (model separately or use `connects` if truly ambiguous).
-- Confusing `writes` with `invokes`—`writes` is for data mutation, `invokes` is for synchronous function calls.
+The chain creates two edges. Each operator owns the relationship that follows
+it. Name repeated resources when one diagram needs several instances of a kind.
 
----
+## Provider examples
 
-### publishes
-
-**Definition:** Asynchronous message or event emission to a topic, queue, event bus, or message broker. The source service sends messages without waiting for processing or acknowledgment.
-
-**When to use:**
-- The source service emits events to a message queue, topic, or event bus (e.g., SQS, SNS, Pub/Sub, EventBridge).
-- The interaction is asynchronous—the source doesn't wait for a response or confirmation of processing.
-- You're modeling event-driven architectures, message publishing, or fire-and-forget communication patterns.
-- Multiple consumers may process the same message (fan-out pattern).
-
-**When NOT to use:**
-- The source service consumes messages from a queue or topic (use `subscribes` instead).
-- The interaction is synchronous with an expected response (use `invokes` instead).
-- The source writes data directly to storage or database (use `writes` instead).
-- The message is a direct request-response RPC call (use `invokes` instead).
-
-**Directionality:** Source → Target (messages flow from source to target topic/queue/bus).
-
-**Examples:**
+### AWS
 
 ```archlex
-# Service publishes events to SNS topic
-api -[publishes]-> topic
+provider aws
 
-# Lambda emits events to EventBridge
-function -[publishes]-> eventbus
+gateway: api-gateway
+worker: lambda
+queue: sqs
 
-# Application sends messages to SQS queue
-app -[publishes]-> queue
+gateway -[invokes]-> worker
+worker -[publishes]-> queue
 ```
 
-**Common mistakes:**
-- Using `publishes` for synchronous API calls—use `invokes` for request-response patterns.
-- Confusing `publishes` with `subscribes`—`publishes` is message emission, `subscribes` is message consumption.
-- Using `publishes` for direct database writes—use `writes` for data persistence.
-
----
-
-### subscribes
-
-**Definition:** Receiving or consuming messages from a queue, topic, or stream. The source service listens to and processes messages from the target.
-
-**When to use:**
-- The source service consumes messages from a queue, topic, or event stream (e.g., SQS, SNS, Pub/Sub, Kinesis).
-- The source service polls, pulls, or receives push notifications of messages from the target.
-- You're modeling event consumers, message processors, or subscriber patterns in event-driven architectures.
-- The source processes messages asynchronously from the target.
-
-**When NOT to use:**
-- The source service emits messages to a queue or topic (use `publishes` instead).
-- The interaction is synchronous with an expected response (use `invokes` instead).
-- The source reads data directly from storage or database (use `reads` instead).
-- The message is a direct request-response RPC call (use `invokes` instead).
-
-**Directionality:** Source subscribes to Target. The arrow points from source (subscriber) to target (queue/topic), indicating the source's dependency on the target for messages.
-
-**Examples:**
+### Google Cloud
 
 ```archlex
-# Lambda subscribes to SQS queue
-function -[subscribes]-> queue
+provider gcp
 
-# Service consumes from SNS topic subscription
-processor -[subscribes]-> topic
+events: pubsub
+worker: cloud-functions
+warehouse: bigquery
 
-# Worker pulls from event stream
-worker -[subscribes]-> stream
+events -[invokes]-> worker
+worker -[writes]-> warehouse
 ```
 
-**Common mistakes:**
-- Using `subscribes` for message emission—use `publishes` for sending messages.
-- Confusing arrow direction—the arrow points from subscriber to queue/topic, not the direction messages flow.
-- Using `subscribes` for synchronous API calls—use `invokes` for request-response patterns.
-
----
-
-### invokes
-
-**Definition:** Synchronous function call, API request, or RPC invocation where the source waits for execution and typically expects a response.
-
-**When to use:**
-- The source service makes a synchronous HTTP/REST/GraphQL API call to the target.
-- The source invokes a function (Lambda, Cloud Function) and waits for completion.
-- The source makes an RPC or gRPC call expecting a response.
-- The interaction is request-response with the source blocking or awaiting the result.
-
-**When NOT to use:**
-- The interaction is asynchronous with no expected response (use `publishes` or `subscribes`).
-- The source only reads data from storage without invoking a compute service (use `reads`).
-- The source only writes data to storage without invoking a compute service (use `writes`).
-- The target is a passive data store rather than an active compute service.
-
-**Directionality:** Source → Target (the source initiates the call, the target executes and responds).
-
-**Examples:**
+### Kubernetes
 
 ```archlex
-# API invokes Lambda function
-api -[invokes]-> function
+provider k8s
 
-# Service makes REST API call
-frontend -[invokes]-> backend
+cluster production {
+  namespace web {
+    edge: ingress
+    api_service: service
+    api: deployment
 
-# Orchestrator invokes multiple services
-orchestrator -[invokes]-> service-a
-orchestrator -[invokes]-> service-b
+    edge -[routes]-> api_service
+    api_service -[targets]-> api
+  }
+}
 ```
 
-**Common mistakes:**
-- Using `invokes` for asynchronous event emission—use `publishes` for fire-and-forget patterns.
-- Using `invokes` for passive data retrieval from storage—use `reads` for database/storage queries.
-- Using `invokes` for data writes to storage—use `writes` for persistence operations.
+Kubernetes rule checks focus on graph connections, not authored kind names. A
+Service connected to a workload satisfies the target check even when you use a
+custom descriptive kind.
 
----
+## Unknown kinds
 
-### routes
+ArchLex keeps custom kinds so you can express domain-specific relationships.
+Provider validation may emit an informational diagnostic when it cannot evaluate
+the kind. The edge still renders.
 
-**Definition:** Traffic distribution, load balancing, proxying, or API gateway routing. The source service forwards, routes, or balances traffic to the target service.
-
-**When to use:**
-- The source is a load balancer distributing requests across multiple targets.
-- The source is an API gateway routing requests to backend services.
-- The source is a proxy forwarding traffic to downstream services.
-- The source makes routing decisions based on rules, paths, or health checks.
-
-**When NOT to use:**
-- The source directly invokes the target without intermediary routing logic (use `invokes` instead).
-- The source publishes messages to a queue or topic (use `publishes` instead).
-- The relationship represents data replication rather than traffic routing (use `replicates` instead).
-
-**Directionality:** Source → Target (traffic flows from source router/gateway/LB to target service).
-
-**Examples:**
-
-```archlex
-# Load balancer routes to backend services
-loadbalancer -[routes]-> backend-a
-loadbalancer -[routes]-> backend-b
-
-# API gateway routes to microservices
-gateway -[routes]-> users-service
-gateway -[routes]-> orders-service
-
-# Proxy forwards requests
-proxy -[routes]-> upstream
-```
-
-**Common mistakes:**
-- Using `routes` for direct service-to-service calls—use `invokes` for direct invocations.
-- Using `routes` for message queue patterns—use `publishes`/`subscribes` for event-driven flows.
-- Confusing `routes` with `replicates`—`routes` is for traffic distribution, `replicates` is for data synchronization.
-
----
-
-### replicates
-
-**Definition:** Data synchronization, cross-region replication, or backup workflows. The source service replicates its data to the target service or storage.
-
-**When to use:**
-- The source database replicates to a replica or standby database.
-- The source storage bucket syncs data to another region or backup location.
-- The source service maintains data consistency across multiple targets.
-- You're modeling disaster recovery, high availability, or data redundancy patterns.
-
-**When NOT to use:**
-- The source routes traffic to the target (use `routes` instead).
-- The source writes new data to the target without replication semantics (use `writes` instead).
-- The source reads from a read replica (use `reads` instead—replication is modeled from primary to replica).
-
-**Directionality:** Source → Target (data replicates from source to target).
-
-**Examples:**
-
-```archlex
-# Database primary replicates to read replica
-db-primary -[replicates]-> db-replica
-
-# S3 bucket replicates to another region
-bucket-us -[replicates]-> bucket-eu
-
-# Data store syncs to backup
-datastore -[replicates]-> backup-store
-```
-
-**Common mistakes:**
-- Using `replicates` for one-time data migrations—use `writes` for single data transfers.
-- Using `replicates` for read operations from replicas—use `reads` to model reading from a replica.
-- Confusing `replicates` with `routes`—`replicates` is for data sync, `routes` is for traffic distribution.
-
----
-
-### assumes-role
-
-**Definition:** Identity delegation, IAM role assumption, or permission granting. The source service assumes a role or identity from the target to gain permissions.
-
-**When to use:**
-- The source service assumes an IAM role provided by the target account or resource.
-- The source gains temporary credentials or permissions from the target.
-- You're modeling cross-account access, service-to-service authentication, or permission delegation.
-- The relationship represents trust relationships between services or accounts.
-
-**When NOT to use:**
-- The source simply invokes the target with its own credentials (use `invokes` instead).
-- The source reads or writes data without role assumption (use `reads` or `writes`).
-- The relationship represents data flow rather than permission flow (use appropriate data/communication types).
-
-**Directionality:** Source assumes role from Target (source depends on target for permissions).
-
-**Examples:**
-
-```archlex
-# Lambda assumes role to access S3
-function -[assumes-role]-> s3-access-role
-
-# Service assumes cross-account role
-service-a -[assumes-role]-> account-b-role
-
-# ECS task assumes execution role
-task -[assumes-role]-> execution-role
-```
-
-**Common mistakes:**
-- Using `assumes-role` for every authenticated interaction—reserve it for explicit role assumption patterns.
-- Using `assumes-role` when the service uses its own identity without assuming another role.
-- Confusing `assumes-role` with `invokes`—`assumes-role` is for permission delegation, `invokes` is for execution.
-
----
-
-## Question-Based Selection Guide
-
-Use this decision tree to select the most appropriate relationship type for your use case:
-
-**What is the primary intent of this relationship?**
-
-### Data access
-- **Does the source modify data in the target?**
-  - **Yes** → Use [`writes`](#writes)
-  - **No** → Use [`reads`](#reads)
-
-### Communication
-- **Is the interaction synchronous (waiting for response)?**
-  - **Yes** → Use [`invokes`](#invokes)
-  - **No (asynchronous)** →
-    - **Is the source sending messages?** → Use [`publishes`](#publishes)
-    - **Is the source consuming messages?** → Use [`subscribes`](#subscribes)
-
-### Access control
-- **Does the source assume a role or identity from the target?**
-  - **Yes** → Use [`assumes-role`](#assumes-role)
-
-### Traffic routing
-- **Does the source distribute, balance, or proxy traffic to the target?**
-  - **Yes** → Use [`routes`](#routes)
-
-### Data replication
-- **Does the source replicate or sync data to the target?**
-  - **Yes** → Use [`replicates`](#replicates)
-
-### General connectivity
-- **Is the relationship ambiguous, exploratory, or involves multiple operations?**
-  - **Yes** → Use [`connects`](#connects)
-
-**Not sure?** Default to [`connects`](#connects) and refine later as the architecture becomes clearer.
-
----
-
-## Custom Relationships
-
-While ArchLex provides 9 built-in neutral relationship kinds, you can define **custom relationship kinds** for domain-specific semantics.
-
-### When to Use Custom Relationships
-
-Use custom relationship kinds when:
-- Your domain requires precise, specialized semantics not covered by the built-in types.
-- The specific interaction type communicates important architectural intent to your team.
-- The relationship has unique characteristics that warrant explicit naming.
-
-**Good custom relationship examples:**
-- `-[authenticates]->` — Service authenticates with an auth provider
-- `-[monitors]->` — Service monitors another service's health
-- `-[transforms]->` — Service transforms data from another service
-- `-[encrypts]->` — Service encrypts data using a key service
-
-**Unnecessary custom relationship examples** (use built-in types instead):
-- `-[gets]->` → Use [`reads`](#reads)
-- `-[sends]->` → Use [`publishes`](#publishes) or [`writes`](#writes)
-- `-[calls]->` → Use [`invokes`](#invokes)
-- `-[queries]->` → Use [`reads`](#reads)
-
-### Naming Conventions
-
-Custom relationship kinds should:
-- Use lowercase kebab-case: `-[authenticates]->`, `-[monitors]->`, `-[rate-limits]->`
-- Be verb-based and action-oriented
-- Be concise (1-2 words preferred)
-- Avoid redundancy with built-in types
-
-### Trade-offs
-
-**Benefits:**
-- Precise domain-specific semantics
-- Clearer architectural intent
-- Better team communication
-
-**Costs:**
-- Custom kinds receive only **structural validation** (ArchLex validates syntax, not semantics)
-- Generates **info-level diagnostic** `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent) in `normal` mode
-- Generates **error-level diagnostic** in `strict` validation mode
-- No provider-specific semantic validation (e.g., ArchLex won't validate if the services actually support your custom interaction type)
-
-**Recommendation:** Start with built-in types. Only introduce custom kinds when the semantic value outweighs the validation trade-off.
-
----
-
-## Common Architectural Patterns
-
-This section provides real-world architectural patterns organized by category, with recommended relationship types and ArchLex syntax examples.
-
-### Data Flow Patterns
-
-**Database Access**
-
-Use [`reads`](#reads) and [`writes`](#writes) for database interactions:
-
-```archlex
-# API reads and writes to database
-api -[reads]-> database
-api -[writes]-> database
-
-# Separate read/write services
-read-service -[reads]-> database
-write-service -[writes]-> database
-```
-
-**Cache Operations**
-
-Model cache interactions with [`reads`](#reads) and [`writes`](#writes):
-
-```archlex
-# Application with cache layer
-app -[reads]-> cache
-app -[writes]-> cache
-app -[reads]-> database
-```
-
-**Storage Operations**
-
-Use [`reads`](#reads) and [`writes`](#writes) for object storage:
-
-```archlex
-# Service uploads and downloads files
-service -[writes]-> storage
-service -[reads]-> storage
-```
-
-**Unidirectional Data Pipelines**
-
-Chain services with appropriate relationship types:
-
-```archlex
-# Extract, Transform, Load pipeline
-extractor -[reads]-> source-db
-extractor -[writes]-> staging-storage
-transformer -[reads]-> staging-storage
-transformer -[writes]-> target-db
-```
-
-### Event-Driven Patterns
-
-**Message Queues**
-
-Use [`publishes`](#publishes) and [`subscribes`](#subscribes) for queue-based messaging:
-
-```archlex
-# Producer-consumer pattern
-producer -[publishes]-> queue
-consumer -[subscribes]-> queue
-
-# Multiple consumers
-worker-a -[subscribes]-> queue
-worker-b -[subscribes]-> queue
-```
-
-**Event Buses**
-
-Model event-driven architectures with [`publishes`](#publishes) and [`subscribes`](#subscribes):
-
-```archlex
-# Services publish to event bus
-order-service -[publishes]-> eventbus
-payment-service -[publishes]-> eventbus
-
-# Services subscribe to events
-notification-service -[subscribes]-> eventbus
-analytics-service -[subscribes]-> eventbus
-```
-
-**Synchronous RPC**
-
-Use [`invokes`](#invokes) for request-response patterns:
-
-```archlex
-# Microservice invocation
-api-gateway -[invokes]-> auth-service
-api-gateway -[invokes]-> user-service
-user-service -[invokes]-> profile-service
-```
-
-**Webhooks**
-
-Model webhook patterns with [`invokes`](#invokes) for the callback:
-
-```archlex
-# Service registers webhook, then receives callback
-client -[invokes]-> webhook-provider
-webhook-provider -[invokes]-> client-endpoint
-```
-
-### Control Flow Patterns
-
-**Orchestration**
-
-Use [`invokes`](#invokes) for orchestrated workflows:
-
-```archlex
-# Orchestrator coordinates multiple services
-orchestrator -[invokes]-> service-a
-orchestrator -[invokes]-> service-b
-orchestrator -[invokes]-> service-c
-```
-
-**Load Balancing**
-
-Use [`routes`](#routes) for traffic distribution:
-
-```archlex
-# Load balancer distributes traffic
-loadbalancer -[routes]-> backend-a
-loadbalancer -[routes]-> backend-b
-loadbalancer -[routes]-> backend-c
-```
-
-**API Gateway Proxying**
-
-Use [`routes`](#routes) for gateway routing:
-
-```archlex
-# API Gateway routes to services
-gateway -[routes]-> users-service
-gateway -[routes]-> orders-service
-gateway -[routes]-> payments-service
-```
-
-### Identity & Access Patterns
-
-**Permission Delegation**
-
-Use [`assumes-role`](#assumes-role) for IAM role assumption:
-
-```archlex
-# Lambda assumes role to access resources
-function -[assumes-role]-> s3-access-role
-function -[reads]-> bucket
-
-# Cross-account access
-service-account-a -[assumes-role]-> role-account-b
-```
-
-**Cross-Account Resource Access**
-
-Combine [`assumes-role`](#assumes-role) with data operations:
-
-```archlex
-# Service assumes role, then accesses resources
-app -[assumes-role]-> cross-account-role
-app -[reads]-> cross-account-storage
-```
-
-### Replication Patterns
-
-**Database Replication**
-
-Use [`replicates`](#replicates) for data sync:
-
-```archlex
-# Primary replicates to replicas
-db-primary -[replicates]-> db-replica-1
-db-primary -[replicates]-> db-replica-2
-
-# Services read from replicas
-read-service -[reads]-> db-replica-1
-```
-
-**Cross-Region Sync**
-
-Model regional data synchronization with [`replicates`](#replicates):
-
-```archlex
-# Storage replicates across regions
-storage-us -[replicates]-> storage-eu
-storage-us -[replicates]-> storage-asia
-```
-
-### General Connectivity
-
-**Multi-Operation Edges**
-
-Use [`connects`](#connects) when a relationship involves multiple operation types:
-
-```archlex
-# Service performs multiple operations on cache
-service -[connects]-> cache
-```
-
-**Ambiguous Edges**
-
-Use [`connects`](#connects) for exploratory or unclear relationships:
-
-```archlex
-# Early-stage architecture
-frontend -[connects]-> backend
-backend -[connects]-> datastore
-```
-
-**Exploratory Diagrams**
-
-Start with [`connects`](#connects), then refine:
-
-```archlex
-# Initial exploration
-app -[connects]-> service-a
-app -[connects]-> service-b
-
-# Refined after investigation
-app -[invokes]-> service-a
-app -[publishes]-> queue
-service-b -[subscribes]-> queue
-```
-
----
-
-## Validation & Troubleshooting
-
-ArchLex's validation engine helps ensure your diagrams are semantically accurate and compatible with your cloud provider.
-
-### Validation Engine Overview
-
-ArchLex performs three types of validation:
-
-1. **Structural Validation**: Verifies syntax correctness, required fields, and diagram structure. Always enabled.
-2. **Provider Semantic Validation**: Checks if relationship types are compatible with the specific services involved (e.g., can this Lambda actually invoke this S3 bucket?). Applies to built-in neutral relationship kinds only.
-3. **Provider Guidance**: Offers best-practice recommendations and warnings (e.g., using `connects` when a more specific type would be clearer).
-
-### Validation Modes
-
-ArchLex supports three validation modes:
-
-- **`normal`** (default): Structural validation + provider semantic validation. Custom relationship kinds generate **info-level** diagnostic `AWS-RELATIONSHIP-UNKNOWN-KIND` (or provider-specific equivalent), but do not block rendering.
-- **`strict`**: Elevates info-level diagnostics to **errors**. Custom relationship kinds are rejected, enforcing built-in types only.
-- **`off`**: Disables validation entirely. Not recommended for production diagrams.
-
-Set validation mode in your ArchLex configuration or via CLI flags.
-
-### Diagnostic Code Breakdown
-
-**`AWS-RELATIONSHIP-UNKNOWN-KIND`** (or provider-specific equivalent):
-- **Severity in `normal` mode**: Info (does not block rendering)
-- **Severity in `strict` mode**: Error (blocks rendering)
-- **Cause**: Using a custom relationship kind not recognized by the provider validation engine.
-- **Fix**: Use a built-in neutral relationship kind, or accept the info-level diagnostic if the custom kind is intentional.
-
-**`AWS-RELATIONSHIP-INCOMPATIBLE-SERVICES`**:
-- **Severity**: Error
-- **Cause**: The relationship type is semantically incompatible with the source or target service (e.g., `Lambda -[replicates]-> S3` doesn't make sense—Lambda doesn't replicate data).
-- **Fix**: Choose a more appropriate relationship type (e.g., `Lambda -[writes]-> S3`).
-
-**`AWS-RELATIONSHIP-DIRECTION-MISMATCH`**:
-- **Severity**: Warning or Error
-- **Cause**: The arrow direction conflicts with the semantic direction of the relationship kind (e.g., `Database -[reads]-> API` reverses the typical data flow direction).
-- **Fix**: Reverse the arrow direction or choose a different relationship type.
-
-### Common Errors and Fixes
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| Unknown relationship kind | Using custom kind in `strict` mode | Switch to built-in type or use `normal` mode |
-| Incompatible services | Relationship type doesn't match service capabilities | Choose semantically correct type |
-| Direction mismatch | Arrow direction conflicts with relationship semantics | Reverse arrow or choose different type |
-| Missing relationship kind | Relationship has no `-[kind]->` specified | Add explicit relationship kind |
-
-### Troubleshooting Checklist
-
-When you encounter relationship validation errors:
-
-1. **Check the relationship kind**: Is it a built-in neutral kind or a custom kind?
-2. **Verify service compatibility**: Does the relationship make sense for the source and target services?
-3. **Check arrow direction**: Does the arrow direction match the semantic direction of the relationship?
-4. **Review validation mode**: Are you in `normal`, `strict`, or `off` mode?
-5. **Consult the [Question-Based Selection Guide](#question-based-selection-guide)**: Confirm you're using the most appropriate relationship type.
-6. **Check the [Relationship Type Reference](#relationship-type-reference)**: Review the "When to use" and "When NOT to use" sections for your chosen type.
-7. **Review the diagnostic message**: ArchLex diagnostics include suggestions—read them carefully.
-
----
-
-## Visual Conventions
-
-Understanding how ArchLex renders relationships helps you create clear, readable diagrams.
-
-### Arrow Styles
-
-ArchLex supports multiple arrow styles in relationship syntax:
-
-- `->`: Standard directed arrow (most common)
-- `<-`: Reverse directed arrow (semantically equivalent to reversing source and target)
-- `<->`: Bidirectional arrow (rare, typically used with `connects`)
-- `--`: Undirected line (no semantic direction)
-- `.->`: Dotted arrow (visual style, no semantic difference)
-
-**Example:**
-```archlex
-# These are semantically equivalent
-api -[reads]-> database
-database <-[reads]- api
-```
-
-### Relationship Kind vs Presentation Label
-
-ArchLex distinguishes between:
-
-1. **Relationship kind** (`-[kind]->`): The semantic type used for validation and understanding
-2. **Presentation label** (`->|label|`): Optional display text shown on the rendered arrow for additional context
-
-**Syntax:** `-[kind]->|label|`
-
-**Example:**
-```archlex
-# Relationship kind drives validation
-api -[reads]-> database
-
-# Presentation label enhances readability
-api -[reads]->|"Fetch User Data"| database
-
-# Both kind and label
-api -[invokes]->|"POST /orders"| order-service
-```
-
-**Guidelines:**
-- The **kind** is mandatory for validation and determines semantic meaning.
-- The **label** is optional and provides human-readable context in rendered diagrams.
-- Labels do not affect validation—only the kind matters for semantic correctness.
-
-### Semantic Direction vs Visual Layout
-
-**Semantic direction**: The direction of data flow or interaction, determined by the relationship kind.
-
-**Visual layout**: The direction the arrow points in the rendered diagram, influenced by the `direction` directive.
-
-**Important:** The `direction` directive (e.g., `direction LR`, `direction TB`) affects **layout only**, not semantic meaning.
-
-**Example:**
-```archlex
-# Semantic direction: API reads from database (data flows database -> API)
-# Visual layout: Can be rendered left-to-right, top-to-bottom, etc.
-direction LR
-api -[reads]-> database  # Arrow points right, but data flows left semantically
-```
-
-**Key takeaway:** Always choose relationship kinds based on semantic direction (data flow, initiator), not visual layout preferences. The `direction` directive will adjust the diagram layout without changing semantic meaning.
-
----
-
+Use a known kind when you want current provider rules to understand intent. Use
+a display label when you only need reader-facing detail.

@@ -1,54 +1,77 @@
-# ArchLex Language Specification
+# Language Specification
 
-## Lexical rules
+## Document structure
 
-Documents are UTF-8. Newlines or semicolons separate statements. Spaces and tabs are insignificant outside labels. Identifiers start with an ASCII letter or `_` and continue with letters, digits, `_`, or `-`. Qualified types use `provider.service`. Keywords are lowercase and reserved. `#` and `//` begin line comments. Double-quoted strings support `\"`, `\\`, `\n`, `\r`, and `\t`.
+ArchLex reads UTF-8 text. Newlines and semicolons separate statements. Spaces
+and tabs do not affect syntax outside quoted labels. `#` and `//` start line
+comments.
 
-Reserved words are `provider`, `direction`, `validation`, `theme`, `account`, `region`, `vpc`, and `subnet`. IDs are case-sensitive; only provider aliases receive provider-defined normalization.
+Identifiers begin with an ASCII letter or `_` and may contain letters, digits,
+`_`, or `-`. Provider-qualified resource names use `provider.resource`, such as
+`aws.rds`, `gcp.cloud-run`, or `k8s.deployment`.
+
+Reserved words are `provider`, `direction`, `validation`, `theme`, `account`,
+`region`, `vpc`, `subnet`, `cluster`, and `namespace`.
 
 ## Directives
 
-Directives occur at document scope before declarations or relationships and may appear once:
+Place directives before resources, scopes, or relationships:
 
 ```archlex
-provider aws
 direction LR
+provider aws
 validation normal
 theme dark
 ```
 
-`direction` accepts `LR`, `RL`, `TB`, or `BT` and defaults to `LR`. `validation` accepts `normal`, `strict`, or `off` and defaults to `normal`. `theme` accepts `light` or `dark` and defaults to `dark`. Directives may optionally use a colon separator (e.g., `provider: aws`, `theme: light`). A duplicate or late directive emits a structural error; the first valid value wins.
+| Directive | Values | Default |
+| --- | --- | --- |
+| `provider` | A registered provider ID | Sole registered provider, otherwise required |
+| `direction` | `LR`, `RL`, `TB`, `BT` | `LR` |
+| `validation` | `normal`, `strict`, `off` | `normal` |
+| `theme` | `light`, `dark` | `dark` |
+
+A colon may follow a directive name. Duplicate or late directives emit a
+structural diagnostic. The first valid value wins.
 
 ## Resources and identity
 
+Declare resources by kind or assign an instance name:
+
 ```archlex
 rds
-aws.rds
 primary: rds
-replica: aws.rds
+runner: gcp.cloud-run
+api: k8s.deployment
 ```
 
-An implicit resource uses its type as local instance ID. Repeated implicit occurrences in one scope refer to one instance. Multiple instances of one type require names. References resolve lexically from the current scope outward. Duplicate IDs emit `AL-STRUCT-DUPLICATE-ID`; the first declaration owns the ID and later declarations remain invalid recovered nodes.
+An implicit resource uses its kind as the local instance ID. Repeated implicit
+references in one scope resolve to that instance. Use names when you need more
+than one instance of a kind.
 
-Stable graph IDs contain containment path plus local instance ID, not source offsets. Reordering within a scope does not change identity.
+ArchLex builds stable graph IDs from the containment path and local instance ID.
+Moving a declaration within the same scope does not change its identity.
 
 ## Display labels
 
-Any resource may carry a quoted display label after its kind:
+Add a quoted label after the resource kind:
 
 ```archlex
-primary: rds["Primary DB"]
-replica: rds["Read Replica"]
-sqs["Ingest Queue"]
+primary: rds["Primary database"]
+replica: rds["Read replica"]
 primary -[replicates]-> replica
 ```
 
-The label replaces the default card text: the visible label is the display label when present, otherwise the instance name, otherwise the service display name. The service name remains in the node's accessible name (`"Primary DB (Amazon RDS)"`). Chain nodes accept the same syntax, so `rds["Primary"] > ecs["App"]` labels both endpoints.
+The renderer shows the display label, then falls back to the instance name, then
+the provider display name. When the visible label differs from the provider
+name, the accessible name includes both.
 
-The first display label encountered wins: named declarations are processed before relationships, and within one phase document order applies. A later, different label for the same instance is ignored and emits informational `AL-STRUCT-CONFLICTING-LABEL`. An empty or whitespace-only label is treated as absent.
-
+The first label for an instance wins. A later conflicting label emits
+`AL-STRUCT-CONFLICTING-LABEL`.
 
 ## Containment
+
+Cloud providers use account, region, VPC, and subnet scopes:
 
 ```archlex
 account production {
@@ -62,7 +85,20 @@ account production {
 }
 ```
 
-The grammar accepts these nested group types for recovery; AWS rules decide semantic validity. A closing brace ends the innermost scope. Missing braces produce a parse diagnostic and close implicitly at end of file.
+Kubernetes uses cluster and namespace scopes:
+
+```archlex
+cluster production {
+  namespace web {
+    service: k8s.service
+    app: k8s.deployment
+    service -[targets]-> app
+  }
+}
+```
+
+The parser accepts all six scope kinds. The selected provider decides whether a
+resource belongs in a scope. A closing brace ends the innermost scope.
 
 ## Relationships
 
@@ -74,46 +110,23 @@ a <-> b
 a -- b
 a -.-> b
 a -[writes]-> b
-a ->|PostgreSQL/TLS| b
-a -[writes]->|PostgreSQL/TLS| b
+a ->|PostgreSQL over TLS| b
+a -[writes]->|PostgreSQL over TLS| b
 ```
 
-`>` is sugar for `->`. Forward, reverse, bidirectional, undirected, and dotted forms preserve their shown semantics. `-[kind]->` carries a machine-readable identifier; `->|label|` carries presentation text. Labels are unquoted text up to the next unescaped `|`, or quoted strings. Chains are left-associative: `a > b > c` creates two edges. Relationship direction controls semantics and arrowheads; document direction controls placement only. Chain nodes may carry display labels: `rds["Primary"] > ecs["App"]`.
+`>` abbreviates `->`. Arrow syntax controls direction and line style.
+`-[kind]->` adds a machine-readable relationship kind. `->|label|` adds display
+text without changing semantics.
 
-## AST and recovery
+Chains associate from left to right. `a > b > c` creates `a -> b` and `b -> c`.
+Provider rules validate the resulting graph. Unknown custom kinds remain on the
+edge and may produce an informational diagnostic.
 
-The public AST is a discriminated union of document, directive, resource, group, relationship, and invalid statement nodes. Every node carries zero-based, end-exclusive UTF-16 offsets and one-based, end-exclusive line/column positions. Synthesized tokens are marked `recovered: true`.
+## Recovery and diagnostics
 
-Chevrotain produces a private CST; a visitor constructs the public AST, expands shorthand, and preserves source spans. Recovery rules are:
+The parser preserves useful partial input. It reports unknown characters,
+incomplete declarations, missing endpoints, and missing braces. It resumes at a
+newline, semicolon, closing brace, or statement keyword.
 
-- Skip and report unknown characters.
-- Preserve incomplete declarations as invalid nodes.
-- Create a placeholder when a relationship has one valid endpoint.
-- Insert missing closing braces at end of file.
-- Resume at newline, semicolon, closing brace, or a statement keyword.
-- Never invent an AWS type or relationship semantic.
-
-Expected syntax errors return `ParseResult` and never throw. Arbitrary input must terminate without an uncaught exception or recovery loop.
-
-## Example
-
-```archlex
-provider aws
-direction LR
-validation normal
-
-account production {
-  region us-east-1 {
-    vpc application {
-      subnet private-a {
-        api: ecs
-        proxy: rds-proxy
-        database: rds
-      }
-    }
-  }
-}
-
-api -[connects]-> proxy
-proxy -[connects]->|PostgreSQL/TLS| database
-```
+Recovery does not invent a provider resource or relationship. Expected source
+errors return diagnostics instead of throwing.

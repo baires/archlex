@@ -1,16 +1,6 @@
-# Error System
+# Diagnostic Reference
 
-ArchLex's error system provides precise, actionable diagnostics across all surfaces.
-
-## For Library Users
-
-All diagnostics include:
-- **Code**: Stable identifier (e.g., `AL-PARSE-MISSING-ENDPOINT`)
-- **Severity**: `error`, `warning`, or `info`
-- **Message**: Technical description of the issue
-- **Remediation**: Actionable fix suggestion
-- **Span**: Source location with line/column
-- **Elements**: Affected resource/relationship IDs
+ArchLex returns structured diagnostics with parse, analysis, and render results. Use each diagnostic's code, severity, source span, and remediation to show a useful correction beside the diagram source.
 
 ```typescript
 const result = await archlex.render(source);
@@ -21,56 +11,59 @@ for (const diagnostic of result.diagnostics) {
 }
 ```
 
-## For Playground Users
+## Diagnostic Families
 
-### Quick Fixes
-1. Click on error in editor
-2. Press `Ctrl+.` (or `Cmd+.` on Mac)
-3. Select suggested fix from menu
+| Prefix | Stage | What to check |
+| --- | --- | --- |
+| `AL-PARSE-*` | Parser | Directive syntax, resource declarations, relationship endpoints, and block delimiters |
+| `AL-STRUCT-*` | Structural analysis | Duplicate IDs, missing references, invalid containment, and conflicting declarations |
+| `AWS-*` | AWS semantics | AWS resource names, scopes, containment, and provider relationships |
+| `GCP-*` | Google Cloud semantics | Google Cloud resource names, scopes, containment, and provider relationships |
+| `K8S-*` | Kubernetes semantics | Kubernetes resource names, cluster and namespace placement, and workload relationships |
 
-### Hover Information
-Hover over any diagnostic marker to see:
-- Error code and severity
-- Detailed message
-- Remediation steps
-- Valid example
-- Link to full documentation
+Icon warnings report unresolved or rejected icon assets. They do not change the provider semantic rules.
 
-## For CLI Users
+## Severity
 
-### View Diagnostics
-```bash
-archlex render diagram.cm
+- `error` identifies source that ArchLex cannot interpret or validate as a usable graph.
+- `warning` identifies a graph that ArchLex can render with a likely modeling problem.
+- `info` gives provider guidance without blocking output.
+
+ArchLex can return a partial graph or SVG with diagnostics. Check the result instead of treating a rendered SVG as proof that the source has no errors.
+
+## Validation Modes
+
+Set the mode with the `validation` directive or the matching API option:
+
+```archlex
+validation normal
 ```
 
-Diagnostics shown with:
-- Source context
-- Line/column pointer
-- Remediation inline
+| Mode | Behavior |
+| --- | --- |
+| `normal` | Runs the standard structural and provider checks |
+| `strict` | Promotes supported advisory findings to stricter diagnostics |
+| `off` | Skips provider semantic rules while retaining parsing and graph construction checks |
 
-### List All Error Codes
+Provider specifications describe the rules that each mode affects:
+
+- [AWS diagnostics](../specs/aws-semantics.md)
+- [Google Cloud diagnostics](../specs/gcp-semantics.md)
+- [Kubernetes diagnostics](../specs/k8s-semantics.md)
+
+## Fix a Diagnostic
+
+1. Find the diagnostic code and source span in the result.
+2. Read its `remediation` field.
+3. Open the code in the [generated index](index.md) when you need its full reference page.
+4. Update the source, then render it again.
+
+## Maintainer Workflow
+
+The diagnostic registries provide the source for the generated index and `AL-*.md` pages. Regenerate those files after you add or change a registered diagnostic:
+
 ```bash
-archlex errors list
-archlex errors list --category parse
-archlex errors list --severity error
+pnpm generate-docs
 ```
 
-### View Specific Error
-```bash
-archlex errors AL-PARSE-MISSING-ENDPOINT
-```
-
-## Error Categories
-
-### Parse Errors (AL-PARSE-*)
-Lexer and parser failures. Fix by correcting syntax.
-
-### Structural Errors (AL-STRUCT-*)
-Directive and declaration issues. Fix by reorganizing or renaming.
-
-### Semantic Errors (AL-SEM-*)
-Provider-specific validation. Usually informational.
-
-## Documentation
-
-Full error reference: [docs/errors/index.md](./index.md)
+Do not edit generated pages by hand. Update the registry or generator so the next run keeps the correction.

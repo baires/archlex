@@ -1,73 +1,110 @@
 # System Architecture
 
-## Pipeline
+## Runtime pipeline
+
+ArchLex separates source processing from icon loading and SVG rendering:
 
 ```text
 source
-  -> @archlex/parser        recoverable AST + syntax diagnostics
-  -> @archlex/core          symbol resolution + structural graph
-  -> provider packages      catalog resolution + semantic diagnostics
-  -> @archlex/layout-elk   positioned compound graph
-  -> @archlex/renderer-svg deterministic SVG string
+  -> parser                  AST and parse diagnostics
+  -> core analyzer           graph and structural diagnostics
+  -> selected provider       catalog metadata and semantic diagnostics
+  -> prepare()               prepared graph and missing icon requests
+  -> icon runtime            optional sanitized icon registry
+  -> layout-elk              positioned compound graph
+  -> renderer-svg            accessible SVG and element mappings
 ```
 
-Expected source problems are data, not exceptions. Each stage returns the best partial result and diagnostics. Only internal invariant failures throw `ArchLexInternalError`.
+Call `render(source)` when bundled icons meet your needs. Call `prepare()`, load
+`PreparedDiagram.iconRequests`, then call `renderPrepared()` when your
+application wants CDN artwork. Both paths use the same analyzer, layout engine,
+and renderer.
 
-## Packages and dependency rules
+## Package boundaries
 
-| Package | Responsibility | May depend on |
-| --- | --- | --- |
-| `@archlex/model` | AST, graph, diagnostics, provider, layout, render types | Runtime-free utilities |
-| `@archlex/parser` | Chevrotain lexer/CST and CST-to-AST conversion | `model`, Chevrotain |
-| `@archlex/aws` | AWS catalog, icons, aliases, containment, semantic rules | `model` |
-| `@archlex/gcp` | GCP catalog, icons, aliases, containment, semantic rules | `model` |
-| `@archlex/k8s` | Kubernetes catalog, icons, aliases, containment, semantic rules | `model` |
-| `@archlex/layout-elk` | ELK adapter, worker protocol, positioned graph | `model`, ELK.js |
-| `@archlex/renderer-svg` | Deterministic DOM-free SVG serialization | `model` |
-| `@archlex/core` | Orchestration, structural analysis, provider registry | Library packages through public exports |
-| `apps/playground` | Reference React editor | `core` public API only |
+| Package | Responsibility |
+| --- | --- |
+| `@archlex/model` | Publishes AST, graph, provider, layout, render, and diagnostic types |
+| `@archlex/parser` | Parses ArchLex source with Chevrotain and recovers partial ASTs |
+| `@archlex/diagnostics` | Defines shared diagnostics and documentation metadata |
+| `@archlex/aws` | Defines the AWS catalog, rules, bundled icons, and CDN mapping |
+| `@archlex/gcp` | Defines the Google Cloud catalog, rules, bundled icons, and CDN mapping |
+| `@archlex/k8s` | Defines the Kubernetes catalog, rules, bundled icons, and CDN mapping |
+| `@archlex/icons-core` | Validates providers, fetches icons, sanitizes SVG, and manages shared loading behavior |
+| `@archlex/icons-browser` | Stores sanitized icon records in application memory |
+| `@archlex/icons-node` | Stores sanitized icon records in a TTL-aware filesystem cache |
+| `@archlex/layout-elk` | Converts graphs to ELK, calculates geometry, and caches layouts |
+| `@archlex/renderer-svg` | Serializes deterministic, accessible SVG without DOM APIs |
+| `@archlex/core` | Coordinates parsing, analysis, providers, layout, and rendering |
+| `@archlex/cli` | Exposes render, validate, examples, and diagnostic-reference commands in Node.js |
 
-Parser cannot import providers; providers cannot import parser, layout, or renderer; layout and renderer cannot interpret source; reusable packages cannot import React or Monaco. Automated boundary tests enforce this matrix.
+The parser does not import provider packages. Provider packages do not import
+the parser, layout engine, renderer, or runtime icon adapters. Layout and
+renderer packages do not interpret source syntax. Boundary tests enforce these
+rules.
 
-## Internal Package Structure Conventions
+## Applications
 
-To ensure scalable growth and ease of contribution:
+| Application | Uses |
+| --- | --- |
+| Playground | React, Monaco, core, browser icon loading, SVG export |
+| Docs | Nextra pages sourced from `docs/` through symlinks |
+| Landing | Astro components and generated diagram assets |
+| MCP server | Cloudflare Worker tools, prompts, examples, and embedded docs resources |
 
-- `@archlex/aws`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
-- `@archlex/gcp`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
-- `@archlex/k8s`: `src/catalog/`, `src/icons/`, `src/rules/`, `src/builder.ts`, `src/registry.ts`, `src/index.ts`.
-- `@archlex/parser`: `src/lexer/`, `src/cst/`, `src/visitor/`, `src/recovery/`, `src/index.ts`.
-- `@archlex/layout-elk`: `src/adapter/`, `src/worker/`, `src/cache/`, `src/index.ts`.
-- `@archlex/renderer-svg`: `src/serializer/`, `src/theme/`, `src/accessibility/`, `src/index.ts`.
-- `@archlex/core`: `src/pipeline/`, `src/browser.ts`, `src/index.ts`.
+The MCP build copies hand-written `docs/` Markdown into generated TypeScript
+resources. The docs app reads the same Markdown through `apps/docs/pages`
+symlinks. One source edit can update both consumers.
 
-See [Contribution & Extension Guide](contribution-guide.md) for step-by-step developer workflows.
+## Scopes and providers
 
-## Data ownership
+The parser recognizes six scope kinds:
 
-- Parser owns a ArchLex AST; Chevrotain CST types never leave its package.
-- Analyzer owns stable instance IDs, symbol tables, containment, and `CloudGraph`.
-- Providers enrich graph elements and emit diagnostics without mutating the AST.
-- Layout owns geometry only; it cannot decide validity, icons, semantics, or style meaning.
-- Renderer owns SVG structure and presentation only.
-- Stable IDs and source spans preserve source-to-element mapping through every stage.
+- `account`, `region`, `vpc`, and `subnet` model cloud containment.
+- `cluster` and `namespace` model Kubernetes containment.
 
-## Runtime and worker boundaries
+Providers decide which resources belong in each scope. AWS, Google Cloud, and
+Kubernetes use the same `CloudProvider` contract for catalog lookup and graph
+validation. A new provider can reuse existing scopes without changing the
+parser, layout engine, or renderer.
 
-Public packages are ESM and support Node.js 22 without browser polyfills. Browser layout uses an ELK Web Worker by default. Requests carry a protocol version and monotonically increasing ID; `AbortSignal` sends cancellation, and callers discard stale results. The inline adapter implements the same interface for Node and tests.
+## Diagnostics and partial results
 
-`mountSvg` is exported from a browser subpath. It parses trusted ArchLex-generated SVG, replaces container contents, and returns `SVGSVGElement`. Raw user HTML is never accepted.
+The parser, analyzer, provider, layout engine, and renderer return diagnostics
+with the best result they can produce. Unknown resources keep generic nodes.
+Invalid relationships keep recoverable edges when geometry remains possible.
 
-## Errors, determinism, and caching
+Expected source problems do not throw. Cancellation throws `ArchLexAbortError`.
+Broken internal contracts throw `ArchLexInternalError` with a pipeline stage and
+optional cause.
 
-- Parse errors produce `AL-PARSE-*`; structural errors produce `AL-STRUCT-*`; provider errors use stable provider-prefixed codes.
-- Unknown resources and relationships render as generic elements with `info` diagnostics.
-- Abortion throws `ArchLexAbortError`, never a source diagnostic.
-- Broken contracts or impossible stage states throw `ArchLexInternalError` with stage and cause.
-- Parsing and analysis are deterministic for source plus catalog version.
-- Layout fingerprints include geometry-relevant graph data, options, and engine version, but exclude diagnostic prose, selection, and theme colors.
-- SVG definitions and elements sort by stable ID and use consistent numeric formatting.
+## Determinism and cancellation
 
-## Extension model
+Stable IDs use containment paths and local instance IDs. Layout fingerprints
+include geometry-relevant graph data, options, and engine version. They exclude
+diagnostic prose, theme colors, selection, and icon artwork.
 
-Providers implement interfaces from `@archlex/model`. Adding a provider that uses existing scopes must not require grammar, layout, or renderer changes; Kubernetes added the reusable `cluster` and `namespace` scope kinds. Alternative layout engines and renderers implement the corresponding model interface and are selected by `createArchLex`.
+Browser layout requests carry an operation ID and `AbortSignal`. The playground
+also checks its current operation before it applies a base render or hydrated
+icon render. Older work cannot replace a newer diagram.
+
+## SVG and icon safety
+
+Provider packages bundle sanitized SVG fragments for common resources. Runtime
+adapters fetch missing artwork from pinned, allowlisted sources. The sanitizer
+rejects scripts, event handlers, external references, active animation,
+unsupported namespaces, unsafe CSS, and oversized content.
+
+The renderer accepts sanitized icon records. It does not fetch URLs. It emits
+complete SVG with accessible names, focus attributes, deterministic IDs, and
+fragment-local icon references.
+
+## Extension points
+
+Implement `CloudProvider` to add a catalog and semantic rules. Implement
+`LayoutEngine` or `GraphRenderer` to replace layout or output behavior. Keep
+these implementations behind interfaces from `@archlex/model` so applications
+can compose them through `createArchLex`.
+
+Read the [Contribution Guide](contribution-guide.md) for file paths, provider
+examples, tests, changesets, and documentation requirements.

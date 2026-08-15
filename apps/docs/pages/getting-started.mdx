@@ -1,27 +1,24 @@
 # Getting Started
 
-## Install
+## Install ArchLex
 
-Install ArchLex and all supported provider packages with npm:
+Install the core package and the three supported provider packages:
 
 ```bash
 npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
-Use pnpm if your project uses it:
+With pnpm:
 
 ```bash
 pnpm add @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
-## Requirements
+ArchLex requires Node.js 22 or later for Node.js applications. Browser applications need ES2022 support.
 
-- Node.js 22.0.0 or later
-- A browser with ES2022 support for browser applications
+## Create One Shared Setup
 
-## Register Providers
-
-Create one ArchLex instance with AWS, Google Cloud, and Kubernetes:
+Register AWS, Google Cloud, and Kubernetes once. Your diagram source selects one registered provider.
 
 ```typescript
 import {
@@ -36,51 +33,93 @@ const archlex = createArchLex({
 });
 ```
 
-## Write a Diagram
+Keep this setup when you switch examples or accept diagram source from a user.
 
-Select one provider in each source and connect its resources:
+## Write Provider-Neutral Source
 
-```typescript
-const source = `
+Every source can set its layout direction, provider, and validation mode. Resource IDs and semantic rules come from the selected provider.
+
+```archlex
 direction LR
 provider aws
 validation normal
 
 alb -[routes]-> ecs
 ecs -[writes]-> rds
-`;
 ```
 
-Use `provider gcp` with Google Cloud resource IDs or `provider k8s` with
-Kubernetes resource IDs. You can keep the shared provider registration.
+The same setup renders Google Cloud source:
 
-## Render SVG
+```archlex
+direction LR
+provider gcp
+validation normal
+
+cloud-load-balancing -[routes]-> cloud-run
+cloud-run -[writes]-> cloud-sql
+```
+
+It also renders Kubernetes source with cluster and namespace containment:
+
+```archlex
+direction LR
+provider k8s
+validation normal
+
+cluster production {
+  namespace storefront {
+    edge: ingress
+    api_service: service
+    api: deployment
+    data: persistentvolumeclaim
+
+    edge -[routes]-> api_service
+    api_service -[targets]-> api
+    api -[mounts]-> data
+  }
+}
+```
+
+Use the [Language Specification](/specs/language) for declaration forms, six supported scopes, relationship chains, and labels.
+
+## Render and Inspect Diagnostics
 
 ```typescript
 const result = await archlex.render(source);
 
 for (const diagnostic of result.diagnostics) {
-  console.warn(diagnostic.code, diagnostic.message);
+  console.warn(
+    diagnostic.code,
+    diagnostic.message,
+    diagnostic.remediation,
+  );
 }
 
 console.log(result.svg);
 ```
 
-In a browser, assign `result.svg` to a container that you control. Treat the
-diagnostics array as part of the render result so your interface can point users
-to invalid resources or relationships.
+ArchLex can return partial output with diagnostics. Read `result.diagnostics` before you mount or save the SVG.
 
-## Open the Playground
+In a browser, assign `result.svg` to an element that your application controls. The renderer sanitizes provider icon markup before it adds icons to the SVG.
 
-Use the [interactive playground](/playground) to edit source and inspect the SVG
-result.
+## Explore the Catalog
 
-## Next Steps
+Query registered resources and scopes without duplicating provider catalogs in your interface:
 
-- [Language Specification](/specs/language): learn the grammar and directives
-- [Public API](/specs/public-api): inspect the TypeScript API
-- [AWS Semantics](/specs/aws-semantics): browse AWS resources and rules
-- [Google Cloud Semantics](/specs/gcp-semantics): browse Google Cloud resources
-  and rules
-- [Kubernetes Semantics](/specs/k8s-semantics): browse Kubernetes resources,
-  containment, and rules
+```typescript
+const catalog = archlex.getCatalog();
+
+console.log(catalog.providers.k8s.services);
+console.log(catalog.containmentScopes);
+console.log(catalog.relationshipKinds);
+```
+
+## Continue
+
+- [AWS Semantics](/specs/aws-semantics): AWS resources, scopes, icons, and diagnostics
+- [Google Cloud Semantics](/specs/gcp-semantics): Google Cloud resources, scopes, icons, and diagnostics
+- [Kubernetes Semantics](/specs/k8s-semantics): Kubernetes resources, cluster and namespace containment, and diagnostics
+- [Public API](/specs/public-api): parse, analyze, prepare, render, and catalog methods
+- [Dynamic Icons](/guides/dynamic-cdn-icons): browser and Node.js icon-loading workflows
+- [MCP Server](/guides/mcp-server): render, validate, catalog, and example tools for MCP clients
+- [Interactive Playground](https://playground.archlex.dev): edit examples and inspect SVG output beside diagnostics

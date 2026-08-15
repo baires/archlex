@@ -1,104 +1,61 @@
-# Dynamic CDN Icon Loading
+# Dynamic Icon Guide
 
-ArchLex loads missing provider icons through a shared, browser-safe pipeline.
-AWS, GCP, and Kubernetes bundle common icons, while resources without bundled
-artwork can be fetched, sanitized, and injected before rendering. The final
-renderer is synchronous with respect to icons and never starts a network request.
+## When icon loading runs
 
-## Runtime packages
+AWS, Google Cloud, and Kubernetes packages bundle sanitized artwork for common
+resources. A prepared graph lists only the missing provider icons.
 
-- `@archlex/icons-core` owns provider validation, URL candidate resolution,
-  bounded fetching, SVG sanitization, checksums, request deduplication,
-  concurrency, negative caching, fallbacks, and shared types.
-- `@archlex/icons-browser` configures the shared loader with `globalThis.fetch`
-  and an in-memory application cache. It imports no Node APIs.
-- `@archlex/icons-node` configures the shared loader with a persistent,
-  TTL-aware filesystem cache.
-- `@archlex/icons` is the deprecated Node compatibility facade. Existing Node
-  consumers can migrate incrementally, but new code should choose the explicit
-  browser or Node adapter.
-
-Provider packages export pure definitions: `AWS_CDN_PROVIDER` from
-`@archlex/aws`, `GCP_CDN_PROVIDER` from `@archlex/gcp`, and
-`K8S_CDN_PROVIDER` from `@archlex/k8s`. Importing these packages does not
-register a loader or perform network work. Each application must pass the
-definitions it wants to its runtime adapter.
+The renderer never starts a request. Your application chooses a browser or Node
+loader, loads the requests, then passes the sanitized registry to core.
 
 ## Prepare, load, render
 
-Rendering has three explicit phases:
-
-```typescript
-import { AWS_CDN_PROVIDER, awsProvider } from "@archlex/aws";
-import { createArchLex } from "@archlex/core";
-import { GCP_CDN_PROVIDER, gcpProvider } from "@archlex/gcp";
-import { K8S_CDN_PROVIDER, k8sProvider } from "@archlex/k8s";
+```ts
+import { AWS_CDN_PROVIDER } from "@archlex/aws";
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
+import { GCP_CDN_PROVIDER } from "@archlex/gcp";
 import { createBrowserIconLoader } from "@archlex/icons-browser";
+import { K8S_CDN_PROVIDER } from "@archlex/k8s";
 
 const archlex = createArchLex({
   providers: [awsProvider(), gcpProvider(), k8sProvider()],
 });
-const iconLoader = createBrowserIconLoader({
+
+const loader = createBrowserIconLoader({
   providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER, K8S_CDN_PROVIDER],
 });
 
 const prepared = archlex.prepare("provider aws\nlambda > app-runner");
-const { icons, diagnostics: iconWarnings } =
-  await iconLoader.loadIcons(prepared.iconRequests);
-const rendered = await archlex.renderPrepared(prepared, { icons });
-
-console.log(rendered.svg);
-for (const warning of iconWarnings) {
-  console.warn(warning.code, warning.provider, warning.key, warning.message);
-}
-```
-
-`prepare()` parses and analyzes once, preserving bundled icons and collecting
-only missing icon requests. `loadIcons()` deduplicates provider/key pairs,
-fetches and sanitizes missing artwork, and returns an immutable registry.
-`renderPrepared()` applies that registry without mutating the prepared graph,
-then lays out and renders the complete diagram.
-
-Pass an `AbortSignal` to both loading and rendering when work can become stale:
-
-```typescript
-const controller = new AbortController();
-const prepared = archlex.prepare(source);
-const loaded = await iconLoader.loadIcons(prepared.iconRequests, {
-  signal: controller.signal,
-});
-const rendered = await archlex.renderPrepared(prepared, {
+const loaded = await loader.loadIcons(prepared.iconRequests);
+const result = await archlex.renderPrepared(prepared, {
   icons: loaded.icons,
-  signal: controller.signal,
 });
 ```
 
-Cancellation rejects with `AbortError`; it is not converted into an icon
-warning. Interactive consumers must also ignore late success and failure
-callbacks from operations that are no longer current.
+Inspect `loaded.diagnostics` for icon warnings. A failed icon request returns a
+generic sanitized fallback, so the diagram can still render.
 
-## Browser and Node usage
+## Browser behavior
 
-Browser applications use the browser adapter:
+`@archlex/icons-browser` uses `globalThis.fetch` and an in-memory cache. The
+browser HTTP cache may also reuse responses. A new application session starts
+with an empty application cache.
 
-```typescript
-import { createBrowserIconLoader } from "@archlex/icons-browser";
+The playground renders prepared geometry and loads missing icons in parallel.
+It shows the base SVG first, then applies hydrated artwork through
+`renderPrepared()`. Icon content does not change the layout fingerprint, so the
+second render can reuse geometry.
 
-const loader = createBrowserIconLoader({
-  providers: [AWS_CDN_PROVIDER, GCP_CDN_PROVIDER, K8S_CDN_PROVIDER],
-  concurrency: 4,
-  negativeCacheMs: 30_000,
-});
-```
+## Node behavior
 
-The browser adapter keeps sanitized records in application memory. The browser
-also applies its ordinary HTTP cache to CDN responses. ArchLex does not use
-IndexedDB or a service worker in this release, so creating a new application
-session discards the in-memory cache.
+`@archlex/icons-node` stores checksum-named JSON entries in a filesystem cache:
 
-Node applications use the Node adapter:
-
-```typescript
+```ts
 import { createNodeIconLoader } from "@archlex/icons-node";
 
 const loader = createNodeIconLoader({
@@ -108,122 +65,53 @@ const loader = createNodeIconLoader({
 });
 ```
 
-The Node adapter writes checksum-named JSON entries atomically. Fresh entries
-are shared across loader instances. After TTL expiry, the loader tries the CDN
-again and can use the expired sanitized record as a non-fatal fallback when
-refreshing fails.
+After TTL expiry, the loader requests fresh artwork. It can use an expired
+sanitized entry when refresh fails.
 
-Node-only environment variables remain supported:
+Node supports these environment variables:
 
-- `ARCHLEX_ICON_CACHE_DIR` changes the default cache directory
-  (`~/.cache/archlex/icons`).
-- `ARCHLEX_ICON_CACHE_TTL` sets the TTL in days.
-- `ARCHLEX_DISABLE_CDN_ICONS=true` disables Node CDN requests while preserving
-  fallback rendering.
-- `ARCHLEX_DEBUG=icons` logs Node adapter fetch decisions.
+- `ARCHLEX_ICON_CACHE_DIR`
+- `ARCHLEX_ICON_CACHE_TTL`
+- `ARCHLEX_DISABLE_CDN_ICONS=true`
+- `ARCHLEX_DEBUG=icons`
 
-Browser code must not read these variables or import `@archlex/icons-node`.
+Browser code must not import the Node adapter or read these variables.
 
-## Icon name mappings
+## Cancellation
 
-The AWS, GCP, and Kubernetes CDN providers include mappings from ArchLex
-resource identifiers to upstream icon paths. These mappings handle differences
-between ArchLex IDs and each icon source's naming and directory conventions.
+Pass the same `AbortSignal` to loading and rendering:
 
-For example:
-- `aurora` → `AmazonAurora.svg`
-- `cloudwatch` → `AmazonCloudWatch.svg`
-- `kms` → `AWSKeyManagementService.svg`
-- `cloud-nat` → `Cloud-NAT.svg`
-- `vertex-ai` → `Vertex-AI.svg`
-- `deployment` → `resources/unlabeled/deploy.svg`
-
-When a service ID has no explicit mapping, the loader tries candidates in order:
-explicit mapping, PascalCase, camelCase, then lowercase without dashes. If all
-candidates return 404, the loader falls back to a generic cloud icon and emits an
-`ICON_UNMAPPED` diagnostic.
-
-The AWS provider includes 100+ mappings covering compute, storage, database,
-networking, security, analytics, and ML services. The GCP provider includes 60+
-mappings across similar categories. Kubernetes maps its bundled resource,
-infrastructure, and control-plane icons to paths under the immutable upstream
-commit.
-
-## Provider definitions and pinning
-
-Custom providers are explicit data passed to either adapter:
-
-```typescript
-import type { CdnProviderDefinition } from "@archlex/icons-core";
-
-export const ACME_CDN_PROVIDER: CdnProviderDefinition = {
-  provider: "acme",
-  baseUrl: "https://cdn.example.com/acme-icons@2.4.1/svg",
-  allowedHosts: ["cdn.example.com"],
-  releaseId: "2.4.1",
-  fileExtension: ".svg",
-  mappings: {
-    "service-a": "ServiceA",
-  },
-  attribution: {
-    source: "Acme Architecture Icons",
-    license: "Apache-2.0",
-    url: "https://example.com/acme-icons",
-  },
-  timeoutMs: 10_000,
-  maxResponseBytes: 256_000,
-};
+```ts
+const controller = new AbortController();
+const loaded = await loader.loadIcons(prepared.iconRequests, {
+  signal: controller.signal,
+});
+const result = await archlex.renderPrepared(prepared, {
+  icons: loaded.icons,
+  signal: controller.signal,
+});
 ```
 
-Provider URLs must use HTTPS and an explicit hostname allowlist. Releases must
-be immutable: pin a version in `baseUrl`, or supply a SHA-256 `integrity` value
-for every mapped asset when the upstream URL cannot encode the release. Moving
-references such as `latest`, `next`, `main`, and `master` are rejected.
+Cancellation rejects with `AbortError`. Interactive clients should also ignore
+callbacks from operations that no longer own the current source.
 
-Candidate filenames are tried without duplicates in this order: explicit
-mapping, PascalCase, camelCase, then lowercase without dashes. Redirected
-responses, unexpected response URLs, oversized payloads, integrity mismatches,
-and unsafe SVG content are rejected before cache insertion.
+## Provider definitions
 
-## Failure behavior and warnings
+Each `CdnProviderDefinition` supplies a provider ID, pinned HTTPS base URL,
+allowed hosts, immutable release ID, filename mappings, response limits, and
+attribution. The loader rejects moving release names, unsafe redirects,
+unexpected hosts, oversized responses, and integrity failures.
 
-Icon failures are non-fatal. The loader returns a generic sanitized cloud icon
-and one structured warning with one of these codes:
+## Sanitization
 
-- `ICON_FETCH_FAILED`
-- `ICON_INVALID`
-- `ICON_TOO_LARGE`
-- `ICON_UNMAPPED`
+The shared sanitizer rejects entity declarations, processing instructions,
+scripts, event handlers, external references, unsafe CSS, active animation,
+unsupported elements, and invalid namespaces. It calculates a stable SHA-256
+checksum before an icon enters a registry or cache.
 
-The diagram still renders. Icon warnings are intentionally separate from parse,
-semantic, layout, and renderer diagnostics, so callers decide where and how to
-surface network-related information. A valid expired Node cache entry takes
-priority over the generic fallback.
+## Testing
 
-## Security model
-
-Every fetched response is byte-limited before parsing. The sanitizer rejects
-DOCTYPE and entity declarations, processing instructions, scripts, event
-handlers, external references, unsafe CSS URLs, unsupported elements and
-attributes, and invalid namespaces. Sanitized records receive a stable Web
-Crypto SHA-256 checksum before they enter a registry or cache.
-
-Bundled icon lookup remains first. Only nodes without bundled SVG artwork become
-dynamic requests, and rendering receives sanitized records rather than raw CDN
-responses.
-
-## Planned VS Code flow
-
-The planned VS Code integration will run `@archlex/icons-node` in the extension
-host, where filesystem caching and network policy belong. The extension host
-will send sanitized icon records with prepared diagram data to the webview. The
-webview will render those records but will not fetch or sanitize CDN assets
-independently.
-
-## Testing and troubleshooting
-
-Tests must inject a `fetchFn` backed by checked-in fixtures; they must never call
-the public AWS, GCP, Kubernetes, or package CDNs. To diagnose a Node application, enable
-`ARCHLEX_DEBUG=icons`, verify the pinned provider URL and allowlist, and inspect
-the configured cache directory. A sanitizer or network warning should accompany
-a complete fallback diagram rather than aborting the render.
+Inject a fixture-backed `fetchFn` in automated tests. Do not depend on AWS,
+Google Cloud, Kubernetes, jsDelivr, or package CDNs. Test success, 404 fallback,
+timeout, cancellation, redirect rejection, size limits, sanitization, cache
+expiry, and request deduplication.

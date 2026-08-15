@@ -1,62 +1,43 @@
 # ArchLex Documentation
 
-ArchLex is a browser-first TypeScript library that turns a concise, provider-aware language into accessible architecture diagrams. AWS, GCP, and Kubernetes are the supported providers; semantic validation is the main product capability.
+ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, and Kubernetes resources with one language and one TypeScript API.
 
-## Getting Started
+## Start Here
 
-New to ArchLex? Start here:
+1. Follow the [Getting Started guide](../apps/docs/pages/getting-started.mdx) to install ArchLex, register providers, and render your first diagram.
+2. Use the [Language Specification](specs/language.md) when you write directives, resources, scopes, and relationships.
+3. Check the provider specification for the resources and semantic rules that ArchLex applies:
+   - [AWS](specs/aws-semantics.md)
+   - [Google Cloud](specs/gcp-semantics.md)
+   - [Kubernetes](specs/k8s-semantics.md)
+4. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
 
-1. **[Quick Start](../README.md#quick-start)** - Installation and basic usage
-2. **[Language Specification](specs/language.md)** - Learn the syntax
-3. **[Public API](specs/public-api.md)** - JavaScript/TypeScript API reference
-4. **[Contribution Guide](architecture/contribution-guide.md)** - Contributing to ArchLex
+## Build With ArchLex
 
-## Core Documentation
+- [Public API](specs/public-api.md): create an instance, inspect the catalog, prepare icons, and render SVG.
+- [Relationship Types](guides/relationship-types.md): express data flow, traffic, dependencies, and custom relationships.
+- [Dynamic Icons](guides/dynamic-cdn-icons.md): load provider icons in browsers and Node.js.
+- [MCP Server](guides/mcp-server.md): expose rendering, validation, catalog search, and examples to MCP clients.
+- [Playground](specs/playground.md): understand the editor, examples, icon hydration, and export flow.
 
-### Specifications
+## Understand the System
 
-- **[Language Specification](specs/language.md)** - Complete syntax reference with grammar and examples
-- **[Public API](specs/public-api.md)** - JavaScript/TypeScript API documentation
-- **[AWS Semantics](specs/aws-semantics.md)** - AWS provider catalog and validation rules
-- **[GCP Semantics](specs/gcp-semantics.md)** - GCP provider catalog and validation rules
-- **[Kubernetes Semantics](specs/k8s-semantics.md)** - Kubernetes catalog, containment, and validation rules
-- **[Layout & Rendering](specs/layout-rendering.md)** - Layout algorithms and SVG rendering
-- **[Playground](specs/playground.md)** - Interactive playground features and usage
+- [System Architecture](architecture/system-architecture.md): follow source through parsing, validation, layout, icon loading, and SVG rendering.
+- [Layout and Rendering](specs/layout-rendering.md): inspect ELK layout, caching, SVG output, and accessibility behavior.
+- [Contribution Guide](architecture/contribution-guide.md): add resources, rules, icons, providers, tests, and docs.
 
-### Guides
+## Documentation Ownership
 
-- **[Relationship Types](guides/relationship-types.md)** - Using the 9 built-in relationship types and custom types
-- **[Dynamic CDN Icons](guides/dynamic-cdn-icons.md)** - Icon loading, caching, and CDN configuration
+The published docs app reads the specifications, guides, architecture pages, and error reference from this directory through links under `apps/docs/pages/`. Edit the source page here instead of copying its content into the app.
 
-### Architecture
+Run these checks after a documentation change:
 
-- **[System Architecture](architecture/system-architecture.md)** - Package boundaries, pipeline, and runtime behavior
-- **[Contribution Guide](architecture/contribution-guide.md)** - Package layout, extension workflows, and testing standards
+```bash
+pnpm generate-docs
+pnpm build:docs
+pnpm verify:sites
+```
 
-### Error Reference
+`pnpm generate-docs` owns `errors/index.md` and the generated `errors/AL-*.md` pages. Update diagnostic registries or the generator when those pages need different content.
 
-- **[Error System Overview](errors/README.md)** - Diagnostic codes, severities, and remediation
-- **[Error Index](errors/index.md)** - Complete list of diagnostic codes
-- Individual error pages: `AL-PARSE-*`, `AL-STRUCT-*`, `AL-SEM-*`
-
-### Roadmap
-
-- **[Development Roadmap](ROADMAP.md)** - Project milestones and release planning
-
-## Documentation Standards
-
-- `docs/specs/` - Observable behavior and public contracts (language, API, providers)
-- `docs/architecture/` - Implementation boundaries and design decisions
-- `docs/guides/` - User-facing tutorials and how-to documentation
-- `docs/errors/` - Diagnostic code documentation
-
-Public API, grammar, diagnostic-code, or package-boundary changes require corresponding spec updates.
-
-## Contributing to Documentation
-
-Documentation improvements are welcome! See [CONTRIBUTING.md](../CONTRIBUTING.md) for:
-
-- Documentation structure and standards
-- How to add error documentation
-- How to update specifications
-- Pull request process
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for the repository workflow.

@@ -1,40 +1,72 @@
 # Playground Specification
 
-## Purpose and layout
+## Purpose
 
-The playground is the public API's reference consumer, not a collaboration product. Desktop uses a resizable editor/preview split with diagnostics below; narrow screens use Editor and Preview tabs. The header provides examples, direction, validation, theme, copy SVG, and download SVG.
+The playground gives you a reference editor for ArchLex source. It combines
+Monaco, live diagnostics, a rendered SVG preview, provider examples, settings,
+and export tools in one browser application.
 
-It ships shorthand, nested-valid, and invalid RDS Proxy examples.
+## Layout and examples
 
-## Monaco and render loop
+Desktop screens use a resizable editor and preview split. Narrow screens use
+Editor and Preview tabs. The command bar exposes examples, direction,
+validation, theme, documentation, import, export, and fullscreen controls.
 
-Monaco receives ArchLex tokens, comments, brackets, provider-derived completion, and diagnostic markers. MVP does not implement an LSP.
+The example selector groups entries by AWS, Google Cloud, and Kubernetes, then
+orders them by use case. Kubernetes examples cover microservices ingress,
+stateful storage, scheduled batch work, autoscaling and disruption protection,
+and namespace RBAC.
 
-Changes debounce for 150 ms. Each render aborts its predecessor. The previous successful SVG stays visible while pending. Expected errors update the partial diagram; internal errors preserve the prior SVG and show a separate banner.
+## Language support
 
-Controls override source directives only when explicitly locked by the user; otherwise they reflect source values.
+Monaco highlights directives, scope keywords, relationships, comments, and
+provider resources. Completion and hover data cover AWS, Google Cloud, and
+Kubernetes. Kubernetes support includes `cluster`, `namespace`, and resource
+aliases such as `deploy`, `svc`, and `pvc`.
 
-## Selection, persistence, and export
+The editor shows parse, structural, and provider diagnostics at their source
+spans. Code actions can apply supported remediation edits.
 
-SVG selection uses `data-archlex-id` and `ElementMapping` to reveal source. Cursor movement highlights the narrowest mapped element. Playground selection styling never enters exported SVG.
+## Progressive rendering
 
-Versioned local state stores source, example/custom mode, explicit overrides, theme, and pane sizes. Invalid JSON or unsupported versions fall back safely.
+Source and setting changes debounce before rendering. Each operation prepares
+the source once, starts the base render, and loads missing provider icons in
+parallel.
 
-Copy/download uses the latest successful SVG. Filenames use a sanitized title or `archlex-diagram.svg`. Output includes theme and accessibility content but excludes selection state and editor UI.
+The playground displays the base SVG as soon as layout finishes. The status bar
+shows `Ready` with base render duration while a separate `Loading icons…`
+message tracks hydration. When icon loading finishes, `renderPrepared()` reuses
+cached geometry and replaces only the SVG artwork.
+
+Each operation owns an `AbortController` and operation ID. A stale base render or
+icon hydration result cannot replace newer output. An icon failure keeps the
+base diagram and clears the loading state.
+
+## Selection and persistence
+
+SVG selection uses `data-archlex-id` and `ElementMapping` to reveal source.
+Cursor movement highlights the narrowest mapped element. Selection styling does
+not enter exported SVG.
+
+Versioned local state stores source, example or custom mode, explicit settings,
+theme, and pane sizes. Invalid JSON and unsupported versions fall back to the
+default source and layout.
+
+## Import and export
+
+You can import source from a file or URL. Copy and download actions use the
+latest successful SVG. PNG export rasterizes that SVG. Exported output includes
+theme and accessibility data but excludes playground selection state.
 
 ## Accessibility
 
-Controls and resize operations work by keyboard. Diagnostic count changes are announced without replaying every diagnostic per keystroke. Focus survives SVG replacement. Editor/preview relationships and shortcuts are documented in-app.
+Keyboard users can reach controls, resize panes, switch narrow-screen tabs, and
+navigate SVG elements. Focus survives hydrated SVG replacement. Diagnostic
+counts use live announcements without replaying the full list after each edit.
 
-## Non-goals
+## Verification
 
-Accounts, backend persistence, collaboration, sharing, remote execution, runtime icon downloads, PNG/PDF export, drag positioning, direct diagram editing, LSP, VS Code extension, and mobile-native UI.
-
-## Acceptance scenarios
-
-- Editing shorthand updates a deterministic preview.
-- Malformed input produces markers and partial SVG.
-- Source, SVG, and diagnostics selection synchronize both ways.
-- Stale ELK results never replace newer output.
-- Reload restores valid local state and ignores corruption.
-- Copy/download reflects the latest successful render without selection state.
+Unit tests cover render concurrency, icon hydration, status state, workspace
+persistence, transforms, export, and command-bar grouping. Browser tests cover
+responsive layout, keyboard use, CDN fixture routing, selection, and visual
+output.

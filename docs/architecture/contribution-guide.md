@@ -1,237 +1,157 @@
-# ArchLex Contribution & Extension Guide
+# Contribution Guide
 
-This document outlines the architecture patterns, directory conventions, and contribution workflows for expanding ArchLex (adding AWS services, semantic rules, layout engines, renderers, or new cloud providers).
+## Start with the product contract
 
----
+Before you edit code, identify the contract that changes. ArchLex publishes
+language syntax, TypeScript APIs, provider catalogs, diagnostic codes, SVG
+behavior, playground workflows, MCP tools, and documentation. Update the code,
+tests, and matching docs in one change.
 
-## Package Directory Standards
+Run `pnpm install` with Node.js 22 or later. Use `pnpm check` for the full build,
+typecheck, test, and lint pipeline.
 
-Every package in `packages/` enforces clear internal subdirectories and exports strictly through `src/index.ts` (or documented subpaths in `package.json`).
+## Provider map
 
-### `@archlex/aws`
+All provider packages use the same core structure.
 
-```text
-packages/aws/src/
-├── catalog/       # Service definitions, category lists, and aliases
-├── icons/         # Sanitized SVG icon fragments and metadata manifest
-├── rules/         # Modular semantic validation rules grouped by domain
-│   ├── compute/
-│   ├── database/
-│   ├── messaging/
-│   ├── networking/
-│   └── storage/
-├── builder.ts     # Declarative defineService and defineRule helpers
-├── registry.ts    # Central registry of AWS diagnostic codes
-└── index.ts       # Public provider export (awsProvider)
-```
+| Concern | AWS | Google Cloud | Kubernetes |
+| --- | --- | --- | --- |
+| Package | `packages/aws` | `packages/gcp` | `packages/k8s` |
+| Provider ID | `aws` | `gcp` | `k8s` |
+| Factory | `awsProvider()` | `gcpProvider()` | `k8sProvider()` |
+| Diagnostic prefix | `AWS-` | `GCP-` | `K8S-` |
+| Example resource | `lambda` | `cloud-run` | `deployment` |
+| Main scopes | account, region, VPC, subnet | account, region, VPC, subnet | cluster, namespace |
 
-### `@archlex/gcp`
+Each provider keeps catalog definitions in `src/catalog/`, rule modules in
+`src/rules/`, diagnostic constants in `src/registry.ts`, and public exports in
+`src/index.ts`. Provider packages also keep icon definitions under `src/icons/`
+and official source files under `assets/official/` when licensing permits local
+bundling.
 
-```text
-packages/gcp/src/
-├── catalog/       # Service definitions, category lists, and aliases
-├── icons/         # Sanitized SVG icon fragments, metadata manifest, and CDN config
-├── rules/         # Modular semantic validation rules grouped by domain
-├── builder.ts     # Declarative defineService and defineRule helpers
-├── registry.ts    # Central registry of GCP diagnostic codes
-└── index.ts       # Public provider export (gcpProvider)
-```
+## Add a catalog resource
 
-GCP icon ingestion (`scripts/import-official-icons.mjs`) adds a CSS-inlining pre-step: official Google artwork ships presentational `<style>` blocks, which are resolved into plain attributes before the shared sanitizer policy runs.
+1. Add the resource through the package `defineService` helper.
+2. Choose a stable canonical ID and unique aliases.
+3. Set the shared category, display name, icon key, and allowed containment.
+4. Add bundled artwork or a CDN path mapping.
+5. Add catalog, alias, containment, and icon tests.
+6. Run `pnpm validate:catalog`.
 
-### `@archlex/k8s`
+Use provider-qualified aliases consistently:
 
-`packages/k8s` follows the same catalog, icon, rule, builder, registry, and public
-export structure. It also owns the Kubernetes-specific `cluster` and `namespace`
-containment semantics and a CDN definition pinned to an immutable
-`kubernetes/community` commit.
-
-### Icon runtime packages
-
-```text
-packages/icons-core/src/
-├── provider.ts    # Pinned URL validation and CDN candidate fetching
-├── loader.ts      # Deduplication, concurrency, caching, and fallbacks
-├── sanitizer.ts   # Browser-safe SVG validation and Web Crypto checksums
-├── fallback.ts    # Generic cloud icon fallback
-└── types.ts       # Runtime-neutral contracts
-
-packages/icons-browser/src/
-├── memory-cache.ts # Per-session sanitized icon cache
-└── index.ts        # createBrowserIconLoader()
-
-packages/icons-node/src/
-├── cache.ts        # Persistent TTL filesystem cache with atomic writes
-└── index.ts        # createNodeIconLoader()
-```
-
-`@archlex/icons-core` contains no Node imports or import-time registration.
-Applications explicitly pass pure provider definitions to
-`@archlex/icons-browser` or `@archlex/icons-node`. The legacy
-`@archlex/icons` package remains a Node compatibility facade during migration.
-See the [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for the
-prepare/load/render flow and cache behavior.
-
-### `@archlex/parser`
-
-```text
-packages/parser/src/
-├── lexer/         # Token definitions and Chevrotain Lexer instance
-├── cst/           # Chevrotain CstParser definitions
-├── visitor/       # CST-to-AST conversion visitor and span mapping
-├── recovery/      # Error recovery strategies & AL-PARSE-* diagnostics
-└── index.ts       # Public parse() export
-```
-
-### `@archlex/layout-elk`
-
-```text
-packages/layout-elk/src/
-├── adapter/       # CloudGraph <-> ELK compound graph conversion
-├── worker/        # Web Worker protocol (v1.0.0) & inline fallback
-├── cache/         # Geometry fingerprinting and cache utilities
-└── index.ts       # Public layout engine exports
-```
-
-### `@archlex/renderer-svg`
-
-```text
-packages/renderer-svg/src/
-├── serializer/    # DOM-free SVG string generator & element mappings
-├── theme/         # Theme tokens (light, dark, custom)
-├── accessibility/ # ARIA, role, and focus attribute helpers
-└── index.ts       # Public graph renderer exports
-```
-
----
-
-## Contributor Workflows
-
-### 1. Adding an AWS Service to the Catalog
-
-To add a new AWS service:
-1. Register the service using `defineService`:
 ```ts
-import { defineService } from "./builder.js";
+// AWS
+aliases: ["aws.lambda", "function"]
 
-export const lambdaService = defineService({
-  id: "lambda",
-  displayName: "AWS Lambda",
-  category: "compute",
-  aliases: ["aws.lambda", "function"],
-  iconKey: "aws-lambda"
-});
-```
-2. **For bundled icons:** Add the official SVG under `assets/official/` and run
-   the package's `icons:generate` workflow. Never hand-edit `generated.ts`.
-3. **For CDN-only icons:** Add a name mapping in `src/icons/cdn.ts`:
-```ts
-export const AWS_CDN_PROVIDER: CdnProviderDefinition = {
-  // Keep the existing pinned URL, allowlist, release, limits, and attribution.
-  mappings: {
-    lambda: "AWSLambda",
-  // Add your new service here
-  },
-};
-```
-4. Keep the provider definition pure: importing `@archlex/aws` must not
-   register a loader, read runtime configuration, or start a request.
-5. Add table-driven catalog tests and fixture-backed CDN definition tests.
+// Google Cloud
+aliases: ["gcp.cloud-run"]
 
-**Icon Resolution Priority:**
-1. Bundled icon (if present in `AWS_SANITIZED_ICONS`)
-2. Sanitized CDN icon loaded explicitly between `prepare()` and
-   `renderPrepared()`
-3. Expired Node cache entry, when available after a refresh failure
-4. Generic sanitized fallback plus a non-fatal structured warning
-
-See [Dynamic CDN Icons Guide](../guides/dynamic-cdn-icons.md) for details on CDN configuration and cache management.
-
----
-
-### 2. Adding a Semantic Validation Rule
-
-Semantic validation rules enforce architectural correctness. Every rule must have a globally unique diagnostic code formatted as `AWS-<DOMAIN>-<RULE>-NNN`.
-
-1. Register the diagnostic code in `src/registry.ts`:
-```ts
-export const AWS_DIAGNOSTIC_CODES = {
-  RDS_PROXY_NETWORK: "AWS-RDS-PROXY-NETWORK-001",
-  LAMBDA_VPC_SUBNET: "AWS-LAMBDA-VPC-SUBNET-001"
-} as const;
+// Kubernetes
+aliases: ["k8s.deployment", "deploy"]
 ```
 
-2. Author the rule using `defineRule` in `src/rules/<domain>/<rule-name>.ts`:
-```ts
-import { defineRule } from "../../builder.js";
+Do not reuse an existing canonical ID or alias within one provider. Keep
+canonical IDs stable within a major version. Add a deprecated alias when you
+need to preserve an old spelling.
 
-export const rdsProxyNetworkRule = defineRule({
-  code: "AWS-RDS-PROXY-NETWORK-001",
-  severity: "error",
-  summary: "RDS Proxy and its target must have compatible VPC placement.",
-  validate(graph) {
-    // Inspection logic returning Diagnostic[]
-  }
-});
+## Add or update icons
+
+Provider imports convert upstream artwork into deterministic sanitized
+fragments. Do not edit `src/icons/generated.ts` by hand.
+
+```bash
+pnpm --filter @archlex/aws icons:generate
+pnpm --filter @archlex/gcp icons:generate
+pnpm --filter @archlex/k8s icons:generate
 ```
 
-3. Export the rule from `src/rules/index.ts` to include it in `awsProvider().validateGraph()`.
-4. Add unit tests verifying `normal`, `strict`, and `off` validation mode outcomes.
+Run the matching `icons:check` command before you commit generated artwork.
+Keep CDN definitions pure. They may declare a pinned base URL, host allowlist,
+release ID, mappings, response limits, and attribution. They must not register a
+loader or start a request during import.
 
----
+AWS and Google Cloud importers account for their upstream file conventions.
+The Kubernetes importer uses the pinned `kubernetes/community` icon set and
+prefers unlabeled resource artwork.
 
-### 3. Adding a New Cloud Provider (e.g. Azure)
+## Add a semantic rule
 
-Adding a provider that uses existing scopes requires no changes to
-`@archlex/parser`, `@archlex/layout-elk`, or `@archlex/renderer-svg`. GCP
-(`packages/gcp`) and Kubernetes (`packages/k8s`) are reference implementations.
-If a provider needs a new reusable scope kind, extend the model and grammar with
-focused parser and boundary tests.
+1. Register a stable code in `src/registry.ts`.
+2. Implement the rule with the package `defineRule` helper.
+3. Export the rule from `src/rules/index.ts`.
+4. Include it in the provider validation pass.
+5. Test `normal`, `strict`, and `off` modes.
+6. Update the matching provider semantics page.
+7. Run `pnpm generate-docs` when the shared diagnostic registry or templates
+   change.
 
-1. Create a new package shell `packages/<provider>`.
-2. Implement the `CloudProvider` interface from `@archlex/model`:
-```ts
-import type {
-  CloudGraph,
-  CloudProvider,
-  Diagnostic,
-  ServiceMetadata,
-  ValidationMode,
-} from "@archlex/model";
+Use the provider prefix and a descriptive domain:
 
-export function azureProvider(): CloudProvider {
-  return {
-    id: "azure",
-    name: "Microsoft Azure",
-    catalogVersion: "2026-07-29",
-    supports(serviceKind: string): boolean { /* ... */ },
-    resolveService(serviceKind: string): ServiceMetadata | undefined { /* ... */ },
-    validateGraph(
-      graph: CloudGraph,
-      mode: ValidationMode = "normal",
-    ): readonly Diagnostic[] { /* ... */ }
-  };
-}
+```text
+AWS-RDS-PROXY-NETWORK-001
+GCP-DATA-CLOUD-SQL-NETWORK-001
+K8S-NETWORKING-SERVICE-TARGET-001
 ```
-3. Add `@archlex/<provider>` to `packages/core` dependencies, re-export the provider from `packages/core/src/index.ts`, and extend the matrix in `tests/boundary-rules.test.ts`.
-4. Export a pure, version-pinned `CdnProviderDefinition`. Use HTTPS, an
-   explicit host allowlist, immutable release identification, response limits,
-   mappings, and attribution. If the URL cannot carry a pinned version, record
-   a SHA-256 integrity value for every mapped asset.
-5. Register the cloud provider in
-   `createArchLex({ providers: [awsProvider(), gcpProvider(), azureProvider()] })`
-   and separately register its CDN definition with the selected browser or
-   Node icon adapter.
 
----
+Rules may use only facts present in `CloudGraph`. Do not infer IAM policies,
+firewall contents, Kubernetes selectors, storage provisioning, or runtime state
+unless the language models that information.
 
-## Testing & Quality Assurance Standards
+## Add a provider
 
-- **Unit Tests**: Place unit tests next to source files or in `packages/<pkg>/src/__tests__/`.
-- **Property Tests**: Use `fast-check` for grammar and recovery robustness.
-- **Boundary Verification**: Ensure `pnpm run check` runs clean without violating package dependency matrix rules.
-- **Dynamic Icon Tests**: Inject fixture-backed `fetchFn` implementations.
-  Repository tests must never depend on public CDN availability.
-- **Runtime Coverage**: For shared loader changes, verify browser and Node
-  adapters produce equivalent sanitized records, Node cache entries survive
-  loader reconstruction, and browser bundles contain no Node-only references.
+1. Create `packages/<provider>` with catalog, icons, rules, registry, and public
+   factory modules.
+2. Implement `CloudProvider` from `@archlex/model`.
+3. Add the package to core dependencies and re-export its factory.
+4. Register the package in CLI, playground, MCP, scripts, TypeScript references,
+   and test aliases.
+5. Add a pure `CdnProviderDefinition` when the provider offers suitable artwork.
+6. Extend parser and model scope unions only when the provider needs a reusable
+   scope that the language does not support.
+7. Add provider, integration, browser, and boundary tests.
+8. Add a provider semantics page and update every provider list.
+
+Kubernetes demonstrates a provider that introduced reusable `cluster` and
+`namespace` scopes. A provider that reuses existing scopes does not need parser
+changes.
+
+## Test the affected surface
+
+Run focused checks while you work:
+
+```bash
+pnpm --filter @archlex/core test
+pnpm --filter @archlex/aws test
+pnpm --filter @archlex/gcp test
+pnpm --filter @archlex/k8s test
+pnpm validate:catalog
+```
+
+Run `pnpm test:browser` when you change playground interaction, SVG behavior,
+responsive layout, or CDN routing. Inject fixture-backed `fetchFn`
+implementations in automated icon tests. Do not make unit tests depend on a
+public CDN.
+
+## Add a changeset
+
+Run `pnpm changeset` when you modify a published package under `packages/`.
+Describe the reader-visible effect and choose the release level that matches the
+public contract.
+
+## Keep documentation current
+
+Update the relevant `docs/` page in the same change as product behavior. The
+docs app publishes these Markdown files through symlinks, and the MCP build
+embeds them as documentation resources.
+
+Do not edit generated diagnostic pages under `docs/errors/AL-*.md` or
+`docs/errors/index.md`. Change the registry or generator, then run:
+
+```bash
+pnpm generate-docs
+pnpm build:docs
+pnpm verify:sites
+```
+
+Review [AGENTS.md](../../AGENTS.md) for repository-wide requirements.

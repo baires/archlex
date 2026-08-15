@@ -1,14 +1,11 @@
 # Remote MCP Server
 
-The ArchLex Model Context Protocol (MCP) server enables Large Language Models (Claude, Cursor, ChatGPT, custom AI agents) to generate, validate, inspect, and render cloud architecture diagrams.
+Use the ArchLex MCP server to render, validate, inspect, and share AWS, Google
+Cloud, and Kubernetes diagrams from an MCP client.
 
-It runs as a high-performance Cloudflare Worker at `mcp.archlex.dev` supporting the Streamable HTTP transport (recommended) plus legacy Server-Sent Events (SSE) and HTTP POST JSON-RPC routes for backward compatibility.
+## Connect
 
----
-
-## 1. Connecting Your LLM Client
-
-The recommended endpoint is the Streamable HTTP transport at `https://mcp.archlex.dev/mcp`.
+The server uses Streamable HTTP at `https://mcp.archlex.dev/mcp`.
 
 ### Codex
 
@@ -24,8 +21,6 @@ claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
 
 ### Cursor
 
-Add the server to `.cursor/mcp.json` (project-scoped):
-
 ```json
 {
   "mcpServers": {
@@ -36,140 +31,87 @@ Add the server to `.cursor/mcp.json` (project-scoped):
 }
 ```
 
-### VS Code
+The server keeps legacy `/sse` and `/messages` routes for clients that cannot
+use Streamable HTTP.
 
-Add the server to `.vscode/mcp.json` (project-scoped):
+## Endpoints
 
-```json
-{
-  "servers": {
-    "archlex": {
-      "type": "http",
-      "url": "https://mcp.archlex.dev/mcp"
-    }
-  }
-}
-```
+| Endpoint | Methods | Purpose |
+| --- | --- | --- |
+| `/mcp` | `GET`, `POST`, `DELETE` | Streamable HTTP transport |
+| `/health` | `GET` | Health, providers, and auth status |
+| `/info` | `GET` | Server metadata, capabilities, and URLs |
+| `/sse` | `GET` | Legacy event stream |
+| `/messages` | `POST` | Legacy JSON-RPC dispatch |
 
-### Generic MCP Clients
+A healthy server reports `aws`, `gcp`, and `k8s` in its provider list.
 
-Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streamable HTTP transport.
-
-### Legacy SSE Clients
-
-Older clients that only support SSE can still use the legacy-compatible routes at `https://mcp.archlex.dev/sse` (stream initialization) and `https://mcp.archlex.dev/messages` (JSON-RPC dispatch).
-
-### Local Development Setup
-
-If running the MCP server locally with `pnpm dev:mcp`:
-
-```json
-{
-  "mcpServers": {
-    "archlex-local": {
-      "url": "http://localhost:8787/mcp"
-    }
-  }
-}
-```
-
----
-
-## 2. Server Endpoints & Testing Verification
-
-The server exposes five endpoints tested live at `mcp.archlex.dev`:
-
-### Endpoints Overview
-
-| Endpoint | Method | Purpose |
-| :--- | :--- | :--- |
-| `/mcp` | `GET` \| `POST` \| `DELETE` | Streamable HTTP transport (recommended, stateless) |
-| `/health` | `GET` | Server health status, provider readiness, and authentication status |
-| `/info` | `GET` | MCP server metadata, capability listing, and endpoint URLs |
-| `/sse` | `GET` | Legacy Server-Sent Events stream initialization for stateful client sessions |
-| `/messages` | `POST` | Legacy JSON-RPC message dispatcher for active SSE sessions & stateless fallback |
-
-### Testing & Verification Findings
-
-1. **Health Check Discovery (`GET /health`)**:
-   Returns HTTP 200 OK with `{"status":"ok","service":"archlex-mcp-server","providers":["aws","gcp"],"auth_enabled":false}` and standard `Access-Control-Allow-Origin: *` headers for fast diagnostic sanity checks without establishing full SSE streams.
-
-2. **Server-Sent Events Connection (`GET /sse`)**:
-   Initiates a persistent `text/event-stream` response and immediately dispatches `event: endpoint` payload pointing to `/messages?sessionId=<uuid>`.
-
-3. **Stateless JSON-RPC Fallback (`POST /messages`)**:
-   Direct single-request invocation via `POST /messages` without `sessionId` provides a stateless REST-like RPC fallback for CLI scripts and lightweight web clients.
-
-4. **Security & Abuse Protections**:
-   Operates in Open Access Mode by default while enforcing payload size limits (512 KB), input string length limits (100k chars), and IP rate limiting.
-
----
-
-## 3. Available Tools
+## Tools
 
 ### `render_diagram`
 
-Parses ArchLex shorthand code, validates cloud provider semantics (AWS & GCP), computes graph layout via ELK, and renders SVG string output along with diagnostic logs and an interactive playground link.
-
-#### Parameters
-
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `source` | `string` | **Yes** | ArchLex shorthand text syntax (e.g. `direction LR\nprovider aws\nrds-proxy > rds > ecs`) |
-| `theme` | `"light"` \| `"dark"` | No | Rendering color theme (default: `"dark"`) |
-| `direction` | `"LR"` \| `"RL"` \| `"TB"` \| `"BT"` | No | Layout direction (default: `"LR"`) |
-| `validation` | `"strict"` \| `"normal"` \| `"off"` | No | Provider validation mode |
-
-#### Output Response
+Pass ArchLex source plus optional `theme`, `direction`, and `validation` values.
+The server returns SVG, diagnostics, node and edge counts, and a playground URL.
 
 ```json
 {
-  "success": true,
-  "svg": "<svg ...>",
-  "diagnostics": [],
-  "playground_url": "https://playground.archlex.dev/?code=...",
-  "nodes_count": 3,
-  "edges_count": 2
+  "source": "provider k8s\ncluster prod { namespace web { service > deployment } }",
+  "theme": "dark",
+  "validation": "normal"
 }
 ```
 
----
-
 ### `validate_diagram`
 
-Lightweight check of ArchLex DSL syntax and cloud semantic rules without generating full SVG output.
-
----
+Validate source without SVG layout. Pass an optional provider value of `aws`,
+`gcp`, or `k8s` when the source does not select one.
 
 ### `get_cloud_catalog`
 
-Returns the complete, authoritative catalog of **379+ cloud services** across AWS and GCP, along with registered containment scopes (`vpc`, `subnet`, `account`, `region`) and valid edge relationship kinds (`connects`, `writes`, `reads`, `encrypts`, `logs`, etc.).
+Query `aws`, `gcp`, `k8s`, or `all`. The response includes current service
+metadata, aliases, supported directives, known relationship kinds, and these
+scope names: `account`, `region`, `vpc`, `subnet`, `cluster`, and `namespace`.
 
----
+Query this tool when you need the current catalog instead of relying on a fixed
+service count in prompt text.
 
 ### `generate_playground_url`
 
-Generates a deep-link URL to open and edit any ArchLex diagram interactively in the web playground.
+Create a deep link that opens source in the web playground.
 
----
+## Resources and prompts
 
-## 4. Security, Open Access & Rate Limiting
+The server publishes a DSL reference, generated documentation resources, and
+three example resources:
 
-- **Open Access Default**: No API key or token is required for `mcp.archlex.dev`. Anyone and any LLM client can query tools for free.
-- **Optional Enterprise Auth**: Self-hosters can restrict access by configuring `MCP_AUTH_TOKEN` in Worker secrets (`Authorization: Bearer <token>` or `?token=<token>`).
-- **IP Rate Limiting**: Enforces a default sliding window of **60 requests per 60 seconds per IP**, returning `429 Too Many Requests` with standard `Retry-After` headers if exceeded.
-- **Payload Limits**: Rejects payloads exceeding 512 KB (`413 Payload Too Large`) and source DSL inputs over 100,000 characters.
+- `archlex://examples/aws-microservices`
+- `archlex://examples/gcp-data-pipeline`
+- `archlex://examples/k8s-microservices`
 
----
+The `architect_cloud_infrastructure` prompt accepts `aws`, `gcp`, or `k8s` and
+asks the model to return valid ArchLex source.
 
-## 5. Resources & Prompts
+## Security
 
-### Resources
+The hosted server permits open access unless the deployment configures
+`MCP_AUTH_TOKEN`. A protected deployment accepts a bearer token. The Worker
+limits payloads, source length, and requests per IP. It rejects untrusted origins
+when origin enforcement applies.
 
-- `archlex://docs/dsl-syntax`: Grammar cheat sheet and syntax reference for LLM context windows.
-- `archlex://examples/aws-microservices`: Reference 3-tier AWS architecture example.
-- `archlex://examples/gcp-data-pipeline`: Reference GCP Pub/Sub & BigQuery data pipeline.
+Do not place secrets inside architecture source or URLs.
 
-### System Prompts
+## Local development
 
-- `architect_cloud_infrastructure`: Standard prompt instructing LLMs to output valid ArchLex DSL for specified architecture requirements.
+```bash
+pnpm dev:mcp
+```
+
+Connect a client to `http://localhost:8787/mcp`. Run MCP tests with:
+
+```bash
+pnpm --filter @archlex/mcp-server test
+pnpm build:mcp
+```
+
+The build embeds current hand-written `docs/` pages as MCP resources. Run it
+after documentation changes that affect those resources.

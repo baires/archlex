@@ -163,6 +163,28 @@ When modifying published packages (`packages/*`), generate a changeset entry:
 pnpm changeset
 ```
 
+### 4. Keep Documentation Current
+Update documentation in the same change when you modify public APIs, language
+syntax, scopes, providers, catalogs, icons, diagnostics, playground behavior,
+MCP tools or resources, commands, environment variables, or deployment
+requirements.
+
+Treat `docs/` Markdown as product source. The docs app publishes these files
+through `apps/docs/pages` symlinks, and the MCP build embeds them as
+documentation resources. Keep `README.md`, the docs landing page, and the
+getting-started page aligned when onboarding changes.
+
+Do not hand-edit `docs/errors/index.md` or `docs/errors/AL-*.md`. Update the
+diagnostic registry or generator and run `pnpm generate-docs`.
+
+Before you finish a documentation-affecting change, run:
+
+```bash
+pnpm generate-docs
+pnpm build:docs
+pnpm verify:sites
+```
+
 ---
 
 ## 💡 Maintenance & Verification Scripts

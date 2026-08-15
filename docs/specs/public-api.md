@@ -1,27 +1,76 @@
 # Public API Specification
 
-## Exports
+## Create an instance
 
-`@archlex/core` is ESM-only. Browser helpers use `@archlex/core/browser`.
+`@archlex/core` publishes ESM for Node.js and browsers. Register at least one
+provider:
+
+```ts
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
+
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+});
+```
+
+Core rejects duplicate provider IDs. If you register one provider, ArchLex can
+use it as the default. If you register several, select one in the source or pass
+an analysis provider option.
+
+## Main interface
 
 ```ts
 interface ArchLex {
   parse(source: string): ParseResult;
   analyze(ast: DocumentAst, options?: AnalyzeOptions): AnalysisResult;
+  prepare(source: string, options?: PrepareOptions): PreparedDiagram;
   layout(graph: CloudGraph, options?: LayoutOptions): Promise<LayoutResult>;
-  renderGraph(graph: LayoutGraph, options?: RenderOptions): SvgResult;
-  render(source: string, options?: RenderPipelineOptions): Promise<RenderResult>;
+  renderGraph(
+    graph: LayoutGraph,
+    diagnostics?: readonly Diagnostic[],
+    theme?: ThemeName,
+  ): SvgResult;
+  renderPrepared(
+    prepared: PreparedDiagram,
+    options?: RenderPreparedOptions,
+  ): Promise<RenderResult>;
+  render(
+    source: string,
+    options?: RenderPipelineOptions,
+  ): Promise<RenderResult>;
+  getCatalog(providerFilter?: string): CatalogMetadata;
 }
-
-function createArchLex(options: ArchLexOptions): ArchLex;
-function mountSvg(container: Element, svg: string): SVGSVGElement;
 ```
 
-Core re-exports the AWS, GCP, and Kubernetes provider factories for convenience,
-but consumers explicitly pass the providers they want. Construction requires at
-least one provider and rejects duplicate provider IDs.
+Use `render()` for the shortest path. Use the lower-level methods when an editor,
+CLI, or service needs stage control.
 
-## Options and precedence
+## Prepare and hydrate icons
+
+`prepare()` parses and analyzes once:
+
+```ts
+interface PreparedDiagram {
+  readonly ast: DocumentAst;
+  readonly graph: CloudGraph;
+  readonly diagnostics: readonly Diagnostic[];
+  readonly iconRequests: readonly IconRequest[];
+  readonly direction?: "LR" | "RL" | "TB" | "BT";
+  readonly theme?: "light" | "dark";
+}
+```
+
+Load `iconRequests` with `@archlex/icons-browser` or
+`@archlex/icons-node`. Pass the returned registry to `renderPrepared()` through
+the `icons` option. The renderer uses bundled icons when no registry entry
+exists.
+
+## Options
 
 ```ts
 interface ArchLexOptions {
@@ -31,76 +80,43 @@ interface ArchLexOptions {
   renderer?: GraphRenderer;
 }
 
-type ThemeName = "light" | "dark";
-
 interface RenderPipelineOptions {
   direction?: "LR" | "RL" | "TB" | "BT";
   validation?: "normal" | "strict" | "off";
-  theme?: ThemeName;
+  theme?: "light" | "dark";
   signal?: AbortSignal;
+  icons?: IconRegistry;
 }
 ```
 
-Per-call `theme` option overrides source `theme` directive, which overrides the renderer's default (`"dark"`). Direction and validation follow the same pattern. Provider defaults to the sole registered provider or requires explicit selection when multiple are registered.
+Per-call options override source directives. Source directives override engine
+defaults. Pass one `AbortSignal` through icon loading and rendering when newer
+work can replace an operation.
 
 ## Results
 
-```ts
-interface ParseResult { ast: DocumentAst; diagnostics: readonly Diagnostic[] }
-interface AnalysisResult { graph: CloudGraph; diagnostics: readonly Diagnostic[] }
-interface LayoutResult {
-  graph: LayoutGraph;
-  diagnostics: readonly Diagnostic[];
-  metadata: { engine: string; fingerprint: string; durationMs: number };
-}
-interface SvgResult {
-  svg: string;
-  diagnostics: readonly Diagnostic[];
-  mappings: readonly ElementMapping[];
-  metadata: { renderer: string; width: number; height: number };
-}
-interface RenderResult extends SvgResult {
-  ast: DocumentAst;
-  graph: CloudGraph;
-  layout: LayoutGraph;
-}
-```
+`render()` and `renderPrepared()` return the AST, analyzed graph, positioned
+layout, SVG, diagnostics, element mappings, and render metadata.
 
-Diagnostics accumulate in parse, structural, provider, guidance, layout, and render order, deduplicated by code, primary span, and element IDs.
+Diagnostics keep their pipeline order. Each diagnostic includes a stable code,
+severity, source span, element IDs, and optional remediation. Messages may
+improve in a minor release, so applications should branch on codes.
 
-```ts
-interface Diagnostic {
-  code: string;
-  severity: "error" | "warning" | "info";
-  message: string;
-  span: SourceSpan;
-  related?: readonly { message: string; span: SourceSpan }[];
-  elements: readonly string[];
-  remediation?: string;
-}
+Expected source errors produce partial results. Cancellation throws
+`ArchLexAbortError`. Internal invariant failures throw `ArchLexInternalError`.
 
-interface ElementMapping {
-  elementId: string;
-  svgId: string;
-  span: SourceSpan;
-  diagnosticCodes: readonly string[];
-}
-```
+## Catalog inspection
 
-Codes are programmatically stable; messages may improve in minor versions. SVG and graph IDs remain stable for semantically unchanged input within one major version.
-
-## AST and graph label contracts
-
-`ResourceAst` and `ChainNodeAst` carry an optional `displayLabel`: the decoded text of the `["..."]` form. A node's visible label resolves as display label, then instance name, then service display name. `CloudNode` and `LayoutNode` carry an optional `accessibleName`, present when the visible label differs from the service display name and combining both as `"<label> (<Service Display Name>)"`. Conflicting display labels for one instance are diagnosed with informational `AL-STRUCT-CONFLICTING-LABEL`; the first label wins.
-
-## Partial results, cancellation, and failures
-
-Expected source errors do not reject. Invalid elements remain when generic geometry is possible; otherwise rendering returns a valid accessible empty-state SVG. `layout` and `render` accept `AbortSignal`; abortion throws `ArchLexAbortError` and is never a diagnostic.
-
-Unexpected invariant failures throw `ArchLexInternalError` with stage (`parse`, `analyze`, `layout`, or `render`) and optional cause.
+`getCatalog()` returns registered provider metadata, services, aliases, allowed
+containment, directives, six scope kinds, and known relationship kinds. Pass
+`aws`, `gcp`, `k8s`, or `all` to filter provider data.
 
 ## Browser mounting
 
-`mountSvg` parses ArchLex output as `image/svg+xml`, rejects parse errors or a non-SVG root, imports the node, replaces container children, and returns the root. Renderer output never contains scripts, event attributes, active content, or external resources.
+Import `mountSvg` from `@archlex/core/browser`. It parses ArchLex-generated SVG,
+rejects a malformed or non-SVG root, replaces the target element's children,
+and returns the mounted `SVGSVGElement`.
 
-`ElementMapping` plus `data-archlex-*` attributes are public editor integration points. Renderer CSS classes are not public API.
+Use `ElementMapping` and `data-archlex-*` attributes to connect source spans,
+diagnostics, and SVG selection. Renderer CSS classes do not form part of the
+public API.

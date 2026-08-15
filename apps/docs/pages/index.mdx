@@ -1,31 +1,24 @@
 # ArchLex Documentation
 
-Use ArchLex to turn text definitions into accessible SVG architecture diagrams
-in browsers and Node.js. Register AWS, Google Cloud, or Kubernetes providers to
-resolve resources and validate their relationships.
+ArchLex turns text architecture definitions into accessible SVG diagrams in browsers and Node.js. You register the providers your application needs, then use one language and one API for AWS, Google Cloud, and Kubernetes.
 
 ## Supported Providers
 
-| Provider | ID | Package | Example resources |
+| Provider | Directive | Package | Example resources |
 | --- | --- | --- | --- |
-| AWS | `aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
-| Google Cloud | `gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
-| Kubernetes | `k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
+| AWS | `provider aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
+| Google Cloud | `provider gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
+| Kubernetes | `provider k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
 
-## What You Can Build
+## First Render
 
-- Model resources with shorthand relationships and containment blocks.
-- Validate resource names, placement, and provider-specific relationships.
-- Render accessible SVG with light or dark themes and provider icons.
-- Inspect structured diagnostics when a source needs correction.
-- Use the same core API in React, Vue, Svelte, vanilla JavaScript, or Node.js 22
-  and later.
-
-## Quick Start
+Install the core and provider packages:
 
 ```bash
 npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
+
+Register one shared provider set. Each source selects its provider with the `provider` directive.
 
 ```typescript
 import {
@@ -51,13 +44,12 @@ ecs -[writes]-> rds
 console.log(result.svg);
 ```
 
-Change the `provider` directive and resource names to render a Google Cloud or
-Kubernetes diagram. Keep the shared provider registration unchanged.
+## Choose Your Next Page
 
-## Documentation
+- [Getting Started](/getting-started) walks through setup, provider examples, rendering, and diagnostics.
+- [Language Specification](/specs/language) defines directives, scopes, resources, containment, and relationships.
+- [Public API](/specs/public-api) covers parsing, analysis, icon preparation, rendering, and catalog access.
+- [AWS](/specs/aws-semantics), [Google Cloud](/specs/gcp-semantics), and [Kubernetes](/specs/k8s-semantics) pages list provider contracts and rules.
+- [Error Reference](/errors) explains diagnostic families, severity, validation modes, and remediation.
 
-- [Getting Started](/getting-started): installation and first render
-- [Specifications](/specs): language syntax, API contracts, and provider rules
-- [Guides](/guides): task-focused instructions
-- [Architecture](/architecture): package boundaries and contribution guidance
-- [Error Reference](/errors): diagnostic codes and remediation
+Use the [interactive playground](https://playground.archlex.dev) when you want to edit an example and inspect the SVG beside its diagnostics.
