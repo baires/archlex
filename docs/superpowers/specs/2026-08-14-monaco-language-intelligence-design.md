@@ -135,7 +135,7 @@ export interface LanguageDocument {
 export interface DocumentSymbol {
   readonly name: string;
   readonly resourceKind: string;
-  readonly providerId: string;
+  readonly providerId?: string;
   readonly scopePath: readonly string[];
   readonly declarationOffset: number;
 }
@@ -206,6 +206,12 @@ receive the catalog metadata from the existing `archlex` instance in
 - dispose the completion registration when the editor unmounts.
 
 The adapter will contain no provider or ArchLex vocabulary.
+
+The same catalog metadata will feed the Monarch tokenizer and non-diagnostic
+hover provider. Syntax highlighting will derive directives, values, scopes, and
+providers from metadata. Hover will derive resource names, aliases, search
+terms, and relationship documentation from metadata. Diagnostic hover keeps
+priority over language help.
 
 ## Cursor contexts and suggestions
 
