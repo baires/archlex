@@ -1,14 +1,15 @@
 # ArchLex
 
-A semantic cloud architecture diagramming library for browser and Node.js environments.
-
-ArchLex compiles text-based architecture definitions into accessible SVG diagrams. It provides built-in catalog support for AWS, GCP, and Kubernetes resources, validates architectural relationships and containment rules, and outputs deterministic SVG graphics suitable for documentation, dynamic dashboards, and web applications.
+Use ArchLex to turn text definitions into accessible SVG architecture diagrams
+in browsers and Node.js. Register AWS, Google Cloud, or Kubernetes providers to
+resolve resources, validate relationships, and apply official architecture
+icons.
 
 ## Visual Output
 
-### Serverless API Example
+### Serverless API
 
-![Serverless API Architecture Diagram](apps/landing/public/diagrams/serverless-api.svg)
+![Serverless API architecture diagram](apps/landing/public/diagrams/serverless-api.svg)
 
 ```archlex
 direction LR
@@ -17,9 +18,9 @@ provider aws
 api-gateway -[invokes]-> lambda -[writes]-> dynamodb
 ```
 
-### Multi-Region Infrastructure Example
+### Multi-Region Infrastructure
 
-![Multi-Region Architecture Diagram](apps/landing/public/diagrams/multi-region.svg)
+![Multi-region architecture diagram](apps/landing/public/diagrams/multi-region.svg)
 
 ```archlex
 direction LR
@@ -55,119 +56,140 @@ global_dns -[failover]-> app_secondary
 db_primary -[replicates]-> db_replica
 ```
 
+## Supported Providers
+
+Register the providers you need in one ArchLex instance.
+
+| Provider | ID | Package | Example resources |
+| --- | --- | --- | --- |
+| AWS | `aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
+| Google Cloud | `gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
+| Kubernetes | `k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
+
+Select one provider in each source with `provider aws`, `provider gcp`, or
+`provider k8s`. Register all three providers once, then render sources for any of
+them through the same API.
+
 ## Features
 
-- **Semantic validation** - Validates resource compatibility, nesting hierarchies, and relationships against cloud provider schemas.
-- **Concise syntax** - Declarative language supporting shorthand inline syntax and structured containment blocks.
-- **Multi-platform support** - Provider definitions for AWS, GCP, and Kubernetes with qualified names (`aws.rds`, `gcp.cloudsql`, `k8s.deployment`).
-- **Accessible SVG output** - Rendered output includes ARIA attributes, semantic structure, keyboard navigation, and focus management.
-- **Themeable renderer** - Pre-configured light and dark themes using official cloud provider icons.
-- **Diagnostic feedback** - Syntax or structural validation errors yield structured diagnostic objects alongside partial diagrams.
-- **Deterministic layout** - Stable ID generation and node ordering guarantee reproducible layout trees across runs.
-- **Framework neutral** - Zero DOM dependencies in core; compatible with React, Vue, Svelte, vanilla JavaScript, and Node.js 22+.
+- Model resources with shorthand relationships and nested containment blocks.
+- Validate resource names, containment, and provider-specific relationships.
+- Render accessible SVG with ARIA attributes and keyboard focus support.
+- Choose light or dark themes with provider architecture icons.
+- Inspect structured diagnostics alongside partial diagrams when a source needs
+  correction.
+- Reproduce layouts through stable IDs and deterministic node ordering.
+- Use the same DOM-neutral core with React, Vue, Svelte, vanilla JavaScript, or
+  Node.js 22 and later.
 
 ## Quick Start
 
-### Installation
+### Install
 
 ```bash
 npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
-### Basic Usage
+### Register Providers and Render
 
 ```typescript
-import { createArchLex, awsProvider, gcpProvider, k8sProvider } from '@archlex/core';
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()]
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
 });
 
 const source = `
-@provider aws
-@layout LR
+direction LR
+provider aws
+validation normal
 
-vpc {
-  public: subnet {
-    alb
-  }
-  private: subnet {
-    ecs
-    rds
-  }
-}
-
-alb -> ecs
-ecs -> rds
+alb -[routes]-> ecs
+ecs -[writes]-> rds
 `;
 
 const result = await archlex.render(source);
 
-if (result.diagnostics.length > 0) {
-  console.log('Diagnostics:', result.diagnostics);
+for (const diagnostic of result.diagnostics) {
+  console.warn(diagnostic.code, diagnostic.message);
 }
 
-document.getElementById('diagram').innerHTML = result.svg;
+console.log(result.svg);
 ```
 
-### Playground
+Change the `provider` directive and resource names to render a Google Cloud or
+Kubernetes diagram. Keep the same provider registration.
 
-An interactive playground is available for live editing and testing:
+## Playground
+
+Run the interactive editor from a local checkout:
 
 ```bash
 git clone https://github.com/baires/archlex.git
 cd archlex
 pnpm install
-pnpm --filter playground dev
+pnpm dev:playground
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open [http://localhost:5173](http://localhost:5173).
 
 ## Documentation
 
-- **[Getting Started](docs/README.md)** - Documentation overview and guide structure
-- **[Language Specification](docs/specs/language.md)** - Complete language syntax and grammar specification
-- **[Public API](docs/specs/public-api.md)** - JavaScript and TypeScript API reference
-- **[AWS Semantics](docs/specs/aws-semantics.md)** - AWS provider service definitions and validation rules
-- **[GCP Semantics](docs/specs/gcp-semantics.md)** - GCP provider service definitions and validation rules
-- **[Kubernetes Semantics](docs/specs/k8s-semantics.md)** - Kubernetes resource definitions and validation rules
-- **[Error Reference](docs/errors/README.md)** - Diagnostic error codes and resolution steps
-- **[Relationship Types](docs/guides/relationship-types.md)** - Guide to relationship types and usage
-- **[System Architecture](docs/architecture/system-architecture.md)** - Architecture overview and execution pipeline
+- [Getting Started](docs/README.md): documentation map and guide structure
+- [Language Specification](docs/specs/language.md): syntax and grammar
+- [Public API](docs/specs/public-api.md): JavaScript and TypeScript APIs
+- [AWS Semantics](docs/specs/aws-semantics.md): AWS resources and validation
+- [Google Cloud Semantics](docs/specs/gcp-semantics.md): Google Cloud resources
+  and validation
+- [Kubernetes Semantics](docs/specs/k8s-semantics.md): Kubernetes resources,
+  containment, and validation
+- [Error Reference](docs/errors/README.md): diagnostic codes and remediation
+- [Relationship Types](docs/guides/relationship-types.md): built-in and custom
+  relationships
+- [System Architecture](docs/architecture/system-architecture.md): package
+  boundaries and execution pipeline
 
-## Architecture
+## Packages
 
-ArchLex is structured as a monorepo:
-
-- **`@archlex/core`** - Main entry point orchestrating parser, layout, and rendering pipelines
-- **`@archlex/parser`** - Chevrotain-based parser for the ArchLex language
-- **`@archlex/layout-elk`** - ELK-based graph layout engine supporting Web Workers
-- **`@archlex/renderer-svg`** - Accessible SVG renderer with theme and icon resolution
-- **`@archlex/aws`** - AWS cloud provider resource definitions and semantic rules
-- **`@archlex/gcp`** - GCP cloud provider resource definitions and semantic rules
-- **`@archlex/k8s`** - Kubernetes resource definitions, icons, and semantic rules
-- **`@archlex/model`** - Core data structures and interface definitions
-- **`@archlex/diagnostics`** - Structured diagnostic and error reporting system
+| Package | Responsibility |
+| --- | --- |
+| `@archlex/core` | Coordinates parsing, validation, layout, and rendering |
+| `@archlex/parser` | Parses the ArchLex language with Chevrotain |
+| `@archlex/layout-elk` | Calculates graph layouts with ELK |
+| `@archlex/renderer-svg` | Produces accessible SVG with themes and icons |
+| `@archlex/aws` | Defines AWS resources, icons, and semantic rules |
+| `@archlex/gcp` | Defines Google Cloud resources, icons, and semantic rules |
+| `@archlex/k8s` | Defines Kubernetes resources, icons, and semantic rules |
+| `@archlex/model` | Publishes shared data structures and interfaces |
+| `@archlex/diagnostics` | Publishes diagnostic codes and formatting tools |
 
 ## Requirements
 
-- **Node.js** 22.0.0 or later
-- **pnpm** 9.0.0 or later (for workspace development)
-- **Modern browser** supporting ES2022+
+- Node.js 22.0.0 or later
+- pnpm 9.0.0 or later for workspace development
+- A browser with ES2022 support for browser applications
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, package structure, and guidelines.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for setup commands, package conventions,
+and verification requirements.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+We publish ArchLex under the MIT License. Read [LICENSE](LICENSE) for the terms.
 
 ## Acknowledgments
 
-ArchLex incorporates official cloud architecture icons:
+We use official icon sets from these projects:
+
 - [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/)
 - [Google Cloud Architecture Icons](https://cloud.google.com/icons)
 - [Kubernetes Community Icons](https://github.com/kubernetes/community/tree/43d6605709182dedb495a864930ece08666a1e67/icons)
 
-Graph layout powered by [Eclipse Layout Kernel (ELK)](https://www.eclipse.org/elk/).
+We use the [Eclipse Layout Kernel](https://www.eclipse.org/elk/) to calculate
+graph layouts.

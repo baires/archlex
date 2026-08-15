@@ -1,78 +1,86 @@
 # Getting Started
 
-## Installation
+## Install
 
-Install ArchLex and the provider packages you need:
+Install ArchLex and all supported provider packages with npm:
 
 ```bash
-npm install @archlex/core @archlex/aws @archlex/gcp
+npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
-Or using pnpm:
+Use pnpm if your project uses it:
 
 ```bash
-pnpm add @archlex/core @archlex/aws @archlex/gcp
+pnpm add @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
 ## Requirements
 
-- **Node.js** 22.0.0 or later
-- **Modern browser** with ES2022+ support
+- Node.js 22.0.0 or later
+- A browser with ES2022 support for browser applications
 
-## Basic Usage
+## Register Providers
 
-Create an ArchLex instance with the providers you want to use:
+Create one ArchLex instance with AWS, Google Cloud, and Kubernetes:
 
 ```typescript
-import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider()]
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
 });
 ```
 
-Write your architecture as text:
+## Write a Diagram
+
+Select one provider in each source and connect its resources:
 
 ```typescript
 const source = `
-@provider aws
-@layout LR
+direction LR
+provider aws
+validation normal
 
-vpc {
-  public: subnet {
-    alb
-  }
-  private: subnet {
-    ecs
-    rds
-  }
-}
-
-alb -> ecs
-ecs -> rds
+alb -[routes]-> ecs
+ecs -[writes]-> rds
 `;
 ```
 
-Render it to SVG:
+Use `provider gcp` with Google Cloud resource IDs or `provider k8s` with
+Kubernetes resource IDs. You can keep the shared provider registration.
+
+## Render SVG
 
 ```typescript
 const result = await archlex.render(source);
 
-if (result.diagnostics.length > 0) {
-  console.log('Diagnostics:', result.diagnostics);
+for (const diagnostic of result.diagnostics) {
+  console.warn(diagnostic.code, diagnostic.message);
 }
 
-// Insert the SVG into your page
-document.getElementById('diagram').innerHTML = result.svg;
+console.log(result.svg);
 ```
 
-## Interactive Playground
+In a browser, assign `result.svg` to a container that you control. Treat the
+diagnostics array as part of the render result so your interface can point users
+to invalid resources or relationships.
 
-Try the [interactive playground](/playground) to experiment with ArchLex syntax and see live results.
+## Open the Playground
+
+Use the [interactive playground](/playground) to edit source and inspect the SVG
+result.
 
 ## Next Steps
 
-- [Language Specification](/specs/language) - Learn the full syntax
-- [Public API](/specs/public-api) - Explore the JavaScript API
-- [AWS Semantics](/specs/aws-semantics) - AWS provider catalog
-- [GCP Semantics](/specs/gcp-semantics) - GCP provider catalog
+- [Language Specification](/specs/language): learn the grammar and directives
+- [Public API](/specs/public-api): inspect the TypeScript API
+- [AWS Semantics](/specs/aws-semantics): browse AWS resources and rules
+- [Google Cloud Semantics](/specs/gcp-semantics): browse Google Cloud resources
+  and rules
+- [Kubernetes Semantics](/specs/k8s-semantics): browse Kubernetes resources,
+  containment, and rules

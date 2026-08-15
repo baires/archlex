@@ -1,52 +1,63 @@
 # ArchLex Documentation
 
-**A semantic cloud architecture diagramming library for the browser and Node.js**
+Use ArchLex to turn text definitions into accessible SVG architecture diagrams
+in browsers and Node.js. Register AWS, Google Cloud, or Kubernetes providers to
+resolve resources and validate their relationships.
 
-ArchLex turns concise, provider-aware text into accessible SVG cloud architecture diagrams. It understands AWS and GCP resources, validates architectural relationships, and produces clean, deterministic output.
+## Supported Providers
 
-## Key Features
+| Provider | ID | Package | Example resources |
+| --- | --- | --- | --- |
+| AWS | `aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
+| Google Cloud | `gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
+| Kubernetes | `k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
 
-- **🧠 Semantic validation** - Understands cloud resources, containment rules, and relationship compatibility
-- **📝 Concise syntax** - Express architectures with shorthand like `rds-proxy > rds > ecs`
-- **☁️ Multi-cloud** - AWS and GCP providers with fully qualified resource names
-- **♿ Accessible by default** - SVG output includes ARIA attributes, keyboard navigation
-- **🎨 Themeable** - Built-in light and dark themes with official cloud provider icons
-- **🔍 Never punishing** - Invalid input produces diagnostics and a partial diagram
-- **🎯 Deterministic** - Same input always produces the same output
-- **⚡ Framework-neutral** - Works in React, Vue, Svelte, vanilla JS, or Node.js 22+
+## What You Can Build
+
+- Model resources with shorthand relationships and containment blocks.
+- Validate resource names, placement, and provider-specific relationships.
+- Render accessible SVG with light or dark themes and provider icons.
+- Inspect structured diagnostics when a source needs correction.
+- Use the same core API in React, Vue, Svelte, vanilla JavaScript, or Node.js 22
+  and later.
 
 ## Quick Start
 
 ```bash
-npm install @archlex/core @archlex/aws @archlex/gcp
+npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
 ```
 
 ```typescript
-import { createArchLex, awsProvider, gcpProvider } from '@archlex/core';
+import {
+  awsProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider()]
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
 });
 
 const result = await archlex.render(`
-@provider aws
-@layout LR
+direction LR
+provider aws
+validation normal
 
-vpc {
-  public: subnet { alb }
-  private: subnet { ecs rds }
-}
-
-alb -> ecs -> rds
+alb -[routes]-> ecs
+ecs -[writes]-> rds
 `);
 
-document.getElementById('diagram').innerHTML = result.svg;
+console.log(result.svg);
 ```
 
-## Documentation Structure
+Change the `provider` directive and resource names to render a Google Cloud or
+Kubernetes diagram. Keep the shared provider registration unchanged.
 
-- **[Getting Started](/getting-started)** - Installation and basic usage
-- **[Specifications](/specs)** - Language syntax, API reference, provider semantics
-- **[Guides](/guides)** - Tutorials and how-to documentation
-- **[Architecture](/architecture)** - System design and contribution guide
-- **[Error Reference](/errors)** - Diagnostic codes and remediation
+## Documentation
+
+- [Getting Started](/getting-started): installation and first render
+- [Specifications](/specs): language syntax, API contracts, and provider rules
+- [Guides](/guides): task-focused instructions
+- [Architecture](/architecture): package boundaries and contribution guidance
+- [Error Reference](/errors): diagnostic codes and remediation
