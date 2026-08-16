@@ -93,7 +93,9 @@ export class WorkerSSEServerTransport implements Transport {
   }
 }
 
-function createMcpServer() {
+function createMcpServer(env?: Env) {
+  const enableMcpApps = env?.ENABLE_MCP_APPS === "true";
+
   const server = new Server(
     {
       name: "archlex-mcp-server",
@@ -115,66 +117,78 @@ function createMcpServer() {
 
   // Register Tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return {
-      tools: [
-        {
-          name: "render_diagram",
-          description:
-            "Parse ArchLex DSL shorthand code, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render an SVG diagram. Returns a rendered SVG diagram as an embedded image. **Display the image inline** — do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary.",
-          inputSchema: {
-            type: "object",
-            properties: {
-              source: {
-                type: "string",
-                description:
-                  "ArchLex shorthand text syntax (e.g. 'direction LR\\nprovider aws\\n rds-proxy > rds > ecs')",
-              },
-              theme: {
-                type: "string",
-                enum: ["light", "dark"],
-                description: "SVG rendering theme",
-              },
-              direction: {
-                type: "string",
-                enum: ["LR", "RL", "TB", "BT"],
-                description: "Layout direction (default: 'LR')",
-              },
-              validation: {
-                type: "string",
-                enum: ["strict", "normal", "off"],
-                description: "Validation mode",
-              },
-            },
-            required: ["source"],
+    const renderDiagramTool: {
+      name: string;
+      description: string;
+      inputSchema: object;
+      outputSchema: object;
+      _meta?: { ui: { resourceUri: string } };
+    } = {
+      name: "render_diagram",
+      description:
+        "Parse ArchLex DSL shorthand code, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render an SVG diagram. Returns a rendered SVG diagram as an embedded image. **Display the image inline** — do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          source: {
+            type: "string",
+            description:
+              "ArchLex shorthand text syntax (e.g. 'direction LR\\nprovider aws\\n rds-proxy > rds > ecs')",
           },
-          outputSchema: {
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-              svg: { type: "string" },
-              diagnostics: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    code: { type: "string" },
-                    severity: { type: "string" },
-                    message: { type: "string" },
-                  },
-                },
-              },
-              playground_url: { type: "string" },
-              nodes_count: { type: "number" },
-              edges_count: { type: "number" },
-            },
-            required: ["success", "svg"],
+          theme: {
+            type: "string",
+            enum: ["light", "dark"],
+            description: "SVG rendering theme",
           },
-          _meta: {
-            ui: {
-              resourceUri: DIAGRAM_VIEWER_URI,
-            },
+          direction: {
+            type: "string",
+            enum: ["LR", "RL", "TB", "BT"],
+            description: "Layout direction (default: 'LR')",
+          },
+          validation: {
+            type: "string",
+            enum: ["strict", "normal", "off"],
+            description: "Validation mode",
           },
         },
+        required: ["source"],
+      },
+      outputSchema: {
+        type: "object",
+        properties: {
+          success: { type: "boolean" },
+          svg: { type: "string" },
+          diagnostics: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                code: { type: "string" },
+                severity: { type: "string" },
+                message: { type: "string" },
+              },
+            },
+          },
+          playground_url: { type: "string" },
+          nodes_count: { type: "number" },
+          edges_count: { type: "number" },
+        },
+        required: ["success", "svg"],
+      },
+    };
+
+    // Conditionally add MCP Apps metadata based on environment variable
+    if (enableMcpApps) {
+      renderDiagramTool._meta = {
+        ui: {
+          resourceUri: DIAGRAM_VIEWER_URI,
+        },
+      };
+    }
+
+    return {
+      tools: [
+        renderDiagramTool,
         {
           name: "validate_diagram",
           description:
@@ -463,8 +477,9 @@ const activeTransports = new Map<string, WorkerSSEServerTransport>();
 async function handleStreamableHttpRequest(
   request: Request,
   corsHeaders: Readonly<Record<string, string>>,
+  env?: Env,
 ): Promise<Response> {
-  const server = createMcpServer();
+  const server = createMcpServer(env);
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
@@ -559,7 +574,7 @@ export default {
 
     // Endpoint: /mcp (Streamable HTTP, stateless)
     if (url.pathname === "/mcp") {
-      return handleStreamableHttpRequest(request, corsHeaders);
+      return handleStreamableHttpRequest(request, corsHeaders, env);
     }
 
     // Endpoint: /health
@@ -608,7 +623,7 @@ export default {
     if (url.pathname === "/sse" && request.method === "GET") {
       const sessionId = crypto.randomUUID();
       const transport = new WorkerSSEServerTransport(sessionId);
-      const server = createMcpServer();
+      const server = createMcpServer(env);
 
       activeTransports.set(sessionId, transport);
       await server.connect(transport);
@@ -628,7 +643,7 @@ export default {
       }
 
       // Stateless request execution fallback
-      const server = createMcpServer();
+      const server = createMcpServer(env);
       let responseMessage: JSONRPCMessage | undefined;
       let resolveResponse: ((msg: JSONRPCMessage) => void) | undefined;
       const responsePromise = new Promise<JSONRPCMessage>((resolve) => {

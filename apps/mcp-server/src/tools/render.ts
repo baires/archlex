@@ -19,9 +19,16 @@ export interface RenderDiagramArgs {
   validation?: "strict" | "normal" | "off";
 }
 
+export interface RenderDiagramOptions {
+  enableMcpApps?: boolean;
+}
+
 const MAX_SOURCE_LENGTH = 100_000;
 
-export async function handleRenderDiagram(args: RenderDiagramArgs) {
+export async function handleRenderDiagram(
+  args: RenderDiagramArgs,
+  options?: RenderDiagramOptions,
+) {
   const { source, theme, direction, validation } = args;
 
   if (!source || typeof source !== "string") {

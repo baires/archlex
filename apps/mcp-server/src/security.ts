@@ -2,6 +2,7 @@ export interface Env {
   MCP_AUTH_TOKEN?: string;
   ALLOWED_ORIGINS?: string;
   ENVIRONMENT?: string;
+  ENABLE_MCP_APPS?: string;
   RATE_LIMIT_MAX_REQUESTS?: string;
   RATE_LIMIT_WINDOW_SECONDS?: string;
   RATE_LIMITER?: {

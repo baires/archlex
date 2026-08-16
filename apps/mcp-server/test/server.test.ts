@@ -86,7 +86,7 @@ describe("ArchLex MCP Server Tools", () => {
   });
 
   describe("MCP Apps (ui extension)", () => {
-    it("declares ui resource metadata on render_diagram via tools/list", async () => {
+    it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
       const request = new Request("https://mcp.archlex.dev/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +97,7 @@ describe("ArchLex MCP Server Tools", () => {
         }),
       });
 
-      const response = await worker.fetch(request);
+      const response = await worker.fetch(request, { ENABLE_MCP_APPS: "true" });
       expect(response.status).toBe(200);
       const data = (await response.json()) as {
         result: {
@@ -128,6 +128,70 @@ describe("ArchLex MCP Server Tools", () => {
         "The image is the primary output",
       );
       expect(renderTool?.description).not.toContain("SHOULD");
+    });
+
+    it("omits MCP Apps metadata when ENABLE_MCP_APPS is false", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 10,
+          method: "tools/list",
+        }),
+      });
+
+      // Call with env where ENABLE_MCP_APPS is explicitly "false" (default)
+      const response = await worker.fetch(request, {
+        ENABLE_MCP_APPS: "false",
+      });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          tools: {
+            name: string;
+            _meta?: { ui?: { resourceUri?: string } };
+          }[];
+        };
+      };
+
+      const renderTool = data.result.tools.find(
+        (t) => t.name === "render_diagram",
+      );
+      expect(renderTool).toBeDefined();
+      expect(renderTool?._meta).toBeUndefined();
+    });
+
+    it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 10,
+          method: "tools/list",
+        }),
+      });
+
+      // Call with env where ENABLE_MCP_APPS is explicitly "true"
+      const response = await worker.fetch(request, { ENABLE_MCP_APPS: "true" });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          tools: {
+            name: string;
+            _meta?: { ui?: { resourceUri?: string } };
+          }[];
+        };
+      };
+
+      const renderTool = data.result.tools.find(
+        (t) => t.name === "render_diagram",
+      );
+      expect(renderTool).toBeDefined();
+      expect(renderTool?._meta?.ui?.resourceUri).toBe(
+        "ui://archlex/diagram-viewer",
+      );
     });
 
     it("serves the diagram viewer HTML as an MCP Apps ui:// resource", async () => {
