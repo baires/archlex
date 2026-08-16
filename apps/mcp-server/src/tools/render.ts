@@ -61,10 +61,11 @@ export async function handleRenderDiagram(
 
   const base64Svg = btoa(unescape(encodeURIComponent(result.svg)));
 
-  // Structured content with all metadata for programmatic access
+  // Structured content with metadata for programmatic access
+  // Note: SVG source is omitted to avoid large payloads in client displays.
+  // The rendered image is available as a base64-encoded content item.
   const payload = {
     success: !hasErrors,
-    svg: result.svg,
     diagnostics: formattedDiagnostics,
     playground_url: playgroundUrl,
     nodes_count: result.graph.nodes.length,

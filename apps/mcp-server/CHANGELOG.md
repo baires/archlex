@@ -1,5 +1,11 @@
 # @archlex/mcp-server
 
+## 0.1.9
+
+### Patch Changes
+
+- fix(mcp-server): remove SVG source from structuredContent to avoid large payloads in client displays. The rendered image remains available as a base64-encoded content item.
+
 ## 0.1.8
 
 ### Patch Changes

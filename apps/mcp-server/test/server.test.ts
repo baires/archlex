@@ -47,9 +47,8 @@ describe("ArchLex MCP Server Tools", () => {
 
       // All required fields present
       expect(structured.success).toBe(true);
-      expect(structured.svg).toBeDefined();
-      expect(typeof structured.svg).toBe("string");
-      expect(structured.svg as string).toContain("<svg");
+      // SVG source is NOT included in structuredContent to avoid large payloads
+      expect(structured.svg).toBeUndefined();
       expect(structured.diagnostics).toBeDefined();
       expect(Array.isArray(structured.diagnostics)).toBe(true);
       expect(structured.playground_url).toBeDefined();

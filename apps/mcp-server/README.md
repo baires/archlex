@@ -76,7 +76,8 @@ The `render_diagram` tool supports two rendering paths:
 
 - Returns a base64-encoded SVG image in `content[0]`
 - Returns a minimal text summary in `content[1]` (e.g., "✓ Rendered successfully: 5 nodes, 3 edges")
-- Provides full metadata in `structuredContent` for programmatic access (SVG source, diagnostics, playground URL, node/edge counts)
+- Provides metadata in `structuredContent` for programmatic access (diagnostics, playground URL, node/edge counts)
+- The SVG source is **not** included in `structuredContent` to avoid large payloads in client displays
 - Agents display the embedded image inline without additional client support
 
 This mode prioritizes **universal compatibility** — any MCP client that can display base64 images will show rendered diagrams.

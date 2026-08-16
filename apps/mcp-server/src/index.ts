@@ -157,7 +157,6 @@ function createMcpServer(env?: Env) {
         type: "object",
         properties: {
           success: { type: "boolean" },
-          svg: { type: "string" },
           diagnostics: {
             type: "array",
             items: {
@@ -173,7 +172,7 @@ function createMcpServer(env?: Env) {
           nodes_count: { type: "number" },
           edges_count: { type: "number" },
         },
-        required: ["success", "svg"],
+        required: ["success"],
       },
     };
 
