@@ -103,6 +103,7 @@ describe("ArchLex MCP Server Tools", () => {
         result: {
           tools: {
             name: string;
+            description?: string;
             outputSchema?: { type: string };
             _meta?: { ui?: { resourceUri?: string } };
           }[];
@@ -117,6 +118,16 @@ describe("ArchLex MCP Server Tools", () => {
         "ui://archlex/diagram-viewer",
       );
       expect(renderTool?.outputSchema?.type).toBe("object");
+
+      // Verify strengthened tool description (ticket #29)
+      expect(renderTool?.description).toContain("Display the image inline");
+      expect(renderTool?.description).toContain(
+        "do not show raw SVG source code",
+      );
+      expect(renderTool?.description).toContain(
+        "The image is the primary output",
+      );
+      expect(renderTool?.description).not.toContain("SHOULD");
     });
 
     it("serves the diagram viewer HTML as an MCP Apps ui:// resource", async () => {
