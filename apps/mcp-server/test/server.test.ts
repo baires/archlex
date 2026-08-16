@@ -239,6 +239,52 @@ describe("ArchLex MCP Server Tools", () => {
       expect(content.text).toContain("ui/initialize");
       expect(content.text).toContain("ui/notifications/tool-result");
     });
+
+    it("serves diagram viewer resource regardless of ENABLE_MCP_APPS flag", async () => {
+      // Test with flag OFF
+      const listReqOff = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 13,
+          method: "resources/list",
+        }),
+      });
+
+      const listResOff = await worker.fetch(listReqOff, {
+        ENABLE_MCP_APPS: "false",
+      });
+      const listDataOff = (await listResOff.json()) as {
+        result: { resources: { uri: string }[] };
+      };
+      const viewerResourceOff = listDataOff.result.resources.find(
+        (r) => r.uri === "ui://archlex/diagram-viewer",
+      );
+      expect(viewerResourceOff).toBeDefined();
+
+      // Test with flag ON
+      const listReqOn = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 14,
+          method: "resources/list",
+        }),
+      });
+
+      const listResOn = await worker.fetch(listReqOn, {
+        ENABLE_MCP_APPS: "true",
+      });
+      const listDataOn = (await listResOn.json()) as {
+        result: { resources: { uri: string }[] };
+      };
+      const viewerResourceOn = listDataOn.result.resources.find(
+        (r) => r.uri === "ui://archlex/diagram-viewer",
+      );
+      expect(viewerResourceOn).toBeDefined();
+    });
   });
 
   describe("validate_diagram", () => {
