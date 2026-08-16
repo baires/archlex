@@ -7,52 +7,86 @@ import { handleValidateDiagram } from "../src/tools/validate.js";
 
 describe("ArchLex MCP Server Tools", () => {
   describe("render_diagram", () => {
-    it("renders valid ArchLex DSL to SVG with diagnostics and playground URL", async () => {
+    it("returns minimal text summary instead of JSON for success case", async () => {
       const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
       const result = await handleRenderDiagram({ source, theme: "dark" });
 
       expect(result.content).toBeDefined();
       expect(result.content[0].type).toBe("image");
       expect(result.content[0].mimeType).toBe("image/svg+xml");
+
       const textContent = result.content[1];
       expect(textContent.type).toBe("text");
       if (textContent.type !== "text") throw new Error("Expected text content");
 
-      const payload = JSON.parse(textContent.text);
-      expect(payload.success).toBe(true);
-      expect(payload.svg).toContain("<svg");
-      expect(payload.playground_url).toContain(
-        "https://playground.archlex.dev/",
+      // New: text should be minimal summary, not JSON
+      expect(textContent.text).toMatch(
+        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?$/,
       );
-      expect(payload.nodes_count).toBeGreaterThan(0);
+      expect(textContent.text).not.toContain("{");
+      expect(textContent.text).not.toContain("svg");
     });
 
-    it("returns error diagnostics for invalid syntax", async () => {
+    it("returns minimal text summary for error case", async () => {
       const source = "provider aws\ninvalid -> -> syntax";
       const result = await handleRenderDiagram({ source });
       const textContent = result.content[1];
       if (textContent.type !== "text") throw new Error("Expected text content");
-      const payload = JSON.parse(textContent.text);
 
-      expect(payload.diagnostics.length).toBeGreaterThan(0);
+      // New: error text should be minimal summary
+      expect(textContent.text).toMatch(/^✗ Rendering failed: \d+ errors?$/);
+      expect(textContent.text).not.toContain("{");
     });
 
-    it("includes structuredContent mirroring the text payload", async () => {
+    it("includes complete structuredContent with all metadata", async () => {
       const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
       const result = await handleRenderDiagram({ source, theme: "dark" });
-      const textContent = result.content[1];
-      if (textContent.type !== "text") throw new Error("Expected text content");
 
       expect(result.structuredContent).toBeDefined();
-      expect(result.structuredContent).toEqual(JSON.parse(textContent.text));
-      expect((result.structuredContent as { svg: string }).svg).toContain(
-        "<svg",
+      const structured = result.structuredContent as Record<string, unknown>;
+
+      // All required fields present
+      expect(structured.success).toBe(true);
+      expect(structured.svg).toBeDefined();
+      expect(typeof structured.svg).toBe("string");
+      expect(structured.svg as string).toContain("<svg");
+      expect(structured.diagnostics).toBeDefined();
+      expect(Array.isArray(structured.diagnostics)).toBe(true);
+      expect(structured.playground_url).toBeDefined();
+      expect(structured.playground_url as string).toContain(
+        "https://playground.archlex.dev/",
       );
+      expect(structured.nodes_count).toBeDefined();
+      expect(typeof structured.nodes_count).toBe("number");
+      expect(structured.nodes_count).toBeGreaterThan(0);
+      expect(structured.edges_count).toBeDefined();
+      expect(typeof structured.edges_count).toBe("number");
+    });
+
+    it("validates base64 image is valid and decodable", async () => {
+      const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
+      const result = await handleRenderDiagram({ source });
+
+      const imageContent = result.content[0];
+      expect(imageContent.type).toBe("image");
+      if (imageContent.type !== "image")
+        throw new Error("Expected image content");
+
+      // Validate base64 encoding
+      expect(imageContent.data).toBeDefined();
+      expect(typeof imageContent.data).toBe("string");
+
+      // Decode and verify it's valid SVG
+      const decoded = Buffer.from(imageContent.data, "base64").toString(
+        "utf-8",
+      );
+      expect(decoded).toMatch(/^<svg/);
+      expect(decoded).toContain("</svg>");
     });
   });
 
   describe("MCP Apps (ui extension)", () => {
-    it("declares ui resource metadata on render_diagram via tools/list", async () => {
+    it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
       const request = new Request("https://mcp.archlex.dev/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,12 +97,13 @@ describe("ArchLex MCP Server Tools", () => {
         }),
       });
 
-      const response = await worker.fetch(request);
+      const response = await worker.fetch(request, { ENABLE_MCP_APPS: "true" });
       expect(response.status).toBe(200);
       const data = (await response.json()) as {
         result: {
           tools: {
             name: string;
+            description?: string;
             outputSchema?: { type: string };
             _meta?: { ui?: { resourceUri?: string } };
           }[];
@@ -83,6 +118,80 @@ describe("ArchLex MCP Server Tools", () => {
         "ui://archlex/diagram-viewer",
       );
       expect(renderTool?.outputSchema?.type).toBe("object");
+
+      // Verify strengthened tool description (ticket #29)
+      expect(renderTool?.description).toContain("Display the image inline");
+      expect(renderTool?.description).toContain(
+        "do not show raw SVG source code",
+      );
+      expect(renderTool?.description).toContain(
+        "The image is the primary output",
+      );
+      expect(renderTool?.description).not.toContain("SHOULD");
+    });
+
+    it("omits MCP Apps metadata when ENABLE_MCP_APPS is false", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 10,
+          method: "tools/list",
+        }),
+      });
+
+      // Call with env where ENABLE_MCP_APPS is explicitly "false" (default)
+      const response = await worker.fetch(request, {
+        ENABLE_MCP_APPS: "false",
+      });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          tools: {
+            name: string;
+            _meta?: { ui?: { resourceUri?: string } };
+          }[];
+        };
+      };
+
+      const renderTool = data.result.tools.find(
+        (t) => t.name === "render_diagram",
+      );
+      expect(renderTool).toBeDefined();
+      expect(renderTool?._meta).toBeUndefined();
+    });
+
+    it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 10,
+          method: "tools/list",
+        }),
+      });
+
+      // Call with env where ENABLE_MCP_APPS is explicitly "true"
+      const response = await worker.fetch(request, { ENABLE_MCP_APPS: "true" });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          tools: {
+            name: string;
+            _meta?: { ui?: { resourceUri?: string } };
+          }[];
+        };
+      };
+
+      const renderTool = data.result.tools.find(
+        (t) => t.name === "render_diagram",
+      );
+      expect(renderTool).toBeDefined();
+      expect(renderTool?._meta?.ui?.resourceUri).toBe(
+        "ui://archlex/diagram-viewer",
+      );
     });
 
     it("serves the diagram viewer HTML as an MCP Apps ui:// resource", async () => {
@@ -129,6 +238,52 @@ describe("ArchLex MCP Server Tools", () => {
       expect(content.text).toContain("<!DOCTYPE html>");
       expect(content.text).toContain("ui/initialize");
       expect(content.text).toContain("ui/notifications/tool-result");
+    });
+
+    it("serves diagram viewer resource regardless of ENABLE_MCP_APPS flag", async () => {
+      // Test with flag OFF
+      const listReqOff = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 13,
+          method: "resources/list",
+        }),
+      });
+
+      const listResOff = await worker.fetch(listReqOff, {
+        ENABLE_MCP_APPS: "false",
+      });
+      const listDataOff = (await listResOff.json()) as {
+        result: { resources: { uri: string }[] };
+      };
+      const viewerResourceOff = listDataOff.result.resources.find(
+        (r) => r.uri === "ui://archlex/diagram-viewer",
+      );
+      expect(viewerResourceOff).toBeDefined();
+
+      // Test with flag ON
+      const listReqOn = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 14,
+          method: "resources/list",
+        }),
+      });
+
+      const listResOn = await worker.fetch(listReqOn, {
+        ENABLE_MCP_APPS: "true",
+      });
+      const listDataOn = (await listResOn.json()) as {
+        result: { resources: { uri: string }[] };
+      };
+      const viewerResourceOn = listDataOn.result.resources.find(
+        (r) => r.uri === "ui://archlex/diagram-viewer",
+      );
+      expect(viewerResourceOn).toBeDefined();
     });
   });
 

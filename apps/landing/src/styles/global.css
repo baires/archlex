@@ -392,7 +392,6 @@ h1 {
 .semantic-proof img {
   width: 100%;
   height: auto;
-  display: block;
 }
 
 .semantic-proof figcaption {

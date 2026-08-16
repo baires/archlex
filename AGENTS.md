@@ -199,3 +199,19 @@ pnpm verify:sites
 # Generate diagnostic error documentation from code registry
 pnpm generate-docs
 ```
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues are tracked in GitHub Issues for the `baires/archlex` repository. See [docs/agents/issue-tracker.md](docs/agents/issue-tracker.md).
+
+### Triage labels
+
+Triage uses five canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See [docs/agents/triage-labels.md](docs/agents/triage-labels.md).
+
+### Domain docs
+
+Single-context layout: one `CONTEXT.md` at the repo root + `docs/adr/` for ADRs. See [docs/agents/domain.md](docs/agents/domain.md).
