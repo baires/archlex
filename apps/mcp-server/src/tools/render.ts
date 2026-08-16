@@ -54,6 +54,7 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
 
   const base64Svg = btoa(unescape(encodeURIComponent(result.svg)));
 
+  // Structured content with all metadata for programmatic access
   const payload = {
     success: !hasErrors,
     svg: result.svg,
@@ -62,6 +63,14 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
     nodes_count: result.graph.nodes.length,
     edges_count: result.graph.edges.length,
   };
+
+  // Minimal text summary for agents
+  const errorCount = result.diagnostics.filter(
+    (d) => d.severity === "error",
+  ).length;
+  const textSummary = hasErrors
+    ? `✗ Rendering failed: ${errorCount} error${errorCount === 1 ? "" : "s"}`
+    : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}`;
 
   return {
     content: [
@@ -72,7 +81,7 @@ export async function handleRenderDiagram(args: RenderDiagramArgs) {
       },
       {
         type: "text" as const,
-        text: JSON.stringify(payload, null, 2),
+        text: textSummary,
       },
     ],
     // Structured mirror of the text payload for MCP Apps hosts: the
