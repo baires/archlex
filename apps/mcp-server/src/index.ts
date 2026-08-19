@@ -39,6 +39,8 @@ import { DOC_RESOURCES } from "./generated/docs-resources.js";
 import { SYSTEM_PROMPTS } from "./prompts.js";
 import { ARCHLEX_EXAMPLES, ARCHLEX_SYNTAX_GUIDE } from "./resources.js";
 
+const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagram requests; it performs syntax and semantic validation internally. Do not call validate_diagram first unless the user requests validation-only or rendering failed. Do not call get_cloud_catalog for common cloud services; when an identifier is unknown, call it once with a focused query. Canonical syntax: app: ecs["Next.js"] and cdn -[routes]-> app. Square brackets label nodes, not edges. render_diagram already returns an embedded image and playground_url, so do not call generate_playground_url after rendering. Display successful images inline. If rendering reports errors, repair from its diagnostics and retry once.`;
+
 export class WorkerSSEServerTransport implements Transport {
   private controller?: ReadableStreamDefaultController<Uint8Array>;
   private encoder = new TextEncoder();
@@ -102,6 +104,7 @@ function createMcpServer(env?: Env) {
       version: "0.1.0",
     },
     {
+      instructions: SERVER_INSTRUCTIONS,
       capabilities: {
         tools: {},
         resources: {},
@@ -126,14 +129,14 @@ function createMcpServer(env?: Env) {
     } = {
       name: "render_diagram",
       description:
-        "Parse ArchLex DSL shorthand code, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render an SVG diagram. Returns a rendered SVG diagram as an embedded image. **Display the image inline** — do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary.",
+        "Call this tool first and normally only once for diagram requests. It parses ArchLex DSL, performs syntax and cloud semantic validation, computes ELK layout, and returns an embedded SVG image plus diagnostics and a playground URL. Do not preflight with validate_diagram. On success: Display the image inline — do not show raw SVG source code or JSON metadata. The image is the primary output. On failure, repair from the returned diagnostics and retry once.",
       inputSchema: {
         type: "object",
         properties: {
           source: {
             type: "string",
             description:
-              "ArchLex shorthand text syntax (e.g. 'direction LR\\nprovider aws\\n rds-proxy > rds > ecs')",
+              'ArchLex DSL. Canonical forms: app: ecs["Next.js"]; cdn -[routes]-> app; or rds-proxy > rds > ecs. Start with direction LR and provider aws/gcp/k8s.',
           },
           theme: {
             type: "string",
@@ -191,7 +194,7 @@ function createMcpServer(env?: Env) {
         {
           name: "validate_diagram",
           description:
-            "Perform fast syntax parsing and cloud semantic validation without rendering full SVG.",
+            "Validation-only tool for checking DSL without rendering. Do not call it before render_diagram, because render_diagram already validates. Use it only when the user explicitly requests validation without an image or when investigating a failed render.",
           inputSchema: {
             type: "object",
             properties: {
@@ -216,7 +219,7 @@ function createMcpServer(env?: Env) {
         {
           name: "get_cloud_catalog",
           description:
-            "Inspect supported providers (AWS, GCP, Kubernetes), available resource kinds, containment scopes, and relationship types.",
+            "Find provider resource identifiers and metadata when an identifier is unknown. Do not call for common services. Use query for compact results; an unfiltered request returns the large compatibility catalog.",
           inputSchema: {
             type: "object",
             properties: {
@@ -225,13 +228,30 @@ function createMcpServer(env?: Env) {
                 enum: ["aws", "gcp", "k8s", "all"],
                 description: "Provider catalog filter",
               },
+              query: {
+                type: "string",
+                description:
+                  "Case-insensitive search across service IDs, display names, aliases, search terms, and categories. Prefer a focused query.",
+              },
+              category: {
+                type: "string",
+                description:
+                  "Optional exact category filter, such as compute, database, networking, or storage.",
+              },
+              limit: {
+                type: "integer",
+                minimum: 1,
+                maximum: 100,
+                default: 20,
+                description: "Maximum compact matches to return.",
+              },
             },
           },
         },
         {
           name: "generate_playground_url",
           description:
-            "Generate a deep-link URL to open and edit the ArchLex diagram interactively in the web playground.",
+            "Generate a playground deep link without rendering. Do not call it after render_diagram, because render_diagram already returns playground_url. Use only when the user wants an editable URL without an image.",
           inputSchema: {
             type: "object",
             properties: {

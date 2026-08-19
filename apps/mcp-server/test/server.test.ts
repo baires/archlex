@@ -326,6 +326,24 @@ cluster production {
       expect(payload.containmentScopes).toContain("vpc");
       expect(payload.containmentScopes).toContain("namespace");
     });
+
+    it("returns compact catalog matches when a query is provided", async () => {
+      const result = await handleGetCatalog({
+        provider: "aws",
+        query: "cloudwatch",
+        limit: 2,
+      });
+      const payload = JSON.parse(result.content[0].text);
+
+      expect(payload.provider).toBe("aws");
+      expect(payload.query).toBe("cloudwatch");
+      expect(payload.matches).toHaveLength(2);
+      expect(payload.matches.map((match: { id: string }) => match.id)).toEqual([
+        "cloudwatch-logs",
+        "cloudwatch-metrics",
+      ]);
+      expect(payload.providers).toBeUndefined();
+    });
   });
 
   describe("Kubernetes resources", () => {
@@ -477,10 +495,21 @@ describe("Streamable HTTP endpoint", () => {
     expect(response.headers.get("Access-Control-Allow-Origin")).toBe("*");
     expect(response.headers.get("Content-Type")).toContain("application/json");
     const data = (await response.json()) as {
-      result: { protocolVersion: string; serverInfo: { name: string } };
+      result: {
+        protocolVersion: string;
+        serverInfo: { name: string };
+        instructions?: string;
+      };
     };
     expect(data.result.protocolVersion).toBe(protocolVersion);
     expect(data.result.serverInfo.name).toBe("archlex-mcp-server");
+    expect(data.result.instructions).toContain(
+      "Use render_diagram directly for normal diagram requests",
+    );
+    expect(data.result.instructions).toContain('app: ecs["Next.js"]');
+    expect(data.result.instructions).toContain(
+      "Do not call validate_diagram first",
+    );
   });
 
   it("lists the four tools through stateless POST /mcp", async () => {
@@ -497,6 +526,31 @@ describe("Streamable HTTP endpoint", () => {
       "get_cloud_catalog",
       "generate_playground_url",
     ]);
+  });
+
+  it("advertises a one-call-first workflow in tool descriptions", async () => {
+    const response = await worker.fetch(
+      mcpRequest({ jsonrpc: "2.0", id: 3, method: "tools/list" }),
+    );
+    const data = (await response.json()) as {
+      result: { tools: { name: string; description?: string }[] };
+    };
+    const descriptions = Object.fromEntries(
+      data.result.tools.map((tool) => [tool.name, tool.description ?? ""]),
+    );
+
+    expect(descriptions.render_diagram).toContain(
+      "Call this tool first and normally only once",
+    );
+    expect(descriptions.validate_diagram).toContain(
+      "Do not call it before render_diagram",
+    );
+    expect(descriptions.get_cloud_catalog).toContain(
+      "Use query for compact results",
+    );
+    expect(descriptions.generate_playground_url).toContain(
+      "Do not call it after render_diagram",
+    );
   });
 
   it("advertises the current and compatibility endpoints", async () => {
