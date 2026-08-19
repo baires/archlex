@@ -61,10 +61,12 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 
 ## Tools
 
-- `render_diagram({ source, theme, direction, validation })` – Renders SVG diagram and playground URL.
-- `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation.
-- `get_cloud_catalog({ provider })` – Service catalog (AWS, GCP) and containment rules.
-- `generate_playground_url({ source })` – Deep-link URL to `playground.archlex.dev`.
+- `render_diagram({ source, theme, direction, validation })` – Primary one-call workflow; validates and renders the SVG, returning diagnostics and a playground URL.
+- `validate_diagram({ source, provider, validation })` – Validation-only workflow when no rendered image is needed.
+- `get_cloud_catalog({ provider, query, category, limit })` – Focused service lookup when `query` or `category` is supplied; an unfiltered call retains the full compatibility catalog.
+- `generate_playground_url({ source })` – Deep-link-only workflow when no render is requested.
+
+For normal diagram requests, call `render_diagram` directly. It already performs syntax and semantic validation and returns the playground URL, so preflight validation and a separate URL-generation call are unnecessary.
 
 ## Rendering Modes
 
