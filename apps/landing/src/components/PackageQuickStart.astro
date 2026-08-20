@@ -1,6 +1,14 @@
+---
+import CodeBlock from "./CodeBlock.astro";
+
+const installCode =
+  "npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s";
+const usageCode = `const result = await archlex.render(source);
+document.querySelector("#diagram").innerHTML = result.svg;`;
+---
+
 <div class="package-quickstart">
   <p>Browser + Node.js · AWS + GCP + Kubernetes · Open source (MIT)</p>
-  <pre><code>npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s</code></pre>
-  <pre><code>const result = await archlex.render(source);
-document.querySelector("#diagram").innerHTML = result.svg;</code></pre>
+  <CodeBlock code={installCode} lang="bash" />
+  <CodeBlock code={usageCode} lang="javascript" />
 </div>

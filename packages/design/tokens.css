@@ -19,4 +19,11 @@
   --duration-base: 240ms;
   --duration-reveal: 600ms;
   --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --text-xs: 0.625rem;
+  --text-sm: 0.72rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --min-tap-target: 44px;
 }

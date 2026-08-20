@@ -124,6 +124,9 @@ importers:
       cookie:
         specifier: ^2.0.1
         version: 2.0.1
+      shiki:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/node':
         specifier: ^22.13.1

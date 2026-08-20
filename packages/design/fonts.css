@@ -1,9 +1,10 @@
 @import "@fontsource-variable/instrument-sans/wght.css";
 @import "@fontsource/commit-mono/400.css";
 @import "@fontsource/commit-mono/500.css";
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap");
 
 :root {
-  --font-display: "Instrument Sans Variable", sans-serif;
+  --font-display: "Bricolage Grotesque", "Instrument Sans Variable", sans-serif;
   --font-ui: "Instrument Sans Variable", sans-serif;
   --font-code: "Commit Mono", monospace;
 }

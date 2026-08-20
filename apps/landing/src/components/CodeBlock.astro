@@ -1,0 +1,135 @@
+---
+interface Props {
+  code: string;
+  lang?: string;
+}
+
+const { code, lang = "archlex" } = Astro.props;
+---
+
+<div class="code-block" data-lang={lang}>
+  <pre><code>{code}</code></pre>
+</div>
+
+<style>
+  .code-block {
+    border-radius: var(--radius-code);
+    overflow: hidden;
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: var(--space-5);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--surface-canvas);
+    border-radius: inherit;
+  }
+
+  .code-block code {
+    font-family: var(--font-code);
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    display: block;
+    white-space: pre;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.code-block code').forEach((block) => {
+      const code = block.textContent || '';
+      const lang = block.closest('.code-block')?.dataset.lang || 'archlex';
+
+      if (lang === 'archlex') {
+        const lines = code.split('\n');
+        const highlighted = lines.map(line => {
+          // Directives (provider, direction, etc.)
+          if (/^(provider|direction|validation|theme)\s+/.test(line)) {
+            return line.replace(/^(\w+)\s+(\w+)/, '<span class="hl-keyword">$1</span> <span class="hl-value">$2</span>');
+          }
+          // Named resources (api: lambda)
+          if (/^\w+:\s*\w+/.test(line)) {
+            return line.replace(/^(\w+):\s*(\w+)/, '<span class="hl-identifier">$1</span><span class="hl-punctuation">:</span> <span class="hl-resource">$2</span>');
+          }
+          // Relationships
+          if (/\-\[.*?\]\-?>/.test(line)) {
+            return line.replace(/(\w+)\s*(\-\[)(\w+)(\]\-?>)\s*(\w+)/,
+              '<span class="hl-identifier">$1</span> <span class="hl-arrow">$2</span><span class="hl-relationship">$3</span><span class="hl-arrow">$4</span> <span class="hl-identifier">$5</span>');
+          }
+          return line;
+        }).join('\n');
+        block.innerHTML = highlighted;
+      } else if (lang === 'bash') {
+        // Simple bash highlighting - keywords only
+        const highlighted = code
+          .replace(/\b(npm|pnpm|yarn)\b/g, '<span class="hl-keyword">$1</span>')
+          .replace(/\b(install|add|run)\b/g, '<span class="hl-keyword">$1</span>')
+          .replace(/(@[\w/-]+)/g, '<span class="hl-value">$1</span>');
+        block.innerHTML = highlighted;
+      } else if (lang === 'javascript') {
+        // Escape HTML first to prevent issues
+        const escaped = code
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        // Simple JavaScript highlighting - process in order to avoid conflicts
+        let highlighted = escaped;
+
+        // Strings first (so keywords inside strings aren't highlighted)
+        highlighted = highlighted.replace(/(["'`])([^"'`]*?)\1/g, '<span class="hl-string">$1$2$1</span>');
+
+        // Keywords (but not inside spans)
+        highlighted = highlighted.replace(/\b(const|let|var|await|async)\b/g, '<span class="hl-keyword">$1</span>');
+
+        // Functions
+        highlighted = highlighted.replace(/\b(render|querySelector)\b/g, '<span class="hl-function">$1</span>');
+
+        block.innerHTML = highlighted;
+      }
+    });
+  });
+</script>
+
+<style is:global>
+  .code-block .hl-keyword {
+    color: var(--signal);
+    font-weight: 500;
+  }
+
+  .code-block .hl-value {
+    color: color-mix(in srgb, var(--signal) 80%, var(--text-primary));
+  }
+
+  .code-block .hl-identifier {
+    color: var(--text-primary);
+  }
+
+  .code-block .hl-resource {
+    color: color-mix(in srgb, var(--signal) 60%, var(--text-primary));
+    font-weight: 500;
+  }
+
+  .code-block .hl-punctuation {
+    color: var(--text-secondary);
+  }
+
+  .code-block .hl-arrow {
+    color: var(--text-secondary);
+  }
+
+  .code-block .hl-relationship {
+    color: color-mix(in srgb, var(--signal) 70%, var(--text-primary));
+    font-style: italic;
+  }
+
+  .code-block .hl-function {
+    color: color-mix(in srgb, var(--signal) 50%, #6b9bd1);
+  }
+
+  .code-block .hl-string {
+    color: color-mix(in srgb, var(--text-secondary) 70%, #c88b5e);
+  }
+</style>

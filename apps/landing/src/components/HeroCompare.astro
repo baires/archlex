@@ -1,0 +1,940 @@
+---
+import { SITE_ROUTES } from "../config";
+
+const heroCode = `direction LR
+provider aws
+validation normal
+
+account enterprise-cloud {
+  region us-east-1 {
+    dns: route53["Route 53"]
+    cdn: cloudfront["CloudFront"]
+    events: eventbridge["EventBridge"]
+
+    dns -[routes]-> cdn
+
+    vpc production-vpc {
+      subnet public-tier {
+        gateway: api-gateway["API Gateway"]
+        ingress: alb["Load Balancer"]
+      }
+
+      subnet application-tier {
+        api_service: ecs["API Cluster"]
+        worker: lambda["Event Worker"]
+      }
+
+      subnet data-tier {
+        cache: elasticache["Redis Cache"]
+        database: aurora["Aurora PostgreSQL"]
+        lake: s3["Data Lake"]
+      }
+    }
+
+    cdn -[routes]-> gateway -[invokes]-> api_service
+    cdn -[routes]-> ingress -[routes]-> api_service
+
+    api_service -[caches]-> cache
+    api_service -[writes]-> database
+    api_service -[publishes]-> events
+
+    events -[triggers]-> worker
+    worker -[streams]-> lake
+  }
+}`;
+
+function highlightArchlex(code: string): string {
+  const lines = code.split("\n");
+  return lines
+    .map((line, index) => {
+      const lineNum = index + 1;
+      let formatted = line;
+
+      // Comments
+      if (/^\s*\/\//.test(line)) {
+        formatted = formatted.replace(
+          /(\/\/.*)$/,
+          '<span class="hl-comment">$1</span>',
+        );
+        return `<span class="code-line"><span class="line-number">${lineNum}</span><span class="line-content">${formatted}</span></span>`;
+      }
+
+      // Directives: direction, provider, validation, theme
+      if (/^\s*(direction|provider|validation|theme)\b/.test(line)) {
+        formatted = formatted.replace(
+          /^(\s*)(direction|provider|validation|theme)(\s+)([\w-]+)/,
+          '$1<span class="hl-keyword">$2</span>$3<span class="hl-value">$4</span>',
+        );
+      }
+      // Scopes: account, region, vpc, subnet
+      else if (/^\s*(account|region|vpc|subnet)\b/.test(line)) {
+        formatted = formatted.replace(
+          /^(\s*)(account|region|vpc|subnet)(\s+)([\w-]+)(\s*\{)/,
+          '$1<span class="hl-scope">$2</span>$3<span class="hl-scope-name">$4</span>$5',
+        );
+      }
+      // Chained or single relationships: cdn -[routes]-> gateway -[invokes]-> api_service
+      else if (/-\[.*?\]-?>/.test(line)) {
+        formatted = formatted.replace(
+          /([\w-]+)(\s*)(-\[)([\w-]+)(\]-?>)(\s*)([\w-]+)/g,
+          '<span class="hl-identifier">$1</span>$2<span class="hl-arrow">$3</span><span class="hl-relationship">$4</span><span class="hl-arrow">$5</span>$6<span class="hl-identifier">$7</span>',
+        );
+      }
+      // Resource definitions: gateway: api-gateway["API Gateway"] or worker: lambda
+      else if (/^\s*[\w-]+:\s*[\w-]+/.test(line)) {
+        formatted = formatted.replace(
+          /^(\s*)([\w-]+)(:)(\s*)([\w-]+)(?:(\[)(".*?")(\]))?/,
+          (_match, p1, id, colon, p2, res, b1, label, b2) => {
+            let resStr = `${p1}<span class="hl-identifier">${id}</span><span class="hl-punctuation">${colon}</span>${p2}<span class="hl-resource">${res}</span>`;
+            if (b1 && label && b2) {
+              resStr += `<span class="hl-bracket">${b1}</span><span class="hl-string">${label}</span><span class="hl-bracket">${b2}</span>`;
+            }
+            return resStr;
+          },
+        );
+      }
+
+      // Braces
+      formatted = formatted.replace(
+        /([{}])/g,
+        '<span class="hl-brace">$1</span>',
+      );
+
+      return `<span class="code-line"><span class="line-number">${lineNum}</span><span class="line-content">${formatted}</span></span>`;
+    })
+    .join("\n");
+}
+
+const highlightedCode = highlightArchlex(heroCode);
+---
+
+<figure class="hero-compare shell shell--wide" aria-label="Interactive comparison of ArchLex DSL code and rendered diagram">
+  <div class="compare-window">
+    <!-- Window Titlebar -->
+    <div class="compare-window__header">
+      <div class="window-controls" aria-hidden="true">
+        <span class="window-dot window-dot--close"></span>
+        <span class="window-dot window-dot--min"></span>
+        <span class="window-dot window-dot--zoom"></span>
+      </div>
+
+      <div class="window-title">
+        <span class="window-title__icon" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </span>
+        <span class="window-title__filename">hero.archlex</span>
+        <span class="window-title__sep" aria-hidden="true">↔</span>
+        <span class="window-title__output">rendered diagram</span>
+      </div>
+
+      <div class="window-actions">
+        <div class="compare-presets" role="group" aria-label="Compare presets">
+          <button type="button" class="preset-btn" data-position="0" aria-label="Show only SVG diagram">Diagram</button>
+          <button type="button" class="preset-btn is-active" data-position="50" aria-label="Split view">Split</button>
+          <button type="button" class="preset-btn" data-position="100" aria-label="Show only DSL code">Code</button>
+        </div>
+
+        <a href={SITE_ROUTES.playground} class="window-link" title="Open interactive playground">
+          <span>Playground</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Compare Stage Viewport -->
+    <div
+      class="compare-stage"
+      id="hero-compare-stage"
+      style="--slider-pos: 50%;"
+      tabindex="-1"
+    >
+      <!-- Left Layer: ArchLex DSL Code -->
+      <div class="compare-layer compare-layer--code" aria-label="ArchLex DSL Source Code">
+        <div class="layer-pill layer-pill--code">
+          <span class="layer-pill__indicator"></span>
+          <span class="layer-pill__label">ArchLex DSL</span>
+        </div>
+        <div class="code-scroller">
+          <pre class="code-body"><code class="code-lines" set:html={highlightedCode} /></pre>
+        </div>
+      </div>
+
+      <!-- Right Layer: Rendered SVG Diagram -->
+      <div class="compare-layer compare-layer--diagram" aria-label="Rendered Architecture Diagram">
+        <div class="layer-pill layer-pill--diagram">
+          <span class="layer-pill__indicator"></span>
+          <span class="layer-pill__label">Rendered SVG</span>
+        </div>
+        <div class="diagram-canvas">
+          <div class="diagram-blueprint-grid" aria-hidden="true"></div>
+          <img
+            class="diagram-img diagram-img--dark"
+            src="/diagrams/hero-dark.svg"
+            alt="Enterprise cloud architecture with Route 53, CloudFront CDN, API Gateway, Application Load Balancer, ECS API Cluster, Lambda Worker, Redis Cache, Aurora PostgreSQL, and S3 Data Lake rendered by ArchLex"
+            width="1748"
+            height="664"
+            loading="eager"
+            decoding="async"
+          />
+          <img
+            class="diagram-img diagram-img--light"
+            src="/diagrams/hero-light.svg"
+            alt="Enterprise cloud architecture with Route 53, CloudFront CDN, API Gateway, Application Load Balancer, ECS API Cluster, Lambda Worker, Redis Cache, Aurora PostgreSQL, and S3 Data Lake rendered by ArchLex"
+            width="1748"
+            height="664"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </div>
+
+      <!-- Vertical Slider Divider Line (Clean, no glow) -->
+      <div class="compare-divider" aria-hidden="true">
+        <div class="compare-divider__line"></div>
+      </div>
+
+      <!-- Draggable Discrete Slider Handle Button -->
+      <button
+        type="button"
+        class="compare-handle"
+        id="hero-compare-handle"
+        role="slider"
+        aria-label="Compare DSL Code and Rendered Diagram"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+        aria-valuetext="50% DSL code visible"
+        tabindex="0"
+      >
+        <span class="handle-icon" aria-hidden="true">
+          <span class="handle-dot"></span>
+          <span class="handle-dot"></span>
+          <span class="handle-dot"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <figcaption class="hero-compare__caption">
+    <span>One source · nested cloud scopes · typed semantic relationships</span>
+    <span class="caption-bullet" aria-hidden="true">·</span>
+    <span class="caption-interaction">Drag slider or use <kbd aria-label="left arrow key">←</kbd> <kbd aria-label="right arrow key">→</kbd> keys</span>
+  </figcaption>
+</figure>
+
+<style>
+  .hero-compare {
+    position: relative;
+    margin-block: 0 clamp(3.5rem, 7vw, 6rem);
+    padding: 0;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: reveal-hero-compare var(--duration-reveal) 200ms var(--ease-standard) forwards;
+  }
+
+  @keyframes reveal-hero-compare {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .compare-window {
+    background: var(--surface-raised);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-panel);
+    box-shadow:
+      0 12px 36px rgb(0 0 0 / 12%),
+      0 1px 3px rgb(0 0 0 / 6%);
+    overflow: hidden;
+    transition: box-shadow var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
+  }
+
+  .compare-window:hover {
+    box-shadow:
+      0 18px 48px rgb(0 0 0 / 18%),
+      0 2px 6px rgb(0 0 0 / 8%);
+    border-color: var(--border-strong);
+  }
+
+  /* Window Header */
+  .compare-window__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface-sunken);
+    border-bottom: 1px solid var(--border-subtle);
+    user-select: none;
+    gap: var(--space-3);
+  }
+
+  .window-controls {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 60px;
+    flex-shrink: 0;
+  }
+
+  .window-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .window-dot--close {
+    background: #ff5f56;
+    border: 1px solid #e0443e;
+  }
+
+  .window-dot--min {
+    background: #ffbd2e;
+    border: 1px solid #dea123;
+  }
+
+  .window-dot--zoom {
+    background: #27c93f;
+    border: 1px solid #1aab29;
+  }
+
+  .window-title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-code);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .window-title__icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--signal);
+    flex-shrink: 0;
+  }
+
+  .window-title__filename {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .window-title__sep {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .window-title__output {
+    color: var(--text-secondary);
+  }
+
+  .window-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  .compare-presets {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px;
+    background: var(--surface-canvas);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-control);
+    gap: 2px;
+  }
+
+  .preset-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-standard);
+  }
+
+  .preset-btn:hover {
+    color: var(--text-primary);
+    background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  }
+
+  .preset-btn.is-active {
+    background: var(--signal);
+    color: var(--signal-contrast);
+  }
+
+  .window-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: var(--radius-control);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-family: var(--font-code);
+    font-size: 0.7rem;
+    font-weight: 500;
+    transition: all var(--duration-fast) var(--ease-standard);
+  }
+
+  .window-link:hover {
+    color: var(--signal);
+    border-color: var(--signal);
+    background: color-mix(in srgb, var(--signal) 8%, transparent);
+  }
+
+  /* Compare Stage */
+  .compare-stage {
+    position: relative;
+    width: 100%;
+    height: clamp(420px, 52vw, 560px);
+    overflow: hidden;
+    touch-action: pan-y;
+    user-select: none;
+    background: var(--surface-canvas);
+    cursor: col-resize;
+  }
+
+  .compare-stage.is-animating {
+    transition: --slider-pos var(--duration-base) var(--ease-standard);
+  }
+
+  /* Layer Base */
+  .compare-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: auto;
+  }
+
+  /* Code Layer (Left) */
+  .compare-layer--code {
+    clip-path: inset(0 calc(100% - var(--slider-pos)) 0 0);
+    background: var(--surface-sunken);
+    z-index: 1;
+    cursor: text;
+    user-select: text;
+  }
+
+  .code-scroller {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: var(--space-5) var(--space-4) var(--space-4) var(--space-3);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+    -webkit-overflow-scrolling: touch;
+    text-align: left;
+  }
+
+  .code-body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: var(--font-code);
+    font-size: clamp(0.72rem, 1.1vw, 0.82rem);
+    line-height: 1.65;
+  }
+
+  .code-lines {
+    display: flex;
+    flex-direction: column;
+    white-space: pre;
+    font-family: inherit;
+  }
+
+  :global(.hero-compare .code-line) {
+    display: flex;
+    align-items: baseline;
+    min-height: 1.65em;
+  }
+
+  :global(.hero-compare .code-line:hover) {
+    background: color-mix(in srgb, var(--text-primary) 4%, transparent);
+  }
+
+  :global(.hero-compare .line-number) {
+    width: 2.5rem;
+    padding-right: var(--space-3);
+    text-align: right;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    user-select: none;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  :global(.hero-compare .line-content) {
+    flex: 1;
+    color: var(--text-primary);
+  }
+
+  /* Syntax Highlighting */
+  :global(.hero-compare .hl-keyword) {
+    color: var(--signal);
+    font-weight: 600;
+  }
+
+  :global(.hero-compare .hl-value) {
+    color: color-mix(in srgb, var(--signal) 75%, var(--text-primary));
+    font-weight: 500;
+  }
+
+  :global(.hero-compare .hl-scope) {
+    color: #e59958;
+    font-weight: 600;
+  }
+
+  :global(.hero-compare .hl-scope-name) {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  :global(.hero-compare .hl-identifier) {
+    color: var(--text-primary);
+  }
+
+  :global(.hero-compare .hl-resource) {
+    color: #64b5f6;
+    font-weight: 500;
+  }
+
+  :global(.hero-compare .hl-string) {
+    color: #ffd54f;
+  }
+
+  :global(.hero-compare .hl-arrow) {
+    color: var(--text-secondary);
+    opacity: 0.8;
+  }
+
+  :global(.hero-compare .hl-relationship) {
+    color: #ba68c8;
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  :global(.hero-compare .hl-punctuation),
+  :global(.hero-compare .hl-bracket),
+  :global(.hero-compare .hl-brace) {
+    color: var(--text-secondary);
+  }
+
+  :global(.hero-compare .hl-comment) {
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  /* Diagram Layer (Right) */
+  .compare-layer--diagram {
+    clip-path: inset(0 0 0 var(--slider-pos));
+    background: var(--surface-canvas);
+    z-index: 2;
+    cursor: default;
+  }
+
+  .diagram-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 3vw, 2.5rem);
+  }
+
+  .diagram-blueprint-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--border-subtle) 75%, transparent) 1px, transparent 0);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .diagram-canvas img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 24px rgb(0 0 0 / 14%));
+    pointer-events: none;
+  }
+
+  :root[data-theme="light"] .diagram-canvas img {
+    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 5%));
+  }
+
+  /* Layer Floating Pills */
+  .layer-pill {
+    position: absolute;
+    top: var(--space-3);
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: var(--radius-control);
+    background: color-mix(in srgb, var(--surface-raised) 85%, transparent);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 6%);
+    font-family: var(--font-code);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    pointer-events: none;
+  }
+
+  .layer-pill--code {
+    left: var(--space-3);
+  }
+
+  .layer-pill--diagram {
+    right: var(--space-3);
+  }
+
+  .layer-pill__indicator {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--signal);
+  }
+
+  /* Divider Line (Crisp, clean line without glow) */
+  .compare-divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--slider-pos);
+    width: 1px;
+    transform: translateX(-50%);
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .compare-divider__line {
+    position: absolute;
+    inset: 0;
+    background: var(--border-strong);
+    opacity: 0.9;
+  }
+
+  /* Slider Handle (Discrete, clean capsule) */
+  .compare-handle {
+    position: absolute;
+    top: 50%;
+    left: var(--slider-pos);
+    transform: translate(-50%, -50%);
+    z-index: 30;
+    width: 24px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    cursor: ew-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+      0 2px 8px rgb(0 0 0 / 18%),
+      0 1px 2px rgb(0 0 0 / 10%);
+    transition: transform var(--duration-fast) var(--ease-standard),
+                border-color var(--duration-fast) var(--ease-standard),
+                background-color var(--duration-fast) var(--ease-standard);
+    touch-action: none;
+    outline: none;
+  }
+
+  .compare-handle:hover,
+  .compare-stage.is-dragging .compare-handle {
+    border-color: var(--signal);
+    color: var(--signal);
+    transform: translate(-50%, -50%) scale(1.06);
+    box-shadow:
+      0 4px 12px rgb(0 0 0 / 22%),
+      0 1px 3px rgb(0 0 0 / 12%);
+  }
+
+  .compare-handle:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  .handle-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .handle-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.75;
+    transition: opacity var(--duration-fast);
+  }
+
+  .compare-handle:hover .handle-dot,
+  .compare-stage.is-dragging .handle-dot {
+    opacity: 1;
+  }
+
+  /* Caption */
+  .hero-compare__caption {
+    margin-top: var(--space-4);
+    color: var(--text-secondary);
+    font-family: var(--font-code);
+    font-size: var(--text-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .caption-bullet {
+    color: var(--border-strong);
+  }
+
+  .caption-interaction {
+    color: var(--text-secondary);
+  }
+
+  .caption-interaction kbd {
+    display: inline-block;
+    padding: 0.1rem 0.35rem;
+    font-family: var(--font-code);
+    font-size: 0.72rem;
+    color: var(--text-primary);
+    background: var(--surface-sunken);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--border-subtle);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 719px) {
+    .compare-window__header {
+      padding: var(--space-2) var(--space-3);
+    }
+
+    .window-controls {
+      width: 45px;
+      gap: 5px;
+    }
+
+    .window-dot {
+      width: 8px;
+      height: 8px;
+    }
+
+    .window-title__sep,
+    .window-title__output {
+      display: none;
+    }
+
+    .preset-btn {
+      padding: 2px 7px;
+      font-size: 0.65rem;
+    }
+
+    .window-link {
+      display: none;
+    }
+
+    .compare-stage {
+      height: 420px;
+    }
+
+    .hero-compare__caption {
+      font-size: var(--text-xs);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-compare {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+
+    .compare-stage.is-animating {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  function setupHeroCompare() {
+    const stage = document.getElementById("hero-compare-stage");
+    const handle = document.getElementById("hero-compare-handle");
+    const presetButtons = document.querySelectorAll(".compare-presets .preset-btn");
+
+    if (!stage || !handle) return;
+
+    let isDragging = false;
+    let currentPos = 50;
+
+    function setPosition(percent: number, animate = false) {
+      const clamped = Math.max(0, Math.min(100, percent));
+      currentPos = clamped;
+
+      if (animate) {
+        stage.classList.add("is-animating");
+        setTimeout(() => stage.classList.remove("is-animating"), 260);
+      }
+
+      stage.style.setProperty("--slider-pos", `${clamped}%`);
+      handle.setAttribute("aria-valuenow", Math.round(clamped).toString());
+      handle.setAttribute(
+        "aria-valuetext",
+        `${Math.round(clamped)}% DSL code, ${Math.round(100 - clamped)}% rendered diagram`
+      );
+
+      presetButtons.forEach((btn) => {
+        const btnPos = parseFloat((btn as HTMLElement).dataset.position || "-1");
+        if (Math.abs(btnPos - clamped) < 2) {
+          btn.classList.add("is-active");
+        } else {
+          btn.classList.remove("is-active");
+        }
+      });
+    }
+
+    function calculatePercentFromEvent(e: PointerEvent): number {
+      const rect = stage.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      return (x / rect.width) * 100;
+    }
+
+    function onPointerDown(e: PointerEvent) {
+      // Don't drag if clicking inside code selection or preset buttons
+      if ((e.target as HTMLElement).closest(".code-scroller") && !e.target.isSameNode(stage)) {
+        // Allow text selection in code scroller if clicked directly on code
+        return;
+      }
+
+      isDragging = true;
+      try {
+        handle.setPointerCapture(e.pointerId);
+      } catch {}
+
+      stage.classList.add("is-dragging");
+      const pct = calculatePercentFromEvent(e);
+      setPosition(pct);
+      e.preventDefault();
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (!isDragging) return;
+      const pct = calculatePercentFromEvent(e);
+      setPosition(pct);
+    }
+
+    function onPointerUp(e: PointerEvent) {
+      if (isDragging) {
+        isDragging = false;
+        try {
+          handle.releasePointerCapture(e.pointerId);
+        } catch {}
+        stage.classList.remove("is-dragging");
+      }
+    }
+
+    // Handle drag on the handle element directly
+    handle.addEventListener("pointerdown", (e) => {
+      isDragging = true;
+      try {
+        handle.setPointerCapture(e.pointerId);
+      } catch {}
+      stage.classList.add("is-dragging");
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    handle.addEventListener("pointermove", onPointerMove);
+    handle.addEventListener("pointerup", onPointerUp);
+    handle.addEventListener("pointercancel", onPointerUp);
+
+    // Clicking anywhere on the stage track
+    stage.addEventListener("pointerdown", onPointerDown);
+    stage.addEventListener("pointermove", onPointerMove);
+    stage.addEventListener("pointerup", onPointerUp);
+    stage.addEventListener("pointercancel", onPointerUp);
+
+    // Keyboard accessibility
+    handle.addEventListener("keydown", (e: KeyboardEvent) => {
+      let step = 0;
+      if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        step = -5;
+      } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        step = 5;
+      } else if (e.key === "PageDown") {
+        step = -10;
+      } else if (e.key === "PageUp") {
+        step = 10;
+      } else if (e.key === "Home") {
+        setPosition(0, true);
+        e.preventDefault();
+        return;
+      } else if (e.key === "End") {
+        setPosition(100, true);
+        e.preventDefault();
+        return;
+      }
+
+      if (step !== 0) {
+        e.preventDefault();
+        setPosition(currentPos + step, true);
+      }
+    });
+
+    // Preset buttons click
+    presetButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const targetPos = parseFloat((btn as HTMLElement).dataset.position || "50");
+        setPosition(targetPos, true);
+      });
+    });
+  }
+
+  // Initialize on load and on view transitions / astro page loads
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupHeroCompare);
+  } else {
+    setupHeroCompare();
+  }
+  document.addEventListener("astro:page-load", setupHeroCompare);
+</script>
