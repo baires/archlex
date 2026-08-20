@@ -1,30 +1,69 @@
+import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import type { IconLoader, SanitizedIcon } from "@archlex/icons-core";
 import { describe, expect, it } from "vitest";
 import worker from "../src/index.js";
 import { handleGetCatalog } from "../src/tools/catalog.js";
 import { handleGeneratePlaygroundUrl } from "../src/tools/playground.js";
-import { handleRenderDiagram } from "../src/tools/render.js";
+import {
+  fetchIconInWorker,
+  handleRenderDiagram,
+  rasterizeSvg,
+} from "../src/tools/render.js";
 import { handleValidateDiagram } from "../src/tools/validate.js";
+
+const CODEBUILD_ICON: SanitizedIcon = {
+  provider: "aws",
+  key: "codebuild",
+  checksum: "sha256:test-codebuild",
+  viewBox: "0 0 64 64",
+  svgFragment:
+    '<svg viewBox="0 0 64 64"><path fill="#ff00aa" d="M0 0h64v64H0z"/></svg>',
+};
+
+const codebuildIconLoader: IconLoader = {
+  async loadIcons() {
+    return {
+      icons: new Map([["aws:codebuild", CODEBUILD_ICON]]),
+      diagnostics: [],
+    };
+  },
+};
 
 describe("ArchLex MCP Server Tools", () => {
   describe("render_diagram", () => {
-    it("returns minimal text summary instead of JSON for success case", async () => {
+    it("adapts redirect-error icon fetches for Cloudflare Workers", async () => {
+      let receivedRedirect: RequestRedirect | undefined;
+      const response = await fetchIconInWorker(
+        "https://unpkg.com/icon.svg",
+        { redirect: "error" },
+        async (_input, init) => {
+          receivedRedirect = init?.redirect;
+          return new Response("<svg/>", { status: 200 });
+        },
+      );
+
+      expect(response.status).toBe(200);
+      expect(receivedRedirect).toBe("manual");
+    });
+
+    it("returns the exact ArchLex source after a successful render", async () => {
       const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
       const result = await handleRenderDiagram({ source, theme: "dark" });
 
       expect(result.content).toBeDefined();
       expect(result.content[0].type).toBe("image");
-      expect(result.content[0].mimeType).toBe("image/svg+xml");
 
       const textContent = result.content[1];
       expect(textContent.type).toBe("text");
       if (textContent.type !== "text") throw new Error("Expected text content");
 
-      // New: text should be minimal summary, not JSON
       expect(textContent.text).toMatch(
-        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?$/,
+        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?\n\n```archlex\n/,
       );
-      expect(textContent.text).not.toContain("{");
-      expect(textContent.text).not.toContain("svg");
+      expect(
+        textContent.text.endsWith(`\n\n\`\`\`archlex\n${source}\n\`\`\``),
+      ).toBe(true);
     });
 
     it("returns minimal text summary for error case", async () => {
@@ -33,9 +72,22 @@ describe("ArchLex MCP Server Tools", () => {
       const textContent = result.content[1];
       if (textContent.type !== "text") throw new Error("Expected text content");
 
-      // New: error text should be minimal summary
-      expect(textContent.text).toMatch(/^✗ Rendering failed: \d+ errors?$/);
+      expect(textContent.text).toMatch(
+        /^✗ Rendering failed: \d+ errors?\n\n```archlex\n/,
+      );
+      expect(textContent.text.endsWith(`${source}\n\`\`\``)).toBe(true);
       expect(textContent.text).not.toContain("{");
+    });
+
+    it("uses a safe Markdown fence when source contains backticks", async () => {
+      const source = 'provider aws\napp: ecs["```"]';
+      const result = await handleRenderDiagram({ source });
+      const textContent = result.content[1];
+      if (textContent.type !== "text") throw new Error("Expected text content");
+
+      expect(textContent.text).toContain(
+        `\n\n\`\`\`\`archlex\n${source}\n\`\`\`\``,
+      );
     });
 
     it("includes complete structuredContent with all metadata", async () => {
@@ -47,8 +99,8 @@ describe("ArchLex MCP Server Tools", () => {
 
       // All required fields present
       expect(structured.success).toBe(true);
-      // SVG source is NOT included in structuredContent to avoid large payloads
       expect(structured.svg).toBeUndefined();
+      expect(structured.source).toBe(source);
       expect(structured.diagnostics).toBeDefined();
       expect(Array.isArray(structured.diagnostics)).toBe(true);
       expect(structured.playground_url).toBeDefined();
@@ -62,8 +114,8 @@ describe("ArchLex MCP Server Tools", () => {
       expect(typeof structured.edges_count).toBe("number");
     });
 
-    it("validates base64 image is valid and decodable", async () => {
-      const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
+    it("returns a decodable PNG image for direct MCP clients", async () => {
+      const source = "direction LR\nprovider aws\n\necs";
       const result = await handleRenderDiagram({ source });
 
       const imageContent = result.content[0];
@@ -71,16 +123,130 @@ describe("ArchLex MCP Server Tools", () => {
       if (imageContent.type !== "image")
         throw new Error("Expected image content");
 
-      // Validate base64 encoding
       expect(imageContent.data).toBeDefined();
       expect(typeof imageContent.data).toBe("string");
+      expect(imageContent.mimeType).toBe("image/png");
 
-      // Decode and verify it's valid SVG
-      const decoded = Buffer.from(imageContent.data, "base64").toString(
-        "utf-8",
+      const decoded = Buffer.from(imageContent.data, "base64");
+      expect([...decoded.subarray(0, 8)]).toEqual([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      ]);
+    });
+
+    it("rasterizes node labels instead of dropping text", async () => {
+      const font = await readFile(
+        createRequire(import.meta.url).resolve(
+          "inter-font/ttf/Inter-Regular.ttf",
+        ),
       );
-      expect(decoded).toMatch(/^<svg/);
-      expect(decoded).toContain("</svg>");
+      const withText = await rasterizeSvg(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"><text x="10" y="45" fill="black" font-family="system-ui, sans-serif" font-size="32">HELLO</text></svg>',
+        [font],
+      );
+      const withoutText = await rasterizeSvg(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="80"></svg>',
+        [font],
+      );
+
+      expect(Buffer.from(withText).equals(Buffer.from(withoutText))).toBe(
+        false,
+      );
+    });
+
+    it.each(["LR", "TB"] as const)(
+      "bounds %s raster dimensions for large valid diagrams",
+      async (direction) => {
+        const declarations = Array.from(
+          { length: 60 },
+          (_, index) => `node${index}: ecs["Node ${index}"]`,
+        );
+        const relationships = Array.from(
+          { length: 59 },
+          (_, index) => `node${index} -> node${index + 1}`,
+        );
+        const source = ["provider aws", ...declarations, ...relationships].join(
+          "\n",
+        );
+        const result = await handleRenderDiagram({ source, direction });
+        const imageContent = result.content[0];
+        if (imageContent.type !== "image")
+          throw new Error("Expected image content");
+        const png = Buffer.from(imageContent.data, "base64");
+        const width = png.readUInt32BE(16);
+        const height = png.readUInt32BE(20);
+
+        expect(width).toBeLessThanOrEqual(4096);
+        expect(height).toBeLessThanOrEqual(4096);
+        expect(width * height).toBeLessThanOrEqual(4_000_000);
+      },
+    );
+
+    it("hydrates unresolved catalog icons before rendering", async () => {
+      const source = 'provider aws\nbuild: codebuild["Build and test"]';
+      const result = await handleRenderDiagram(
+        { source },
+        { enableMcpApps: true, iconLoader: codebuildIconLoader },
+      );
+      const structured = result.structuredContent as Record<string, unknown>;
+
+      expect(structured.svg).toContain('data-archlex-icon="aws.codebuild"');
+      expect(structured.svg).toContain("#ff00aa");
+      const recoloredPng = await rasterizeSvg(
+        String(structured.svg).replace("#ff00aa", "#00ffaa"),
+      );
+      expect(result.content[0].data).not.toBe(
+        Buffer.from(recoloredPng).toString("base64"),
+      );
+    });
+
+    it("falls back before a stalled icon loader exceeds its deadline", async () => {
+      const stalledLoader: IconLoader = {
+        loadIcons(_requests, options) {
+          return new Promise((_resolve, reject) => {
+            options?.signal?.addEventListener(
+              "abort",
+              () => reject(new DOMException("Aborted", "AbortError")),
+              { once: true },
+            );
+          });
+        },
+      };
+      const render = handleRenderDiagram(
+        { source: "provider aws\nbuild: codebuild" },
+        {
+          enableMcpApps: true,
+          iconLoader: stalledLoader,
+          iconHydrationTimeoutMs: 10,
+        },
+      );
+      const outcome = await Promise.race([
+        render,
+        new Promise<"timed-out">((resolve) =>
+          setTimeout(() => resolve("timed-out"), 100),
+        ),
+      ]);
+
+      expect(outcome).not.toBe("timed-out");
+      expect(outcome).toMatchObject({ structuredContent: { success: true } });
+    });
+
+    it("returns SVG text without rasterizing when format is svg", async () => {
+      const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
+      const result = await handleRenderDiagram({ source, format: "svg" });
+
+      expect(result.content.every((block) => block.type === "text")).toBe(true);
+
+      const summary = result.content[0];
+      if (summary.type !== "text") throw new Error("Expected text content");
+      expect(summary.text).toMatch(/^✓ Rendered successfully:/);
+
+      const svgBlock = result.content[1];
+      if (svgBlock.type !== "text") throw new Error("Expected text content");
+      expect(svgBlock.text).toContain("<svg");
+
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.success).toBe(true);
+      expect(structured.svg).toBe(svgBlock.text);
     });
   });
 
@@ -127,6 +293,32 @@ describe("ArchLex MCP Server Tools", () => {
         "The image is the primary output",
       );
       expect(renderTool?.description).not.toContain("SHOULD");
+    });
+
+    it("returns SVG data required by the MCP Apps viewer", async () => {
+      const source = "provider aws\necs";
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 15,
+          method: "tools/call",
+          params: {
+            name: "render_diagram",
+            arguments: { source },
+          },
+        }),
+      });
+
+      const response = await worker.fetch(request, { ENABLE_MCP_APPS: "true" });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: { structuredContent?: Record<string, unknown> };
+      };
+
+      expect(data.result.structuredContent?.svg).toMatch(/^<svg/);
+      expect(data.result.structuredContent?.source).toBe(source);
     });
 
     it("omits MCP Apps metadata when ENABLE_MCP_APPS is false", async () => {
@@ -308,6 +500,26 @@ cluster production {
 
       expect(payload.error_count).toBe(0);
       expect(payload.nodes_count).toBe(1);
+    });
+
+    it("includes a remediation hint when the source has parse errors", async () => {
+      const source = "provider aws\ncloudfront -[serves static]-> s3";
+      const result = await handleValidateDiagram({ source });
+      const payload = JSON.parse(result.content[0].text);
+
+      expect(payload.valid).toBe(false);
+      expect(payload.error_count).toBeGreaterThan(0);
+      expect(payload.hint).toContain("-[writes]->");
+      expect(payload.hint).toContain("|");
+    });
+
+    it("omits the hint when the source parses cleanly", async () => {
+      const source = "direction LR\nprovider aws\n\nrds-proxy > rds";
+      const result = await handleValidateDiagram({ source });
+      const payload = JSON.parse(result.content[0].text);
+
+      expect(payload.valid).toBe(true);
+      expect(payload.hint).toBeUndefined();
     });
   });
 
@@ -528,7 +740,7 @@ describe("Streamable HTTP endpoint", () => {
     ]);
   });
 
-  it("advertises a one-call-first workflow in tool descriptions", async () => {
+  it("advertises the authoring workflow in tool descriptions", async () => {
     const response = await worker.fetch(
       mcpRequest({ jsonrpc: "2.0", id: 3, method: "tools/list" }),
     );
@@ -540,11 +752,10 @@ describe("Streamable HTTP endpoint", () => {
     );
 
     expect(descriptions.render_diagram).toContain(
-      "Call this tool first and normally only once",
+      "call `get_cloud_catalog` first",
     );
-    expect(descriptions.validate_diagram).toContain(
-      "Do not call it before render_diagram",
-    );
+    expect(descriptions.render_diagram).toContain('format: "svg"');
+    expect(descriptions.validate_diagram).toContain("hint");
     expect(descriptions.get_cloud_catalog).toContain(
       "Use query for compact results",
     );
