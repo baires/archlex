@@ -47,6 +47,10 @@ export async function handleValidateDiagram(args: ValidateDiagramArgs) {
   const warnings = formattedDiagnostics.filter((d) => d.severity === "warning");
   const isValid = errors.length === 0;
 
+  const hasParseErrors = formattedDiagnostics.some((d) =>
+    d.code.startsWith("AL-PARSE-"),
+  );
+
   return {
     content: [
       {
@@ -59,6 +63,11 @@ export async function handleValidateDiagram(args: ValidateDiagramArgs) {
             diagnostics: formattedDiagnostics,
             nodes_count: prepared.graph.nodes.length,
             edges_count: prepared.graph.edges.length,
+            ...(hasParseErrors
+              ? {
+                  hint: 'Parse errors usually come from invalid relationship syntax. A kind inside -[...]-> must be exactly one lowercase word (e.g. -[writes]->, -[routes]->). Free-form display text only goes in pipes: a -[writes]->|PostgreSQL over TLS| b. Avoid spaces, slashes, or special characters inside -[...] and in identifiers; put human-readable names in double-quoted labels: app: ecs["My App"].',
+                }
+              : {}),
           },
           null,
           2,

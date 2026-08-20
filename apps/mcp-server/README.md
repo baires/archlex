@@ -61,12 +61,10 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 
 ## Tools
 
-- `render_diagram({ source, theme, direction, validation })` – Primary one-call workflow; validates and renders the SVG, returning diagnostics and a playground URL.
-- `validate_diagram({ source, provider, validation })` – Validation-only workflow when no rendered image is needed.
-- `get_cloud_catalog({ provider, query, category, limit })` – Focused service lookup when `query` or `category` is supplied; an unfiltered call retains the full compatibility catalog.
-- `generate_playground_url({ source })` – Deep-link-only workflow when no render is requested.
-
-For normal diagram requests, call `render_diagram` directly. It already performs syntax and semantic validation and returns the playground URL, so preflight validation and a separate URL-generation call are unnecessary.
+- `render_diagram({ source, theme, direction, validation, format })` – Hydrates provider icons, renders a diagram, returns the final ArchLex source, and provides a playground URL. `format` is `"png"` (default, base64 image block) or `"svg"` (raw SVG text, skips rasterization — use this from text-only/CLI clients and save the SVG to a file).
+- `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
+- `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
+- `generate_playground_url({ source })` – Deep-link URL to `playground.archlex.dev`.
 
 ## Rendering Modes
 
@@ -76,10 +74,15 @@ The `render_diagram` tool supports two rendering paths:
 
 **Current implementation** — works with all MCP clients today.
 
-- Returns a base64-encoded SVG image in `content[0]`
-- Returns a minimal text summary in `content[1]` (e.g., "✓ Rendered successfully: 5 nodes, 3 edges")
+- Returns a base64-encoded PNG image in `content[0]`
+- Returns a text summary and the exact final ArchLex source in `content[1]`
 - Provides metadata in `structuredContent` for programmatic access (diagnostics, playground URL, node/edge counts)
-- The SVG source is **not** included in `structuredContent` to avoid large payloads in client displays
+- Includes SVG source in `structuredContent` only when MCP Apps is enabled or `format: "svg"` is requested
+- With `format: "svg"`, returns SVG text in `content` instead of the PNG block and skips rasterization entirely — intended for CLI agents (Kimi Code, Codex, etc.) that save the result to a `.svg` file and view it with their own file tooling
+- Hydrates provider icons from the same pinned CDN catalogs used by the playground, with generic fallbacks when an icon cannot be fetched
+- Falls back to the base diagram when icon hydration exceeds 1.5 seconds
+- Bounds PNG output to 4,096 pixels per side and 4 million total pixels
+- Bundles Inter under the SIL Open Font License so labels render consistently in Workers
 - Agents display the embedded image inline without additional client support
 
 This mode prioritizes **universal compatibility** — any MCP client that can display base64 images will show rendered diagrams.

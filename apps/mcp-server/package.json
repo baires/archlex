@@ -20,10 +20,13 @@
     "@archlex/aws": "workspace:*",
     "@archlex/core": "workspace:*",
     "@archlex/gcp": "workspace:*",
+    "@archlex/icons-core": "workspace:*",
     "@archlex/k8s": "workspace:*",
     "@archlex/layout-elk": "workspace:*",
     "@archlex/model": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.5.0"
+    "@cf-wasm/resvg": "0.4.0",
+    "@modelcontextprotocol/sdk": "^1.5.0",
+    "inter-font": "3.19.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",

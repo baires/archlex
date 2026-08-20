@@ -50,8 +50,14 @@ A healthy server reports `aws`, `gcp`, and `k8s` in its provider list.
 
 ### `render_diagram`
 
-Pass ArchLex source plus optional `theme`, `direction`, and `validation` values.
-The server returns SVG, diagnostics, node and edge counts, and a playground URL.
+Pass ArchLex source plus optional `theme`, `direction`, `validation`, and
+`format` values. The server returns the rendered diagram, diagnostics, node and
+edge counts, and a playground URL.
+
+`format` defaults to `"png"` (base64 PNG image block). Use `"svg"` to skip
+rasterization and receive raw SVG text instead — intended for text-only or CLI
+clients that save the result to a `.svg` file and view it with their own
+tooling.
 
 ```json
 {
@@ -64,7 +70,9 @@ The server returns SVG, diagnostics, node and edge counts, and a playground URL.
 ### `validate_diagram`
 
 Validate source without SVG layout. Pass an optional provider value of `aws`,
-`gcp`, or `k8s` when the source does not select one.
+`gcp`, or `k8s` when the source does not select one. When the source has parse
+errors, the response includes a `hint` field describing the likely fix (for
+example, free-form edge text belongs in `->|label|`, not inside `-[kind]->`).
 
 ### `get_cloud_catalog`
 

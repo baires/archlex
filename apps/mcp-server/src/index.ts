@@ -129,7 +129,7 @@ function createMcpServer(env?: Env) {
     } = {
       name: "render_diagram",
       description:
-        "Call this tool first and normally only once for diagram requests. It parses ArchLex DSL, performs syntax and cloud semantic validation, computes ELK layout, and returns an embedded SVG image plus diagnostics and a playground URL. Do not preflight with validate_diagram. On success: Display the image inline — do not show raw SVG source code or JSON metadata. The image is the primary output. On failure, repair from the returned diagnostics and retry once.",
+        'Parse ArchLex DSL shorthand code, hydrate cloud service icons, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render a PNG diagram. **Display the image inline**, then include the exact final source in an `archlex` fenced code block; do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary. Workflow: call `get_cloud_catalog` first to discover exact resource kind names, iterate with `validate_diagram` until clean, then render — diagnostics are included in this tool\'s response, so rendering also confirms validity. Relationship kinds inside `-[kind]->` are single lowercase words (e.g. `writes`, `routes`); put free-form display text in pipes: `a -[writes]->|PostgreSQL| b`. Clients that cannot display images: pass `format: "svg"` to skip the PNG, save the returned SVG (in content or `structuredContent.svg`) to a `.svg` file, and open it with your own file/image tooling.',
       inputSchema: {
         type: "object",
         properties: {
@@ -153,6 +153,12 @@ function createMcpServer(env?: Env) {
             enum: ["strict", "normal", "off"],
             description: "Validation mode",
           },
+          format: {
+            type: "string",
+            enum: ["png", "svg"],
+            description:
+              "Output format. 'png' (default) returns a base64 PNG image block. 'svg' skips rasterization and returns raw SVG text — cheaper and better for text-only clients that save the result to a file.",
+          },
         },
         required: ["source"],
       },
@@ -160,6 +166,8 @@ function createMcpServer(env?: Env) {
         type: "object",
         properties: {
           success: { type: "boolean" },
+          source: { type: "string" },
+          svg: { type: "string" },
           diagnostics: {
             type: "array",
             items: {
@@ -175,7 +183,7 @@ function createMcpServer(env?: Env) {
           nodes_count: { type: "number" },
           edges_count: { type: "number" },
         },
-        required: ["success"],
+        required: ["success", "source"],
       },
     };
 
@@ -194,7 +202,7 @@ function createMcpServer(env?: Env) {
         {
           name: "validate_diagram",
           description:
-            "Validation-only tool for checking DSL without rendering. Do not call it before render_diagram, because render_diagram already validates. Use it only when the user explicitly requests validation without an image or when investigating a failed render.",
+            "Perform fast syntax parsing and cloud semantic validation without rendering full SVG. On parse errors the response includes a `hint` field with the likely fix — use this tool to iterate on source before calling render_diagram.",
           inputSchema: {
             type: "object",
             properties: {
@@ -283,6 +291,7 @@ function createMcpServer(env?: Env) {
         case "render_diagram":
           result = await handleRenderDiagram(
             args as unknown as RenderDiagramArgs,
+            { enableMcpApps },
           );
           break;
         case "validate_diagram":
@@ -684,7 +693,7 @@ export default {
       }
 
       const timeoutPromise = new Promise<undefined>((resolve) =>
-        setTimeout(() => resolve(undefined), 3000),
+        setTimeout(() => resolve(undefined), 5000),
       );
 
       const resultMessage = await Promise.race([

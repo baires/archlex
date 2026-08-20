@@ -143,6 +143,9 @@ importers:
       '@archlex/gcp':
         specifier: workspace:*
         version: link:../../packages/gcp
+      '@archlex/icons-core':
+        specifier: workspace:*
+        version: link:../../packages/icons-core
       '@archlex/k8s':
         specifier: workspace:*
         version: link:../../packages/k8s
@@ -152,9 +155,15 @@ importers:
       '@archlex/model':
         specifier: workspace:*
         version: link:../../packages/model
+      '@cf-wasm/resvg':
+        specifier: 0.4.0
+        version: 0.4.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.5.0
         version: 1.30.0(zod@4.4.3)
+      inter-font:
+        specifier: 3.19.0
+        version: 3.19.0
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^4.20250204.0
@@ -854,6 +863,9 @@ packages:
   '@capsizecss/unpack@4.0.1':
     resolution: {integrity: sha512-CuNiSqg7+e1cO/GjffyMOm5Tt2jUF9CWHHnvQ/UkqvtkGfHdgwEC0wpmq7fkN3gxwpRnrAN0WzO3vREKmNolMQ==}
     engines: {node: '>=18'}
+
+  '@cf-wasm/resvg@0.4.0':
+    resolution: {integrity: sha512-p45IjI5EDYPTsJzhoqJ48f/TcNhR3/F9l2CCFomEHBJ0jbedQQMFB9CQfRaqcqdhDTNy4fSjN8hvOeKDMnz3zA==}
 
   '@changesets/apply-release-plan@7.1.1':
     resolution: {integrity: sha512-9qPCm/rLx/xoOFXIHGB229+4GOL76S4MC+7tyOuTsR6+1jYlfFDQORdvwR5hDA6y4FL2BPt3qpbcQIS+dW85LA==}
@@ -1780,6 +1792,14 @@ packages:
     resolution: {integrity: sha512-AzsuD9OfxTOZMMvTRhlN3oHBwOmFN7tDh27LzqmHt4+uOgPhJT7ZM7/kVs/8/o0WxayMUIk3hBmCFRHv1FUoag==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@resvg/resvg-wasm@2.4.1':
+    resolution: {integrity: sha512-yi6R0HyHtsoWTRA06Col4WoDs7SvlXU3DLMNP2bdAgs7HK18dTEVl1weXgxRzi8gwLteGUbIg29zulxIB3GSdg==}
+    engines: {node: '>= 10'}
+
+  '@resvg/resvg-wasm@2.6.2':
+    resolution: {integrity: sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw==}
+    engines: {node: '>= 10'}
 
   '@rolldown/binding-android-arm64@1.2.4':
     resolution: {integrity: sha512-jHC2cnyKz5xU2fhECtFl8OZ83cYNt13GZQD+0uMJ/X3o+ijmd56okHhTUwxVSHPx1IRVIJEZ1/1pPzeLCU6XKA==}
@@ -3283,6 +3303,9 @@ packages:
 
   inline-style-parser@0.2.7:
     resolution: {integrity: sha512-Nb2ctOyNR8DqQoR0OwRG95uNWIC0C1lCgf5Naz5H6Ji72KZ8OcFZLz2P5sNgwlyoJ8Yif11oMuYs5pBQa86csA==}
+
+  inter-font@3.19.0:
+    resolution: {integrity: sha512-LKPEweQxslLgp6VaTZuz8vRC8dHsAMy8b28yipwQgcKlYSYJH//lCsLGXpH9cjOQ61K4SiEWCSrItVs8c9As4A==}
 
   internmap@1.0.1:
     resolution: {integrity: sha512-lDB5YccMydFBtasVtxnZ3MRBHuaoE8GKsppq+EchKL2U4nK/DmEpPHNH8MZe5HkMtpSiTSOZwfN0tzYjO/lJEw==}
@@ -5245,6 +5268,11 @@ snapshots:
     dependencies:
       fontkitten: 1.0.3
 
+  '@cf-wasm/resvg@0.4.0':
+    dependencies:
+      '@resvg/resvg-wasm': 2.6.2
+      '@resvg/resvg-wasm-legacy': '@resvg/resvg-wasm@2.4.1'
+
   '@changesets/apply-release-plan@7.1.1':
     dependencies:
       '@changesets/config': 3.1.4
@@ -6062,6 +6090,10 @@ snapshots:
   '@react-types/shared@3.36.1(react@19.2.8)':
     dependencies:
       react: 19.2.8
+
+  '@resvg/resvg-wasm@2.4.1': {}
+
+  '@resvg/resvg-wasm@2.6.2': {}
 
   '@rolldown/binding-android-arm64@1.2.4':
     optional: true
@@ -7767,6 +7799,8 @@ snapshots:
   inherits@2.0.4: {}
 
   inline-style-parser@0.2.7: {}
+
+  inter-font@3.19.0: {}
 
   internmap@1.0.1: {}
 

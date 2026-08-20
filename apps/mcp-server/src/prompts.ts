@@ -27,9 +27,13 @@ Requirements: ${args.requirements}
 Rules:
 1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons in directives).
 2. Group resources logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
-3. Use named nodes such as \`app: ecs["Next.js"]\` and typed relationships such as \`cdn -[routes]-> app\`. Square brackets label nodes, not edges.
-4. Call \`render_diagram\` directly; it already validates. Do not call \`validate_diagram\` first or \`generate_playground_url\` afterward.
-5. Return the valid ArchLex DSL source code and display the rendered image inline.`,
+3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`. A kind inside \`-[...]->\` is exactly one lowercase word from the known kinds list (connects, routes, proxies, reads, writes, caches, publishes, subscribes, invokes, triggers, schedules, monitors, logs, replicates, ...). Put any free-form display text in pipes instead: \`api -[writes]->|PostgreSQL over TLS| database\`. Never put spaces or slashes inside \`-[...]\`.
+4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.
+
+Workflow:
+1. Call \`get_cloud_catalog\` for provider '${args.provider}' first to discover exact resource kind names before authoring.
+2. Draft the source, then iterate with \`validate_diagram\` until it reports 0 errors.
+3. Finally call \`render_diagram\` (it also returns diagnostics, so a single call confirms the result).`,
         },
       },
     ],

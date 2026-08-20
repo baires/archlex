@@ -16,8 +16,24 @@ ArchLex uses a concise text language for declaring cloud infrastructure architec
 ## Relationships / Edges
 - Forward connection shorthand: \`rds-proxy > rds > ecs\`
 - Arrow connection: \`rds-proxy -> rds\`
-- Typed relationship with label: \`alb -> ecs -[writes]->|SQL| rds\`
+- Typed relationship: \`api -[writes]-> database\`
+- Typed relationship with display label: \`api -[writes]->|PostgreSQL over TLS| database\`
 - Bi-directional or custom arrows: \`client <-> alb\`
+
+**Important**: \`-[kind]->\` takes exactly ONE lowercase machine-readable token
+(no spaces, no slashes). Free text ONLY goes inside \`|pipes|\`. Common parse
+errors come from writing \`-[serves static]->\` — write
+\`-[routes]->|serves static|\` instead.
+
+Known relationship kinds:
+- Connectivity: \`connects\`, \`routes\`, \`proxies\`
+- Data: \`reads\`, \`writes\`, \`caches\`, \`encrypts\`, \`decrypts\`
+- Events: \`publishes\`, \`subscribes\`, \`invokes\`, \`triggers\`, \`schedules\`
+- Operations: \`monitors\`, \`logs\`, \`traces\`, \`alerts\`
+- Processing: \`processes\`, \`transforms\`, \`analyzes\`, \`transcodes\`, \`packages\`
+- Delivery: \`orchestrates\`, \`builds\`, \`deploys\`
+- Governance: \`assumes-role\`, \`protects\`, \`governs\`, \`catalogs\`
+- Lifecycle: \`replicates\`, \`migrates\`, \`discovers\`
 
 ## Containment Scopes (Nested Blocks)
 \`\`\`
@@ -32,6 +48,13 @@ vpc: dev {
 \`\`\`
 
 Kubernetes diagrams use \`cluster\` and \`namespace\` blocks in the same way.
+
+## Recommended workflow
+1. Call \`get_cloud_catalog\` to discover exact service names (e.g. \`ecs\`,
+   \`ebs\`, \`alb\`) before authoring — guessing names is the top cause of
+   validation errors.
+2. Iterate with \`validate_diagram\` until it reports 0 errors.
+3. Call \`render_diagram\` once the source validates.
 `;
 
 export const ARCHLEX_EXAMPLES = {
