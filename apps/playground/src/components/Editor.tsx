@@ -199,6 +199,16 @@ export function Editor({
             cursorSmoothCaretAnimation: "on",
             smoothScrolling: true,
             padding: { top: 16, bottom: 16 },
+            overviewRulerBorder: false,
+            overviewRulerLanes: 0,
+            hideCursorInOverviewRuler: true,
+            scrollbar: {
+              vertical: "auto",
+              horizontal: "auto",
+              verticalScrollbarSize: 6,
+              horizontalScrollbarSize: 6,
+              useShadows: false,
+            },
           }}
         />
       </div>

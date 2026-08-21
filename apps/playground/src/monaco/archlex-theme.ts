@@ -80,7 +80,8 @@ export const archlexDarkTheme: Monaco.editor.IStandaloneThemeData = {
     "editorHoverWidget.border": "#526067",
 
     // Scrollbar - subtle
-    "scrollbar.shadow": "#00000033",
+    "scrollbar.shadow": "#00000000",
+    "editorOverviewRuler.border": "#00000000",
     "scrollbarSlider.background": "#52606733",
     "scrollbarSlider.hoverBackground": "#52606766",
     "scrollbarSlider.activeBackground": "#52606799",
@@ -181,7 +182,8 @@ export const archlexLightTheme: Monaco.editor.IStandaloneThemeData = {
     "editorHoverWidget.border": "#c8ceca",
 
     // Scrollbar - subtle
-    "scrollbar.shadow": "#00000011",
+    "scrollbar.shadow": "#00000000",
+    "editorOverviewRuler.border": "#00000000",
     "scrollbarSlider.background": "#c8ceca33",
     "scrollbarSlider.hoverBackground": "#c8ceca66",
     "scrollbarSlider.activeBackground": "#c8ceca99",

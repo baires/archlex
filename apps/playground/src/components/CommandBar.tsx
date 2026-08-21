@@ -48,6 +48,7 @@ export function CommandBar({
   onEnterFullscreen,
 }: CommandBarProps) {
   const docsUrl = import.meta.env.VITE_DOCS_URL || "https://docs.archlex.dev";
+  const githubUrl = "https://github.com/baires/archlex";
 
   return (
     <header className="command-bar" hidden={isFullscreen}>
@@ -128,6 +129,16 @@ export function CommandBar({
         >
           <Icon name="book" />
           <span className="btn-label">Docs</span>
+        </a>
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary icon-button"
+          aria-label="ArchLex on GitHub"
+          title="GitHub Repository"
+        >
+          <Icon name="github" />
         </a>
         <DiagramSettings
           direction={direction}

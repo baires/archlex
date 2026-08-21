@@ -129,6 +129,7 @@ export function Workspace({
 }: WorkspaceProps) {
   const resizePointerIdRef = useRef<number | null>(null);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("editor");
+  const [isDragging, setIsDragging] = useState(false);
 
   const updateSplitRatio = (value: number) => {
     onSplitRatioChange(clampSplitRatio(value));
@@ -147,6 +148,7 @@ export function Workspace({
     event: ReactPointerEvent<HTMLDivElement>,
   ) => {
     resizePointerIdRef.current = event.pointerId;
+    setIsDragging(true);
     event.currentTarget.setPointerCapture(event.pointerId);
     resizeFromPointer(event.clientX);
   };
@@ -161,6 +163,7 @@ export function Workspace({
   const finishPointerResize = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (resizePointerIdRef.current !== event.pointerId) return;
     resizePointerIdRef.current = null;
+    setIsDragging(false);
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
@@ -250,7 +253,8 @@ export function Workspace({
       </section>
 
       <div
-        className="workspace-splitter"
+        className={`workspace-splitter${isDragging ? " is-dragging" : ""}`}
+        // biome-ignore lint/a11y/useSemanticElements: interactive vertical splitter widget
         role="separator"
         aria-label="Resize editor and preview"
         aria-orientation="vertical"
@@ -263,7 +267,13 @@ export function Workspace({
         onPointerUp={finishPointerResize}
         onPointerCancel={finishPointerResize}
         onKeyDown={handleSeparatorKeyDown}
-      />
+      >
+        <div className="splitter-handle" aria-hidden="true">
+          <span className="handle-dot" />
+          <span className="handle-dot" />
+          <span className="handle-dot" />
+        </div>
+      </div>
 
       <section
         id="workspace-panel-preview"
