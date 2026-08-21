@@ -1,7 +1,8 @@
 ---
 import Button from "../components/Button.astro";
-import DiagramStage from "../components/DiagramStage.astro";
+import CodeBlock from "../components/CodeBlock.astro";
 import Hero from "../components/Hero.astro";
+import HeroCompare from "../components/HeroCompare.astro";
 import McpShowcase from "../components/McpShowcase.astro";
 import PackageQuickStart from "../components/PackageQuickStart.astro";
 import SiteFooter from "../components/SiteFooter.astro";
@@ -9,6 +10,14 @@ import SiteHeader from "../components/SiteHeader.astro";
 import StoryRow from "../components/StoryRow.astro";
 import { SITE_ROUTES } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const sourceExample = `provider aws
+api: api-gateway
+worker: lambda
+data: dynamodb
+
+api -[invokes]-> worker
+worker -[writes]-> data`;
 ---
 
 <BaseLayout
@@ -18,7 +27,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <SiteHeader />
   <main id="main-content" tabindex="-1">
     <Hero />
-    <DiagramStage />
+    <HeroCompare />
     <div class="story-sequence">
       <StoryRow index="01" title="Not just boxes.">
         <p>ArchLex understands cloud resources, boundaries, and typed relationships—not just shapes.</p>
@@ -31,21 +40,52 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
       <StoryRow index="02" title="Readable in code review.">
         <p>Concise source stays clear in a diff. Deterministic, accessible SVG keeps every rendered review consistent.</p>
-        <pre class="source-proof"><code>provider aws
-api: api-gateway
-worker: lambda
-data: dynamodb
-
-api -[invokes]-> worker
-worker -[writes]-> data</code></pre>
+        <div class="source-proof">
+          <CodeBlock code={sourceExample} lang="archlex" />
+        </div>
       </StoryRow>
 
-      <StoryRow index="03" title="Cloud judgment for your agent." id="mcp">
+      <StoryRow index="03" title="Built for AI agents." id="mcp">
         <McpShowcase />
       </StoryRow>
 
       <StoryRow index="04" title="Open source. Embed anywhere.">
         <PackageQuickStart />
+      </StoryRow>
+
+      <StoryRow index="05" title="Official Claude Code skill." id="skill">
+        <p>Install the official ArchLex skill for Claude Code to give Claude deep expertise in cloud architecture diagramming, semantic validation, and the ArchLex DSL.</p>
+        <div class="skill-install">
+          <pre><code>npx skills add baires/archlex</code></pre>
+          <p class="skill-meta">Auto-invoked for AWS, GCP, and Kubernetes diagrams</p>
+        </div>
+        <div class="skill-features">
+          <div class="skill-feature">
+            <span class="skill-feature-icon" aria-hidden="true">→</span>
+            <div>
+              <strong>MCP tool guidance</strong>
+              <p>Step-by-step workflow for render_diagram, validate_diagram, and catalog lookups</p>
+            </div>
+          </div>
+          <div class="skill-feature">
+            <span class="skill-feature-icon" aria-hidden="true">→</span>
+            <div>
+              <strong>DSL reference</strong>
+              <p>Complete syntax rules, relationship kinds, and containment scopes</p>
+            </div>
+          </div>
+          <div class="skill-feature">
+            <span class="skill-feature-icon" aria-hidden="true">→</span>
+            <div>
+              <strong>Working examples</strong>
+              <p>AWS, GCP, and Kubernetes templates to start from</p>
+            </div>
+          </div>
+          <div class="skill-features-footer">
+            <p>Open source skill definition for Claude Code</p>
+            <a class="text-link" href="https://github.com/baires/archlex/tree/main/.agents/skills/archlex" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
       </StoryRow>
     </div>
 

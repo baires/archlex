@@ -67,8 +67,26 @@ const examplePrompt =
   "Design a resilient AWS event ingestion system, validate it, and open the result in ArchLex Playground.";
 ---
 
+<div class="mcp-value">
+  <p>Give Claude, Cursor, and other agents cloud architecture expertise. The ArchLex MCP server validates diagrams against AWS, GCP, and Kubernetes rules—no hallucinated resource names, no invalid relationships.</p>
+  <div class="mcp-capabilities">
+    <div class="capability-badge">
+      <span class="capability-icon" aria-hidden="true">✓</span>
+      <span>Provider-aware validation</span>
+    </div>
+    <div class="capability-badge">
+      <span class="capability-icon" aria-hidden="true">✓</span>
+      <span>441 cloud resources</span>
+    </div>
+    <div class="capability-badge">
+      <span class="capability-icon" aria-hidden="true">✓</span>
+      <span>No API key required</span>
+    </div>
+  </div>
+</div>
+
 <div class="mcp-setup" data-mcp-console>
-  <p class="mcp-setup__intro">Connect ArchLex to any MCP-capable agent. No API key required.</p>
+  <p class="mcp-setup__intro">Connect in seconds</p>
   <div class="mcp-tabs" role="tablist" aria-label="MCP client setup">
     {clients.map((client, index) => (
       <button
@@ -120,9 +138,8 @@ const examplePrompt =
     <p>Then ask:</p>
     <pre><code>{examplePrompt}</code></pre>
   </div>
-  <p class="mcp-proof">4 tools · AWS + GCP + Kubernetes · no API key</p>
   <p class="visually-hidden" role="status" aria-live="polite"></p>
-  <a class="text-link" href={SITE_ROUTES.mcpDocs}>Full setup guide <span aria-hidden="true">→</span></a>
+  <a class="text-link" href={SITE_ROUTES.mcpDocs}>Full MCP documentation <span aria-hidden="true">→</span></a>
 </div>
 
 <script>
@@ -209,9 +226,11 @@ const examplePrompt =
           }
           await navigator.clipboard.writeText(text);
           announce(`${label} copied.`);
+          button.classList.add('copied');
           button.textContent = "Copied";
           setTimeout(() => {
             button.textContent = originalText;
+            button.classList.remove('copied');
           }, 2000);
         } catch {
           fallbackSelect();
