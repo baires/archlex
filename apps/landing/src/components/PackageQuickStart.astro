@@ -3,12 +3,52 @@ import CodeBlock from "./CodeBlock.astro";
 
 const installCode =
   "npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s";
-const usageCode = `const result = await archlex.render(source);
+const usageCode = `import { render } from "@archlex/core";
+import { awsProvider } from "@archlex/aws";
+
+const result = await render(source, {
+  providers: [awsProvider],
+  validation: "normal",
+});
+
 document.querySelector("#diagram").innerHTML = result.svg;`;
 ---
 
-<div class="package-quickstart">
-  <p>Browser + Node.js · AWS + GCP + Kubernetes · Open source (MIT)</p>
-  <CodeBlock code={installCode} lang="bash" />
-  <CodeBlock code={usageCode} lang="javascript" />
+<div class="package-quickstart-card">
+  <div class="runtime-badges">
+    <span class="runtime-badge">
+      <span class="runtime-badge__icon" aria-hidden="true">⚡</span>
+      <span>Browser + Node.js</span>
+    </span>
+    <span class="runtime-badge">
+      <span class="runtime-badge__icon" aria-hidden="true">☁</span>
+      <span>AWS · GCP · Kubernetes</span>
+    </span>
+    <span class="runtime-badge">
+      <span class="runtime-badge__icon" aria-hidden="true">✓</span>
+      <span>MIT Licensed</span>
+    </span>
+    <span class="runtime-badge">
+      <span class="runtime-badge__icon" aria-hidden="true">TS</span>
+      <span>Strict TypeScript</span>
+    </span>
+  </div>
+
+  <div class="quickstart-grid">
+    <div class="quickstart-block">
+      <div class="quickstart-block__header">
+        <span class="quickstart-block__title">Install packages</span>
+        <span class="quickstart-block__tag">npm / pnpm</span>
+      </div>
+      <CodeBlock code={installCode} lang="bash" />
+    </div>
+
+    <div class="quickstart-block">
+      <div class="quickstart-block__header">
+        <span class="quickstart-block__title">Render diagrams programmatically</span>
+        <span class="quickstart-block__tag">TypeScript</span>
+      </div>
+      <CodeBlock code={usageCode} lang="javascript" />
+    </div>
+  </div>
 </div>

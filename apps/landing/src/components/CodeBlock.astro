@@ -15,6 +15,10 @@ const { code, lang = "archlex" } = Astro.props;
   .code-block {
     border-radius: var(--radius-code);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
   }
 
   .code-block pre {
@@ -24,6 +28,7 @@ const { code, lang = "archlex" } = Astro.props;
     -webkit-overflow-scrolling: touch;
     background: var(--surface-canvas);
     border-radius: inherit;
+    flex: 1;
   }
 
   .code-block code {

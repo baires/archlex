@@ -68,7 +68,7 @@ const examplePrompt =
 ---
 
 <div class="mcp-value">
-  <p>Give Claude, Cursor, and other agents cloud architecture expertise. The ArchLex MCP server validates diagrams against AWS, GCP, and Kubernetes rules—no hallucinated resource names, no invalid relationships.</p>
+  <p>Give Claude, Cursor, and other agents cloud architecture expertise. The ArchLex MCP server validates diagrams against AWS, GCP, and Kubernetes rules with zero hallucinated resource names or invalid relationships.</p>
   <div class="mcp-capabilities">
     <div class="capability-badge">
       <span class="capability-icon" aria-hidden="true">✓</span>
@@ -217,7 +217,7 @@ const examplePrompt =
           const selection = window.getSelection();
           selection?.removeAllRanges();
           selection?.addRange(range);
-          announce(`${label} selected — copy manually.`);
+          announce(`${label} selected. Copy manually.`);
         };
 
         try {

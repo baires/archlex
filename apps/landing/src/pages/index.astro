@@ -7,7 +7,6 @@ import McpShowcase from "../components/McpShowcase.astro";
 import PackageQuickStart from "../components/PackageQuickStart.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
-import StoryRow from "../components/StoryRow.astro";
 import { SITE_ROUTES } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
@@ -18,77 +17,146 @@ data: dynamodb
 
 api -[invokes]-> worker
 worker -[writes]-> data`;
+
+const skillInstallCmd = "npx skills add baires/archlex";
 ---
 
 <BaseLayout
-  title="ArchLex — Cloud diagrams that understand your cloud"
-  description="Write cloud architecture as concise text. ArchLex validates the semantics and renders deterministic, accessible SVG."
+  title="ArchLex: Cloud diagrams that understand your cloud"
+  description="Write cloud architecture as concise text. ArchLex validates semantics and renders deterministic, accessible SVG."
 >
   <SiteHeader />
   <main id="main-content" tabindex="-1">
     <Hero />
     <HeroCompare />
-    <div class="story-sequence">
-      <StoryRow index="01" title="Not just boxes.">
-        <p>ArchLex understands cloud resources, boundaries, and typed relationships—not just shapes.</p>
-        <figure class="semantic-proof">
-          <img class="diagram-img diagram-img--dark" src="/diagrams/serverless-api-dark.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" />
-          <img class="diagram-img diagram-img--light" src="/diagrams/serverless-api-light.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" />
-          <figcaption><span aria-hidden="true">✓</span> Architecture valid</figcaption>
-        </figure>
-      </StoryRow>
 
-      <StoryRow index="02" title="Readable in code review.">
-        <p>Concise source stays clear in a diff. Deterministic, accessible SVG keeps every rendered review consistent.</p>
-        <div class="source-proof">
-          <CodeBlock code={sourceExample} lang="archlex" />
-        </div>
-      </StoryRow>
+    <!-- Feature Family 1: Semantic Verification & Diffability (Asymmetric 2-Column Split Grid) -->
+    <section class="proof-section shell shell--wide" aria-labelledby="proof-section-title">
+      <h2 id="proof-section-title" class="visually-hidden">Semantic Validation and Code Review</h2>
+      <div class="proof-grid">
+        <article class="proof-card proof-card--visual">
+          <div class="proof-card__header">
+            <h3>Not just boxes.</h3>
+            <p>ArchLex understands cloud resources, boundaries, and typed relationships, not just shapes.</p>
+          </div>
+          <figure class="semantic-proof">
+            <img class="diagram-img diagram-img--dark" src="/diagrams/serverless-api-dark.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" loading="lazy" decoding="async" />
+            <img class="diagram-img diagram-img--light" src="/diagrams/serverless-api-light.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" loading="lazy" decoding="async" />
+            <figcaption>
+              <span class="proof-badge" aria-label="Validated AWS architecture">
+                <span class="proof-badge__dot" aria-hidden="true"></span>
+                <span>Architecture valid: AWS Serverless</span>
+              </span>
+            </figcaption>
+          </figure>
+        </article>
 
-      <StoryRow index="03" title="Built for AI agents." id="mcp">
-        <McpShowcase />
-      </StoryRow>
-
-      <StoryRow index="04" title="Open source. Embed anywhere.">
-        <PackageQuickStart />
-      </StoryRow>
-
-      <StoryRow index="05" title="Official Claude Code skill." id="skill">
-        <p>Install the official ArchLex skill for Claude Code to give Claude deep expertise in cloud architecture diagramming, semantic validation, and the ArchLex DSL.</p>
-        <div class="skill-install">
-          <pre><code>npx skills add baires/archlex</code></pre>
-          <p class="skill-meta">Auto-invoked for AWS, GCP, and Kubernetes diagrams</p>
-        </div>
-        <div class="skill-features">
-          <div class="skill-feature">
-            <span class="skill-feature-icon" aria-hidden="true">→</span>
-            <div>
-              <strong>MCP tool guidance</strong>
-              <p>Step-by-step workflow for render_diagram, validate_diagram, and catalog lookups</p>
+        <article class="proof-card proof-card--diff">
+          <div class="proof-card__header">
+            <h3>Readable in code review.</h3>
+            <p>Concise text source stays clear in diffs. Deterministic, accessible SVG keeps rendered reviews consistent.</p>
+          </div>
+          <div class="source-proof">
+            <div class="source-proof__chrome" aria-hidden="true">
+              <span class="source-proof__tag">serverless-api.archlex</span>
             </div>
+            <CodeBlock code={sourceExample} lang="archlex" />
           </div>
-          <div class="skill-feature">
-            <span class="skill-feature-icon" aria-hidden="true">→</span>
-            <div>
-              <strong>DSL reference</strong>
-              <p>Complete syntax rules, relationship kinds, and containment scopes</p>
-            </div>
-          </div>
-          <div class="skill-feature">
-            <span class="skill-feature-icon" aria-hidden="true">→</span>
-            <div>
-              <strong>Working examples</strong>
-              <p>AWS, GCP, and Kubernetes templates to start from</p>
-            </div>
-          </div>
-          <div class="skill-features-footer">
-            <p>Open source skill definition for Claude Code</p>
-            <a class="text-link" href="https://github.com/baires/archlex/tree/main/.agents/skills/archlex" target="_blank" rel="noopener noreferrer">View source <span aria-hidden="true">→</span></a>
-          </div>
-        </div>
-      </StoryRow>
-    </div>
+        </article>
+      </div>
+    </section>
 
+    <!-- Feature Family 2: Built for AI Agents (Full-Width Interactive MCP Terminal Console) -->
+    <section class="mcp-section shell shell--wide" id="mcp" aria-labelledby="mcp-section-title">
+      <div class="section-heading">
+        <h2 id="mcp-section-title">Built for AI agents.</h2>
+      </div>
+      <McpShowcase />
+    </section>
+
+    <!-- Feature Family 3: Open Agent Skill Matrix (Command Bar + 3-Card Bento Grid) -->
+    <section class="skill-section shell shell--wide" id="skill" aria-labelledby="skill-section-title">
+      <div class="section-heading">
+        <h2 id="skill-section-title">Official agent skill.</h2>
+        <p class="section-lead">Equip Claude Code, Cursor, Codex, and any AI coding assistant supporting the open <code>SKILLS.md</code> standard with deep cloud architecture diagramming and semantic validation.</p>
+      </div>
+
+      <div class="skill-terminal">
+        <div class="skill-terminal__bar">
+          <span class="skill-terminal__dot"></span>
+          <span class="skill-terminal__title">Agent Skill Install (SKILLS.md)</span>
+        </div>
+        <div class="skill-terminal__content">
+          <code>{skillInstallCmd}</code>
+          <button
+            type="button"
+            class="skill-copy-btn"
+            id="skill-copy-trigger"
+            data-copy-text={skillInstallCmd}
+            aria-label="Copy skill install command"
+          >
+            <span>Copy command</span>
+          </button>
+        </div>
+        <div class="skill-terminal__meta">
+          <span>Compatible with Claude Code, Cursor, Codex, and AGENTS.md / SKILLS.md agents</span>
+        </div>
+      </div>
+
+      <div class="skill-matrix">
+        <div class="skill-card">
+          <div class="skill-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+            </svg>
+          </div>
+          <h3>MCP tool workflows</h3>
+          <p>Step-by-step workflow for <code>render_diagram</code>, <code>validate_diagram</code>, and catalog lookups directly within your coding agent session.</p>
+        </div>
+
+        <div class="skill-card">
+          <div class="skill-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+          </div>
+          <h3>DSL reference &amp; rules</h3>
+          <p>Complete syntax rules, relationship kinds, containment scopes (accounts, regions, VPCs, subnets), and diagnostic resolution.</p>
+        </div>
+
+        <div class="skill-card">
+          <div class="skill-card__icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3>Working templates</h3>
+          <p>Production-ready AWS, GCP, and Kubernetes templates that any AI agent can immediately adapt, validate, and extend.</p>
+        </div>
+      </div>
+
+      <div class="skill-action-footer">
+        <span>Open source SKILLS.md definition</span>
+        <a class="text-link" href="https://github.com/baires/archlex/tree/main/.agents/skills/archlex" target="_blank" rel="noopener noreferrer">
+          <span>View skill definition on GitHub</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Feature Family 4: Package Ecosystem & Quickstart -->
+    <section class="quickstart-section shell shell--wide" id="quickstart" aria-labelledby="quickstart-section-title">
+      <div class="section-heading">
+        <h2 id="quickstart-section-title">Open source. Embed anywhere.</h2>
+        <p class="section-lead">Lightweight, modular packages for browser and Node.js. Zero native binary dependencies.</p>
+      </div>
+      <PackageQuickStart />
+    </section>
+
+    <!-- Feature Family 5: Final CTA -->
     <section class="final-cta shell shell--reading" aria-labelledby="final-cta-title">
       <p class="eyebrow">Open source · MIT licensed · No account required</p>
       <h2 id="final-cta-title">See your architecture clearly.</h2>
@@ -99,4 +167,36 @@ worker -[writes]-> data`;
     </section>
   </main>
   <SiteFooter />
+
+  <script>
+    const skillCopyBtn = document.getElementById("skill-copy-trigger");
+    if (skillCopyBtn) {
+      skillCopyBtn.addEventListener("click", async () => {
+        const text = skillCopyBtn.getAttribute("data-copy-text") || "";
+        const originalText = skillCopyBtn.innerHTML;
+        try {
+          await navigator.clipboard.writeText(text);
+          skillCopyBtn.classList.add("is-copied");
+          skillCopyBtn.innerHTML = "<span>Copied ✓</span>";
+          setTimeout(() => {
+            skillCopyBtn.classList.remove("is-copied");
+            skillCopyBtn.innerHTML = originalText;
+          }, 2000);
+        } catch {
+          const input = document.createElement("input");
+          input.value = text;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand("copy");
+          document.body.removeChild(input);
+          skillCopyBtn.classList.add("is-copied");
+          skillCopyBtn.innerHTML = "<span>Copied ✓</span>";
+          setTimeout(() => {
+            skillCopyBtn.classList.remove("is-copied");
+            skillCopyBtn.innerHTML = originalText;
+          }, 2000);
+        }
+      });
+    }
+  </script>
 </BaseLayout>
