@@ -1,5 +1,13 @@
 # @archlex/parser
 
+## 0.6.1
+
+### Patch Changes
+
+- Updated dependencies [5ad0f4a]
+  - @archlex/model@0.6.0
+  - @archlex/diagnostics@0.3.1
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@archlex/diagnostics",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Diagnostic utilities for ArchLex architecture diagrams",
   "keywords": [
     "architecture",

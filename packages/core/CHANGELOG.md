@@ -1,5 +1,40 @@
 # @archlex/core
 
+## 0.5.0
+
+### Minor Changes
+
+- 5ad0f4a: Expand the core relationship vocabulary and add relationship areas.
+
+  - Add `area` to `RelationshipDefinition` (`connectivity`, `data`, `events`,
+    `operations`, `processing`, `delivery`, `governance`, `lifecycle`,
+    `dependency`, `reliability`) so the documentation grouping is code-driven.
+  - Add 11 new relationship kinds: `streams`, `stores`, `backs-up`, `restores`,
+    `archives`
+    (data), `notifies` (events), `provisions` (delivery), `authenticates`,
+    `authorizes`, `audits`, `scans` (governance).
+  - Add `depends-on` and `attaches` (dependency), `exposes` (connectivity),
+    `fails-over-to` (reliability), and `trusts` (governance).
+  - Group all core relationship metadata by area in
+    `ARCHLEX_LANGUAGE_METADATA`.
+  - Add searchable metadata to every core relationship and expose intentional
+    provider extensions through `RelationshipDefinition.providerSpecific`.
+
+### Patch Changes
+
+- Updated dependencies [5ad0f4a]
+- Updated dependencies [5ad0f4a]
+- Updated dependencies [5ad0f4a]
+- Updated dependencies [5ad0f4a]
+  - @archlex/aws@0.4.0
+  - @archlex/gcp@0.4.0
+  - @archlex/k8s@0.4.0
+  - @archlex/model@0.6.0
+  - @archlex/diagnostics@0.3.1
+  - @archlex/layout-elk@0.2.6
+  - @archlex/parser@0.6.1
+  - @archlex/renderer-svg@0.2.6
+
 ## 0.4.0
 
 ### Minor Changes
