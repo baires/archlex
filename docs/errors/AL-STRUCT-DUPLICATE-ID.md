@@ -1,3 +1,8 @@
+---
+title: AL-STRUCT-DUPLICATE-ID
+description: "AL-STRUCT-DUPLICATE-ID — ArchLex structural error: Resource '<id>' conflicts with existing declaration at <line>:<column> Causes and how to fix it."
+---
+
 # AL-STRUCT-DUPLICATE-ID
 
 **Severity:** error  

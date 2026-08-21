@@ -1,3 +1,8 @@
+---
+title: AL-PARSE-MISSING-BRACE
+description: "AL-PARSE-MISSING-BRACE — ArchLex parse error: Expected closing brace '}' for <scopeType> block Causes and how to fix it."
+---
+
 # AL-PARSE-MISSING-BRACE
 
 **Severity:** error  

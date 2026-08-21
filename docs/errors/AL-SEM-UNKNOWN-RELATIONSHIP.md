@@ -1,3 +1,8 @@
+---
+title: AL-SEM-UNKNOWN-RELATIONSHIP
+description: "AL-SEM-UNKNOWN-RELATIONSHIP — ArchLex semantic info: Unknown relationship type '<relationshipKind>' between '<leftKind>' and '<rightKind>' Causes and how to fix it."
+---
+
 # AL-SEM-UNKNOWN-RELATIONSHIP
 
 **Severity:** info  

@@ -1,3 +1,8 @@
+---
+title: System Architecture
+description: "ArchLex system architecture, covering the parser-to-SVG runtime pipeline, package boundaries, and the responsibilities of each workspace package."
+---
+
 # System Architecture
 
 ## Runtime pipeline

@@ -1,3 +1,8 @@
+---
+title: Relationship Guide
+description: "ArchLex DSL relationship syntax, including arrows, directions, machine-readable kinds like invokes and publishes, and provider validation rules."
+---
+
 # Relationship Guide
 
 ## Choose syntax

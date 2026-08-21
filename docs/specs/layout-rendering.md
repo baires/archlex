@@ -1,3 +1,8 @@
+---
+title: Layout and Rendering Specification
+description: "How ArchLex lays out and renders diagrams, from ELK compound graph mapping and geometry caching to icon resolution and deterministic accessible SVG."
+---
+
 # Layout and Rendering Specification
 
 ## ELK mapping

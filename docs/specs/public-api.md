@@ -1,3 +1,8 @@
+---
+title: Public API Specification
+description: "ArchLex public API reference for createArchLex(), parse, analyze, prepare, layout, and render methods with TypeScript types and options."
+---
+
 # Public API Specification
 
 ## Create an instance

@@ -1,3 +1,8 @@
+---
+title: Google Cloud Semantics
+description: "Google Cloud semantics in ArchLex, covering the 185-service GCP catalog, containment scopes, relationship rules, and GCP diagnostic codes."
+---
+
 # Google Cloud Semantics
 
 ## Provider contract

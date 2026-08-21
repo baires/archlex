@@ -1,3 +1,8 @@
+---
+title: AL-PARSE-002
+description: "AL-PARSE-002 — ArchLex parse error: Syntax error: <details> Causes and how to fix it."
+---
+
 # AL-PARSE-002
 
 **Severity:** error  

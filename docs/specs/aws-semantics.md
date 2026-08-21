@@ -1,3 +1,8 @@
+---
+title: AWS Semantics
+description: "AWS semantics in ArchLex, covering the 194-service catalog, account, region, VPC, and subnet containment, relationship rules, and AWS diagnostic codes."
+---
+
 # AWS Semantics
 
 ## Provider contract

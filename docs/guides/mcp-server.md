@@ -1,3 +1,8 @@
+---
+title: Remote MCP Server
+description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams."
+---
+
 # Remote MCP Server
 
 Use the ArchLex MCP server to render, validate, inspect, and share AWS, Google

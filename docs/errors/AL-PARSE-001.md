@@ -1,3 +1,8 @@
+---
+title: AL-PARSE-001
+description: "AL-PARSE-001 — ArchLex parse error: Unexpected token '<token>' Causes and how to fix it."
+---
+
 # AL-PARSE-001
 
 **Severity:** error  

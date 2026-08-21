@@ -1,3 +1,8 @@
+---
+title: Dynamic Icon Guide
+description: "Load missing AWS, Google Cloud, and Kubernetes diagram icons from the CDN with ArchLex prepare(), browser and Node icon loaders, and sanitized registries."
+---
+
 # Dynamic Icon Guide
 
 ## When icon loading runs

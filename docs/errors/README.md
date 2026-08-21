@@ -1,3 +1,8 @@
+---
+title: Diagnostic Reference
+description: "Reference for ArchLex diagnostics, including AL-PARSE and AL-STRUCT families, AWS, GCP, and K8S codes, severities, and validation modes."
+---
+
 # Diagnostic Reference
 
 ArchLex returns structured diagnostics with parse, analysis, and render results. Use each diagnostic's code, severity, source span, and remediation to show a useful correction beside the diagram source.

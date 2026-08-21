@@ -1,3 +1,8 @@
+---
+title: AL-SEM-UNKNOWN-RESOURCE
+description: "AL-SEM-UNKNOWN-RESOURCE — ArchLex semantic info: Unknown service type '<serviceKind>' for provider '<provider>' Causes and how to fix it."
+---
+
 # AL-SEM-UNKNOWN-RESOURCE
 
 **Severity:** info  

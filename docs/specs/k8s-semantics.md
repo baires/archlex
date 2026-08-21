@@ -1,3 +1,8 @@
+---
+title: Kubernetes Semantics
+description: "Kubernetes semantics in ArchLex, covering the 62-resource catalog, cluster and namespace containment, workload placement, and K8S diagnostic codes."
+---
+
 # Kubernetes Semantics
 
 ## Provider contract

@@ -44,8 +44,16 @@ async function generateErrorDocs() {
     byCategory.get(def.category)?.push([code, def]);
   }
 
+  // Strip message template placeholders (e.g. '${token}') for prose contexts
+  const sanitize = (message: string): string =>
+    message.replace(/\$\{(\w+)\}/g, "<$1>");
+
   // Generate index page
-  let indexContent = "# ArchLex Error Codes\n\n";
+  let indexContent = "---\n";
+  indexContent += "title: Error Codes\n";
+  indexContent += `description: ${JSON.stringify("Complete reference of all ArchLex diagnostic codes — parse, structure, and semantic errors with remediation steps and examples.")}\n`;
+  indexContent += "---\n\n";
+  indexContent += "# ArchLex Error Codes\n\n";
   indexContent += "Complete reference of all diagnostic codes.\n\n";
 
   for (const [category, items] of byCategory.entries()) {
@@ -69,7 +77,11 @@ async function generateErrorDocs() {
 
   // Generate individual pages
   for (const [code, def] of allDiagnostics.entries()) {
-    let content = `# ${code}\n\n`;
+    let content = "---\n";
+    content += `title: ${code}\n`;
+    content += `description: ${JSON.stringify(`${code} — ArchLex ${def.category} ${def.severity}: ${sanitize(def.message)} Causes and how to fix it.`)}\n`;
+    content += "---\n\n";
+    content += `# ${code}\n\n`;
     content += `**Severity:** ${def.severity}  \n`;
     content += `**Category:** ${def.category}\n\n`;
 

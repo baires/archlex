@@ -1,3 +1,8 @@
+---
+title: AL-STRUCT-LATE-DIRECTIVE
+description: "AL-STRUCT-LATE-DIRECTIVE — ArchLex structural error: Directive '<directiveName>' must appear before all resource and relationship declarations Causes and how to fix it."
+---
+
 # AL-STRUCT-LATE-DIRECTIVE
 
 **Severity:** error  

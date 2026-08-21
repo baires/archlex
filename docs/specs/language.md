@@ -1,3 +1,8 @@
+---
+title: Language Specification
+description: "ArchLex DSL language specification, defining document structure, directives, resources, scopes, containment, and relationship syntax for cloud diagrams."
+---
+
 # Language Specification
 
 ## Document structure

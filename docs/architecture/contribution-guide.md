@@ -1,3 +1,8 @@
+---
+title: Contribution Guide
+description: "How to contribute to ArchLex, from provider package layout and catalog resources to semantic rules, tests, changesets, and documentation workflows."
+---
+
 # Contribution Guide
 
 ## Start with the product contract

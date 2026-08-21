@@ -1,3 +1,8 @@
+---
+title: AL-STRUCT-DUPLICATE-DIRECTIVE
+description: "AL-STRUCT-DUPLICATE-DIRECTIVE — ArchLex structural error: Duplicate '<directiveName>' directive. Only one <directiveName> directive is allowed. Causes and how to fix it."
+---
+
 # AL-STRUCT-DUPLICATE-DIRECTIVE
 
 **Severity:** error  

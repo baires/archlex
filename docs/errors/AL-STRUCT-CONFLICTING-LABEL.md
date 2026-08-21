@@ -1,3 +1,8 @@
+---
+title: AL-STRUCT-CONFLICTING-LABEL
+description: "AL-STRUCT-CONFLICTING-LABEL — ArchLex structural info: Display label for '<id>' conflicts with previous definition Causes and how to fix it."
+---
+
 # AL-STRUCT-CONFLICTING-LABEL
 
 **Severity:** info  

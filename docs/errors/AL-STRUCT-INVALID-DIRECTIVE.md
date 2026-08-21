@@ -1,3 +1,8 @@
+---
+title: AL-STRUCT-INVALID-DIRECTIVE
+description: "AL-STRUCT-INVALID-DIRECTIVE — ArchLex structural error: Invalid value '<value>' for '<directiveName>' directive Causes and how to fix it."
+---
+
 # AL-STRUCT-INVALID-DIRECTIVE
 
 **Severity:** error  

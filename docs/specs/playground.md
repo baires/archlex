@@ -1,3 +1,8 @@
+---
+title: Playground Specification
+description: "ArchLex playground specification, covering the Monaco editor, context-aware completions, live diagnostics, SVG preview, examples, and export tools."
+---
+
 # Playground Specification
 
 ## Purpose

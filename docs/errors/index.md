@@ -1,3 +1,8 @@
+---
+title: Error Codes
+description: "Complete reference of all ArchLex diagnostic codes — parse, structure, and semantic errors with remediation steps and examples."
+---
+
 # ArchLex Error Codes
 
 Complete reference of all diagnostic codes.
