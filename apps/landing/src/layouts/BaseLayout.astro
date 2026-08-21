@@ -1,31 +1,124 @@
 ---
 import "@archlex/design";
 import "../styles/global.css";
+
 interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
 const {
   title,
-  description = "Open-source semantic cloud architecture diagrams with provider-aware validation.",
+  description = "Write cloud architecture as text. ArchLex validates semantics across AWS, GCP, and Kubernetes, rendering deterministic, accessible SVG diagrams.",
+  image = "https://archlex.dev/archlex-event-pipeline-dark.png",
 } = Astro.props;
+
+const canonicalURL = `https://archlex.dev${
+  Astro.url.pathname === "/" ? "/" : Astro.url.pathname.replace(/\/$/, "")
+}`;
+
+const schemaGraph = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://archlex.dev/#website",
+      url: "https://archlex.dev/",
+      name: "ArchLex",
+      description:
+        "Semantic cloud architecture diagramming library for AWS, GCP, and Kubernetes.",
+      publisher: {
+        "@id": "https://archlex.dev/#organization",
+      },
+      inLanguage: "en-US",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://archlex.dev/#software",
+      name: "ArchLex",
+      url: "https://archlex.dev/",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any (Node.js >= 22, Web Browsers)",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      description: description,
+      license: "https://opensource.org/licenses/MIT",
+      softwareRequirements:
+        "Node.js >= 22.0.0 or modern browser with ES modules",
+      featureList: [
+        "Text-to-architecture diagram compiler",
+        "AWS, GCP, and Kubernetes semantic validation",
+        "Deterministic, themeable, accessible SVG output",
+        "Model Context Protocol (MCP) server for AI coding assistants",
+        "Official SKILLS.md definition for agent-driven diagramming",
+      ],
+    },
+    {
+      "@type": "SoftwareSourceCode",
+      "@id": "https://archlex.dev/#code",
+      name: "ArchLex Monorepo",
+      codeRepository: "https://github.com/baires/archlex",
+      programmingLanguage: ["TypeScript", "ArchLex DSL"],
+      runtimePlatform: ["Node.js", "Browser"],
+      license: "https://opensource.org/licenses/MIT",
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://archlex.dev/#organization",
+      name: "ArchLex",
+      url: "https://archlex.dev/",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://archlex.dev/apple-touch-icon.png",
+        width: 180,
+        height: 180,
+      },
+      sameAs: ["https://github.com/baires/archlex"],
+    },
+  ],
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#f8f8f4" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:site_name" content="ArchLex" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:alt" content="ArchLex semantic cloud architecture diagram compiler" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaGraph)} />
+
+    <!-- Theme Detection -->
     <script is:inline>
       (() => {
         const root = document.documentElement;

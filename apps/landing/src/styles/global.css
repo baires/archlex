@@ -1,3 +1,9 @@
+:root {
+  --radius-control: 6px;
+  --radius-panel: 8px;
+  --radius-code: 8px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -48,7 +54,7 @@ body {
   background: transparent;
   color: var(--text-primary);
   font-family: var(--font-ui);
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   position: relative;
@@ -76,6 +82,7 @@ a {
   color: var(--signal-contrast);
   font-family: var(--font-code);
   font-size: var(--text-sm);
+  border-radius: var(--radius-control);
 }
 
 .skip-link:focus {
@@ -102,6 +109,7 @@ a {
   padding-inline: var(--space-3);
   border-radius: var(--radius-control);
   background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
   color: var(--text-primary);
 }
 
@@ -237,7 +245,7 @@ a {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: 0.75rem 1.25rem;
+  padding: 0.65rem 1.25rem;
   border-radius: var(--radius-control);
   font-family: var(--font-ui);
   font-size: var(--text-base);
@@ -245,54 +253,37 @@ a {
   transition: all var(--duration-fast) var(--ease-standard);
   position: relative;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 
-.button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    transparent 0%,
-    color-mix(in srgb, currentColor 8%, transparent) 100%
-  );
-  opacity: 0;
-  transition: opacity var(--duration-base) var(--ease-standard);
-}
-
-.button:hover::before {
-  opacity: 1;
+.button:active {
+  transform: scale(0.98);
 }
 
 .button--primary {
-  background: var(--signal);
-  color: var(--signal-contrast);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--signal) 30%, transparent);
+  background: var(--text-primary);
+  color: var(--surface-canvas);
+  border-color: var(--text-primary);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 8%);
 }
 
 .button--primary:hover {
-  background: var(--signal-hover);
+  background: color-mix(in srgb, var(--text-primary) 88%, var(--signal));
+  border-color: color-mix(in srgb, var(--text-primary) 88%, var(--signal));
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px color-mix(in srgb, var(--signal) 35%, transparent);
-}
-
-.button--primary:active {
-  transform: translateY(0);
-  transition-duration: 50ms;
-}
-
-.button--primary > span {
-  position: relative;
-  z-index: 1;
 }
 
 .button--text {
-  padding-inline: 0.5rem;
+  padding-inline: 1rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
 }
 
 .button--text:hover {
   color: var(--text-primary);
+  border-color: var(--border-strong);
+  background: var(--surface-canvas);
 }
 
 /* Hero */

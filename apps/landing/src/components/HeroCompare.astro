@@ -253,17 +253,13 @@ const highlightedCode = highlightArchlex(heroCode);
     background: var(--surface-raised);
     border: 1px solid var(--border-subtle);
     border-radius: var(--radius-panel);
-    box-shadow:
-      0 12px 36px rgb(0 0 0 / 12%),
-      0 1px 3px rgb(0 0 0 / 6%);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 4%);
     overflow: hidden;
     transition: box-shadow var(--duration-base) var(--ease-standard), border-color var(--duration-base) var(--ease-standard);
   }
 
   .compare-window:hover {
-    box-shadow:
-      0 18px 48px rgb(0 0 0 / 18%),
-      0 2px 6px rgb(0 0 0 / 8%);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
     border-color: var(--border-strong);
   }
 
@@ -647,7 +643,7 @@ const highlightedCode = highlightArchlex(heroCode);
     opacity: 0.9;
   }
 
-  /* Slider Handle (Discrete, clean capsule) */
+  /* Slider Handle (Discrete, clean handle) */
   .compare-handle {
     position: absolute;
     top: 50%;
@@ -658,7 +654,7 @@ const highlightedCode = highlightArchlex(heroCode);
     height: 38px;
     padding: 0;
     border: 1px solid var(--border-strong);
-    border-radius: 999px;
+    border-radius: 6px;
     background: var(--surface-raised);
     color: var(--text-secondary);
     cursor: ew-resize;
@@ -666,8 +662,7 @@ const highlightedCode = highlightArchlex(heroCode);
     align-items: center;
     justify-content: center;
     box-shadow:
-      0 2px 8px rgb(0 0 0 / 18%),
-      0 1px 2px rgb(0 0 0 / 10%);
+      0 1px 3px rgb(0 0 0 / 12%);
     transition: transform var(--duration-fast) var(--ease-standard),
                 border-color var(--duration-fast) var(--ease-standard),
                 background-color var(--duration-fast) var(--ease-standard);
