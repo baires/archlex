@@ -1,5 +1,6 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
+import { matchesGcpRelationshipRule } from "../relationships.js";
 
 /**
  * Tier 2: Application Integration Rules
@@ -23,8 +24,7 @@ export const workflowsTargetsRule = {
       const orchestratesEdges = graph.edges.filter(
         (e) =>
           e.source === wf.id &&
-          (e.label?.toLowerCase() === "orchestrates" ||
-            e.label?.toLowerCase() === "invokes"),
+          matchesGcpRelationshipRule(e.kind, "workflows-target"),
       );
 
       if (orchestratesEdges.length === 0) {
@@ -61,8 +61,7 @@ export const eventarcTargetsRule = {
       const triggerEdges = graph.edges.filter(
         (e) =>
           e.source === ea.id &&
-          (e.label?.toLowerCase() === "triggers" ||
-            e.label?.toLowerCase() === "invokes"),
+          matchesGcpRelationshipRule(e.kind, "eventarc-target"),
       );
 
       if (triggerEdges.length === 0) {

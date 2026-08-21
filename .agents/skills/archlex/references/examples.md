@@ -90,7 +90,7 @@ cluster production {
 
     gateway -[routes]-> frontend_service
     frontend_service -[targets]-> frontend
-    frontend -[calls]-> api_service
+    frontend -[invokes]-> api_service
     api_service -[targets]-> api
   }
 }

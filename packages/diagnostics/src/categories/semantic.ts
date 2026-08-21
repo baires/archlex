@@ -22,7 +22,7 @@ export const semanticDiagnostics = new Map<string, DiagnosticDefinition>([
       message:
         "Unknown relationship type '${relationshipKind}' between '${leftKind}' and '${rightKind}'",
       remediation:
-        "Verify the relationship type is valid for these services. Common relationships: connects, triggers, stores-data, reads-from.",
+        "Use the runtime catalog to choose a known core or provider relationship kind, or keep this kind as an intentional custom relationship.",
     },
   ],
   [

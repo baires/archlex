@@ -45,4 +45,50 @@ describe("validateRelationshipDefinitions", () => {
       }),
     ]);
   });
+
+  test("rejects malformed relationship kinds", () => {
+    const diagnostics = validateRelationshipDefinitions(
+      [],
+      [{ kind: "batch_invokes", displayName: "Batch invokes" }],
+      { knownKinds: [] },
+    );
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        elements: ["batch_invokes"],
+      }),
+    ]);
+  });
+
+  test("requires unknown provider relationships to be explicit extensions", () => {
+    const diagnostics = validateRelationshipDefinitions(
+      [],
+      [{ kind: "targets", displayName: "Targets" }],
+      { knownKinds: ["routes"] },
+    );
+
+    expect(diagnostics).toEqual([
+      expect.objectContaining({
+        severity: "error",
+        elements: ["targets"],
+      }),
+    ]);
+  });
+
+  test("accepts an explicitly declared provider relationship extension", () => {
+    const diagnostics = validateRelationshipDefinitions(
+      [],
+      [
+        {
+          kind: "targets",
+          displayName: "Targets",
+          providerSpecific: true,
+        },
+      ],
+      { knownKinds: ["routes"] },
+    );
+
+    expect(diagnostics).toEqual([]);
+  });
 });

@@ -1,5 +1,6 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { GCP_DIAGNOSTIC_CODES } from "../registry.js";
+import { matchesGcpRelationshipRule } from "../relationships.js";
 
 /**
  * Tier 2: Identity & Security Rules
@@ -23,8 +24,7 @@ export const iapBackendRule = {
       const backendEdges = graph.edges.filter(
         (e) =>
           e.source === proxy.id &&
-          (e.label?.toLowerCase() === "proxies" ||
-            e.label?.toLowerCase() === "routes"),
+          matchesGcpRelationshipRule(e.kind, "iap-backend"),
       );
 
       if (backendEdges.length === 0) {

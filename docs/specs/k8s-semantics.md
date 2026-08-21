@@ -66,11 +66,18 @@ Kubernetes currently reports:
 - `K8S-WORKLOAD-POD-MANAGED-001` for bare Pods
 - `K8S-NETWORKING-SERVICE-TARGET-001` for Services without workloads
 - `K8S-NETWORKING-INGRESS-TARGET-001` for Ingresses without Service routing
+- `K8S-RELATIONSHIP-INVALID-ENDPOINT-001` for typed `routes`, `targets`,
+  `mounts`, `binds`, `scales`, or `schedules-on` edges that violate the declared
+  `K8S_RELATIONSHIPS` source/target constraints
 - `K8S-STORAGE-PVC-UNBOUND-001` for claims without a workload consumer
 - `K8S-RBAC-BINDING-SUBJECT-001` for bindings without a subject
 
 Rules do not infer selectors, RBAC policy contents, storage provisioning,
 admission policy, or cluster runtime state.
+
+`targets`, `mounts`, `binds`, `scales`, and `schedules-on` are explicit provider
+extensions; `routes` is shared with the core vocabulary. Catalog validation
+rejects an unknown provider kind unless it is marked `providerSpecific`.
 
 ## Validation modes
 

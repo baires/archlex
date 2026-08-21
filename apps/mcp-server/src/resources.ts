@@ -1,3 +1,33 @@
+import { ARCHLEX_LANGUAGE_METADATA } from "@archlex/core";
+
+const AREA_LABELS: Record<string, string> = {
+  connectivity: "Connectivity",
+  data: "Data",
+  events: "Events",
+  operations: "Operations",
+  processing: "Processing",
+  delivery: "Delivery",
+  governance: "Governance",
+  lifecycle: "Lifecycle",
+};
+
+const AREA_ORDER = Object.keys(AREA_LABELS);
+
+function relationshipKindsSection(): string {
+  const byArea = new Map<string, string[]>();
+  for (const { kind, area } of ARCHLEX_LANGUAGE_METADATA.relationships) {
+    const list = byArea.get(area ?? "") ?? [];
+    list.push(`\`${kind}\``);
+    byArea.set(area ?? "", list);
+  }
+  return [...byArea.entries()]
+    .sort(([a], [b]) => AREA_ORDER.indexOf(a) - AREA_ORDER.indexOf(b))
+    .map(
+      ([area, kinds]) => `- ${AREA_LABELS[area] ?? area}: ${kinds.join(", ")}`,
+    )
+    .join("\n");
+}
+
 export const ARCHLEX_SYNTAX_GUIDE = `# ArchLex DSL Syntax Guide
 
 ArchLex uses a concise text language for declaring cloud infrastructure architecture diagrams.
@@ -26,14 +56,7 @@ errors come from writing \`-[serves static]->\` — write
 \`-[routes]->|serves static|\` instead.
 
 Known relationship kinds:
-- Connectivity: \`connects\`, \`routes\`, \`proxies\`
-- Data: \`reads\`, \`writes\`, \`caches\`, \`encrypts\`, \`decrypts\`
-- Events: \`publishes\`, \`subscribes\`, \`invokes\`, \`triggers\`, \`schedules\`
-- Operations: \`monitors\`, \`logs\`, \`traces\`, \`alerts\`
-- Processing: \`processes\`, \`transforms\`, \`analyzes\`, \`transcodes\`, \`packages\`
-- Delivery: \`orchestrates\`, \`builds\`, \`deploys\`
-- Governance: \`assumes-role\`, \`protects\`, \`governs\`, \`catalogs\`
-- Lifecycle: \`replicates\`, \`migrates\`, \`discovers\`
+${relationshipKindsSection()}
 
 ## Containment Scopes (Nested Blocks)
 \`\`\`
@@ -89,7 +112,7 @@ cluster production {
 
     gateway -[routes]-> frontend_service
     frontend_service -[targets]-> frontend
-    frontend -[calls]-> api_service
+    frontend -[invokes]-> api_service
     api_service -[targets]-> api
   }
 }`,

@@ -69,6 +69,17 @@ Examples include:
 - `AWS-INTEGRATION-EVENTBRIDGE-TARGETS-001`
 - `AWS-ANALYTICS-KINESIS-FIREHOSE-DESTINATION-001`
 - `AWS-DEVTOOLS-CODEPIPELINE-STAGES-001`
+- `AWS-RELATIONSHIP-INVALID-ENDPOINT-001`
+
+`AWS-RELATIONSHIP-INVALID-ENDPOINT-001` enforces the declared relationship
+definitions (`AWS_RELATIONSHIPS`): a typed edge whose kind lists
+`allowedSources`/`allowedTargets` warns when the connected services are not in
+those lists. Integration rules (Step Functions, EventBridge, Kinesis Firehose)
+match declarative rule tags attached to relationship definitions, not
+free-text labels or duplicated kind lists. AWS also constrains routing,
+replication, build, deployment, and archival relationships used by the shipped
+examples. AWS also declares structural attachment, backend exposure, data-service
+failover, and IAM trust endpoints.
 
 Rules inspect only facts present in the graph. They do not infer IAM policy
 contents, security group rules, routes, or runtime configuration.

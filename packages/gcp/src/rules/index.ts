@@ -17,6 +17,7 @@ import {
   filestoreVpcRule,
   subnetContainmentRule,
 } from "./networking.js";
+import { relationshipEndpointsRule } from "./relationships.js";
 
 export * from "./ai-ml.js";
 export * from "./analytics.js";
@@ -25,6 +26,7 @@ export * from "./data.js";
 export * from "./identity.js";
 export * from "./integration.js";
 export * from "./networking.js";
+export * from "./relationships.js";
 
 export function evaluateGcpRules(
   graph: CloudGraph,
@@ -61,6 +63,9 @@ export function evaluateGcpRules(
   // Tier 2: Integration Rules
   rawDiagnostics.push(...workflowsTargetsRule.validate(graph));
   rawDiagnostics.push(...eventarcTargetsRule.validate(graph));
+
+  // Tier 2: Relationship Rules
+  rawDiagnostics.push(...relationshipEndpointsRule.validate(graph));
 
   // Tier 2: Analytics Rules
   rawDiagnostics.push(...dataprocVpcPlacementRule.validate(graph));

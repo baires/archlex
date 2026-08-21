@@ -91,6 +91,7 @@ export function validateCatalogContainment(
 export function validateRelationshipDefinitions(
   services: Map<string, ResourceDefinition> | readonly ResourceDefinition[],
   relationships: readonly RelationshipDefinition[],
+  options?: { readonly knownKinds?: readonly string[] },
 ): readonly Diagnostic[] {
   const serviceIds = new Set(
     (services instanceof Map
@@ -99,9 +100,44 @@ export function validateRelationshipDefinitions(
     ).map(({ id }) => id),
   );
   const seenKinds = new Set<string>();
+  const knownKinds = options?.knownKinds
+    ? new Set(options.knownKinds)
+    : undefined;
   const diagnostics: Diagnostic[] = [];
 
   for (const relationship of relationships) {
+    const kindIsValid = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(
+      relationship.kind,
+    );
+    if (!kindIsValid) {
+      diagnostics.push({
+        code: CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP,
+        severity: "error",
+        message: `Relationship kind '${relationship.kind}' must use lowercase kebab-case.`,
+        span: DEFAULT_SPAN,
+        elements: [relationship.kind],
+        remediation:
+          "Use a lowercase relationship identifier containing letters, digits, and hyphens only.",
+      });
+    }
+
+    if (
+      kindIsValid &&
+      knownKinds &&
+      !knownKinds.has(relationship.kind) &&
+      !relationship.providerSpecific
+    ) {
+      diagnostics.push({
+        code: CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP,
+        severity: "error",
+        message: `Provider relationship '${relationship.kind}' is not a core kind or an explicit provider extension.`,
+        span: DEFAULT_SPAN,
+        elements: [relationship.kind],
+        remediation:
+          "Use a core relationship kind or set providerSpecific: true for an intentional provider extension.",
+      });
+    }
+
     if (seenKinds.has(relationship.kind)) {
       diagnostics.push({
         code: CATALOG_DIAGNOSTIC_CODES.INVALID_RELATIONSHIP,

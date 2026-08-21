@@ -9,7 +9,7 @@ Unknown relationship type '${relationshipKind}' between '${leftKind}' and '${rig
 
 ## Remediation
 
-Verify the relationship type is valid for these services. Common relationships: connects, triggers, stores-data, reads-from.
+Use the runtime catalog to choose a known core or provider relationship kind, or keep this kind as an intentional custom relationship.
 
 ---
 

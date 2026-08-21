@@ -1,6 +1,7 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { defineRule } from "../builder.js";
 import { K8S_DIAGNOSTIC_CODES } from "../registry.js";
+import { matchesK8sRelationshipRule } from "../relationships.js";
 import { WORKLOAD_KINDS, resolveNodeKind } from "./util.js";
 
 export const serviceTargetRule = defineRule({
@@ -56,6 +57,15 @@ export const ingressTargetRule = defineRule({
       let routesToService = false;
       for (const edge of graph.edges) {
         if (edge.source !== node.id && edge.target !== node.id) continue;
+        // Edges typed `routes` are validated by relationshipEndpointsRule.
+        if (matchesK8sRelationshipRule(edge.kind, "ingress-route")) {
+          routesToService =
+            routesToService ||
+            kindByNodeId.get(
+              edge.source === node.id ? edge.target : edge.source,
+            ) === "service";
+          continue;
+        }
         const otherId = edge.source === node.id ? edge.target : edge.source;
         const otherKind = kindByNodeId.get(otherId);
         if (otherKind === "service") {

@@ -219,9 +219,24 @@ export interface ResourceDefinition {
   allowedContainment?: readonly string[];
 }
 
+export type RelationshipArea =
+  | "connectivity"
+  | "data"
+  | "events"
+  | "operations"
+  | "processing"
+  | "delivery"
+  | "governance"
+  | "lifecycle"
+  | "dependency"
+  | "reliability";
+
 export interface RelationshipDefinition {
   kind: string;
   displayName: string;
+  area?: RelationshipArea;
+  /** Marks a provider-owned kind that is intentionally outside core metadata. */
+  providerSpecific?: boolean;
   aliases?: readonly string[];
   searchTerms?: readonly string[];
   documentation?: string;

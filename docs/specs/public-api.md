@@ -111,6 +111,12 @@ Expected source errors produce partial results. Cancellation throws
 containment, directives, six scope kinds, and known relationship kinds. Pass
 `aws`, `gcp`, `k8s`, or `all` to filter provider data.
 
+Relationship entries carry an `area` grouping, and each provider's
+`relationships` list declares the kinds it validates with optional
+`allowedSources`/`allowedTargets` catalog constraints. Provider-owned kinds
+outside the core vocabulary set `providerSpecific: true`. Relationship
+`searchTerms` are included in editor filtering.
+
 The catalog includes search terms extracted from service names and descriptions
 for fuzzy matching in editor completions.
 
@@ -147,7 +153,7 @@ The completion engine detects cursor position in the grammar:
 - **Directive value**: `provider █` → `aws`, `gcp`, `k8s`
 - **Resource kind**: `service: █` → provider-specific services
 - **Relationship type**: `a -[█` → valid relationships for declared resources
-- **Relationship target**: `a -[forwards]-> █` → declared identifiers
+- **Relationship target**: `a -[writes]-> █` → declared identifiers
 
 ### Editor Integration
 

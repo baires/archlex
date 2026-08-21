@@ -18,7 +18,7 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "check": "turbo build typecheck test && biome check .",
-    "generate-docs": "tsx scripts/generate-error-docs.ts",
+    "generate-docs": "tsx scripts/generate-error-docs.ts && tsx scripts/generate-relationship-docs.ts",
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "verify:packages": "node scripts/validate-catalog.mjs",
     "verify:sites": "node scripts/verify-sites.mjs",

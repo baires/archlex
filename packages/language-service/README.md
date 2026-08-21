@@ -199,7 +199,7 @@ Results are ranked by:
 
 Completions always insert canonical syntax:
 - Service kinds use lowercase kebab-case: `eks`, `cloud-run`, `statefulset`
-- Relationships use lowercase: `forwards`, `connects`, `stores-in`
+- Relationships use lowercase: `connects`, `writes`, `publishes`
 - Directives preserve required format: `provider aws`, `direction LR`
 
 ## Grammar Context Detection
@@ -212,8 +212,8 @@ The engine understands cursor position in the grammar:
 | **Directive value** | `provider █` | `aws`, `gcp`, `k8s` |
 | **Resource kind** | `service: █` | AWS/GCP/K8s services |
 | **Resource name** | `█: lambda` | Identifier suggestions |
-| **Relationship type** | `a -[█` | `forwards`, `connects`, etc. |
-| **Relationship target** | `a -[forwards]-> █` | Declared identifiers |
+| **Relationship type** | `a -[█` | `connects`, `writes`, etc. |
+| **Relationship target** | `a -[writes]-> █` | Declared identifiers |
 
 ## Performance
 
