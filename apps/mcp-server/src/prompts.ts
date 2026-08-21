@@ -1,3 +1,5 @@
+import { KNOWN_RELATIONSHIPS } from "@archlex/core";
+
 export const SYSTEM_PROMPTS = {
   architect_cloud_infrastructure: {
     name: "architect_cloud_infrastructure",
@@ -27,7 +29,7 @@ Requirements: ${args.requirements}
 Rules:
 1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons in directives).
 2. Group resources logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
-3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`. A kind inside \`-[...]->\` is exactly one lowercase word from the known kinds list (connects, routes, proxies, reads, writes, caches, publishes, subscribes, invokes, triggers, schedules, monitors, logs, replicates, ...). Put any free-form display text in pipes instead: \`api -[writes]->|PostgreSQL over TLS| database\`. Never put spaces or slashes inside \`-[...]\`.
+3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`. A kind inside \`-[...]->\` is exactly one lowercase word from the known kinds list (${KNOWN_RELATIONSHIPS.join(", ")}). Put any free-form display text in pipes instead: \`api -[writes]->|PostgreSQL over TLS| database\`. Never put spaces or slashes inside \`-[...]\`.
 4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.
 
 Workflow:

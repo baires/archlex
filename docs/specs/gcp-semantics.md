@@ -68,6 +68,17 @@ Examples include:
 - `GCP-INTEGRATION-WORKFLOWS-TARGETS-001`
 - `GCP-IDENTITY-IAP-BACKEND-001`
 - `GCP-CONTAINERS-GKE-AUTOPILOT-CONFIG-001`
+- `GCP-RELATIONSHIP-INVALID-ENDPOINT-001`
+
+`GCP-RELATIONSHIP-INVALID-ENDPOINT-001` enforces the declared relationship
+definitions (`GCP_RELATIONSHIPS`): a typed edge whose kind lists
+`allowedSources`/`allowedTargets` warns when the connected services are not in
+those lists. Integration rules (Workflows, Eventarc, IAP) match the
+declarative rule tags attached to relationship definitions, not free-text
+labels or duplicated kind lists. The `routes` definition covers Cloud Load
+Balancing, Cloud DNS, Cloud CDN, API Gateway, and IAP backends. Google Cloud
+also declares storage attachment, backend exposure, data-service failover, and
+identity trust endpoints.
 
 Rules use only graph facts. They do not infer firewall contents, IAM policy,
 peering, or service configuration.

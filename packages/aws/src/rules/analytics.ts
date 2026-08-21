@@ -1,5 +1,6 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
+import { matchesAwsRelationshipRule } from "../relationships.js";
 
 /**
  * Tier 2: Analytics Rules
@@ -23,8 +24,7 @@ export const kinesisFirehoseDestinationRule = {
       const destinationEdges = graph.edges.filter(
         (e) =>
           e.source === fh.id &&
-          (e.label?.toLowerCase() === "writes" ||
-            e.label?.toLowerCase() === "streams"),
+          matchesAwsRelationshipRule(e.kind, "firehose-destination"),
       );
 
       const validDestinations = destinationEdges.filter((edge) => {

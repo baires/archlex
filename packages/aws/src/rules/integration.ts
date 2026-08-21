@@ -1,5 +1,6 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { AWS_DIAGNOSTIC_CODES } from "../registry.js";
+import { matchesAwsRelationshipRule } from "../relationships.js";
 
 /**
  * Tier 2: Application Integration Rules
@@ -23,8 +24,7 @@ export const stepFunctionsTargetsRule = {
       const orchestratesEdges = graph.edges.filter(
         (e) =>
           e.source === sf.id &&
-          (e.label?.toLowerCase() === "orchestrates" ||
-            e.label?.toLowerCase() === "invokes"),
+          matchesAwsRelationshipRule(e.kind, "step-functions-target"),
       );
 
       if (orchestratesEdges.length === 0) {
@@ -63,8 +63,7 @@ export const eventBridgeTargetsRule = {
       const triggerEdges = graph.edges.filter(
         (e) =>
           e.source === eb.id &&
-          (e.label?.toLowerCase() === "triggers" ||
-            e.label?.toLowerCase() === "invokes"),
+          matchesAwsRelationshipRule(e.kind, "eventbridge-target"),
       );
 
       if (triggerEdges.length === 0) {

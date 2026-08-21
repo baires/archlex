@@ -16,9 +16,9 @@ account prod {
 }
 
 // Request flow
-api -[calls]-> auth
+api -[invokes]-> auth
 auth -[authorizes]-> handler
-api -[calls]-> handler
+api -[invokes]-> handler
 handler -[reads]-> cache
 handler -[writes]-> cache
 handler -[reads]-> db

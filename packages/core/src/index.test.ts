@@ -415,7 +415,7 @@ describe("Phase 2 semantic graph", () => {
   it("preserves unknown resources and custom relationships with information diagnostics", () => {
     const archlex = createArchLex({ providers: [awsProvider()] });
     const parsed = archlex.parse(
-      "source: future-service\nsource -[streams]-> sink",
+      "source: future-service\nsource -[teleports]-> sink",
     );
 
     const result = archlex.analyze(parsed.ast);
@@ -424,7 +424,7 @@ describe("Phase 2 semantic graph", () => {
       "source",
       "sink",
     ]);
-    expect(result.graph.edges[0]).toMatchObject({ kind: "streams" });
+    expect(result.graph.edges[0]).toMatchObject({ kind: "teleports" });
     expect(result.diagnostics).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

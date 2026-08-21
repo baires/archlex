@@ -1,3 +1,4 @@
+import { ARCHLEX_LANGUAGE_METADATA } from "@archlex/core";
 import type { DiagnosticCode } from "@archlex/diagnostics";
 import { getDiagnosticDefinition } from "@archlex/diagnostics";
 import type { Diagnostic } from "@archlex/model";
@@ -59,22 +60,17 @@ const SERVICE_DOCS: Record<string, string> = {
 };
 
 /**
- * Hover documentation for relationship types
+ * Hover documentation for relationship types, derived from the canonical
+ * language metadata in `@archlex/core` so it never drifts from the DSL.
  */
-const RELATIONSHIP_DOCS: Record<string, string> = {
-  connects: "General connection between resources",
-  reads: "Read operation from source to target",
-  writes: "Write operation from source to target",
-  calls: "API or function invocation",
-  "depends-on": "Dependency relationship",
-  monitors: "Monitoring or observability relationship",
-  triggers: "Event trigger relationship",
-  caches: "Caching relationship",
-  stores: "Data storage relationship",
-  authenticates: "Authentication flow",
-  authorizes: "Authorization flow",
-  routes: "Traffic routing relationship",
-};
+const RELATIONSHIP_DOCS: Record<string, string> = Object.fromEntries(
+  ARCHLEX_LANGUAGE_METADATA.relationships.map(
+    ({ kind, displayName, documentation }) => [
+      kind,
+      `**${displayName}** - ${documentation}`,
+    ],
+  ),
+);
 
 /**
  * Register hover provider for ArchLex

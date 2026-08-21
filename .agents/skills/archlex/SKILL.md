@@ -90,14 +90,22 @@ vpc: production {
 3. **Use named instances** (`api: ecs`, `worker: ecs`) when a diagram needs
    more than one instance of a kind.
 4. **Known kinds** (custom kinds render but may emit info diagnostics):
-   - Connectivity: `connects`, `routes`, `proxies`
-   - Data: `reads`, `writes`, `caches`, `encrypts`, `decrypts`
-   - Events: `publishes`, `subscribes`, `invokes`, `triggers`, `schedules`
+<!-- BEGIN GENERATED RELATIONSHIP KINDS -->
+   - Connectivity: `connects`, `routes`, `proxies`, `exposes`
+   - Dependency: `depends-on`, `attaches`
+   - Data: `reads`, `writes`, `caches`, `encrypts`, `decrypts`, `streams`, `stores`, `backs-up`, `restores`, `archives`
+   - Events: `publishes`, `subscribes`, `invokes`, `triggers`, `schedules`, `notifies`
    - Operations: `monitors`, `logs`, `traces`, `alerts`
    - Processing: `processes`, `transforms`, `analyzes`, `transcodes`, `packages`
-   - Delivery: `orchestrates`, `builds`, `deploys`
-   - Governance: `assumes-role`, `protects`, `governs`, `catalogs`
+   - Delivery: `orchestrates`, `builds`, `deploys`, `provisions`
+   - Governance: `assumes-role`, `protects`, `governs`, `catalogs`, `authenticates`, `authorizes`, `audits`, `scans`, `trusts`
+   - Reliability: `fails-over-to`
    - Lifecycle: `replicates`, `migrates`, `discovers`
+<!-- END GENERATED RELATIONSHIP KINDS -->
+5. **Providers validate typed edges.** AWS, GCP, and Kubernetes declare
+   allowed sources/targets per kind; violating pairs warn
+   (`*-RELATIONSHIP-INVALID-ENDPOINT-001`). Check `get_cloud_catalog` for the
+   current declarations before wiring unfamiliar services.
 
 ## References
 

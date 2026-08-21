@@ -25,4 +25,13 @@ describe("semanticDiagnostics", () => {
       expect(def.remediation).toBeTruthy();
     }
   });
+
+  test("directs unknown relationship users to runtime catalog metadata", () => {
+    const remediation = semanticDiagnostics.get(
+      "AL-SEM-UNKNOWN-RELATIONSHIP",
+    )?.remediation;
+
+    expect(remediation).toContain("catalog");
+    expect(remediation).not.toContain("Common relationships:");
+  });
 });

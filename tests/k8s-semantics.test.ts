@@ -139,3 +139,90 @@ cluster production {
     });
   });
 });
+
+describe("K8S-RELATIONSHIP-INVALID-ENDPOINT-001 (Relationship Endpoints)", () => {
+  const archlex = createArchLex({ providers: [k8sProvider()] });
+  const code = "K8S-RELATIONSHIP-INVALID-ENDPOINT-001";
+
+  it("passes for service -[targets]-> deployment", async () => {
+    const res = await archlex.render(`provider k8s
+svc: service
+app: deployment
+svc -[targets]-> app`);
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("passes for ingress -[routes]-> service", async () => {
+    const res = await archlex.render(`provider k8s
+gateway: ingress
+svc: service
+app: deployment
+gateway -[routes]-> svc
+svc -[targets]-> app`);
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("warns when targets flows from a non-service", async () => {
+    const res = await archlex.render(`provider k8s
+app: deployment
+svc: service
+app -[targets]-> svc`);
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("targets");
+    expect(diag?.message).toContain("deployment");
+  });
+
+  it("warns when routes targets a workload instead of a service", async () => {
+    const res = await archlex.render(`provider k8s
+gateway: ingress
+app: deployment
+gateway -[routes]-> app`);
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("routes");
+    expect(diag?.message).toContain("service");
+    // The ingress topology rule must not double-report a typed routes edge.
+    expect(
+      res.diagnostics.filter(
+        (d) =>
+          d.code === "K8S-NETWORKING-INGRESS-TARGET-001" &&
+          d.message.includes("instead of a service"),
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("promotes the warning to an error in strict mode", async () => {
+    const res = await archlex.render(
+      `provider k8s
+app: deployment
+svc: service
+app -[targets]-> svc`,
+      { validation: "strict" },
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag?.severity).toBe("error");
+  });
+
+  it("emits nothing in off mode", async () => {
+    const res = await archlex.render(
+      `provider k8s
+app: deployment
+svc: service
+app -[targets]-> svc`,
+      { validation: "off" },
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("ignores edges with undeclared kinds or no kind", async () => {
+    const res = await archlex.render(`provider k8s
+app: deployment
+svc: service
+app -[connects]-> svc
+app -> svc`);
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+});

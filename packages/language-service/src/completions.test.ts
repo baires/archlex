@@ -176,6 +176,31 @@ describe("createCompletionEngine", () => {
       // Should have exactly one "targets" (provider version overrides core if exists)
       expect(targetsRelationships.length).toBeGreaterThan(0);
     });
+
+    it("exposes relationship search terms to editor filtering", () => {
+      const { source, offset } = unmark("provider aws\napp -[|");
+      const results = engine.complete(analyzeLanguageDocument(source), offset);
+      const archives = results.find(
+        (result) => result.insertText === "archives",
+      );
+
+      expect(archives?.filterText).toContain("retention");
+      expect(archives?.filterText).toContain("cold storage");
+    });
+
+    it("finds dependency and reliability relationships by intent", () => {
+      const { source, offset } = unmark("provider aws\napp -[|");
+      const results = engine.complete(analyzeLanguageDocument(source), offset);
+      const dependency = results.find(
+        (result) => result.insertText === "depends-on",
+      );
+      const failover = results.find(
+        (result) => result.insertText === "fails-over-to",
+      );
+
+      expect(dependency?.filterText).toContain("prerequisite");
+      expect(failover?.filterText).toContain("disaster recovery");
+    });
   });
 
   describe("semantic ranking", () => {

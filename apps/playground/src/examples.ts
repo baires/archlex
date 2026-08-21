@@ -114,9 +114,9 @@ fn: lambda
 db: dynamodb
 
 dns > cdn
-cdn -[origin]-> static_site
-cdn -[api_route]-> api
-api -[invokes]-> fn -[queries]-> db`,
+cdn -[routes]->|static origin| static_site
+cdn -[routes]->|API route| api
+api -[invokes]-> fn -[reads]-> db`,
   },
   {
     id: "container-cache-db",
@@ -131,7 +131,7 @@ validation normal
 
 alb -[routes]-> ecs
 ecs -[caches]-> elasticache
-ecs -[queries]-> rds`,
+ecs -[reads]-> rds`,
   },
   {
     id: "event-driven",
@@ -166,8 +166,8 @@ worker_analytics: lambda
 data_lake: s3
 
 apigw > publisher > topic
-topic -[fanout]-> queue_email > worker_email
-topic -[fanout]-> queue_analytics > worker_analytics > data_lake`,
+topic -[publishes]->|fan-out| queue_email > worker_email
+topic -[publishes]->|fan-out| queue_analytics > worker_analytics > data_lake`,
   },
   {
     id: "vpc-hierarchy",
@@ -241,9 +241,9 @@ feature_store: elasticache
 model_bucket: s3
 
 cdn > gateway > preprocessor
-preprocessor -[submits]-> inference_cluster
-inference_cluster -[fetches]-> feature_store
-inference_cluster -[loads]-> model_bucket`,
+preprocessor -[invokes]->|submits inference| inference_cluster
+inference_cluster -[reads]->|feature data| feature_store
+inference_cluster -[reads]->|model artifacts| model_bucket`,
   },
   {
     id: "enterprise-cloud",
@@ -306,10 +306,10 @@ nosql_store: dynamodb
 
 ingress_api -[invokes]-> ingest_fn
 ingest_fn -[publishes]-> notification_topic
-notification_topic -[forwards]-> buffer_queue
+notification_topic -[publishes]->|forwards| buffer_queue
 events_bus -[triggers]-> buffer_queue
-buffer_queue -[batch_invokes]-> processor_fn
-processor_fn -[persists]-> nosql_store
+buffer_queue -[invokes]->|batch| processor_fn
+processor_fn -[writes]-> nosql_store
 processor_fn -[archives]-> lake`,
   },
   {
@@ -347,8 +347,8 @@ account global-core {
 }
 
 global_dns: route53
-global_dns -[primary]-> app_primary
-global_dns -[failover]-> app_secondary
+global_dns -[routes]->|primary| app_primary
+global_dns -[routes]->|failover| app_secondary
 db_primary -[replicates]-> db_replica`,
   },
   {
@@ -408,7 +408,7 @@ query: athena
 stream -[streams]-> raw_lake
 raw_lake -[transforms]-> etl
 etl -[writes]-> processed_lake
-processed_lake -[queries]-> query`,
+query -[reads]-> processed_lake`,
   },
   {
     id: "aws-migration-workflow",
@@ -529,7 +529,7 @@ search: cloud-search
 uploads -[triggers]-> doc_ai
 doc_ai -[analyzes]-> nlp
 nlp -[writes]-> database
-database -[indexes]-> search`,
+database -[connects]->|indexes into| search`,
   },
   {
     id: "gcp-data-warehouse",
@@ -571,7 +571,7 @@ config: config-connector
 control_plane -[orchestrates]-> gcp_cluster
 control_plane -[orchestrates]-> vmware_cluster
 control_plane -[orchestrates]-> aws_cluster
-control_plane -[manages]-> config`,
+control_plane -[governs]->|manages config| config`,
   },
   {
     id: "gcp-retail-recommendations",
@@ -590,10 +590,10 @@ frontend: cloud-run
 cache: memorystore
 
 user_events -[streams]-> recommendations
-catalog -[feeds]-> recommendations
+catalog -[streams]->|catalog feed| recommendations
 recommendations -[caches]-> cache
 frontend -[reads]-> cache
-frontend -[queries]-> catalog`,
+frontend -[reads]-> catalog`,
   },
   {
     id: "gcp-healthcare-compliance",
@@ -642,7 +642,7 @@ cluster production {
 
     gateway -[routes]-> frontend_service
     frontend_service -[targets]-> frontend
-    frontend -[calls]-> api_service
+    frontend -[invokes]-> api_service
     api_service -[targets]-> api
   }
 }`,
@@ -690,7 +690,7 @@ cluster production {
     warehouse_credentials: secret
 
     nightly_report -[reads]-> report_config
-    nightly_report -[uses]-> warehouse_credentials
+    nightly_report -[reads]-> warehouse_credentials
   }
 }`,
   },
@@ -735,8 +735,8 @@ cluster production {
     config_reader: role
     access_grant: rolebinding
 
-    config_reader -[granted_by]-> access_grant
-    access_grant -[grants_to]-> app_identity
+    access_grant -[authorizes]->|grants role| config_reader
+    access_grant -[authorizes]->|grants to| app_identity
   }
 }`,
   },

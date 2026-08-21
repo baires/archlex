@@ -25,6 +25,7 @@ import {
   subnetContainmentRule,
   transitGatewayRoutesRule,
 } from "./networking.js";
+import { relationshipEndpointsRule } from "./relationships.js";
 import { unattachedIamRoleRule } from "./security.js";
 
 export * from "./ai-ml.js";
@@ -34,6 +35,7 @@ export * from "./data.js";
 export * from "./devtools.js";
 export * from "./integration.js";
 export * from "./networking.js";
+export * from "./relationships.js";
 export * from "./security.js";
 
 export function evaluateAwsRules(
@@ -73,6 +75,9 @@ export function evaluateAwsRules(
   // Tier 2: Integration Rules
   rawDiagnostics.push(...stepFunctionsTargetsRule.validate(graph));
   rawDiagnostics.push(...eventBridgeTargetsRule.validate(graph));
+
+  // Tier 2: Relationship Rules
+  rawDiagnostics.push(...relationshipEndpointsRule.validate(graph));
 
   // Tier 2: Analytics Rules
   rawDiagnostics.push(...kinesisFirehoseDestinationRule.validate(graph));

@@ -51,10 +51,10 @@ nosql_store: dynamodb
 
 ingress_api -[invokes]-> ingest_fn
 ingest_fn -[publishes]-> notification_topic
-notification_topic -[forwards]-> buffer_queue
+notification_topic -[publishes]->|forwards| buffer_queue
 events_bus -[triggers]-> buffer_queue
-buffer_queue -[batch_invokes]-> processor_fn
-processor_fn -[persists]-> nosql_store
+buffer_queue -[invokes]->|batch| processor_fn
+processor_fn -[writes]-> nosql_store
 processor_fn -[archives]-> lake`;
 
 const MULTI_REGION_SOURCE = `direction LR
@@ -85,8 +85,8 @@ account global-core {
 }
 
 global_dns: route53
-global_dns -[primary]-> app_primary
-global_dns -[failover]-> app_secondary
+global_dns -[routes]->|primary| app_primary
+global_dns -[routes]->|failover| app_secondary
 db_primary -[replicates]-> db_replica`;
 
 const VIEWPORTS = {

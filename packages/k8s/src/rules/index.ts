@@ -8,12 +8,14 @@ import {
 } from "./namespaces.js";
 import { ingressTargetRule, serviceTargetRule } from "./networking.js";
 import { bindingSubjectRule } from "./rbac.js";
+import { relationshipEndpointsRule } from "./relationships.js";
 import { pvcUnboundRule } from "./storage.js";
 import { unmanagedPodRule } from "./workloads.js";
 
 export * from "./namespaces.js";
 export * from "./networking.js";
 export * from "./rbac.js";
+export * from "./relationships.js";
 export * from "./storage.js";
 export * from "./workloads.js";
 
@@ -49,6 +51,7 @@ export function evaluateK8sRules(
   // Pass 2: Networking Rules
   rawDiagnostics.push(...serviceTargetRule.validate(graph));
   rawDiagnostics.push(...ingressTargetRule.validate(graph));
+  rawDiagnostics.push(...relationshipEndpointsRule.validate(graph));
 
   // Pass 2: Storage Rules
   rawDiagnostics.push(...pvcUnboundRule.validate(graph));

@@ -51,8 +51,8 @@ account global-core {
 }
 
 global_dns: route53
-global_dns -[primary]-> app_primary
-global_dns -[failover]-> app_secondary
+global_dns -[routes]->|primary| app_primary
+global_dns -[routes]->|failover| app_secondary
 db_primary -[replicates]-> db_replica
 ```
 

@@ -172,3 +172,90 @@ describe("GCP Semantics & Rules Engine", () => {
     expect(serializedIcons).not.toMatch(/https?:|<script|\son\w+=/i);
   });
 });
+
+describe("GCP-RELATIONSHIP-INVALID-ENDPOINT-001 (Relationship Endpoints)", () => {
+  const archlex = createArchLex({
+    providers: [gcpProviderFromPackage()],
+  });
+  const code = "GCP-RELATIONSHIP-INVALID-ENDPOINT-001";
+
+  it("passes when a typed relationship connects supported services", async () => {
+    const res = await archlex.render(
+      "fn: cloud-functions\nstore: cloud-storage\nfn -[writes]-> store",
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("warns when the source does not support the relationship kind", async () => {
+    const res = await archlex.render(
+      "table: bigquery\nfn: cloud-functions\ntable -[orchestrates]-> fn",
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("orchestrates");
+    expect(diag?.message).toContain("bigquery");
+  });
+
+  it("warns when the target does not support the relationship kind", async () => {
+    const res = await archlex.render(
+      "fn: cloud-functions\ndb: cloud-sql\nfn -[encrypts]-> db",
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("cloud-kms");
+  });
+
+  it("promotes the warning to an error in strict mode", async () => {
+    const res = await archlex.render(
+      "fn: cloud-functions\ndb: cloud-sql\nfn -[encrypts]-> db",
+      { validation: "strict" },
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag?.severity).toBe("error");
+  });
+
+  it("emits nothing in off mode", async () => {
+    const res = await archlex.render(
+      "fn: cloud-functions\ndb: cloud-sql\nfn -[encrypts]-> db",
+      { validation: "off" },
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("ignores edges with undeclared kinds or no kind", async () => {
+    const res = await archlex.render(
+      "fn: cloud-functions\ndb: cloud-sql\nfn -[connects]-> db\nfn -> db",
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+});
+
+describe("GCP integration rules use relationship kinds", () => {
+  const archlex = createArchLex({
+    providers: [gcpProviderFromPackage()],
+  });
+
+  it("accepts a typed orchestrates edge for Workflows targets", async () => {
+    const res = await archlex.render(
+      "wf: workflows\nfn: cloud-functions\nwf -[orchestrates]-> fn",
+    );
+    expect(
+      res.diagnostics.filter(
+        (d) => d.code === "GCP-INTEGRATION-WORKFLOWS-TARGETS-001",
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("accepts a typed triggers edge for Eventarc targets", async () => {
+    const res = await archlex.render(
+      "bus: eventarc\nfn: cloud-functions\nbus -[triggers]-> fn",
+    );
+    expect(
+      res.diagnostics.filter(
+        (d) => d.code === "GCP-INTEGRATION-EVENTARC-TARGETS-001",
+      ),
+    ).toHaveLength(0);
+  });
+});

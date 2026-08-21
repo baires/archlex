@@ -449,7 +449,10 @@ function getRelationshipCompletions(
     coreRelationships.map((rel) => [rel.kind, rel]),
   );
   for (const rel of providerRelationships) {
-    relationshipMap.set(rel.kind, rel);
+    relationshipMap.set(rel.kind, {
+      ...relationshipMap.get(rel.kind),
+      ...rel,
+    });
   }
 
   const completions: LanguageCompletion[] = [];
@@ -491,7 +494,12 @@ function getRelationshipCompletions(
       id: `relationship:${rel.kind}`,
       label: rel.displayName,
       insertText: rel.kind,
-      filterText: [rel.kind, rel.displayName, ...(rel.aliases ?? [])].join(" "),
+      filterText: [
+        rel.kind,
+        rel.displayName,
+        ...(rel.aliases ?? []),
+        ...(rel.searchTerms ?? []),
+      ].join(" "),
       kind: "relationship",
       documentation: rel.documentation,
       replacement,

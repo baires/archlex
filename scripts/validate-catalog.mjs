@@ -20,78 +20,29 @@ const __dirname = dirname(__filename);
 const ROOT = resolve(__dirname, "..");
 
 async function loadModules() {
-  let AWS_SERVICE_CATALOG;
-  let awsProvider;
-  let GCP_SERVICE_CATALOG;
-  let gcpProvider;
-  let K8S_SERVICE_CATALOG;
-  let k8sProvider;
-  let validateCatalogManifest;
-  let validateCatalogContainment;
-  let validateRelationshipDefinitions;
-
-  try {
-    const awsModule = await import("@archlex/aws");
-    AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
-    awsProvider = awsModule.awsProvider;
-  } catch {
-    const awsModule = await import(
-      pathToFileURL(resolve(ROOT, "packages/aws/dist/index.js")).href
+  const [coreModule, awsModule, gcpModule, k8sModule, diagModule] =
+    await Promise.all(
+      ["core", "aws", "gcp", "k8s", "diagnostics"].map(
+        (packageName) =>
+          import(
+            pathToFileURL(
+              resolve(ROOT, `packages/${packageName}/dist/index.js`),
+            ).href
+          ),
+      ),
     );
-    AWS_SERVICE_CATALOG = awsModule.AWS_SERVICE_CATALOG;
-    awsProvider = awsModule.awsProvider;
-  }
-
-  try {
-    const gcpModule = await import("@archlex/gcp");
-    GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
-    gcpProvider = gcpModule.gcpProvider;
-  } catch {
-    const gcpModule = await import(
-      pathToFileURL(resolve(ROOT, "packages/gcp/dist/index.js")).href
-    );
-    GCP_SERVICE_CATALOG = gcpModule.GCP_SERVICE_CATALOG;
-    gcpProvider = gcpModule.gcpProvider;
-  }
-
-  try {
-    const k8sModule = await import("@archlex/k8s");
-    K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
-    k8sProvider = k8sModule.k8sProvider;
-  } catch {
-    const k8sModule = await import(
-      pathToFileURL(resolve(ROOT, "packages/k8s/dist/index.js")).href
-    );
-    K8S_SERVICE_CATALOG = k8sModule.K8S_SERVICE_CATALOG;
-    k8sProvider = k8sModule.k8sProvider;
-  }
-
-  try {
-    const diagModule = await import("@archlex/diagnostics");
-    validateCatalogManifest = diagModule.validateCatalogManifest;
-    validateCatalogContainment = diagModule.validateCatalogContainment;
-    validateRelationshipDefinitions =
-      diagModule.validateRelationshipDefinitions;
-  } catch {
-    const diagModule = await import(
-      pathToFileURL(resolve(ROOT, "packages/diagnostics/dist/index.js")).href
-    );
-    validateCatalogManifest = diagModule.validateCatalogManifest;
-    validateCatalogContainment = diagModule.validateCatalogContainment;
-    validateRelationshipDefinitions =
-      diagModule.validateRelationshipDefinitions;
-  }
 
   return {
-    AWS_SERVICE_CATALOG,
-    awsProvider,
-    GCP_SERVICE_CATALOG,
-    gcpProvider,
-    K8S_SERVICE_CATALOG,
-    k8sProvider,
-    validateCatalogManifest,
-    validateCatalogContainment,
-    validateRelationshipDefinitions,
+    AWS_SERVICE_CATALOG: awsModule.AWS_SERVICE_CATALOG,
+    awsProvider: awsModule.awsProvider,
+    GCP_SERVICE_CATALOG: gcpModule.GCP_SERVICE_CATALOG,
+    gcpProvider: gcpModule.gcpProvider,
+    K8S_SERVICE_CATALOG: k8sModule.K8S_SERVICE_CATALOG,
+    k8sProvider: k8sModule.k8sProvider,
+    validateCatalogManifest: diagModule.validateCatalogManifest,
+    validateCatalogContainment: diagModule.validateCatalogContainment,
+    validateRelationshipDefinitions: diagModule.validateRelationshipDefinitions,
+    KNOWN_RELATIONSHIPS: coreModule.KNOWN_RELATIONSHIPS,
   };
 }
 
@@ -102,6 +53,7 @@ function validateProviderCatalog(
   validateCatalogManifest,
   validateCatalogContainment,
   validateRelationshipDefinitions,
+  knownRelationships,
 ) {
   if (!catalog) {
     const missingDiag = {
@@ -127,6 +79,7 @@ function validateProviderCatalog(
   const relationshipDiagnostics = validateRelationshipDefinitions(
     catalog,
     provider().listRelationships?.() ?? [],
+    { knownKinds: knownRelationships },
   );
   const diagnostics = [
     ...manifestResult.diagnostics,
@@ -160,6 +113,7 @@ async function main() {
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
+    KNOWN_RELATIONSHIPS,
   } = await loadModules();
 
   console.log(
@@ -178,6 +132,7 @@ async function main() {
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
+    KNOWN_RELATIONSHIPS,
   );
   const gcpReport = validateProviderCatalog(
     "GCP",
@@ -186,6 +141,7 @@ async function main() {
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
+    KNOWN_RELATIONSHIPS,
   );
   const k8sReport = validateProviderCatalog(
     "K8S",
@@ -194,6 +150,7 @@ async function main() {
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
+    KNOWN_RELATIONSHIPS,
   );
 
   const totalServices = awsReport.count + gcpReport.count + k8sReport.count;

@@ -153,3 +153,101 @@ describe("Phase 3: AWS Semantics & Rules Engine", () => {
     expect(serializedIcons).not.toMatch(/https?:|<script|\son\w+=/i);
   });
 });
+
+describe("AWS-RELATIONSHIP-INVALID-ENDPOINT-001 (Relationship Endpoints)", () => {
+  const archlex = createArchLex({
+    providers: [awsProvider()],
+  });
+  const code = "AWS-RELATIONSHIP-INVALID-ENDPOINT-001";
+
+  it("passes when a typed relationship connects supported services", async () => {
+    const res = await archlex.render(
+      "fn: lambda\ndb: dynamodb\nfn -[writes]-> db",
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("warns when the source does not support the relationship kind", async () => {
+    const res = await archlex.render(
+      "table: dynamodb\nfn: lambda\ntable -[orchestrates]-> fn",
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("orchestrates");
+    expect(diag?.message).toContain("dynamodb");
+  });
+
+  it("warns when the target does not support the relationship kind", async () => {
+    const res = await archlex.render(
+      "fn: lambda\ndb: rds\nfn -[encrypts]-> db",
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag).toBeDefined();
+    expect(diag?.severity).toBe("warning");
+    expect(diag?.message).toContain("kms");
+  });
+
+  it("promotes the warning to an error in strict mode", async () => {
+    const res = await archlex.render(
+      "fn: lambda\ndb: rds\nfn -[encrypts]-> db",
+      { validation: "strict" },
+    );
+    const diag = res.diagnostics.find((d) => d.code === code);
+    expect(diag?.severity).toBe("error");
+  });
+
+  it("emits nothing in off mode", async () => {
+    const res = await archlex.render(
+      "fn: lambda\ndb: rds\nfn -[encrypts]-> db",
+      { validation: "off" },
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+
+  it("ignores edges with undeclared kinds or no kind", async () => {
+    const res = await archlex.render(
+      "fn: lambda\ndb: rds\nfn -[connects]-> db\nfn -> db",
+    );
+    expect(res.diagnostics.filter((d) => d.code === code)).toHaveLength(0);
+  });
+});
+
+describe("AWS integration rules use relationship kinds", () => {
+  const archlex = createArchLex({
+    providers: [awsProvider()],
+  });
+
+  it("accepts a typed orchestrates edge for Step Functions targets", async () => {
+    const res = await archlex.render(
+      "sf: step-functions\nfn: lambda\nsf -[orchestrates]-> fn",
+    );
+    expect(
+      res.diagnostics.filter(
+        (d) => d.code === "AWS-INTEGRATION-STEP-FUNCTIONS-TARGETS-001",
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("accepts a typed triggers edge for EventBridge targets", async () => {
+    const res = await archlex.render(
+      "bus: eventbridge\nfn: lambda\nbus -[triggers]-> fn",
+    );
+    expect(
+      res.diagnostics.filter(
+        (d) => d.code === "AWS-INTEGRATION-EVENTBRIDGE-TARGETS-001",
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("accepts a typed writes edge for Kinesis Firehose destinations", async () => {
+    const res = await archlex.render(
+      "stream: kinesis-firehose\nbucket: s3\nstream -[writes]-> bucket",
+    );
+    expect(
+      res.diagnostics.filter(
+        (d) => d.code === "AWS-ANALYTICS-KINESIS-FIREHOSE-DESTINATION-001",
+      ),
+    ).toHaveLength(0);
+  });
+});

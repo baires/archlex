@@ -122,6 +122,18 @@ Chains associate from left to right. `a > b > c` creates `a -> b` and `b -> c`.
 Provider rules validate the resulting graph. Unknown custom kinds remain on the
 edge and may produce an informational diagnostic.
 
+Each known kind belongs to an area (`connectivity`, `data`, `events`,
+`operations`, `processing`, `delivery`, `governance`, `lifecycle`, `dependency`,
+`reliability`), recorded in the language metadata as
+`RelationshipDefinition.area`. Providers declare the
+kinds they understand together with allowed source and target services, and
+warn when a typed edge violates those constraints.
+
+Provider-owned vocabulary such as Kubernetes `targets`, `mounts`, `binds`, and
+`scales` is marked `providerSpecific`. Catalog validation requires this marker
+for kinds outside the core registry and requires lowercase kebab-case for every
+declared provider kind. User-authored custom kinds remain supported.
+
 ## Recovery and diagnostics
 
 The parser preserves useful partial input. It reports unknown characters,
@@ -148,4 +160,4 @@ Results are **semantically ranked** by:
 2. Search term relevance (fuzzy match quality)
 3. Relationship compatibility (valid source/target pairs)
 
-All completions insert **canonical syntax**: lowercase kebab-case for resources (`eks`, `cloud-run`, `statefulset`) and relationships (`forwards`, `connects`, `stores-in`).
+All completions insert **canonical syntax**: lowercase kebab-case for resources (`eks`, `cloud-run`, `statefulset`) and relationships (`connects`, `writes`, `publishes`).
