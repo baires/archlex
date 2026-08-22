@@ -1,7 +1,9 @@
 import {
   CallToolRequestSchema,
+  CompleteRequestSchema,
   GetPromptRequestSchema,
   ListPromptsRequestSchema,
+  ListResourceTemplatesRequestSchema,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
@@ -14,6 +16,7 @@ import type {
   SubscriptionFilter,
   Tool,
 } from "@modelcontextprotocol/server";
+import { completeArgument } from "../completion.js";
 import {
   callTool,
   getPrompt,
@@ -22,6 +25,8 @@ import {
   listTools,
   readResource,
 } from "../registry.js";
+import type { RegistryOptions } from "../registry.js";
+import { listResourceTemplates } from "../resource-templates.js";
 import type { Env } from "../security.js";
 import { handleLegacyMcpPost } from "../server.js";
 import {
@@ -36,6 +41,7 @@ import { discover, validateDiscoveryParams } from "./discovery.js";
 import { McpProtocolError, toHttpErrorResponse } from "./errors.js";
 import { validateMcpHeaders } from "./http-headers.js";
 import { paginate } from "./pagination.js";
+import { progressResponse, requestProgressToken } from "./progress.js";
 import { completeResult } from "./results.js";
 import { subscriptionResponse } from "./subscriptions.js";
 import {
@@ -52,6 +58,7 @@ const ABSOLUTE_REQUEST_TIMEOUT_MS = 120_000;
 export interface RequestAbortScope {
   signal: AbortSignal;
   timeoutMs: number;
+  abort: (reason?: unknown) => void;
   cleanup: () => void;
 }
 
@@ -89,6 +96,7 @@ export function createRequestAbortScope(
   return {
     signal: controller.signal,
     timeoutMs,
+    abort: (reason?: unknown) => controller.abort(reason),
     cleanup: () => {
       clearTimeout(timeout);
       requestSignal.removeEventListener("abort", relayAbort);
@@ -168,12 +176,16 @@ function validateMethodShape(message: JSONRPCRequest): void {
         return ListResourcesRequestSchema.safeParse(message);
       case MCP_METHODS.RESOURCES_READ:
         return ReadResourceRequestSchema.safeParse(message);
+      case MCP_METHODS.RESOURCES_TEMPLATES_LIST:
+        return ListResourceTemplatesRequestSchema.safeParse(message);
       case MCP_METHODS.PROMPTS_LIST:
         return ListPromptsRequestSchema.safeParse(message);
       case MCP_METHODS.PROMPTS_GET:
         return GetPromptRequestSchema.safeParse(message);
       case MCP_METHODS.SUBSCRIPTIONS_LISTEN:
         return SubscriptionsListenRequestSchema.safeParse(message);
+      case MCP_METHODS.COMPLETION_COMPLETE:
+        return CompleteRequestSchema.safeParse(message);
       default:
         return { success: true } as const;
     }
@@ -266,11 +278,13 @@ async function dispatchModern(
   message: JSONRPCRequest,
   signal: AbortSignal,
   env?: Env,
+  onProgress?: RegistryOptions["onProgress"],
 ): Promise<unknown> {
   const context = validateModernRequest(message);
   const options = {
     enableMcpApps: env?.ENABLE_MCP_APPS === "true",
     signal,
+    onProgress,
   };
   const params = record(message.params) ?? {};
   const cursor = typeof params.cursor === "string" ? params.cursor : undefined;
@@ -328,6 +342,17 @@ async function dispatchModern(
         publicCache,
       );
     }
+    case MCP_METHODS.RESOURCES_TEMPLATES_LIST: {
+      const page = paginate(listResourceTemplates(), cursor, DEFAULT_PAGE_SIZE);
+      return completeResult(
+        {
+          resourceTemplates: page.items,
+          ...(page.nextCursor ? { nextCursor: page.nextCursor } : {}),
+        },
+        context,
+        publicCache,
+      );
+    }
     case MCP_METHODS.RESOURCES_READ:
       return completeResult(
         readResource(requireResource(params.uri)) as unknown as Record<
@@ -358,6 +383,11 @@ async function dispatchModern(
         context,
       );
     }
+    case MCP_METHODS.COMPLETION_COMPLETE:
+      return completeResult(
+        completeArgument(params) as unknown as Record<string, unknown>,
+        context,
+      );
     case MCP_METHODS.SUBSCRIPTIONS_LISTEN:
       return subscriptionResponse(
         context.requestId,
@@ -420,7 +450,33 @@ export async function handleMcpPost(
       object?.method === MCP_METHODS.SUBSCRIPTIONS_LISTEN
         ? undefined
         : createRequestAbortScope(request.signal, env);
+    let cleanupTransferred = false;
     try {
+      const params = record((message as JSONRPCRequest).params) ?? {};
+      const progressToken = requestProgressToken(params);
+      const isProgressiveRender =
+        object?.method === MCP_METHODS.TOOLS_CALL &&
+        params.name === "render_diagram" &&
+        progressToken !== undefined &&
+        abortScope !== undefined;
+      if (isProgressiveRender) {
+        cleanupTransferred = true;
+        return withHeaders(
+          progressResponse(
+            context.requestId,
+            progressToken,
+            (onProgress) =>
+              dispatchModern(
+                message as JSONRPCRequest,
+                abortScope.signal,
+                env,
+                onProgress,
+              ),
+            { abort: abortScope.abort, cleanup: abortScope.cleanup },
+          ),
+          responseHeaders,
+        );
+      }
       const result = await dispatchModern(
         message as JSONRPCRequest,
         abortScope?.signal ?? request.signal,
@@ -434,7 +490,7 @@ export async function handleMcpPost(
         responseHeaders,
       );
     } finally {
-      abortScope?.cleanup();
+      if (!cleanupTransferred) abortScope?.cleanup();
     }
   } catch (error: unknown) {
     const protocolError =

@@ -33,6 +33,7 @@ export const VALID_INPUT_REQUIRED_RESULT = inputRequired({
 export const VALID_DISCOVER_RESULT = {
   supportedVersions: ["2026-07-28"],
   capabilities: {
+    completions: {},
     tools: {},
     resources: {},
     prompts: {},

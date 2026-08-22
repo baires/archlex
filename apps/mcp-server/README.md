@@ -4,7 +4,7 @@ Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Wo
 
 ## Live Endpoints
 
-- `GET|POST|DELETE /mcp` – Streamable HTTP transport (recommended)
+- `POST /mcp` – Streamable HTTP transport (recommended; modern GET and DELETE return 405)
 - `GET /health` – Health check and auth status
 - `GET /info` – Server capability metadata & tool listing
 - `GET /sse` – Legacy Server-Sent Events stream initialization (kept for backward compatibility)
@@ -65,6 +65,13 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 - `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
 - `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
 - `generate_playground_url({ source })` – Deep-link URL to `playground.archlex.dev`.
+
+## Modern Protocol Features
+
+- `render_diagram` emits five monotonic request-scoped progress notifications when the request includes `_meta.progressToken`. They arrive on the originating POST response stream before the final result.
+- `resources/templates/list` publishes `archlex://docs/{+path}` and `archlex://examples/{name}` with pagination and public cache hints.
+- `completion/complete` suggests declared prompt arguments and published resource-template variables. Tool arguments use their JSON Schema enums and are not completion targets.
+- Tool definitions include read-only/idempotency hints and a bounded PNG icon. Synced documentation resources include version-control-derived `lastModified` annotations; static resources remain valid without presentation metadata.
 
 ## Rendering Modes
 

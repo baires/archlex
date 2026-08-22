@@ -10,6 +10,7 @@ import { type IconLoader, createIconLoader } from "@archlex/icons-core";
 import { K8S_CDN_PROVIDER } from "@archlex/k8s";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import { Resvg } from "@cf-wasm/resvg";
+import type { Progress } from "@modelcontextprotocol/server";
 import interRegular from "inter-font/ttf/Inter-Regular.ttf";
 import interSemiBold from "inter-font/ttf/Inter-SemiBold.ttf";
 
@@ -53,6 +54,11 @@ export interface RenderDiagramOptions {
   iconLoader?: IconLoader;
   iconHydrationTimeoutMs?: number;
   fontBuffers?: Uint8Array[];
+  onProgress?: (progress: Progress) => void;
+  rasterizer?: (
+    svg: string,
+    suppliedFontBuffers?: Uint8Array[],
+  ) => Promise<Uint8Array>;
 }
 
 const MAX_SOURCE_LENGTH = 100_000;
@@ -183,7 +189,9 @@ export async function handleRenderDiagram(
     );
   }
 
+  options?.onProgress?.({ progress: 1, total: 5, message: "Parsing" });
   const prepared = archlex.prepare(source, { validation });
+  options?.onProgress?.({ progress: 2, total: 5, message: "Validating" });
   options?.signal?.throwIfAborted();
   const iconLoader = options?.iconLoader ?? defaultIconLoader;
   const iconLoad =
@@ -195,6 +203,11 @@ export async function handleRenderDiagram(
           options?.signal,
         )
       : undefined;
+  options?.onProgress?.({
+    progress: 3,
+    total: 5,
+    message: "Hydrating icons",
+  });
   options?.signal?.throwIfAborted();
   if (iconLoad?.diagnostics.length) {
     console.warn(
@@ -204,6 +217,7 @@ export async function handleRenderDiagram(
       }),
     );
   }
+  options?.onProgress?.({ progress: 4, total: 5, message: "Laying out" });
   const result = await archlex.renderPrepared(prepared, {
     theme,
     direction,
@@ -246,6 +260,7 @@ export async function handleRenderDiagram(
   const textSummary = `${summary}\n\n${formatSourceBlock(source)}`;
 
   if (format === "svg") {
+    options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
     return {
       content: [
         {
@@ -265,10 +280,12 @@ export async function handleRenderDiagram(
 
   // Rasterization is the expensive path; SVG-only clients above skipped it.
   options?.signal?.throwIfAborted();
+  const rasterizer = options?.rasterizer ?? rasterizeSvg;
   const base64Png = bytesToBase64(
-    await rasterizeSvg(result.svg, options?.fontBuffers),
+    await rasterizer(result.svg, options?.fontBuffers),
   );
   options?.signal?.throwIfAborted();
+  options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
 
   return {
     content: [

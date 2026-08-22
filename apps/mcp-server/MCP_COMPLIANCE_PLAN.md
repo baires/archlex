@@ -269,32 +269,32 @@ These do not block core compliance and remain unadvertised until implemented.
 
 **Files:** Create `src/protocol/progress.ts`; modify `src/tools/render.ts`; test `test/protocol/progress.test.ts`.
 
-- [ ] Emit only when `_meta.progressToken` is present and echo the exact token.
-- [ ] Deliver on the originating response stream before the final response.
-- [ ] Emit monotonic `progress` with optional `total` and `message`.
-- [ ] Never use `subscriptions/listen` for progress.
-- [ ] Cover parsing, validation, icon hydration, layout, and rendering without overhead when disabled.
+- [x] Emit only when `_meta.progressToken` is present and echo the exact token.
+- [x] Deliver on the originating response stream before the final response.
+- [x] Emit monotonic `progress` with optional `total` and `message`.
+- [x] Never use `subscriptions/listen` for progress.
+- [x] Cover parsing, validation, icon hydration, layout, and rendering without overhead when disabled.
 
 ### Task 13: Resource templates and valid completion
 
 **Files:** Create `src/resource-templates.ts` and `src/completion.ts`; modify `src/protocol/router.ts`; test `test/protocol/resource-templates.test.ts` and `test/protocol/completion.test.ts`.
 
-- [ ] Define only real RFC 6570 resource families.
-- [ ] Ship `resources/templates/list` with pagination, result type, server metadata, `ttlMs`, and `cacheScope` from day one.
-- [ ] Expand templates through the same URI validation/access-control path as literal resources.
-- [ ] Implement `completion/complete` only for prompt arguments and template variables.
-- [ ] Declare `completions: {}` only after conformance tests pass.
-- [ ] Do not implement tool argument completions; tool enums stay in JSON Schema.
+- [x] Define only real RFC 6570 resource families.
+- [x] Ship `resources/templates/list` with pagination, result type, server metadata, `ttlMs`, and `cacheScope` from day one.
+- [x] Expand templates through the same URI validation/access-control path as literal resources.
+- [x] Implement `completion/complete` only for prompt arguments and template variables.
+- [x] Declare `completions: {}` only after conformance tests pass.
+- [x] Do not implement tool argument completions; tool enums stay in JSON Schema.
 
 ### Task 14: Optional annotations and icons
 
 **Files:** Modify `src/registry.ts` and `scripts/sync-docs.mjs`; test `test/protocol/presentation-metadata.test.ts`.
 
-- [ ] Add annotations only where audience, priority, and modification time are accurate.
-- [ ] Derive `lastModified` from source metadata or version control, never build time.
-- [ ] Use same-origin HTTPS or bounded data-URI icons with accurate MIME metadata.
-- [ ] Treat SVG as untrusted active content and retain a safe PNG fallback.
-- [ ] Do not require every resource, prompt, or tool to have presentation metadata.
+- [x] Add annotations only where audience, priority, and modification time are accurate.
+- [x] Derive `lastModified` from source metadata or version control, never build time.
+- [x] Use same-origin HTTPS or bounded data-URI icons with accurate MIME metadata.
+- [x] Treat SVG as untrusted active content and retain a safe PNG fallback.
+- [x] Do not require every resource, prompt, or tool to have presentation metadata.
 
 ### Explicitly excluded
 

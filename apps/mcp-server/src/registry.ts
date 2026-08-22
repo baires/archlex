@@ -1,13 +1,17 @@
 import type {
   CallToolResult,
   GetPromptResult,
+  Progress,
   Prompt,
   ReadResourceResult,
   Resource,
   ServerCapabilities,
   Tool,
 } from "@modelcontextprotocol/server";
-import { DOC_RESOURCES } from "./generated/docs-resources.js";
+import {
+  ARCHLEX_PNG_ICON_DATA_URI,
+  DOC_RESOURCES,
+} from "./generated/docs-resources.js";
 import { SYSTEM_PROMPTS } from "./prompts.js";
 import { ARCHLEX_EXAMPLES, ARCHLEX_SYNTAX_GUIDE } from "./resources.js";
 import { logTelemetry } from "./security.js";
@@ -29,13 +33,35 @@ import {
 
 export const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagram requests; it performs syntax and semantic validation internally. Do not call validate_diagram first unless the user requests validation-only or rendering failed. Do not call get_cloud_catalog for common cloud services; when an identifier is unknown, call it once with a focused query. Canonical syntax: app: ecs["Next.js"] and cdn -[routes]-> app. Square brackets label nodes, not edges. render_diagram already returns an embedded image and playground_url, so do not call generate_playground_url after rendering. Display successful images inline. If rendering reports errors, repair from its diagnostics and retry once.`;
 
+function toolPresentation(
+  openWorldHint: boolean,
+): Pick<Tool, "annotations" | "icons"> {
+  return {
+    annotations: {
+      readOnlyHint: true,
+      destructiveHint: false,
+      idempotentHint: true,
+      openWorldHint,
+    },
+    icons: [
+      {
+        src: ARCHLEX_PNG_ICON_DATA_URI,
+        mimeType: "image/png",
+        sizes: ["180x180"],
+      },
+    ],
+  };
+}
+
 export interface RegistryOptions {
   enableMcpApps: boolean;
   signal?: AbortSignal;
+  onProgress?: (progress: Progress) => void;
 }
 
 export function registryCapabilities(): ServerCapabilities {
   return {
+    completions: {},
     tools: {},
     resources: {},
     prompts: {},
@@ -44,6 +70,7 @@ export function registryCapabilities(): ServerCapabilities {
 
 export function listTools(options: RegistryOptions): Tool[] {
   const renderDiagram: Tool = {
+    ...toolPresentation(true),
     name: "render_diagram",
     description:
       'Parse ArchLex DSL shorthand code, hydrate cloud service icons, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render a PNG diagram. **Display the image inline**, then include the exact final source in an `archlex` fenced code block; do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary. Workflow: call `get_cloud_catalog` first to discover exact resource kind names, iterate with `validate_diagram` until clean, then render — diagnostics are included in this tool\'s response, so rendering also confirms validity. Relationship kinds inside `-[kind]->` are single lowercase words (e.g. `writes`, `routes`); put free-form display text in pipes: `a -[writes]->|PostgreSQL| b`. Clients that cannot display images: pass `format: "svg"` to skip the PNG, save the returned SVG (in content or `structuredContent.svg`) to a `.svg` file, and open it with your own file/image tooling.',
@@ -111,6 +138,7 @@ export function listTools(options: RegistryOptions): Tool[] {
   return [
     renderDiagram,
     {
+      ...toolPresentation(false),
       name: "validate_diagram",
       description:
         "Perform fast syntax parsing and cloud semantic validation without rendering full SVG. On parse errors the response includes a `hint` field with the likely fix — use this tool to iterate on source before calling render_diagram.",
@@ -136,6 +164,7 @@ export function listTools(options: RegistryOptions): Tool[] {
       },
     },
     {
+      ...toolPresentation(false),
       name: "get_cloud_catalog",
       description:
         "Find provider resource identifiers and metadata when an identifier is unknown. Do not call for common services. Use query for compact results; an unfiltered request returns the large compatibility catalog.",
@@ -168,6 +197,7 @@ export function listTools(options: RegistryOptions): Tool[] {
       },
     },
     {
+      ...toolPresentation(false),
       name: "generate_playground_url",
       description:
         "Generate a playground deep link without rendering. Do not call it after render_diagram, because render_diagram already returns playground_url. Use only when the user wants an editable URL without an image.",
@@ -201,6 +231,7 @@ export async function callTool(
           {
             enableMcpApps: context.enableMcpApps,
             signal: context.signal,
+            onProgress: context.onProgress,
           },
         );
         break;
@@ -243,12 +274,25 @@ export async function callTool(
 }
 
 export function listResources(): Resource[] {
-  const syncedDocs = Object.values(DOC_RESOURCES).map((doc) => ({
-    uri: doc.uri,
-    name: doc.name,
-    mimeType: doc.mimeType,
-    description: doc.description,
-  }));
+  const syncedDocs = Object.values(DOC_RESOURCES).map(
+    (doc): Resource => ({
+      uri: doc.uri,
+      name: doc.name,
+      mimeType: doc.mimeType,
+      description: doc.description,
+      annotations: {
+        audience: ["user", "assistant"],
+        ...(doc.lastModified ? { lastModified: doc.lastModified } : {}),
+      },
+      icons: [
+        {
+          src: ARCHLEX_PNG_ICON_DATA_URI,
+          mimeType: "image/png" as const,
+          sizes: ["180x180"],
+        },
+      ],
+    }),
+  );
   return [
     {
       uri: DIAGRAM_VIEWER_URI,

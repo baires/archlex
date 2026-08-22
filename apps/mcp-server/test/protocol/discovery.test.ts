@@ -52,6 +52,7 @@ describe("server/discover", () => {
       resultType: "complete",
       supportedVersions: [...SUPPORTED_PROTOCOL_VERSIONS],
       capabilities: {
+        completions: {},
         tools: {},
         resources: {},
         prompts: {},
@@ -65,6 +66,7 @@ describe("server/discover", () => {
     expect(result.instructions).toContain("Use render_diagram directly");
     expect(result).not.toHaveProperty("protocolVersion");
     expect(result.capabilities).toEqual({
+      completions: {},
       tools: {},
       resources: {},
       prompts: {},
