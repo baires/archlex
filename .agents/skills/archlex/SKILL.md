@@ -14,25 +14,33 @@ validation against AWS, GCP, and Kubernetes catalogs.
 
 ## Workflow
 
-Always follow this order — guessing service names is the top cause of errors:
+For a normal diagram request:
 
-1. **Discover** — call `get_cloud_catalog` with the target provider to get
-   exact resource kind names (`ecs`, `ebs`, `alb`, ...), containment scopes,
-   and relationship kinds.
-2. **Author** — write the ArchLex source (quick reference below; full details
-   in [references/dsl.md](references/dsl.md)).
-3. **Validate** — call `validate_diagram` and iterate until `error_count` is 0.
-   When the response contains a `hint` field, apply it — it describes the
-   likely fix for parse errors.
-4. **Render** — call `render_diagram`. Its response also includes diagnostics,
-   so a successful render confirms validity.
-5. **Share** — the render response includes `playground_url`, a deep link that
-   opens the diagram in the interactive web playground.
-   `generate_playground_url` produces the same link without rendering.
+1. **Author** — write the ArchLex source (quick reference below; full details
+   in [references/dsl.md](references/dsl.md)). Use familiar catalog identifiers
+   directly instead of making exploratory calls for common services.
+2. **Render** — call `render_diagram` directly. It performs syntax and semantic
+   validation internally, so a successful render confirms validity.
+3. **Repair once if needed** — apply the returned diagnostics and retry. When a
+   parse error includes `hint`, use it as the likely correction.
+4. **Present** — display the returned image inline, followed by the exact final
+   source in an `archlex` fence and the returned `playground_url`.
+
+Use the supporting tools only when their condition applies:
+
+- If a resource identifier, containment rule, or relationship kind is unknown,
+  call `get_cloud_catalog` once with a focused provider/query, then render.
+- For validation-only requests, call `validate_diagram` and report its result
+  without rendering. After a failed render, it may also help isolate errors;
+  iterate until `error_count` is 0 before retrying the render.
+- For link-only requests, call `generate_playground_url`. Never call it after
+  `render_diagram`, because rendering already returns the same deep link.
 
 ## MCP tools
 
-Remote endpoint: `https://mcp.archlex.dev/mcp` (Streamable HTTP transport).
+Modern endpoint: `POST https://mcp.archlex.dev/mcp` using Streamable HTTP and
+protocol version `2026-07-28`. The `/sse` and `/messages` routes are deprecated
+compatibility endpoints; do not use them for new integrations.
 
 | Tool | Purpose |
 | --- | --- |
@@ -54,6 +62,11 @@ Remote endpoint: `https://mcp.archlex.dev/mcp` (Streamable HTTP transport).
   `.svg` file and view it with your own file tooling.
 - Never paste raw SVG or JSON metadata to the user. Show the image (or saved
   file) plus the final source in an `archlex` fenced code block.
+- A successful modern response has `resultType: "complete"`; read the image
+  from `content` and the exact source, diagnostics, counts, and
+  `playground_url` from `structuredContent`.
+- Clients may include `_meta.progressToken` to receive request-scoped SSE
+  progress for parsing, validation, icon hydration, layout, and rendering.
 
 ## DSL quick reference
 
