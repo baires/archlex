@@ -51,6 +51,12 @@ export function completeResult<T extends Record<string, unknown>>(
   if (options?.cacheable && !options.cache) {
     throw new TypeError("Cache hints are required for a cacheable result");
   }
+  if (
+    options?.cacheable &&
+    ("inputResponses" in payload || "requestState" in payload)
+  ) {
+    throw new TypeError("Results carrying retry material cannot be cached");
+  }
   return {
     ...payload,
     resultType: "complete",

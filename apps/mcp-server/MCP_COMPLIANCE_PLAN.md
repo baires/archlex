@@ -17,7 +17,7 @@ keep commit messages and body short, to the point
 ## Global Constraints
 
 - Modern protocol version: exactly `2026-07-28`.
-- Only advertise protocol versions covered by conformance tests.
+- Advertise only conformance-tested modern revisions through `server/discover`; negotiate legacy revisions only through legacy `initialize`.
 - Modern MCP is stateless. Never infer version, capabilities, identity, task, thread, or conversation from a prior request or connection.
 - Every modern request MUST contain `params._meta["io.modelcontextprotocol/protocolVersion"]` and `params._meta["io.modelcontextprotocol/clientCapabilities"]`.
 - Every successful modern result MUST contain `resultType: "complete"` or `resultType: "input_required"`.
@@ -202,27 +202,27 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `paginate(items, cursor, pageSize)` with opaque stable cursors.
 
-- [ ] Cover first, middle, final, and invalid cursors for `tools/list`, `resources/list`, and `prompts/list`.
-- [ ] Preserve deterministic tool ordering across requests and deployments.
-- [ ] Add required `ttlMs` and `cacheScope` to `server/discover`, `tools/list`, `resources/list`, `resources/read`, and `prompts/list` complete results.
-- [ ] Task 13 MUST use the same pagination/cache wrapper when it introduces `resources/templates/list`.
-- [ ] Vary cache identity by method and every result-affecting parameter, including cursor and URI.
-- [ ] Never cache results carrying `inputResponses` or `requestState`.
-- [ ] Use `public` only for identical non-sensitive output; use `private` for user-, tenant-, auth-, or environment-dependent output.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- pagination-cache`.
+- [x] Cover first, middle, final, and invalid cursors for `tools/list`, `resources/list`, and `prompts/list` (the current single-prompt registry has the same first/final page).
+- [x] Preserve deterministic tool ordering across requests and deployments.
+- [x] Add required `ttlMs` and `cacheScope` to `server/discover`, `tools/list`, `resources/list`, `resources/read`, and `prompts/list` complete results.
+- [x] Expose the shared pagination/cache wrapper that Task 13 MUST reuse when it introduces `resources/templates/list`.
+- [x] Vary cache identity by method and every result-affecting parameter, including cursor and URI.
+- [x] Never cache results carrying `inputResponses` or `requestState`.
+- [x] Use `public` only for identical non-sensitive output; use `private` for user-, tenant-, auth-, or environment-dependent output.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- pagination-cache`.
 - [ ] Commit: `feat(mcp): paginate and cache advertised results`.
 
 ### Task 9: Normalize tools, resources, and prompts
 
 **Files:** Modify `src/registry.ts` and `src/protocol/router.ts`; test `test/protocol/server-features.test.ts`.
 
-- [ ] Test all implemented tool, resource, and prompt methods against official message shapes.
-- [ ] Ensure every successful result has `resultType: "complete"` and server metadata.
-- [ ] Return resource/prompt not found as `-32602` with identifying data, not generic thrown errors.
-- [ ] Validate resource URIs and tool/prompt arguments before domain execution.
-- [ ] Validate tool schemas as JSON Schema 2020-12 and validate `structuredContent` against `outputSchema` when declared.
-- [ ] Advertise list-change/subscribe capabilities as false or omitted until real notification support exists.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- server-features`.
+- [x] Test all implemented tool, resource, and prompt methods against official message shapes.
+- [x] Ensure every successful result has `resultType: "complete"` and server metadata.
+- [x] Return resource/prompt not found as `-32602` with identifying data, not generic thrown errors.
+- [x] Validate resource URIs and tool/prompt arguments before domain execution.
+- [x] Validate tool schemas as JSON Schema 2020-12 and validate `structuredContent` against `outputSchema` when declared.
+- [x] Advertise list-change/subscribe capabilities as false or omitted until real notification support exists.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- server-features`.
 - [ ] Commit: `feat(mcp): normalize server feature results`.
 
 ### Task 10: Implement request-scoped subscriptions
@@ -231,17 +231,17 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `listenForNotifications(requestId, requestedFilter, streamContext)`.
 
-- [ ] Support filters `toolsListChanged`, `promptsListChanged`, `resourcesListChanged`, and `resourceSubscriptions`.
-- [ ] Send `notifications/subscriptions/acknowledged` first.
-- [ ] Set `io.modelcontextprotocol/subscriptionId` to the listen request ID on acknowledgment, all notifications, and graceful completion.
-- [ ] Acknowledge only the supported subset and never emit unrequested types.
-- [ ] Keep state inside the long-lived request, never the global legacy session map.
-- [ ] On server shutdown, send a final `resultType: "complete"` when practical.
-- [ ] On HTTP disconnect, stop and send no more messages.
-- [ ] Add `X-Accel-Buffering: no` and periodic SSE comment keep-alives without SSE event IDs.
-- [ ] Never send request-scoped progress/log notifications on this stream.
-- [ ] If no real change-event source exists, acknowledge an empty subset and omit capability flags rather than simulating events.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- subscriptions`.
+- [x] Support filters `toolsListChanged`, `promptsListChanged`, `resourcesListChanged`, and `resourceSubscriptions`.
+- [x] Send `notifications/subscriptions/acknowledged` first.
+- [x] Set `io.modelcontextprotocol/subscriptionId` to the listen request ID on acknowledgment, all notifications, and graceful completion.
+- [x] Acknowledge only the supported subset and never emit unrequested types.
+- [x] Keep state inside the long-lived request, never the global legacy session map.
+- [x] On server shutdown, send a final `resultType: "complete"` when practical.
+- [x] On HTTP disconnect, stop and send no more messages.
+- [x] Add `X-Accel-Buffering: no` and periodic SSE comment keep-alives without SSE event IDs.
+- [x] Never send request-scoped progress/log notifications on this stream.
+- [x] If no real change-event source exists, acknowledge an empty subset and omit capability flags rather than simulating events.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- subscriptions`.
 - [ ] Commit: `feat(mcp): add request-scoped subscriptions`.
 
 ### Task 11: Implement transport cancellation and timeouts
@@ -250,13 +250,13 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** An `AbortSignal` in the domain request context.
 
-- [ ] Treat closing a modern HTTP SSE response as cancellation of only that request, clean up, and emit no later response.
-- [ ] Do not expect `notifications/cancelled` on modern Streamable HTTP.
-- [ ] Preserve cancellation notifications only on legacy/stdio transports that require them.
-- [ ] Add abort checks between parsing, validation, icon hydration, layout, and rendering.
-- [ ] Add configurable per-request and absolute maximum timeouts using the same abort path.
-- [ ] Test races after completion and unknown IDs without leaks or double responses.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- cancellation`.
+- [x] Treat closing a modern HTTP SSE response as cancellation of only that request, clean up, and emit no later response.
+- [x] Do not expect `notifications/cancelled` on modern Streamable HTTP.
+- [x] Preserve cancellation notifications only on legacy/stdio transports that require them.
+- [x] Add abort checks between parsing, validation, icon hydration, layout, and rendering.
+- [x] Add configurable per-request and absolute maximum timeouts using the same abort path.
+- [x] Test completion/disconnect races without leaks or double responses; modern handling has no request-ID cancellation map in which unknown IDs can accumulate.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- cancellation`.
 - [ ] Commit: `feat(mcp): propagate request cancellation`.
 
 ---

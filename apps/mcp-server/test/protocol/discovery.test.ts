@@ -52,9 +52,9 @@ describe("server/discover", () => {
       resultType: "complete",
       supportedVersions: [...SUPPORTED_PROTOCOL_VERSIONS],
       capabilities: {
-        tools: { listChanged: false },
-        resources: { listChanged: false, subscribe: false },
-        prompts: { listChanged: false },
+        tools: {},
+        resources: {},
+        prompts: {},
       },
       ttlMs: 3_600_000,
       cacheScope: "public",
@@ -64,6 +64,11 @@ describe("server/discover", () => {
     });
     expect(result.instructions).toContain("Use render_diagram directly");
     expect(result).not.toHaveProperty("protocolVersion");
+    expect(result.capabilities).toEqual({
+      tools: {},
+      resources: {},
+      prompts: {},
+    });
   });
 
   test("derives advertised capabilities from the shared registry", async () => {
@@ -81,10 +86,7 @@ describe("server/discover", () => {
     };
     expect(body.id).toBe("discover-1");
     expect(body.result.resultType).toBe("complete");
-    expect(body.result.supportedVersions).toEqual([
-      MODERN_PROTOCOL_VERSION,
-      "2025-03-26",
-    ]);
+    expect(body.result.supportedVersions).toEqual([MODERN_PROTOCOL_VERSION]);
   });
 
   test("rejects method-specific discovery parameters", async () => {

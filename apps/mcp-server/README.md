@@ -127,6 +127,8 @@ Open access by default. Configure Worker environment variables for private deplo
 - `MCP_AUTH_TOKEN` (optional): Secret key required via `Authorization: Bearer <token>` or `?token=<token>`.
 - `ALLOWED_ORIGINS` (optional): Comma-separated CORS allowed origins list.
 - `RATE_LIMIT_MAX_REQUESTS` (optional): Max requests per 60s per IP (default: `60`).
+- `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests (default: `30000`).
+- `MCP_MAX_REQUEST_TIMEOUT_MS` (optional): Deployment-specific timeout ceiling, capped at `120000` milliseconds (default: `120000`).
 - `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer metadata (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). When disabled, only the Direct Rendering Path is advertised, ensuring compatibility with all current clients.
 
 ## Development

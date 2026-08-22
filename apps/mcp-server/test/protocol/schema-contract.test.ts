@@ -67,10 +67,7 @@ describe("MCP 2026-07-28 official contract", () => {
   test("validates discovery with the official schema", () => {
     const parsed = DiscoverResultSchema.parse(VALID_DISCOVER_RESULT);
     expect(parsed.supportedVersions).toEqual([MODERN_PROTOCOL_VERSION]);
-    expect(parsed.capabilities.resources).toEqual({
-      listChanged: false,
-      subscribe: false,
-    });
+    expect(parsed.capabilities.resources).toEqual({});
   });
 
   test("validates subscription filters with string resource URIs", () => {

@@ -49,6 +49,7 @@ export interface RenderDiagramArgs {
 
 export interface RenderDiagramOptions {
   enableMcpApps?: boolean;
+  signal?: AbortSignal;
   iconLoader?: IconLoader;
   iconHydrationTimeoutMs?: number;
   fontBuffers?: Uint8Array[];
@@ -128,17 +129,31 @@ async function loadIconsBeforeDeadline(
   iconLoader: IconLoader,
   requests: Parameters<IconLoader["loadIcons"]>[0],
   timeoutMs: number,
+  signal?: AbortSignal,
 ) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const relayAbort = (): void => controller.abort(signal?.reason);
+  signal?.addEventListener("abort", relayAbort, { once: true });
+  if (signal?.aborted) relayAbort();
+  const timeout = setTimeout(
+    () =>
+      controller.abort(
+        new DOMException("Icon hydration timed out", "TimeoutError"),
+      ),
+    timeoutMs,
+  );
   try {
     return await iconLoader.loadIcons(requests, {
       signal: controller.signal,
     });
-  } catch {
+  } catch (error: unknown) {
+    if (signal?.aborted) {
+      throw signal.reason ?? error;
+    }
     return undefined;
   } finally {
     clearTimeout(timeout);
+    signal?.removeEventListener("abort", relayAbort);
   }
 }
 
@@ -155,6 +170,7 @@ export async function handleRenderDiagram(
   args: RenderDiagramArgs,
   options?: RenderDiagramOptions,
 ) {
+  options?.signal?.throwIfAborted();
   const { source, theme, direction, validation, format = "png" } = args;
 
   if (!source || typeof source !== "string") {
@@ -168,6 +184,7 @@ export async function handleRenderDiagram(
   }
 
   const prepared = archlex.prepare(source, { validation });
+  options?.signal?.throwIfAborted();
   const iconLoader = options?.iconLoader ?? defaultIconLoader;
   const iconLoad =
     prepared.iconRequests.length > 0
@@ -175,8 +192,10 @@ export async function handleRenderDiagram(
           iconLoader,
           prepared.iconRequests,
           options?.iconHydrationTimeoutMs ?? ICON_HYDRATION_TIMEOUT_MS,
+          options?.signal,
         )
       : undefined;
+  options?.signal?.throwIfAborted();
   if (iconLoad?.diagnostics.length) {
     console.warn(
       JSON.stringify({
@@ -189,7 +208,9 @@ export async function handleRenderDiagram(
     theme,
     direction,
     icons: iconLoad?.icons,
+    signal: options?.signal,
   });
+  options?.signal?.throwIfAborted();
 
   const encodedSource = encodeURIComponent(source);
   const playgroundUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
@@ -243,9 +264,11 @@ export async function handleRenderDiagram(
   }
 
   // Rasterization is the expensive path; SVG-only clients above skipped it.
+  options?.signal?.throwIfAborted();
   const base64Png = bytesToBase64(
     await rasterizeSvg(result.svg, options?.fontBuffers),
   );
+  options?.signal?.throwIfAborted();
 
   return {
     content: [

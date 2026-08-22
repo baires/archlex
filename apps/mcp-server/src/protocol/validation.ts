@@ -5,8 +5,10 @@ import {
   ProgressTokenSchema,
 } from "@modelcontextprotocol/core";
 import type {
+  CallToolResult,
   ClientCapabilities,
   JsonSchemaType,
+  Tool,
 } from "@modelcontextprotocol/server";
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/server/validators/cf-worker";
 import {
@@ -176,5 +178,19 @@ export function validateJsonSchema(
         reason: result.errorMessage,
       });
     }
+  }
+}
+
+export function validateToolResult(tool: Tool, result: CallToolResult): void {
+  if (!tool.outputSchema) return;
+  try {
+    validateJsonSchema(tool.outputSchema, result.structuredContent);
+  } catch {
+    throw new McpProtocolError(
+      JSONRPC_ERROR_CODES.INTERNAL_ERROR,
+      `Tool '${tool.name}' returned structuredContent that does not match its outputSchema`,
+      500,
+      { tool: tool.name },
+    );
   }
 }

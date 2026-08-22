@@ -12,17 +12,12 @@
 export const MODERN_PROTOCOL_VERSION = "2026-07-28" as const;
 
 /**
- * Ordered list of protocol versions this server supports.
- * Only includes versions covered by conformance tests.
- *
- * Currently supports:
- * - 2026-07-28: Modern stateless protocol with per-request metadata
- * - 2025-03-26: Legacy initialization-era protocol (via SDK)
+ * Ordered modern revisions advertised by server/discover and returned in
+ * unsupported-version errors. Legacy revisions are negotiated separately.
  */
-export const SUPPORTED_PROTOCOL_VERSIONS = [
-  MODERN_PROTOCOL_VERSION,
-  "2025-03-26",
-] as const;
+export const SUPPORTED_PROTOCOL_VERSIONS = [MODERN_PROTOCOL_VERSION] as const;
+
+export const LEGACY_PROTOCOL_VERSIONS = ["2025-03-26"] as const;
 
 /**
  * Metadata keys used in modern MCP requests and responses

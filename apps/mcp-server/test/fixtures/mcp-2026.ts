@@ -33,9 +33,9 @@ export const VALID_INPUT_REQUIRED_RESULT = inputRequired({
 export const VALID_DISCOVER_RESULT = {
   supportedVersions: ["2026-07-28"],
   capabilities: {
-    tools: { listChanged: false },
-    resources: { listChanged: false, subscribe: false },
-    prompts: { listChanged: false },
+    tools: {},
+    resources: {},
+    prompts: {},
   },
   instructions: "Use render_diagram for ArchLex diagrams.",
 };

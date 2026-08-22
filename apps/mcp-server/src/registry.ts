@@ -31,13 +31,14 @@ export const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagr
 
 export interface RegistryOptions {
   enableMcpApps: boolean;
+  signal?: AbortSignal;
 }
 
 export function registryCapabilities(): ServerCapabilities {
   return {
-    tools: { listChanged: false },
-    resources: { listChanged: false, subscribe: false },
-    prompts: { listChanged: false },
+    tools: {},
+    resources: {},
+    prompts: {},
   };
 }
 
@@ -191,6 +192,7 @@ export async function callTool(
 ): Promise<CallToolResult> {
   const startTime = performance.now();
   try {
+    context.signal?.throwIfAborted();
     let result: CallToolResult;
     switch (name) {
       case "render_diagram":
@@ -198,6 +200,7 @@ export async function callTool(
           args as unknown as RenderDiagramArgs,
           {
             enableMcpApps: context.enableMcpApps,
+            signal: context.signal,
           },
         );
         break;
@@ -207,7 +210,9 @@ export async function callTool(
         );
         break;
       case "get_cloud_catalog":
-        result = await handleGetCatalog(args as unknown as GetCatalogArgs);
+        result = await handleGetCatalog(args as unknown as GetCatalogArgs, {
+          signal: context.signal,
+        });
         break;
       case "generate_playground_url":
         result = await handleGeneratePlaygroundUrl(
@@ -217,6 +222,8 @@ export async function callTool(
       default:
         throw new Error(`Unknown tool name: ${name}`);
     }
+
+    context.signal?.throwIfAborted();
 
     logTelemetry("tool_invocation", {
       tool: name,
