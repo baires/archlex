@@ -1,14 +1,46 @@
 # @archlex/mcp-server
 
-Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Workers (`mcp.archlex.dev`).
+Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Workers (`mcp.archlex.dev`), compliant with MCP specification revision `2026-07-28`.
 
 ## Live Endpoints
 
-- `GET|POST|DELETE /mcp` – Streamable HTTP transport (recommended)
-- `GET /health` – Health check and auth status
-- `GET /info` – Server capability metadata & tool listing
-- `GET /sse` – Legacy Server-Sent Events stream initialization (kept for backward compatibility)
-- `POST /messages` – Legacy JSON-RPC message handler (session & stateless fallback)
+- `POST /mcp` – Stateless modern Streamable HTTP transport (recommended; GET and DELETE return HTTP 405 Method Not Allowed).
+- `GET /health` – Server health, supported cloud providers (`aws`, `gcp`, `k8s`), and auth status.
+- `GET /info` – Server metadata, endpoint URLs, and tool listing.
+- `GET /sse` – **Deprecated** legacy Server-Sent Events stream initialization (isolated backward compatibility route; slated for removal in a future major release).
+- `POST /messages` – **Deprecated** legacy JSON-RPC message handler for session-based clients.
+
+## MCP 2026-07-28 Protocol Specifications
+
+The server implements the mandatory base protocol and advertised capabilities under revision `2026-07-28`:
+
+### Stateless Streamable HTTP Transport (`/mcp`)
+- Modern requests do not use sessions, session cookies, or `Mcp-Session-Id`. Every request is standalone and independently authenticated and routed.
+- Every modern JSON-RPC request POST validates mirrored HTTP headers matching body metadata:
+  - `MCP-Protocol-Version`: Exactly `2026-07-28`
+  - `Mcp-Method`: Exact JSON-RPC method name (e.g. `tools/call`, `resources/read`, `server/discover`)
+  - `Mcp-Name`: Tool name for `tools/call`, URI for `resources/read`, or prompt name for `prompts/get`
+  - `Accept`: Must negotiate both `application/json` and `text/event-stream`
+- Responses are delivered as a single JSON object or as a request-scoped SSE stream (for progress notifications or subscriptions). Accepted notifications return HTTP 202 with an empty body.
+
+### Request Metadata (`_meta`)
+Every modern JSON-RPC request MUST supply the following in `params._meta`:
+- `io.modelcontextprotocol/protocolVersion`: `"2026-07-28"`
+- `io.modelcontextprotocol/clientCapabilities`: Declared client capability object (e.g. `{}`)
+- `io.modelcontextprotocol/clientInfo` (optional): Informational client name and version
+- `progressToken` (optional): Token to enable request-scoped progress streaming
+
+### Result Envelopes, Caching & Pagination
+- All successful modern responses include `resultType: "complete"` or `resultType: "input_required"` and server identity in `_meta["io.modelcontextprotocol/serverInfo"]`.
+- Cacheable operations (`server/discover`, `tools/list`, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`) publish explicit cache hints (`ttlMs: 3600000`, `cacheScope: "public"`).
+- List endpoints support deterministic ordering and pagination using opaque stable `cursor` tokens.
+
+### Migration Guidance from Legacy Clients
+Legacy clients that send `initialize` without per-request metadata continue to work through the isolated legacy adapter (`2025-03-26`). To migrate:
+1. Send JSON-RPC requests directly to `POST /mcp` without calling `initialize`.
+2. Include `MCP-Protocol-Version: 2026-07-28`, `Mcp-Method`, and applicable `Mcp-Name` headers.
+3. Include `_meta["io.modelcontextprotocol/protocolVersion"] = "2026-07-28"` and `_meta["io.modelcontextprotocol/clientCapabilities"]` in `params`.
+4. Handle the unified `resultType: "complete"` envelope.
 
 ## Client Configuration
 
@@ -65,6 +97,14 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 - `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
 - `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
 - `generate_playground_url({ source })` – Deep-link URL to `playground.archlex.dev`.
+
+## Modern Protocol Features
+
+- `render_diagram` emits five monotonic request-scoped progress notifications when the request includes `_meta.progressToken`. They arrive on the originating POST response stream before the final result.
+- `resources/templates/list` publishes `archlex://docs/{+path}` and `archlex://examples/{name}` with pagination and public cache hints.
+- `completion/complete` suggests declared prompt arguments and published resource-template variables. Tool arguments use their JSON Schema enums and are not completion targets.
+- Tool definitions include read-only/idempotency hints and a bounded PNG icon. Synced documentation resources include version-control-derived `lastModified` annotations; static resources remain valid without presentation metadata.
+- Subscriptions (`subscriptions/listen`) support request-scoped long-lived streams with initial acknowledgment and keep-alives. Note that ArchLex diagrams do not use deprecated MCP Logging or fake list-change events.
 
 ## Rendering Modes
 
@@ -127,6 +167,8 @@ Open access by default. Configure Worker environment variables for private deplo
 - `MCP_AUTH_TOKEN` (optional): Secret key required via `Authorization: Bearer <token>` or `?token=<token>`.
 - `ALLOWED_ORIGINS` (optional): Comma-separated CORS allowed origins list.
 - `RATE_LIMIT_MAX_REQUESTS` (optional): Max requests per 60s per IP (default: `60`).
+- `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests (default: `30000`).
+- `MCP_MAX_REQUEST_TIMEOUT_MS` (optional): Deployment-specific timeout ceiling, capped at `120000` milliseconds (default: `120000`).
 - `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer metadata (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). When disabled, only the Direct Rendering Path is advertised, ensuring compatibility with all current clients.
 
 ## Development

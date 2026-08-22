@@ -12,7 +12,7 @@ const archlex = createArchLex({
 const archlexDocuments = [
   "packages/cli/examples/aws-serverless-api.archlex",
   "packages/cli/examples/k8s-microservices.archlex",
-  "apps/landing/public/diagrams/multi-region.archlex",
+  "packages/cli/examples/gcp-microservices.archlex",
 ];
 
 const markdownDocuments = [

@@ -10,6 +10,7 @@ import { type IconLoader, createIconLoader } from "@archlex/icons-core";
 import { K8S_CDN_PROVIDER } from "@archlex/k8s";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import { Resvg } from "@cf-wasm/resvg";
+import type { Progress } from "@modelcontextprotocol/server";
 import interRegular from "inter-font/ttf/Inter-Regular.ttf";
 import interSemiBold from "inter-font/ttf/Inter-SemiBold.ttf";
 
@@ -49,9 +50,15 @@ export interface RenderDiagramArgs {
 
 export interface RenderDiagramOptions {
   enableMcpApps?: boolean;
+  signal?: AbortSignal;
   iconLoader?: IconLoader;
   iconHydrationTimeoutMs?: number;
   fontBuffers?: Uint8Array[];
+  onProgress?: (progress: Progress) => void;
+  rasterizer?: (
+    svg: string,
+    suppliedFontBuffers?: Uint8Array[],
+  ) => Promise<Uint8Array>;
 }
 
 const MAX_SOURCE_LENGTH = 100_000;
@@ -128,17 +135,31 @@ async function loadIconsBeforeDeadline(
   iconLoader: IconLoader,
   requests: Parameters<IconLoader["loadIcons"]>[0],
   timeoutMs: number,
+  signal?: AbortSignal,
 ) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const relayAbort = (): void => controller.abort(signal?.reason);
+  signal?.addEventListener("abort", relayAbort, { once: true });
+  if (signal?.aborted) relayAbort();
+  const timeout = setTimeout(
+    () =>
+      controller.abort(
+        new DOMException("Icon hydration timed out", "TimeoutError"),
+      ),
+    timeoutMs,
+  );
   try {
     return await iconLoader.loadIcons(requests, {
       signal: controller.signal,
     });
-  } catch {
+  } catch (error: unknown) {
+    if (signal?.aborted) {
+      throw signal.reason ?? error;
+    }
     return undefined;
   } finally {
     clearTimeout(timeout);
+    signal?.removeEventListener("abort", relayAbort);
   }
 }
 
@@ -155,6 +176,7 @@ export async function handleRenderDiagram(
   args: RenderDiagramArgs,
   options?: RenderDiagramOptions,
 ) {
+  options?.signal?.throwIfAborted();
   const { source, theme, direction, validation, format = "png" } = args;
 
   if (!source || typeof source !== "string") {
@@ -167,7 +189,10 @@ export async function handleRenderDiagram(
     );
   }
 
+  options?.onProgress?.({ progress: 1, total: 5, message: "Parsing" });
   const prepared = archlex.prepare(source, { validation });
+  options?.onProgress?.({ progress: 2, total: 5, message: "Validating" });
+  options?.signal?.throwIfAborted();
   const iconLoader = options?.iconLoader ?? defaultIconLoader;
   const iconLoad =
     prepared.iconRequests.length > 0
@@ -175,8 +200,15 @@ export async function handleRenderDiagram(
           iconLoader,
           prepared.iconRequests,
           options?.iconHydrationTimeoutMs ?? ICON_HYDRATION_TIMEOUT_MS,
+          options?.signal,
         )
       : undefined;
+  options?.onProgress?.({
+    progress: 3,
+    total: 5,
+    message: "Hydrating icons",
+  });
+  options?.signal?.throwIfAborted();
   if (iconLoad?.diagnostics.length) {
     console.warn(
       JSON.stringify({
@@ -185,11 +217,14 @@ export async function handleRenderDiagram(
       }),
     );
   }
+  options?.onProgress?.({ progress: 4, total: 5, message: "Laying out" });
   const result = await archlex.renderPrepared(prepared, {
     theme,
     direction,
     icons: iconLoad?.icons,
+    signal: options?.signal,
   });
+  options?.signal?.throwIfAborted();
 
   const encodedSource = encodeURIComponent(source);
   const playgroundUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
@@ -221,10 +256,11 @@ export async function handleRenderDiagram(
   ).length;
   const summary = hasErrors
     ? `✗ Rendering failed: ${errorCount} error${errorCount === 1 ? "" : "s"}`
-    : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}`;
+    : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}. Always display or embed the rendered diagram image inline in your response to the user.`;
   const textSummary = `${summary}\n\n${formatSourceBlock(source)}`;
 
   if (format === "svg") {
+    options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
     return {
       content: [
         {
@@ -243,9 +279,13 @@ export async function handleRenderDiagram(
   }
 
   // Rasterization is the expensive path; SVG-only clients above skipped it.
+  options?.signal?.throwIfAborted();
+  const rasterizer = options?.rasterizer ?? rasterizeSvg;
   const base64Png = bytesToBase64(
-    await rasterizeSvg(result.svg, options?.fontBuffers),
+    await rasterizer(result.svg, options?.fontBuffers),
   );
+  options?.signal?.throwIfAborted();
+  options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
 
   return {
     content: [

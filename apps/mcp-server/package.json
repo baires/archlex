@@ -1,6 +1,6 @@
 {
   "name": "@archlex/mcp-server",
-  "version": "0.1.10",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
@@ -25,8 +25,11 @@
     "@archlex/layout-elk": "workspace:*",
     "@archlex/model": "workspace:*",
     "@cf-wasm/resvg": "0.4.0",
-    "@modelcontextprotocol/sdk": "^1.5.0",
-    "inter-font": "3.19.0"
+    "@modelcontextprotocol/core": "2.0.0",
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "inter-font": "3.19.0",
+    "zod": "^4.2.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",

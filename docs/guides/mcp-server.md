@@ -1,6 +1,7 @@
 ---
 title: Remote MCP Server
 description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams."
+lastModified: 2026-08-22T14:00:00-03:00
 ---
 
 # Remote MCP Server
@@ -43,7 +44,7 @@ use Streamable HTTP.
 
 | Endpoint | Methods | Purpose |
 | --- | --- | --- |
-| `/mcp` | `GET`, `POST`, `DELETE` | Streamable HTTP transport |
+| `/mcp` | `POST` | Modern Streamable HTTP transport; GET and DELETE return 405 |
 | `/health` | `GET` | Health, providers, and auth status |
 | `/info` | `GET` | Server metadata, capabilities, and URLs |
 | `/sse` | `GET` | Legacy event stream |
@@ -103,6 +104,15 @@ three example resources:
 
 The `architect_cloud_infrastructure` prompt accepts `aws`, `gcp`, or `k8s` and
 asks the model to return valid ArchLex source.
+
+Modern clients can list the `archlex://docs/{+path}` and
+`archlex://examples/{name}` RFC 6570 resource templates. The
+`completion/complete` method suggests prompt arguments and template variables;
+tool arguments continue to use JSON Schema enums.
+
+When `render_diagram` receives `_meta.progressToken`, it streams monotonic
+parsing, validation, icon hydration, layout, and rendering notifications on the
+originating POST response before its final tool result.
 
 ## Security
 

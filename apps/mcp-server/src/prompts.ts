@@ -35,7 +35,7 @@ Rules:
 Workflow:
 1. Call \`get_cloud_catalog\` for provider '${args.provider}' first to discover exact resource kind names before authoring.
 2. Draft the source, then iterate with \`validate_diagram\` until it reports 0 errors.
-3. Finally call \`render_diagram\` (it also returns diagnostics, so a single call confirms the result).`,
+3. Finally call \`render_diagram\` (it also returns diagnostics, so a single call confirms the result). Always display or embed the rendered diagram image inline in your response to the user, accompanied by the playground link.`,
         },
       },
     ],

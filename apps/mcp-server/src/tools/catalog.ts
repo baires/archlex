@@ -18,6 +18,10 @@ export interface GetCatalogArgs {
   limit?: number;
 }
 
+export interface GetCatalogOptions {
+  signal?: AbortSignal;
+}
+
 interface CatalogMatch extends CatalogResourceMetadata {
   provider: string;
 }
@@ -43,10 +47,15 @@ function matchesQuery(
   return searchable.some((value) => normalize(value).includes(query));
 }
 
-export async function handleGetCatalog(args: GetCatalogArgs = {}) {
+export async function handleGetCatalog(
+  args: GetCatalogArgs = {},
+  options: GetCatalogOptions = {},
+) {
+  options.signal?.throwIfAborted();
   const { provider = "all", query, category } = args;
 
   const catalog = archlex.getCatalog(provider);
+  options.signal?.throwIfAborted();
 
   const normalizedQuery = query ? normalize(query) : "";
   const normalizedCategory = category ? normalize(category) : "";
@@ -58,7 +67,9 @@ export async function handleGetCatalog(args: GetCatalogArgs = {}) {
     const matches: CatalogMatch[] = [];
 
     for (const providerCatalog of Object.values(catalog.providers)) {
+      options.signal?.throwIfAborted();
       for (const service of providerCatalog.services) {
+        options.signal?.throwIfAborted();
         if (
           normalizedCategory &&
           normalize(service.category) !== normalizedCategory
@@ -73,6 +84,8 @@ export async function handleGetCatalog(args: GetCatalogArgs = {}) {
       }
       if (matches.length >= limit) break;
     }
+
+    options.signal?.throwIfAborted();
 
     return {
       content: [
@@ -94,6 +107,7 @@ export async function handleGetCatalog(args: GetCatalogArgs = {}) {
     };
   }
 
+  options.signal?.throwIfAborted();
   return {
     content: [
       {

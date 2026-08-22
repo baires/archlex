@@ -59,7 +59,7 @@ describe("ArchLex MCP Server Tools", () => {
       if (textContent.type !== "text") throw new Error("Expected text content");
 
       expect(textContent.text).toMatch(
-        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?\n\n```archlex\n/,
+        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?/,
       );
       expect(
         textContent.text.endsWith(`\n\n\`\`\`archlex\n${source}\n\`\`\``),
@@ -752,7 +752,13 @@ describe("Streamable HTTP endpoint", () => {
     );
 
     expect(descriptions.render_diagram).toContain(
-      "call `get_cloud_catalog` first",
+      "Call `render_diagram` directly for normal diagram requests",
+    );
+    expect(descriptions.render_diagram).toContain(
+      "When a resource identifier is unknown",
+    );
+    expect(descriptions.render_diagram).toContain(
+      "Do not call `validate_diagram` first",
     );
     expect(descriptions.render_diagram).toContain('format: "svg"');
     expect(descriptions.validate_diagram).toContain("hint");

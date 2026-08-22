@@ -46,8 +46,8 @@ contents, security group rules, routes, or runtime configuration.
   catalog containment.
 
 Typical kinds: `cloud-run`, `cloud-functions`, `pubsub`, `bigquery`,
-`cloud-storage`, `gke`. Query `get_cloud_catalog` with `gcp` for the current
-list.
+`cloud-storage`, `gke`. When an identifier is uncertain, query
+`get_cloud_catalog` with `gcp` and a focused search term.
 
 ## Kubernetes
 
@@ -75,7 +75,11 @@ descriptive kind.
 
 ## Catalog discovery
 
-Prefer `get_cloud_catalog` over memory when authoring:
+Use familiar canonical identifiers directly. When a resource identifier,
+containment rule, or relationship kind is uncertain, call
+`get_cloud_catalog` once with a focused provider/query rather than guessing.
+Use an unfiltered catalog request only when the user explicitly wants to
+browse the catalog.
 
 - `provider: "aws" | "gcp" | "k8s" | "all"`
 - Returns services (canonical IDs and aliases), containment scopes, known

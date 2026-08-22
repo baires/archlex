@@ -5,6 +5,8 @@ export interface Env {
   ENABLE_MCP_APPS?: string;
   RATE_LIMIT_MAX_REQUESTS?: string;
   RATE_LIMIT_WINDOW_SECONDS?: string;
+  MCP_REQUEST_TIMEOUT_MS?: string;
+  MCP_MAX_REQUEST_TIMEOUT_MS?: string;
   RATE_LIMITER?: {
     limit: (options: { key: string }) => Promise<{ success: boolean }>;
   };
