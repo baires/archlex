@@ -1,5 +1,11 @@
 # @archlex/layout-elk
 
+## 0.2.7
+
+### Patch Changes
+
+- 44cab3b: Ship separate browser and Node ELK loaders and update elkjs to 0.12.0.
+
 ## 0.2.6
 
 ### Patch Changes
