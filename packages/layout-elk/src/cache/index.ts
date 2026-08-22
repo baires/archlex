@@ -20,7 +20,7 @@ export function computeGeometryFingerprint(
     .join(";");
 
   const direction = options?.direction ?? "LR";
-  const raw = `${nodeSignature}|${edgeSignature}|${scopeSignature}|dir:${direction}|elk-v0.9.3-spacing-v4`;
+  const raw = `${nodeSignature}|${edgeSignature}|${scopeSignature}|dir:${direction}|elk-v0.12.0-spacing-v4`;
 
   // Deterministic 32-bit FNV-1a hash formatted as hex
   let hash = 0x811c9dc5;

@@ -1,7 +1,23 @@
 @import "@fontsource-variable/instrument-sans/wght.css";
-@import "@fontsource/commit-mono/400.css";
-@import "@fontsource/commit-mono/500.css";
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap");
+
+@font-face {
+  font-family: "Commit Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("./node_modules/@fontsource/commit-mono/files/commit-mono-latin-400-normal.woff2")
+    format("woff2");
+}
+
+@font-face {
+  font-family: "Commit Mono";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("./node_modules/@fontsource/commit-mono/files/commit-mono-latin-500-normal.woff2")
+    format("woff2");
+}
 
 :root {
   --font-display: "Bricolage Grotesque", "Instrument Sans Variable", sans-serif;

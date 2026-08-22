@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { clearElkCache, loadElk } from "./elk-loader.js";
+import {
+  clearElkCache as clearBrowserElkCache,
+  loadElk as loadBrowserElk,
+} from "./elk-loader.browser.js";
+import {
+  clearElkCache as clearNodeElkCache,
+  loadElk as loadNodeElk,
+} from "./elk-loader.js";
 
 const originalSelfDescriptor = Object.getOwnPropertyDescriptor(
   globalThis,
@@ -15,7 +22,8 @@ const originalWorkerDescriptor = Object.getOwnPropertyDescriptor(
 );
 
 afterEach(() => {
-  clearElkCache();
+  clearBrowserElkCache();
+  clearNodeElkCache();
 
   if (originalSelfDescriptor) {
     Object.defineProperty(globalThis, "self", originalSelfDescriptor);
@@ -62,8 +70,21 @@ describe("loadElk", () => {
       },
     });
 
-    await loadElk();
+    await loadBrowserElk();
 
     expect(selfWasCleared).toBe(false);
+  });
+
+  it("restores the self global after loading ELK for Node-compatible runtimes", async () => {
+    const selfValue = { runtime: "workerd" };
+    Object.defineProperty(globalThis, "self", {
+      configurable: true,
+      writable: true,
+      value: selfValue,
+    });
+
+    await loadNodeElk();
+
+    expect(globalThis.self).toBe(selfValue);
   });
 });
