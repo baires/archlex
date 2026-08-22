@@ -1,35 +1,40 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
-export default defineConfig({
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      formats: ["es"],
-      fileName: "index",
-    },
-    rollupOptions: {
-      // @archlex/model is bundled so the built module has one less bare
-      // specifier; elkjs stays external for code splitting and lazy loading.
-      external: ["elkjs/lib/elk.bundled.js", "elkjs/lib/elk-worker.min.js"],
-      output: {
-        // Manual chunks for better code splitting
-        manualChunks: (id) => {
-          // Keep ELK-related imports separate for lazy loading
-          if (id.includes("elkjs")) {
-            return "elk-vendor";
+export default defineConfig(({ mode }) => {
+  const isBrowserBuild = mode === "browser";
+  const entryName = isBrowserBuild ? "browser" : "index";
+
+  return {
+    resolve: {
+      alias: isBrowserBuild
+        ? {
+            "./elk-loader.js": resolve(__dirname, "src/elk-loader.browser.ts"),
           }
+        : undefined,
+    },
+    build: {
+      emptyOutDir: !isBrowserBuild,
+      lib: {
+        entry: resolve(__dirname, "src/index.ts"),
+        formats: ["es"],
+        fileName: entryName,
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes("elkjs")) {
+              return isBrowserBuild ? "elk-browser" : "elk-node";
+            }
+          },
         },
       },
+      minify: "esbuild",
+      target: "es2020",
+      sourcemap: true,
     },
-    // Production optimizations
-    minify: "esbuild",
-    target: "es2020",
-    // Enable source maps for production debugging
-    sourcemap: true,
-  },
-  // Optimize dependencies
-  optimizeDeps: {
-    include: ["@archlex/model"],
-  },
+    optimizeDeps: {
+      include: ["@archlex/model"],
+    },
+  };
 });
