@@ -30,6 +30,8 @@ export const SUPPORTED_PROTOCOL_VERSIONS = [
 export const METADATA_KEYS = {
   PROTOCOL_VERSION: "io.modelcontextprotocol/protocolVersion",
   CLIENT_CAPABILITIES: "io.modelcontextprotocol/clientCapabilities",
+  CLIENT_INFO: "io.modelcontextprotocol/clientInfo",
+  LOG_LEVEL: "io.modelcontextprotocol/logLevel",
   SERVER_INFO: "io.modelcontextprotocol/serverInfo",
   SUBSCRIPTION_ID: "io.modelcontextprotocol/subscriptionId",
   PROGRESS_TOKEN: "progressToken",
@@ -89,8 +91,8 @@ export const JSONRPC_ERROR_CODES = {
  */
 export const MCP_ERROR_CODES = {
   HEADER_MISMATCH: -32020,
-  CAPABILITY_NOT_SUPPORTED: -32021,
-  UNSUPPORTED_VERSION: -32022,
+  MISSING_REQUIRED_CLIENT_CAPABILITY: -32021,
+  UNSUPPORTED_PROTOCOL_VERSION: -32022,
 } as const;
 
 /**

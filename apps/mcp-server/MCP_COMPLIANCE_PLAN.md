@@ -4,11 +4,15 @@
 
 **Goal:** Make `@archlex/mcp-server` fully compliant with MCP revision `2026-07-28` for the base protocol, Streamable HTTP, subscriptions, and every capability ArchLex advertises, while preserving explicitly tested legacy-client compatibility.
 
-**Architecture:** Keep the current MCP SDK for legacy handling, but place a version-aware protocol adapter in front of it. Modern requests are validated and dispatched statelessly by the adapter; legacy `initialize` traffic continues through the SDK. Shared tool, resource, and prompt registries keep domain behavior identical across both eras.
+**Architecture:** Keep `@modelcontextprotocol/sdk` v1 behind an explicit legacy-only boundary and use the official v2 `@modelcontextprotocol/core` and `@modelcontextprotocol/server` packages for the `2026-07-28` contract. A version-aware adapter validates and dispatches modern requests statelessly; legacy `initialize` traffic continues through SDK v1. Shared tool, resource, and prompt registries keep domain behavior identical across both eras.
 
-**Tech Stack:** TypeScript strict mode, Cloudflare Workers, `@modelcontextprotocol/sdk`, JSON-RPC 2.0, Streamable HTTP/SSE, Vitest, Wrangler, pnpm.
+**Tech Stack:** TypeScript strict mode, Cloudflare Workers, `@modelcontextprotocol/core` v2, `@modelcontextprotocol/server` v2, legacy `@modelcontextprotocol/sdk` v1, JSON-RPC 2.0, Streamable HTTP/SSE, Vitest, Wrangler, pnpm.
 
 **Spec:** [MCP 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28), [base protocol](https://modelcontextprotocol.io/specification/2026-07-28/basic), [versioning](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning), [Streamable HTTP](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http), and [schema reference](https://modelcontextprotocol.io/specification/2026-07-28/schema).
+
+# Important
+never commit mentioned Claude Code or any LLMs.
+keep commit messages and body short, to the point
 
 ## Global Constraints
 
@@ -34,7 +38,7 @@
 
 ### Current drift
 
-- The installed SDK resolves to `1.30.0` and follows the initialization-era model; it does not expose the 2026 discovery or subscription schemas.
+- The production server originally used SDK v1 `1.30.0`, which follows the initialization-era model. Phase 0 now exact-pins the official v2 core/server packages alongside it for native 2026 schemas and helpers.
 - `/mcp` accepts legacy `initialize`, and tests negotiate `2025-03-26`.
 - Successful results do not include `resultType`.
 - Required per-request `_meta` and mirrored HTTP headers are not validated.
@@ -44,7 +48,7 @@
 
 ### Decisions
 
-1. **Use a local 2026 protocol adapter now.** Do not block on a future SDK release. Validate official 2026 shapes locally and delegate domain work to shared registries.
+1. **Use the official v2 contract behind a local adapter.** Validate 2026 shapes with the installed v2 schemas and helpers; do not duplicate or vendor a parallel schema. Keep SDK v1 values behind `server.ts` until legacy transport migration is complete.
 2. **Operate as a dual-era server.** Valid modern metadata selects 2026 behavior. `initialize` selects legacy SDK behavior. The eras never share inferred state.
 3. **Keep HTTP+SSE isolated.** `/sse` and `/messages` are legacy routes, not part of modern `/mcp`.
 4. **Implement mandatory behavior first.** Optional presentation and convenience features cannot be used to claim core compliance.
@@ -58,7 +62,7 @@
 | `src/index.ts` | Cloudflare routing, security checks, CORS, and transport entry points only |
 | `src/server.ts` | Legacy SDK construction and registration |
 | `src/registry.ts` | Shared definitions and callable handlers for tools, resources, and prompts |
-| `src/protocol/types.ts` | Narrow local types derived from the official 2026 schema |
+| `src/protocol/types.ts` | Official v2 type re-exports plus narrow ArchLex adapter types |
 | `src/protocol/constants.ts` | Supported versions, metadata keys, methods, and error codes |
 | `src/protocol/errors.ts` | Typed JSON-RPC errors and HTTP status mapping |
 | `src/protocol/validation.ts` | JSON-RPC, metadata, version, capability, and schema validation |
@@ -84,13 +88,13 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `MODERN_PROTOCOL_VERSION`, `SUPPORTED_PROTOCOL_VERSIONS`, `ModernRequestMeta`, `ModernRequestContext`, `CompleteResult`, and `InputRequiredResult`.
 
-- [ ] Assert the resolved SDK version and whether it exports native 2026 discovery/subscription schemas.
-- [ ] Define `MODERN_PROTOCOL_VERSION = "2026-07-28"` and an ordered list containing only implemented versions.
-- [ ] Define local types for request metadata, server metadata, cacheable results, discovery, subscriptions, and errors, using official schema names.
-- [ ] Add valid and invalid fixtures for missing metadata, unsupported version, header mismatch, complete result, and input-required result.
-- [ ] Validate fixtures against a vendored official 2026 JSON Schema; tests MUST NOT fetch it from the network.
-- [ ] Pin the SDK to the tested version rather than an unbounded caret range and document the adapter boundary.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- schema-contract`.
+- [x] Assert exact v1/v2 dependency pins and native v2 discovery, subscription, JSON-RPC, and MRTR schema/helper behavior.
+- [x] Define `MODERN_PROTOCOL_VERSION = "2026-07-28"` and an ordered list containing only implemented versions.
+- [x] Re-export official v2 protocol vocabulary and define only the ArchLex request context, response metadata, cache hints, and wire envelope locally.
+- [x] Add valid and invalid fixtures for discovery, subscription filters, request IDs, reserved metadata keys, and input-required results. Metadata/version/header rejection fixtures remain with Tasks 4 and 5, where their validators exist.
+- [x] Validate fixtures against the exact-pinned official v2 schemas installed from the lockfile; tests never fetch schemas from the network.
+- [x] Exact-pin SDK v1 and the v2 core/server packages and document the legacy boundary.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- schema-contract`.
 - [ ] Commit: `test(mcp): pin 2026 protocol contract`.
 
 ### Task 2: Extract shared registries
@@ -99,11 +103,11 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `listTools()`, `callTool(name, args, context)`, `listResources()`, `readResource(uri)`, `listPrompts()`, and `getPrompt(name, args)`.
 
-- [ ] Snapshot current tool order/schemas, resource URIs, prompt names, and successful domain results.
-- [ ] Move declarations and callable domain behavior from `createMcpServer()` into `registry.ts` without changing public behavior.
-- [ ] Move legacy SDK setup to `server.ts` and delegate to the shared registry.
-- [ ] Reduce `index.ts` to Worker routing and security responsibilities.
-- [ ] Run the existing server tests plus registry parity tests.
+- [x] Snapshot current tool order/schema behavior, resource URIs, prompt names, and a successful delegated domain result.
+- [x] Move declarations and callable domain behavior from `createMcpServer()` into `registry.ts` without changing public behavior.
+- [x] Move legacy SDK setup to `server.ts` and delegate to the shared registry.
+- [x] Reduce `index.ts` to Worker routing and security responsibilities.
+- [x] Run the existing server tests plus registry parity tests.
 - [ ] Commit: `refactor(mcp): share protocol registries`.
 
 ### Task 3: Implement errors and result envelopes
@@ -112,14 +116,14 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `McpProtocolError`, `completeResult(payload, context, cache?)`, `inputRequiredResult(payload, context)`, and `toHttpErrorResponse(error, id)`.
 
-- [ ] Test JSON-RPC codes `-32700`, `-32600` through `-32603` and MCP codes `-32020`, `-32021`, `-32022`.
-- [ ] Require `resultType: "complete"` and server identity at `_meta["io.modelcontextprotocol/serverInfo"]` on complete results.
-- [ ] Require `resultType: "input_required"` on interim results and prohibit cache hints on them.
-- [ ] Validate MRTR `inputRequests`, `requestState`, and retry `inputResponses`; correlate responses by input-request ID and reject duplicate, unknown, or wrong-kind responses with `-32602`.
-- [ ] Before producing an input request, require the matching client capability and return `-32021` when it was not declared.
-- [ ] Map malformed modern metadata/version/header errors to 400, unknown methods to 404, invalid Origin to 403, and accepted notifications to 202 with no body.
-- [ ] Make cache fields mandatory whenever `completeResult` is called for a cacheable operation.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- results`.
+- [x] Test JSON-RPC codes `-32700`, `-32600` through `-32603` and MCP codes `-32020`, `-32021`, `-32022`.
+- [x] Require `resultType: "complete"` and server identity at `_meta["io.modelcontextprotocol/serverInfo"]` on complete results.
+- [x] Require `resultType: "input_required"` on interim results and prohibit cache hints on them.
+- [x] Validate MRTR `inputRequests`, `requestState`, and retry `inputResponses`; correlate responses by input-request ID and reject duplicate, unknown, or wrong-kind responses with `-32602`.
+- [x] Before producing an input request, require the matching client capability and return `-32021` when it was not declared.
+- [x] Provide HTTP mappings for malformed modern errors (400), unknown methods (404), invalid Origin (403 in the Worker security boundary), and accepted notifications (202 with no body).
+- [x] Make cache fields mandatory whenever `completeResult` is called for a cacheable operation.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- results`.
 - [ ] Commit: `feat(mcp): add modern result envelopes`.
 
 ---
