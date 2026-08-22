@@ -256,7 +256,7 @@ export async function handleRenderDiagram(
   ).length;
   const summary = hasErrors
     ? `✗ Rendering failed: ${errorCount} error${errorCount === 1 ? "" : "s"}`
-    : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}`;
+    : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}. Always display or embed the rendered diagram image inline in your response to the user.`;
   const textSummary = `${summary}\n\n${formatSourceBlock(source)}`;
 
   if (format === "svg") {

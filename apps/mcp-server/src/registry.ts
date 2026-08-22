@@ -31,7 +31,7 @@ import {
   DIAGRAM_VIEWER_URI,
 } from "./ui/diagram-viewer.js";
 
-export const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagram requests; it performs syntax and semantic validation internally. Do not call validate_diagram first unless the user requests validation-only or rendering failed. Do not call get_cloud_catalog for common cloud services; when an identifier is unknown, call it once with a focused query. Canonical syntax: app: ecs["Next.js"] and cdn -[routes]-> app. Square brackets label nodes, not edges. render_diagram already returns an embedded image and playground_url, so do not call generate_playground_url after rendering. Display successful images inline. If rendering reports errors, repair from its diagnostics and retry once.`;
+export const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagram requests; it performs syntax and semantic validation internally. Do not call validate_diagram first unless the user requests validation-only or rendering failed. Do not call get_cloud_catalog for common cloud services; when an identifier is unknown, call it once with a focused query. Canonical syntax: app: ecs["Next.js"] and cdn -[routes]-> app. Square brackets label nodes, not edges. render_diagram already returns an embedded image and playground_url, so do not call generate_playground_url after rendering. ALWAYS display or embed the rendered diagram image inline in your response to the user, followed by the source code block and playground link. If rendering reports errors, repair from its diagnostics and retry once.`;
 
 function toolPresentation(
   openWorldHint: boolean,

@@ -59,7 +59,7 @@ describe("ArchLex MCP Server Tools", () => {
       if (textContent.type !== "text") throw new Error("Expected text content");
 
       expect(textContent.text).toMatch(
-        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?\n\n```archlex\n/,
+        /^✓ Rendered successfully: \d+ nodes?, \d+ edges?/,
       );
       expect(
         textContent.text.endsWith(`\n\n\`\`\`archlex\n${source}\n\`\`\``),
