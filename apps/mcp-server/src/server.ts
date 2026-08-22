@@ -8,6 +8,7 @@
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import {
   CallToolRequestSchema,
   GetPromptRequestSchema,
@@ -67,4 +68,17 @@ export function createLegacyMcpServer(env?: Env): Server {
   );
 
   return server;
+}
+
+export async function handleLegacyMcpPost(
+  request: Request,
+  env?: Env,
+): Promise<Response> {
+  const server = createLegacyMcpServer(env);
+  const transport = new WebStandardStreamableHTTPServerTransport({
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true,
+  });
+  await server.connect(transport);
+  return transport.handleRequest(request);
 }

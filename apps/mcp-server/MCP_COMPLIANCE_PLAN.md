@@ -21,7 +21,7 @@ keep commit messages and body short, to the point
 - Modern MCP is stateless. Never infer version, capabilities, identity, task, thread, or conversation from a prior request or connection.
 - Every modern request MUST contain `params._meta["io.modelcontextprotocol/protocolVersion"]` and `params._meta["io.modelcontextprotocol/clientCapabilities"]`.
 - Every successful modern result MUST contain `resultType: "complete"` or `resultType: "input_required"`.
-- Every modern HTTP POST MUST validate `MCP-Protocol-Version`, `Mcp-Method`, and applicable `Mcp-Name` headers against the body.
+- Every modern JSON-RPC request POST MUST validate `MCP-Protocol-Version`, `Mcp-Method`, and applicable `Mcp-Name` headers against the body. The 2026-07-28 specification does not define client-to-server notification transport semantics.
 - Modern `/mcp` accepts POST only. GET and DELETE return `405 Method Not Allowed`.
 - `/sse` and `/messages` remain isolated legacy HTTP+SSE compatibility endpoints until intentionally removed.
 - Request-scoped progress/log notifications stay on the originating response stream, never a subscription stream.
@@ -40,9 +40,9 @@ keep commit messages and body short, to the point
 
 - The production server originally used SDK v1 `1.30.0`, which follows the initialization-era model. Phase 0 now exact-pins the official v2 core/server packages alongside it for native 2026 schemas and helpers.
 - `/mcp` accepts legacy `initialize`, and tests negotiate `2025-03-26`.
-- Successful results do not include `resultType`.
-- Required per-request `_meta` and mirrored HTTP headers are not validated.
-- CORS allows only `Content-Type` and `Authorization`.
+- Modern successful results include `resultType` and server identity metadata.
+- Required per-request `_meta` and mirrored HTTP headers are validated for modern JSON-RPC requests.
+- Modern CORS derives its allowed MCP headers from the base transport contract and declared tool `x-mcp-header` annotations.
 - `/sse` and `/messages` use an in-memory session map for deprecated HTTP+SSE.
 - Tools, resources, and prompts are advertised without modern cacheable result envelopes.
 
@@ -136,13 +136,13 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `validateModernRequest(message): ModernRequestContext` and `requireClientCapabilities(context, paths)`.
 
-- [ ] Require protocol version and client capabilities on every request, including `server/discover`.
-- [ ] Return JSON-RPC `-32602` and HTTP 400 for missing required metadata.
-- [ ] Return `-32022`, HTTP 400, `data.supported`, and `data.requested` for unsupported versions.
-- [ ] Return `-32021`, HTTP 400, and `data.requiredCapabilities` when a required capability is absent.
-- [ ] Treat `clientInfo` as optional and informational; never use it for authorization or behavior.
-- [ ] Validate JSON Schema 2020-12 by default and reject unsupported explicit dialects with structured invalid params.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- validation`.
+- [x] Require protocol version and client capabilities on every request, including `server/discover`.
+- [x] Return JSON-RPC `-32602` and HTTP 400 for missing required metadata.
+- [x] Return `-32022`, HTTP 400, `data.supported`, and `data.requested` for unsupported versions.
+- [x] Return `-32021`, HTTP 400, and `data.requiredCapabilities` when a required capability is absent.
+- [x] Treat `clientInfo` as optional and informational; never use it for authorization or behavior.
+- [x] Validate JSON Schema 2020-12 by default and reject unsupported explicit dialects with structured invalid params.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- validation`.
 - [ ] Commit: `feat(mcp): validate modern request metadata`.
 
 ### Task 5: Enforce Streamable HTTP metadata
@@ -151,15 +151,15 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `validateMcpHeaders(request, message)`, `decodeMcpHeaderValue(value)`, and `modernCorsHeaders(toolDefinitions)`.
 
-- [ ] Require and match `MCP-Protocol-Version` and `Mcp-Method` on every modern POST.
-- [ ] Require and match `Mcp-Name` for `tools/call`, `resources/read`, and `prompts/get`.
-- [ ] Require `Accept` to list both `application/json` and `text/event-stream`; reject an incompatible media negotiation with HTTP 406.
-- [ ] Test the exact `=?base64?...?=` sentinel for non-ASCII, control-character, padded, and sentinel-shaped values.
-- [ ] Return HTTP 400 and `-32020` (`HeaderMismatch`) for missing, malformed, or mismatched required headers.
-- [ ] Return HTTP 404 and `-32601` for an unknown modern method.
-- [ ] Allow `Accept`, `Content-Type`, `Authorization`, `MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`, and declared `Mcp-Param-*` headers through CORS.
-- [ ] Keep `x-mcp-header` optional. If declared, validate schema placement/type and inbound header/body equality. The server MUST NOT add headers to client requests.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- http-headers`.
+- [x] Require and match `MCP-Protocol-Version` and `Mcp-Method` on every modern JSON-RPC request POST.
+- [x] Require and match `Mcp-Name` for `tools/call`, `resources/read`, and `prompts/get`.
+- [x] Require `Accept` to list both `application/json` and `text/event-stream`; reject an incompatible media negotiation with HTTP 406.
+- [x] Test the exact `=?base64?...?=` sentinel for non-ASCII, control-character, padded, and sentinel-shaped values.
+- [x] Return HTTP 400 and `-32020` (`HeaderMismatch`) for missing, malformed, or mismatched required headers.
+- [x] Return HTTP 404 and `-32601` for an unknown modern method.
+- [x] Allow `Accept`, `Content-Type`, `Authorization`, `MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`, and declared `Mcp-Param-*` headers through CORS.
+- [x] Keep `x-mcp-header` optional. If declared, validate schema placement/type and inbound header/body equality. The server MUST NOT add headers to client requests.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- http-headers`.
 - [ ] Commit: `feat(mcp): enforce streamable HTTP metadata`.
 
 ### Task 6: Implement explicit dual-era routing
@@ -168,14 +168,14 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `classifyProtocolEra(message, headers)` and `handleMcpPost(request, env)`.
 
-- [ ] Route valid modern metadata to stateless 2026 processing.
-- [ ] Route `initialize` without modern metadata to legacy SDK processing and scope negotiated state only to that legacy transport.
-- [ ] Ensure modern handling never reads, creates, or echoes `Mcp-Session-Id`.
-- [ ] Return 405 for GET and DELETE `/mcp`.
-- [ ] Keep `/sse` and `/messages` labeled and tested as deprecated compatibility routes.
-- [ ] Make `/info` distinguish modern `/mcp` from deprecated endpoints.
-- [ ] Test modern success, unsupported modern version, legacy initialize, legacy HTTP+SSE, and malformed ambiguous traffic.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- compatibility`.
+- [x] Route valid modern metadata to stateless 2026 processing.
+- [x] Route `initialize` without modern metadata to legacy SDK processing and scope negotiated state only to that legacy transport.
+- [x] Ensure modern handling never reads, creates, or echoes `Mcp-Session-Id`.
+- [x] Return 405 for GET and DELETE `/mcp`.
+- [x] Keep `/sse` and `/messages` labeled and tested as deprecated compatibility routes.
+- [x] Make `/info` distinguish modern `/mcp` from deprecated endpoints.
+- [x] Test modern success, unsupported modern version, legacy initialize, legacy HTTP+SSE, and malformed ambiguous traffic.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- compatibility`.
 - [ ] Commit: `feat(mcp): route modern and legacy eras explicitly`.
 
 ### Task 7: Implement `server/discover`
@@ -184,12 +184,12 @@ Generated files remain generated; modify `scripts/sync-docs.mjs` rather than han
 
 **Produces:** `discover(context): DiscoverResult`.
 
-- [ ] Accept no method-specific parameters beyond standard `_meta`.
-- [ ] Return `resultType: "complete"`, ordered `supportedVersions`, exact capabilities, server identity in `_meta`, instructions, `ttlMs`, and `cacheScope`.
-- [ ] Derive capabilities from implemented handlers rather than duplicating flags.
-- [ ] Do not return obsolete singular `protocolVersion`.
-- [ ] Use public caching only when output is identical across users/environments; otherwise use private.
-- [ ] Run `pnpm --filter @archlex/mcp-server test -- discovery`.
+- [x] Accept no method-specific parameters beyond standard `_meta`.
+- [x] Return `resultType: "complete"`, ordered `supportedVersions`, exact capabilities, server identity in `_meta`, instructions, `ttlMs`, and `cacheScope`.
+- [x] Derive capabilities from implemented handlers rather than duplicating flags.
+- [x] Do not return obsolete singular `protocolVersion`.
+- [x] Use public caching only when output is identical across users/environments; otherwise use private.
+- [x] Run `pnpm --filter @archlex/mcp-server test -- discovery`.
 - [ ] Commit: `feat(mcp): implement server discovery`.
 
 ---

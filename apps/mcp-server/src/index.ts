@@ -1,7 +1,9 @@
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js";
 import { acceptedNotificationResponse } from "./protocol/errors.js";
+import { modernCorsHeaders } from "./protocol/http-headers.js";
+import { handleMcpPost } from "./protocol/router.js";
+import { listTools } from "./registry.js";
 import {
   type Env,
   checkRateLimit,
@@ -65,29 +67,6 @@ export class WorkerSSEServerTransport implements Transport {
 
 const activeTransports = new Map<string, WorkerSSEServerTransport>();
 
-async function handleStreamableHttpRequest(
-  request: Request,
-  corsHeaders: Readonly<Record<string, string>>,
-  env?: Env,
-): Promise<Response> {
-  const server = createLegacyMcpServer(env);
-  const transport = new WebStandardStreamableHTTPServerTransport({
-    sessionIdGenerator: undefined,
-    enableJsonResponse: true,
-  });
-  await server.connect(transport);
-  const response = await transport.handleRequest(request);
-  const headers = new Headers(response.headers);
-  for (const [name, value] of Object.entries(corsHeaders)) {
-    headers.set(name, value);
-  }
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
-
 function jsonResponse(
   body: unknown,
   status: number,
@@ -108,11 +87,14 @@ export default {
   async fetch(request: Request, env?: Env): Promise<Response> {
     const url = new URL(request.url);
     if (request.method === "OPTIONS") {
+      const cors = modernCorsHeaders(
+        listTools({ enableMcpApps: env?.ENABLE_MCP_APPS === "true" }),
+      );
       return new Response(null, {
         headers: {
           "Access-Control-Allow-Origin": env?.ALLOWED_ORIGINS || "*",
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          ...cors,
         },
       });
     }
@@ -165,7 +147,13 @@ export default {
     }
 
     if (url.pathname === "/mcp") {
-      return handleStreamableHttpRequest(request, corsHeaders, env);
+      if (request.method !== "POST") {
+        return new Response("Method Not Allowed", {
+          status: 405,
+          headers: { ...corsHeaders, Allow: "POST, OPTIONS" },
+        });
+      }
+      return handleMcpPost(request, env, corsHeaders);
     }
     if (url.pathname === "/health") {
       return jsonResponse(
@@ -193,8 +181,10 @@ export default {
             "generate_playground_url",
           ],
           streamable_http_endpoint: "/mcp",
+          modern_endpoint: "/mcp",
           sse_endpoint: "/sse",
           messages_endpoint: "/messages",
+          deprecated_compatibility_endpoints: ["/sse", "/messages"],
           auth_required: Boolean(env?.MCP_AUTH_TOKEN),
         },
         200,

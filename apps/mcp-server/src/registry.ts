@@ -4,6 +4,7 @@ import type {
   Prompt,
   ReadResourceResult,
   Resource,
+  ServerCapabilities,
   Tool,
 } from "@modelcontextprotocol/server";
 import { DOC_RESOURCES } from "./generated/docs-resources.js";
@@ -30,6 +31,14 @@ export const SERVER_INSTRUCTIONS = `Use render_diagram directly for normal diagr
 
 export interface RegistryOptions {
   enableMcpApps: boolean;
+}
+
+export function registryCapabilities(): ServerCapabilities {
+  return {
+    tools: { listChanged: false },
+    resources: { listChanged: false, subscribe: false },
+    prompts: { listChanged: false },
+  };
 }
 
 export function listTools(options: RegistryOptions): Tool[] {
