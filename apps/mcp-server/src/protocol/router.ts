@@ -38,7 +38,11 @@ import {
   METADATA_KEYS,
 } from "./constants.js";
 import { discover, validateDiscoveryParams } from "./discovery.js";
-import { McpProtocolError, toHttpErrorResponse } from "./errors.js";
+import {
+  McpProtocolError,
+  acceptedNotificationResponse,
+  toHttpErrorResponse,
+} from "./errors.js";
 import { validateMcpHeaders } from "./http-headers.js";
 import { paginate } from "./pagination.js";
 import { progressResponse, requestProgressToken } from "./progress.js";
@@ -255,16 +259,11 @@ function withHeaders(
   response: Response,
   extraHeaders: Readonly<Record<string, string>>,
 ): Response {
-  const headers = new Headers(response.headers);
   for (const [name, value] of Object.entries(extraHeaders)) {
-    headers.set(name, value);
+    response.headers.set(name, value);
   }
-  headers.delete(MCP_HEADERS.SESSION_ID);
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
+  response.headers.delete(MCP_HEADERS.SESSION_ID);
+  return response;
 }
 
 function modernJsonResponse(id: RequestId, result: unknown): Response {
@@ -442,6 +441,9 @@ export async function handleMcpPost(
         await handleLegacyMcpPost(legacyRequest, env),
         responseHeaders,
       );
+    }
+    if (object && typeof object.method === "string" && !("id" in object)) {
+      return withHeaders(acceptedNotificationResponse(), responseHeaders);
     }
     const context = validateModernRequest(message);
     const tools = listTools({ enableMcpApps: env?.ENABLE_MCP_APPS === "true" });

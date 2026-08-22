@@ -6,7 +6,11 @@ import {
   inputRequired,
   inputResponse,
 } from "@modelcontextprotocol/server";
-import { JSONRPC_ERROR_CODES, MCP_ERROR_CODES } from "./constants.js";
+import {
+  JSONRPC_ERROR_CODES,
+  MCP_ERROR_CODES,
+  SERVER_INFO,
+} from "./constants.js";
 import { McpProtocolError } from "./errors.js";
 import type {
   CacheHints,
@@ -14,10 +18,7 @@ import type {
   ModernRequestContext,
 } from "./types.js";
 
-export const SERVER_INFO = {
-  name: "archlex-mcp-server",
-  version: "0.1.0",
-} as const;
+export { SERVER_INFO };
 
 interface NonCacheableOptions {
   cacheable?: false;

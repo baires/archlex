@@ -1,5 +1,6 @@
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js";
+import { SERVER_NAME, SERVER_VERSION } from "./protocol/constants.js";
 import { acceptedNotificationResponse } from "./protocol/errors.js";
 import { modernCorsHeaders } from "./protocol/http-headers.js";
 import { handleMcpPost } from "./protocol/router.js";
@@ -86,13 +87,21 @@ function jsonResponse(
 export default {
   async fetch(request: Request, env?: Env): Promise<Response> {
     const url = new URL(request.url);
+    const requestOrigin = request.headers.get("Origin");
+    const allowOrigin =
+      env?.ALLOWED_ORIGINS && env.ALLOWED_ORIGINS !== "*"
+        ? requestOrigin && validateOrigin(request, env)
+          ? requestOrigin
+          : env.ALLOWED_ORIGINS
+        : "*";
+
     if (request.method === "OPTIONS") {
       const cors = modernCorsHeaders(
         listTools({ enableMcpApps: env?.ENABLE_MCP_APPS === "true" }),
       );
       return new Response(null, {
         headers: {
-          "Access-Control-Allow-Origin": env?.ALLOWED_ORIGINS || "*",
+          "Access-Control-Allow-Origin": allowOrigin,
           "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
           ...cors,
         },
@@ -100,7 +109,7 @@ export default {
     }
 
     const corsHeaders = {
-      "Access-Control-Allow-Origin": env?.ALLOWED_ORIGINS || "*",
+      "Access-Control-Allow-Origin": allowOrigin,
     };
     if (!validateOrigin(request, env)) {
       logTelemetry("security_event", {
@@ -159,8 +168,8 @@ export default {
       return jsonResponse(
         {
           status: "ok",
-          service: "archlex-mcp-server",
-          version: "0.1.0",
+          service: SERVER_NAME,
+          version: SERVER_VERSION,
           providers: ["aws", "gcp", "k8s"],
           auth_enabled: Boolean(env?.MCP_AUTH_TOKEN),
         },
@@ -172,6 +181,7 @@ export default {
       return jsonResponse(
         {
           name: "ArchLex Remote MCP Server",
+          version: SERVER_VERSION,
           description:
             "Online Model Context Protocol server for generating cloud architecture diagrams",
           tools: [

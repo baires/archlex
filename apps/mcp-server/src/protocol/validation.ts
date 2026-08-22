@@ -43,9 +43,12 @@ function record(value: unknown): Record<string, unknown> | undefined {
 export function validateModernRequest(message: unknown): ModernRequestContext {
   const parsed = JSONRPCRequestSchema.safeParse(message);
   if (!parsed.success) {
-    invalidParams("Malformed JSON-RPC request", {
-      issues: parsed.error.issues,
-    });
+    throw new McpProtocolError(
+      JSONRPC_ERROR_CODES.INVALID_REQUEST,
+      "Malformed JSON-RPC request",
+      400,
+      { issues: parsed.error.issues },
+    );
   }
 
   const params = record(parsed.data.params);

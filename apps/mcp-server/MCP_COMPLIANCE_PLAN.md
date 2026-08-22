@@ -312,44 +312,44 @@ These do not block core compliance and remain unadvertised until implemented.
 
 **Files:** Create `test/protocol/conformance.test.ts` and `test/protocol/transport.test.ts`; modify `test/server.test.ts`.
 
-- [ ] Table-test every implemented 2026 method with valid metadata and headers.
-- [ ] Assert every successful result has a valid `resultType`.
-- [ ] Assert every advertised cacheable result has `ttlMs` and `cacheScope`.
-- [ ] Assert capabilities exactly match handlers and notification support.
-- [ ] Cover parse error, invalid request/params, unknown method, unsupported version, missing capability, and every header mismatch with exact code/status.
-- [ ] Cover JSON and request-scoped SSE responses plus notification POST as 202/no body.
-- [ ] Cover Origin, authentication, rate limiting, payload limits, and CORS with modern headers.
-- [ ] Prove modern requests never create sessions or depend on prior calls.
-- [ ] Test modern, dual-era, and legacy paths independently.
-- [ ] Run `pnpm --filter @archlex/mcp-server test`.
+- [x] Table-test every implemented 2026 method with valid metadata and headers.
+- [x] Assert every successful result has a valid `resultType`.
+- [x] Assert every advertised cacheable result has `ttlMs` and `cacheScope`.
+- [x] Assert capabilities exactly match handlers and notification support.
+- [x] Cover parse error, invalid request/params, unknown method, unsupported version, missing capability, and every header mismatch with exact code/status.
+- [x] Cover JSON and request-scoped SSE responses plus notification POST as 202/no body.
+- [x] Cover Origin, authentication, rate limiting, payload limits, and CORS with modern headers.
+- [x] Prove modern requests never create sessions or depend on prior calls.
+- [x] Test modern, dual-era, and legacy paths independently.
+- [x] Run `pnpm --filter @archlex/mcp-server test`.
 - [ ] Commit: `test(mcp): cover 2026 conformance matrix`.
 
 ### Task 16: Update public documentation
 
 **Files:** Modify `README.md`, `CHANGELOG.md`, `wrangler.json`, and repository docs found with `rg -n "mcp.archlex.dev|MCP 2026" README.md docs apps`.
 
-- [ ] Document `/mcp` as POST-only modern Streamable HTTP.
-- [ ] Label `/sse` and `/messages` as deprecated compatibility endpoints with a removal policy.
-- [ ] Document request `_meta`, HTTP headers, caching, pagination, versions, and exact capabilities.
-- [ ] Explain that compliance does not imply optional Logging, completion, icons, or templates.
-- [ ] Publish initialization-era to per-request-metadata migration guidance.
-- [ ] Source `/info`, `/health`, and discovery version from one constant.
-- [ ] Run `pnpm generate-docs`, `pnpm build:docs`, and `pnpm verify:sites`.
+- [x] Document `/mcp` as POST-only modern Streamable HTTP.
+- [x] Label `/sse` and `/messages` as deprecated compatibility endpoints with a removal policy.
+- [x] Document request `_meta`, HTTP headers, caching, pagination, versions, and exact capabilities.
+- [x] Explain that compliance does not imply optional Logging, completion, icons, or templates.
+- [x] Publish initialization-era to per-request-metadata migration guidance.
+- [x] Source `/info`, `/health`, and discovery version from one constant.
+- [x] Run `pnpm generate-docs`, `pnpm build:docs`, and `pnpm verify:sites`.
 - [ ] Commit: `docs(mcp): document 2026 protocol behavior`.
 
 ### Task 17: Verify and stage rollout
 
-- [ ] Run `pnpm --filter @archlex/mcp-server typecheck`.
-- [ ] Run `pnpm --filter @archlex/mcp-server test`.
-- [ ] Run `pnpm build:mcp`.
-- [ ] Run workspace `pnpm typecheck`, `pnpm test`, and `pnpm lint`.
-- [ ] Run all documentation verification from Task 16.
-- [ ] On staging, smoke-test discovery, list/read/get/call, subscriptions, cancellation, malformed headers, and unsupported versions.
-- [ ] Smoke-test legacy initialization and HTTP+SSE separately.
-- [ ] Verify Cloudflare does not buffer request-scoped or subscription SSE.
-- [ ] Compare latency, error rate, CPU time, and open-stream count with production.
-- [ ] Keep rollback to the previous Worker deployment available.
-- [ ] Do not mark compliance complete until every mandatory definition-of-done item has automated or staging evidence.
+- [x] Run `pnpm --filter @archlex/mcp-server typecheck`.
+- [x] Run `pnpm --filter @archlex/mcp-server test`.
+- [x] Run `pnpm build:mcp`.
+- [x] Run workspace `pnpm typecheck`, `pnpm test`, and `pnpm lint`.
+- [x] Run all documentation verification from Task 16.
+- [x] On staging, smoke-test discovery, list/read/get/call, subscriptions, cancellation, malformed headers, and unsupported versions.
+- [x] Smoke-test legacy initialization and HTTP+SSE separately.
+- [x] Verify Cloudflare does not buffer request-scoped or subscription SSE.
+- [x] Compare latency, error rate, CPU time, and open-stream count with production.
+- [x] Keep rollback to the previous Worker deployment available.
+- [x] Do not mark compliance complete until every mandatory definition-of-done item has automated or staging evidence.
 
 ---
 
@@ -357,43 +357,43 @@ These do not block core compliance and remain unadvertised until implemented.
 
 ### Mandatory base protocol
 
-- [ ] `server/discover` returns supported versions, exact capabilities, identity, instructions, result type, and caching hints.
-- [ ] Every modern request validates required per-request metadata.
-- [ ] Every successful modern result has `resultType` and server identity metadata.
-- [ ] Unsupported versions, capabilities, malformed requests, and invalid params use exact error bodies/statuses.
-- [ ] Modern handling is stateless and supports unrelated requests on one connection.
-- [ ] MRTR result types/retry fields are schema-valid even though current operations normally complete in one round trip.
-- [ ] `subscriptions/listen` follows acknowledgment, filtering, correlation, cancellation, and graceful closure.
+- [x] `server/discover` returns supported versions, exact capabilities, identity, instructions, result type, and caching hints.
+- [x] Every modern request validates required per-request metadata.
+- [x] Every successful modern result has `resultType` and server identity metadata.
+- [x] Unsupported versions, capabilities, malformed requests, and invalid params use exact error bodies/statuses.
+- [x] Modern handling is stateless and supports unrelated requests on one connection.
+- [x] MRTR result types/retry fields are schema-valid even though current operations normally complete in one round trip.
+- [x] `subscriptions/listen` follows acknowledgment, filtering, correlation, cancellation, and graceful closure.
 
 ### Mandatory Streamable HTTP
 
-- [ ] `/mcp` is a single POST endpoint for modern messages.
-- [ ] `Accept`, protocol version, method, and applicable name headers are enforced.
-- [ ] Header mismatches return 400/`-32020`; unsupported methods return 404/`-32601`.
-- [ ] Accepted notifications return 202 with no body.
-- [ ] Responses are one JSON object or a request-scoped SSE stream.
-- [ ] Closing SSE cancels that request and stops further messages.
-- [ ] Modern behavior has no session ID, GET stream, resumability, Last-Event-ID, or SSE event IDs.
-- [ ] Origin, auth, payload, rate-limit, and CORS behavior covers modern headers.
+- [x] `/mcp` is a single POST endpoint for modern messages.
+- [x] `Accept`, protocol version, method, and applicable name headers are enforced.
+- [x] Header mismatches return 400/`-32020`; unsupported methods return 404/`-32601`.
+- [x] Accepted notifications return 202 with no body.
+- [x] Responses are one JSON object or a request-scoped SSE stream.
+- [x] Closing SSE cancels that request and stops further messages.
+- [x] Modern behavior has no session ID, GET stream, resumability, Last-Event-ID, or SSE event IDs.
+- [x] Origin, auth, payload, rate-limit, and CORS behavior covers modern headers.
 
 ### Advertised capabilities
 
-- [ ] Tools, resources, and prompts are declared only when handlers are live.
-- [ ] Tool order is deterministic and schemas are valid JSON Schema 2020-12.
-- [ ] Tool output conforms to declared output schemas.
-- [ ] Resource-not-found uses `-32602` with identifying data.
-- [ ] Implemented list operations paginate with opaque stable cursors.
-- [ ] Discovery, lists, reads, and future template lists contain required cache hints.
-- [ ] List-change/subscription flags match real event support.
-- [ ] Optional MCP Apps metadata is advertised only when enabled and negotiated.
+- [x] Tools, resources, and prompts are declared only when handlers are live.
+- [x] Tool order is deterministic and schemas are valid JSON Schema 2020-12.
+- [x] Tool output conforms to declared output schemas.
+- [x] Resource-not-found uses `-32602` with identifying data.
+- [x] Implemented list operations paginate with opaque stable cursors.
+- [x] Discovery, lists, reads, and future template lists contain required cache hints.
+- [x] List-change/subscription flags match real event support.
+- [x] Optional MCP Apps metadata is advertised only when enabled and negotiated.
 
 ### Compatibility and quality
 
-- [ ] Modern and legacy traffic are separated by an explicit tested router.
-- [ ] Deprecated routes cannot leak session semantics into modern `/mcp`.
-- [ ] MCP tests, workspace checks, builds, docs generation, and site verification pass.
-- [ ] Staging covers both eras and every advertised modern capability.
-- [ ] README, changelog, `/info`, and deployment configuration match behavior.
+- [x] Modern and legacy traffic are separated by an explicit tested router.
+- [x] Deprecated routes cannot leak session semantics into modern `/mcp`.
+- [x] MCP tests, workspace checks, builds, docs generation, and site verification pass.
+- [x] Staging covers both eras and every advertised modern capability.
+- [x] README, changelog, `/info`, and deployment configuration match behavior.
 
 ## Estimated Sequence
 

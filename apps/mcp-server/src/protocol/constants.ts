@@ -20,6 +20,16 @@ export const SUPPORTED_PROTOCOL_VERSIONS = [MODERN_PROTOCOL_VERSION] as const;
 export const LEGACY_PROTOCOL_VERSIONS = ["2025-03-26"] as const;
 
 /**
+ * Server identity constants
+ */
+export const SERVER_NAME = "archlex-mcp-server" as const;
+export const SERVER_VERSION = "0.2.0" as const;
+export const SERVER_INFO = {
+  name: SERVER_NAME,
+  version: SERVER_VERSION,
+} as const;
+
+/**
  * Metadata keys used in modern MCP requests and responses
  */
 export const METADATA_KEYS = {

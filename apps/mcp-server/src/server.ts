@@ -17,6 +17,7 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { SERVER_INFO } from "./protocol/constants.js";
 import {
   SERVER_INSTRUCTIONS,
   callTool,
@@ -32,7 +33,7 @@ import { DIAGRAM_VIEWER_MIME_TYPE } from "./ui/diagram-viewer.js";
 export function createLegacyMcpServer(env?: Env): Server {
   const options = { enableMcpApps: env?.ENABLE_MCP_APPS === "true" };
   const server = new Server(
-    { name: "archlex-mcp-server", version: "0.1.0" },
+    { name: SERVER_INFO.name, version: SERVER_INFO.version },
     {
       instructions: SERVER_INSTRUCTIONS,
       capabilities: {
