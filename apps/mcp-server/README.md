@@ -112,7 +112,7 @@ The `render_diagram` tool supports two rendering paths:
 
 ### Direct Rendering Path (Default)
 
-**Current implementation** — works with all MCP clients today.
+**Current implementation** — works with MCP clients that support base64 PNG images.
 
 - Returns a base64-encoded PNG image in `content[0]`
 - Returns a text summary and the exact final ArchLex source in `content[1]`
@@ -123,17 +123,49 @@ The `render_diagram` tool supports two rendering paths:
 - Falls back to the base diagram when icon hydration exceeds 1.5 seconds
 - Bounds PNG output to 4,096 pixels per side and 4 million total pixels
 - Bundles Inter under the SIL Open Font License so labels render consistently in Workers
-- Agents display the embedded image inline without additional client support
+- Agents display the embedded image inline when the client supports base64 PNG images
 
-This mode prioritizes **universal compatibility** — any MCP client that can display base64 images will show rendered diagrams.
+### URL Delivery (Optional)
+
+When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL in addition to the embedded base64 PNG image:
+
+- The existing `content[0]` image block remains the primary MCP image
+- The tool result includes `image_delivery: "url"` in `structuredContent` when a URL was generated
+- The URL is a stateless encrypted token encoding the diagram source and expires after `RENDER_URL_TTL_SECONDS` (default `600`)
+- The result includes `image_url`, `image_width`, `image_height`, `alt_text`, `image_mime_type`, and `image_expires_at`
+- A `resource_link` block is added to `content[]` for clients that support MCP resource links
+- Markdown-formatted image syntax is included in the text content for clients that render Markdown
+- Falls back to embedded base64 PNG delivery (`image_delivery: "embedded"`) when the encrypted token would exceed `RENDER_URL_MAX_LENGTH` or URL delivery is unconfigured
+- The embedded fallback reason is reported in `image_url_fallback_reason` (e.g., `"source_too_large"`, `"render_url_unconfigured"`)
+- Failed renders (diagnostics with errors) never generate URLs and set top-level `isError: true`
+
+**URL delivery configuration:**
+
+- `RENDER_URL_SECRET`: high-entropy secret for AES-256-GCM encryption. Set with `wrangler secret put RENDER_URL_SECRET`. Never put the secret in `wrangler.json`.
+- `RENDER_URL_TTL_SECONDS` (optional): token lifetime in seconds. Defaults to `600`.
+- `RENDER_URL_MAX_LENGTH` (optional): maximum complete URL length. Defaults to `7500`.
+
+**When to use URL delivery:**
+
+- Clients that render Markdown images from `https://` URLs
+- Clients that support MCP resource links
+- Reducing message payload size for large diagrams
+- Enabling diagram persistence beyond the conversation context
+
+**When embedded delivery is preferred:**
+
+- Clients without Markdown or resource link support
+- Use cases requiring guaranteed inline rendering
+- Diagrams that must persist indefinitely in the conversation history
 
 ### Interactive Rendering Path (Opt-in)
 
 **Future-ready** — requires MCP Apps (SEP-1865) support in the client.
 
-- Declares `_meta.ui.resourceUri: "ui://archlex/diagram-viewer"` in the tool definition
+- Always declares `_meta.ui.resourceUri: "ui://archlex/diagram-viewer"` in the tool definition for forward compatibility
 - Clients supporting MCP Apps can load the interactive viewer iframe
 - Provides interactive diagram exploration (pan, zoom, node inspection)
+- The viewer degrades gracefully: accepts SVG from `structuredContent.svg` or PNG from `content[].type === "image"`
 
 Enable this mode via the `ENABLE_MCP_APPS` environment variable when your MCP client supports it. The Direct Rendering Path remains the fallback for all clients.
 
@@ -143,22 +175,26 @@ When MCP Apps support arrives in your client:
 
 1. Set `ENABLE_MCP_APPS=true` in your Worker environment variables
 2. Redeploy the Worker
-3. The tool declaration will include MCP Apps metadata
+3. The tool will include SVG in `structuredContent` for the interactive viewer
 4. Clients supporting MCP Apps will use the interactive viewer; others will continue using the Direct Rendering Path
 
 ## Client Compatibility
 
-| Client | Base64 Images | MCP Apps |
-|--------|---------------|----------|
-| Claude Desktop | ✅ | ⏳ Coming soon |
-| Claude Code | ✅ | ⏳ Coming soon |
-| Codex | ✅ | ⏳ Coming soon |
-| Cursor | ✅ | ⏳ Coming soon |
-| Generic MCP clients | ✅ | ⏳ Depends on client |
+| Client | Base64 PNG Images | MCP Resource Links | Markdown URLs | MCP Apps |
+|--------|-------------------|--------------------|--------------|----|
+| Claude Desktop | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
+| Claude Code | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
+| Codex | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
+| Cursor | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
+| Generic MCP clients | ✅ Depends on client | ⏳ Depends on client | ⏳ Depends on client | ⏳ Depends on client |
 
-**Base64 Images**: All current MCP clients support displaying embedded base64 SVG images inline (Direct Rendering Path).
+**Base64 PNG Images**: Widely supported across MCP clients. The primary delivery method for embedded diagrams.
 
-**MCP Apps**: Interactive viewer support via the MCP Apps extension (SEP-1865). No client has implemented this yet, but when they do, you can enable it via the `ENABLE_MCP_APPS` flag.
+**MCP Resource Links**: Clients that support the MCP resource link specification can fetch diagrams from `image_url` via the resource protocol.
+
+**Markdown URLs**: Clients that render Markdown image syntax can display diagrams from `![alt](image_url)` in the text content.
+
+**MCP Apps**: Interactive viewer support via the MCP Apps extension (SEP-1865). The viewer metadata is always advertised for forward compatibility and will degrade to PNG when SVG is unavailable.
 
 ## Security & Environment Variables
 
@@ -169,7 +205,10 @@ Open access by default. Configure Worker environment variables for private deplo
 - `RATE_LIMIT_MAX_REQUESTS` (optional): Max requests per 60s per IP (default: `60`).
 - `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests (default: `30000`).
 - `MCP_MAX_REQUEST_TIMEOUT_MS` (optional): Deployment-specific timeout ceiling, capped at `120000` milliseconds (default: `120000`).
-- `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer metadata (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). When disabled, only the Direct Rendering Path is advertised, ensuring compatibility with all current clients.
+- `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer SVG inclusion (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). The viewer metadata is always advertised for forward compatibility.
+- `RENDER_URL_SECRET` (optional): High-entropy secret for stateless URL delivery encryption (AES-256-GCM). Set with `wrangler secret put RENDER_URL_SECRET`.
+- `RENDER_URL_TTL_SECONDS` (optional): Stateless URL token lifetime in seconds. Defaults to `600`.
+- `RENDER_URL_MAX_LENGTH` (optional): Maximum complete URL length in characters. Defaults to `7500`. URLs exceeding this length fall back to embedded delivery.
 
 ## Development
 

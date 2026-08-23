@@ -3,6 +3,7 @@ import worker from "../src/index.js";
 import {
   checkRateLimit,
   inMemoryRateLimiter,
+  parseRenderUrlConfig,
   validateAuthentication,
   validateOrigin,
   validatePayloadSize,
@@ -150,6 +151,30 @@ describe("MCP Security Middleware", () => {
       expect(res.status).toBe(429);
       const data = (await res.json()) as { error: string };
       expect(data.error).toContain("Too Many Requests");
+    });
+  });
+
+  describe("parseRenderUrlConfig", () => {
+    it("defaults TTL to 600 seconds and max URL length to 7500", () => {
+      expect(parseRenderUrlConfig()).toEqual({
+        secret: "",
+        ttlSeconds: 600,
+        maxUrlLength: 7500,
+      });
+    });
+
+    it("parses positive bounded integers from env", () => {
+      expect(
+        parseRenderUrlConfig({
+          RENDER_URL_SECRET: "secret",
+          RENDER_URL_TTL_SECONDS: "120",
+          RENDER_URL_MAX_LENGTH: "4000",
+        }),
+      ).toEqual({
+        secret: "secret",
+        ttlSeconds: 120,
+        maxUrlLength: 4000,
+      });
     });
   });
 });

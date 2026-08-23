@@ -31,6 +31,7 @@ import {
   createGuardedOperationHandlers,
   renderProgressively,
 } from "./render-pipeline.js";
+import { resolveInitialSource } from "./url-source.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
 const archlex = createArchLex({
@@ -54,14 +55,20 @@ export type OperationMessage = {
   text: string;
 } | null;
 
-function loadPersistedSource(): string {
+function loadPersistedSource(): string | null {
   try {
-    const saved = localStorage.getItem(STORAGE_SOURCE_KEY);
-    if (saved && saved.trim().length > 0) return saved;
+    return localStorage.getItem(STORAGE_SOURCE_KEY);
   } catch {
-    // LocalStorage corrupted or disabled fallback
+    return null;
   }
-  return ARCHITECTURE_EXAMPLES[0].source;
+}
+
+function loadInitialSource(): string {
+  return resolveInitialSource(
+    window.location.search,
+    loadPersistedSource(),
+    ARCHITECTURE_EXAMPLES[0].source,
+  );
 }
 
 interface PersistedOptions {
@@ -97,7 +104,7 @@ function loadPersistedOptions(): PersistedOptions {
 export function App() {
   const initialOptions = loadPersistedOptions();
 
-  const [source, setSource] = useState(loadPersistedSource);
+  const [source, setSource] = useState(loadInitialSource);
   const [direction, setDirection] = useState<"LR" | "RL" | "TB" | "BT">(
     initialOptions.direction,
   );

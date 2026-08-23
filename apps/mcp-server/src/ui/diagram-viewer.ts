@@ -15,6 +15,47 @@ export const DIAGRAM_VIEWER_URI = "ui://archlex/diagram-viewer";
 
 export const DIAGRAM_VIEWER_MIME_TYPE = "text/html;profile=mcp-app";
 
+/**
+ * Extract diagram viewer payload from a tool result.
+ * Supports both SVG (from structuredContent.svg) and PNG (from content[].type === "image").
+ */
+export function extractDiagramViewerPayload(result: {
+  content?: Array<{
+    type: string;
+    data?: string;
+    mimeType?: string;
+    text?: string;
+  }>;
+  structuredContent?: {
+    svg?: string;
+    playground_url?: string;
+    diagnostics?: unknown[];
+  };
+}): { image: string; playgroundUrl?: string; diagnostics?: unknown[] } | null {
+  // Prefer SVG from structuredContent
+  if (result.structuredContent?.svg) {
+    return {
+      image: result.structuredContent.svg,
+      playgroundUrl: result.structuredContent.playground_url,
+      diagnostics: result.structuredContent.diagnostics,
+    };
+  }
+
+  // Fallback to PNG from content array
+  const imageContent = result.content?.find(
+    (c) => c.type === "image" && c.data && c.mimeType === "image/png",
+  );
+  if (imageContent?.data) {
+    return {
+      image: `data:image/png;base64,${imageContent.data}`,
+      playgroundUrl: result.structuredContent?.playground_url,
+      diagnostics: result.structuredContent?.diagnostics,
+    };
+  }
+
+  return null;
+}
+
 export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +87,7 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
     left: 0;
     transform-origin: 0 0;
   }
-  #stage svg {
+  #stage svg, #stage img {
     display: block;
     max-width: none;
   }
@@ -170,17 +211,22 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
 
   function diagramSize() {
     var svg = stage.querySelector("svg");
-    if (!svg) return null;
-    var viewBox = svg.getAttribute("viewBox");
-    if (viewBox) {
-      var parts = viewBox.split(/\\s+/).map(Number);
-      if (parts.length === 4 && parts.every(isFinite)) {
-        return { width: parts[2], height: parts[3] };
+    if (svg) {
+      var viewBox = svg.getAttribute("viewBox");
+      if (viewBox) {
+        var parts = viewBox.split(/\\s+/).map(Number);
+        if (parts.length === 4 && parts.every(isFinite)) {
+          return { width: parts[2], height: parts[3] };
+        }
+      }
+      var rect = svg.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return { width: rect.width / view.scale, height: rect.height / view.scale };
       }
     }
-    var rect = svg.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0) {
-      return { width: rect.width / view.scale, height: rect.height / view.scale };
+    var img = stage.querySelector("img");
+    if (img && img.naturalWidth > 0 && img.naturalHeight > 0) {
+      return { width: img.naturalWidth, height: img.naturalHeight };
     }
     return null;
   }
@@ -216,7 +262,7 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
   document.getElementById("zoom-fit").addEventListener("click", fitToContainer);
 
   viewer.addEventListener("wheel", function (event) {
-    if (stage.querySelector("svg")) {
+    if (stage.querySelector("svg") || stage.querySelector("img")) {
       event.preventDefault();
       zoomBy(event.deltaY < 0 ? 1.1 : 0.9);
     }
@@ -286,15 +332,40 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
   // ---------- tool data ----------
 
   function findPayload(result) {
+    // Prefer SVG from structuredContent
     if (result && result.structuredContent && result.structuredContent.svg) {
-      return result.structuredContent;
+      return {
+        type: "svg",
+        data: result.structuredContent.svg,
+        playground_url: result.structuredContent.playground_url,
+        diagnostics: result.structuredContent.diagnostics,
+      };
     }
+    // Fallback to PNG from content array
     var content = (result && result.content) || [];
+    for (var i = 0; i < content.length; i++) {
+      if (content[i].type === "image" && content[i].data && content[i].mimeType === "image/png") {
+        return {
+          type: "png",
+          data: content[i].data,
+          playground_url: result.structuredContent && result.structuredContent.playground_url,
+          diagnostics: result.structuredContent && result.structuredContent.diagnostics,
+        };
+      }
+    }
+    // Legacy: try parsing text content as JSON
     for (var i = 0; i < content.length; i++) {
       if (content[i].type === "text") {
         try {
           var parsed = JSON.parse(content[i].text);
-          if (parsed && parsed.svg) return parsed;
+          if (parsed && parsed.svg) {
+            return {
+              type: "svg",
+              data: parsed.svg,
+              playground_url: parsed.playground_url,
+              diagnostics: parsed.diagnostics,
+            };
+          }
         } catch (e) {
           // not JSON, keep looking
         }
@@ -320,26 +391,41 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
   }
 
   function handleToolResult(result) {
-    if (result && result.isError) {
-      status.textContent = "Diagram rendering failed.";
-      return;
-    }
     var payload = findPayload(result);
     if (!payload) {
-      status.textContent = "No diagram in tool result.";
+      status.textContent = result && result.isError
+        ? "Diagram rendering failed."
+        : "No diagram in tool result.";
       return;
     }
-    stage.innerHTML = payload.svg;
-    var svg = stage.querySelector("svg");
-    if (svg) {
-      svg.removeAttribute("width");
-      svg.removeAttribute("height");
-      var size = diagramSize();
-      if (size) {
-        svg.setAttribute("width", String(size.width));
-        svg.setAttribute("height", String(size.height));
+
+    // Clear stage
+    stage.innerHTML = "";
+
+    if (payload.type === "svg") {
+      stage.innerHTML = payload.data;
+      var svg = stage.querySelector("svg");
+      if (svg) {
+        svg.removeAttribute("width");
+        svg.removeAttribute("height");
+        var size = diagramSize();
+        if (size) {
+          svg.setAttribute("width", String(size.width));
+          svg.setAttribute("height", String(size.height));
+        }
       }
+    } else if (payload.type === "png") {
+      var img = document.createElement("img");
+      img.src = "data:image/png;base64," + payload.data;
+      img.style.maxWidth = "none";
+      img.style.height = "auto";
+      img.onload = function () {
+        fitToContainer();
+        reportSize();
+      };
+      stage.appendChild(img);
     }
+
     renderErrors(payload.diagnostics);
     if (payload.playground_url) {
       playgroundLink.setAttribute("data-url", payload.playground_url);

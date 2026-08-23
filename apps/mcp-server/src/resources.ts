@@ -60,11 +60,11 @@ ${relationshipKindsSection()}
 
 ## Containment Scopes (Nested Blocks)
 \`\`\`
-vpc: dev {
-  subnet: public {
-    apigateway > lambda
+vpc dev {
+  subnet public {
+    api-gateway > lambda
   }
-  subnet: private {
+  subnet private {
     rds-proxy > rds
   }
 }
@@ -84,11 +84,11 @@ export const ARCHLEX_EXAMPLES = {
   "aws-microservices": `direction LR
 provider aws
 
-vpc: production {
-  subnet: public {
-    apigateway["API Gateway"] > lambda["Auth Service"]
+vpc production {
+  subnet public {
+    api-gateway["API Gateway"] > lambda["Auth Service"]
   }
-  subnet: private {
+  subnet private {
     lambda["Auth Service"] -[writes]-> dynamodb["Users Table"]
     lambda["Auth Service"] -[publishes]-> sns["User Events"]
   }

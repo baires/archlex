@@ -8,11 +8,11 @@ Complete, validated diagrams to use as starting points.
 direction LR
 provider aws
 
-vpc: production {
-  subnet: public {
-    apigateway["API Gateway"] > lambda["Auth Service"]
+vpc production {
+  subnet public {
+    api-gateway["API Gateway"] > lambda["Auth Service"]
   }
-  subnet: private {
+  subnet private {
     lambda["Auth Service"] -[writes]-> dynamodb["Users Table"]
     lambda["Auth Service"] -[publishes]-> sns["User Events"]
   }
@@ -51,8 +51,8 @@ a reminder to configure Origin Access Control.
 direction LR
 provider aws
 
-vpc: application {
-  subnet: private {
+vpc application {
+  subnet private {
     app: ecs
     proxy: rds-proxy
     database: rds

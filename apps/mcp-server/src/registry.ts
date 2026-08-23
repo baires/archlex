@@ -13,6 +13,7 @@ import {
   DOC_RESOURCES,
 } from "./generated/docs-resources.js";
 import { SYSTEM_PROMPTS } from "./prompts.js";
+import type { RenderLinkConfig } from "./render-links.js";
 import { ARCHLEX_EXAMPLES, ARCHLEX_SYNTAX_GUIDE } from "./resources.js";
 import { logTelemetry } from "./security.js";
 import { type GetCatalogArgs, handleGetCatalog } from "./tools/catalog.js";
@@ -55,6 +56,7 @@ function toolPresentation(
 
 export interface RegistryOptions {
   enableMcpApps: boolean;
+  renderLinkConfig?: RenderLinkConfig;
   signal?: AbortSignal;
   onProgress?: (progress: Progress) => void;
 }
@@ -120,20 +122,30 @@ export function listTools(options: RegistryOptions): Tool[] {
               code: { type: "string" },
               severity: { type: "string" },
               message: { type: "string" },
+              hint: { type: "string" },
+              remediation: { type: "string" },
             },
           },
         },
         playground_url: { type: "string" },
         nodes_count: { type: "number" },
         edges_count: { type: "number" },
+        image_delivery: { type: "string", enum: ["url", "embedded"] },
+        image_url: { type: "string" },
+        image_mime_type: { type: "string" },
+        image_width: { type: "number" },
+        image_height: { type: "number" },
+        alt_text: { type: "string" },
+        image_expires_at: { type: "string" },
+        image_url_fallback_reason: {
+          type: "string",
+          enum: ["render_url_unconfigured", "source_too_large"],
+        },
       },
       required: ["success", "source"],
     },
+    _meta: { ui: { resourceUri: DIAGRAM_VIEWER_URI } },
   };
-
-  if (options.enableMcpApps) {
-    renderDiagram._meta = { ui: { resourceUri: DIAGRAM_VIEWER_URI } };
-  }
 
   return [
     renderDiagram,
@@ -230,6 +242,7 @@ export async function callTool(
           args as unknown as RenderDiagramArgs,
           {
             enableMcpApps: context.enableMcpApps,
+            renderLinkConfig: context.renderLinkConfig,
             signal: context.signal,
             onProgress: context.onProgress,
           },

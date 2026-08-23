@@ -1,5 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { IconLoader, SanitizedIcon } from "@archlex/icons-core";
 import { describe, expect, it } from "vitest";
 import worker from "../src/index.js";
@@ -73,7 +75,7 @@ describe("ArchLex MCP Server Tools", () => {
       if (textContent.type !== "text") throw new Error("Expected text content");
 
       expect(textContent.text).toMatch(
-        /^✗ Rendering failed: \d+ errors?\n\n```archlex\n/,
+        /^✗ Rendering failed: \d+ errors?\..*\n\n```archlex\n/s,
       );
       expect(textContent.text.endsWith(`${source}\n\`\`\``)).toBe(true);
       expect(textContent.text).not.toContain("{");
@@ -194,7 +196,10 @@ describe("ArchLex MCP Server Tools", () => {
       const recoloredPng = await rasterizeSvg(
         String(structured.svg).replace("#ff00aa", "#00ffaa"),
       );
-      expect(result.content[0].data).not.toBe(
+      const firstContent = result.content[0];
+      if (firstContent.type !== "image")
+        throw new Error("Expected image content");
+      expect(firstContent.data).not.toBe(
         Buffer.from(recoloredPng).toString("base64"),
       );
     });
@@ -250,6 +255,277 @@ describe("ArchLex MCP Server Tools", () => {
     });
   });
 
+  describe("URL delivery", () => {
+    it("delivers diagram via URL when renderLinkConfig is provided", async () => {
+      const source = "provider aws\necs > rds";
+      const config = {
+        secret: "test-secret-key-min-32-chars-long-for-aes-256",
+        ttlSeconds: 3600,
+        maxUrlLength: 8000,
+        baseUrl: "https://mcp.archlex.dev",
+      };
+      const result = await handleRenderDiagram(
+        { source },
+        { renderLinkConfig: config },
+      );
+
+      // Content ordering: image block, resource link, text summary
+      expect(result.content).toHaveLength(3);
+      expect(result.content[0]).toMatchObject({
+        type: "image",
+        mimeType: "image/png",
+      });
+      expect(result.content[1]).toMatchObject({
+        type: "resource_link",
+        uri: expect.stringMatching(
+          /^https:\/\/mcp\.archlex\.dev\/renders\/.+\.png$/,
+        ),
+        mimeType: "image/png",
+        name: expect.any(String),
+      });
+      expect(result.content[2].type).toBe("text");
+
+      // Text should contain Markdown using the returned URL
+      const textContent = result.content[2];
+      if (textContent.type !== "text") throw new Error("Expected text content");
+      expect(textContent.text).toContain(
+        "![Architecture diagram: 2 nodes, 1 edge](https://mcp.archlex.dev/renders/",
+      );
+      expect(textContent.text).toMatch(/\.png\)/);
+
+      // Structured content should indicate URL delivery
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.image_delivery).toBe("url");
+      expect(structured.image_url).toMatch(
+        /^https:\/\/mcp\.archlex\.dev\/renders\/.+\.png$/,
+      );
+      expect(structured.image_mime_type).toBe("image/png");
+      expect(structured.image_width).toBeGreaterThan(0);
+      expect(structured.image_height).toBeGreaterThan(0);
+      expect(structured.alt_text).toBeTruthy();
+      expect(structured.image_expires_at).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      );
+    });
+
+    it("falls back to embedded when secret is missing", async () => {
+      const source = "provider aws\necs > rds";
+      const result = await handleRenderDiagram({ source });
+
+      // Only image block and text summary (no resource link)
+      expect(result.content).toHaveLength(2);
+      expect(result.content[0].type).toBe("image");
+      expect(result.content[1].type).toBe("text");
+
+      // Structured content should indicate embedded delivery
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.image_delivery).toBe("embedded");
+      expect(structured.image_url_fallback_reason).toBe(
+        "render_url_unconfigured",
+      );
+      expect(structured.image_url).toBeUndefined();
+    });
+
+    it("falls back to embedded when source is too large", async () => {
+      const source = "provider aws\necs > rds";
+      const config = {
+        secret: "test-secret-key-min-32-chars-long-for-aes-256",
+        ttlSeconds: 3600,
+        maxUrlLength: 100, // Very small limit to force fallback
+        baseUrl: "https://mcp.archlex.dev",
+      };
+      const result = await handleRenderDiagram(
+        { source },
+        { renderLinkConfig: config },
+      );
+
+      // Only image block and text summary (no resource link)
+      expect(result.content).toHaveLength(2);
+      expect(result.content[0].type).toBe("image");
+      expect(result.content[1].type).toBe("text");
+
+      // Structured content should indicate embedded delivery
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.image_delivery).toBe("embedded");
+      expect(structured.image_url_fallback_reason).toBe("source_too_large");
+      expect(structured.image_url).toBeUndefined();
+    });
+
+    it("wires URL delivery through the live worker when the secret is configured", async () => {
+      const secret = "test-secret-key-min-32-chars-long-for-aes-256";
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 42,
+          method: "tools/call",
+          params: {
+            name: "render_diagram",
+            arguments: { source: "provider aws\necs > rds" },
+          },
+        }),
+      });
+      const response = await worker.fetch(request, {
+        RENDER_URL_SECRET: secret,
+      });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          content: Array<{ type: string; uri?: string }>;
+          structuredContent: Record<string, unknown>;
+        };
+      };
+      expect(data.result.content[0]?.type).toBe("image");
+      expect(data.result.content[1]).toMatchObject({
+        type: "resource_link",
+        uri: expect.stringMatching(
+          /^https:\/\/mcp\.archlex\.dev\/renders\/.+\.png$/,
+        ),
+      });
+      const imageUrl = data.result.structuredContent.image_url;
+      expect(imageUrl).toMatch(
+        /^https:\/\/mcp\.archlex\.dev\/renders\/.+\.png$/,
+      );
+      expect(data.result.structuredContent.image_delivery).toBe("url");
+
+      const imageResponse = await worker.fetch(new Request(String(imageUrl)), {
+        RENDER_URL_SECRET: secret,
+      });
+      expect(imageResponse.status).toBe(200);
+      const bytes = new Uint8Array(await imageResponse.arrayBuffer());
+      expect([...bytes.subarray(0, 8)]).toEqual([
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+      ]);
+    });
+
+    it("reports embedded delivery on the live worker when the secret is missing", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 43,
+          method: "tools/call",
+          params: {
+            name: "render_diagram",
+            arguments: { source: "provider aws\necs > rds" },
+          },
+        }),
+      });
+      const response = await worker.fetch(request);
+      const data = (await response.json()) as {
+        result: { structuredContent: Record<string, unknown> };
+      };
+      expect(data.result.structuredContent.image_delivery).toBe("embedded");
+      expect(data.result.structuredContent.image_url_fallback_reason).toBe(
+        "render_url_unconfigured",
+      );
+      expect(data.result.structuredContent.image_url).toBeUndefined();
+    });
+  });
+
+  describe("Failed renders and diagnostics", () => {
+    it("preserves remediation from parser diagnostics", async () => {
+      const source = "provider aws\nvpc: production {}";
+      const result = await handleRenderDiagram({ source });
+
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.success).toBe(false);
+      expect(result.isError).toBe(true);
+      expect(structured).not.toHaveProperty("isError");
+
+      const diagnostics = structured.diagnostics as Array<{
+        severity: string;
+        message: string;
+        hint?: string;
+        remediation?: string;
+      }>;
+      expect(diagnostics).toBeDefined();
+      const errorDiag = diagnostics.find((d) => d.severity === "error");
+      expect(errorDiag).toBeDefined();
+
+      const guidance = errorDiag?.hint || errorDiag?.remediation;
+      expect(guidance).toContain("vpc production {");
+      expect(guidance).toMatch(/api:\s*ecs|named-resource|colons name/i);
+    });
+
+    it("marks failed renders and suppresses URL delivery", async () => {
+      const source = "provider aws\nvpc: production {}";
+      const config = {
+        secret: "test-secret-key-min-32-chars-long-for-aes-256",
+        ttlSeconds: 3600,
+        maxUrlLength: 8000,
+        baseUrl: "https://mcp.archlex.dev",
+      };
+      const result = await handleRenderDiagram(
+        { source },
+        { renderLinkConfig: config },
+      );
+
+      const structured = result.structuredContent as Record<string, unknown>;
+      expect(structured.success).toBe(false);
+      expect(result.isError).toBe(true);
+      expect(structured).not.toHaveProperty("isError");
+      expect(structured.image_url).toBeUndefined();
+      expect(structured.image_delivery).toBeUndefined();
+
+      // Text should indicate partial preview
+      const textContent = result.content.find((c) => c.type === "text");
+      expect(textContent).toBeDefined();
+      if (textContent?.type !== "text")
+        throw new Error("Expected text content");
+      expect(textContent.text).toMatch(/partial preview|preview only/i);
+      expect(textContent.text).toMatch(/error/i);
+    });
+
+    it("marks failed SVG renders as errors", async () => {
+      const result = await handleRenderDiagram({
+        source: "provider aws\nvpc: production {}",
+        format: "svg",
+      });
+      expect(result.isError).toBe(true);
+      expect(result.structuredContent).not.toHaveProperty("isError");
+    });
+  });
+
+  describe("Compatibility documentation", () => {
+    it("documents URL delivery configuration and fallback behavior", async () => {
+      const __dirname = path.dirname(fileURLToPath(import.meta.url));
+      const readmePath = path.join(__dirname, "..", "README.md");
+      const readme = await readFile(readmePath, "utf8");
+
+      // Reject universal support claims
+      expect(readme).not.toMatch(/all current MCP clients/i);
+      expect(readme).not.toMatch(/all MCP hosts/i);
+
+      // Require configuration variable names
+      expect(readme).toContain("RENDER_URL_SECRET");
+      expect(readme).toContain("RENDER_URL_TTL_SECONDS");
+      expect(readme).toContain("RENDER_URL_MAX_LENGTH");
+
+      // Require fallback behavior explanation
+      expect(readme).toMatch(/embedded.*fallback|fallback.*embedded/i);
+      expect(readme).toMatch(/image_delivery/);
+
+      // Correct format description
+      expect(readme).not.toMatch(/base64 SVG/);
+      expect(readme).toMatch(/base64 PNG|PNG.*base64/i);
+      expect(readme).toContain("wrangler secret put RENDER_URL_SECRET");
+      expect(readme).toMatch(/default(?:s)?(?: to)? `?600`?|TTL.*600/i);
+
+      const guidePath = path.join(
+        __dirname,
+        "../../../docs/guides/mcp-server.md",
+      );
+      const guide = await readFile(guidePath, "utf8");
+      expect(guide).toContain("RENDER_URL_SECRET");
+      expect(guide).toContain("RENDER_URL_TTL_SECONDS");
+      expect(guide).toContain("RENDER_URL_MAX_LENGTH");
+      expect(guide).toMatch(/image_delivery|stateless URL/i);
+    });
+  });
+
   describe("MCP Apps (ui extension)", () => {
     it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
       const request = new Request("https://mcp.archlex.dev/messages", {
@@ -293,6 +569,39 @@ describe("ArchLex MCP Server Tools", () => {
         "The image is the primary output",
       );
       expect(renderTool?.description).not.toContain("SHOULD");
+    });
+
+    it("always advertises diagram viewer even when ENABLE_MCP_APPS is false", async () => {
+      const request = new Request("https://mcp.archlex.dev/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 10,
+          method: "tools/list",
+        }),
+      });
+
+      const response = await worker.fetch(request, {
+        ENABLE_MCP_APPS: "false",
+      });
+      expect(response.status).toBe(200);
+      const data = (await response.json()) as {
+        result: {
+          tools: {
+            name: string;
+            _meta?: { ui?: { resourceUri?: string } };
+          }[];
+        };
+      };
+
+      const renderTool = data.result.tools.find(
+        (t) => t.name === "render_diagram",
+      );
+      expect(renderTool).toBeDefined();
+      expect(renderTool?._meta?.ui?.resourceUri).toBe(
+        "ui://archlex/diagram-viewer",
+      );
     });
 
     it("returns SVG data required by the MCP Apps viewer", async () => {
@@ -350,7 +659,10 @@ describe("ArchLex MCP Server Tools", () => {
         (t) => t.name === "render_diagram",
       );
       expect(renderTool).toBeDefined();
-      expect(renderTool?._meta).toBeUndefined();
+      // Metadata is always present for forward compatibility
+      expect(renderTool?._meta?.ui?.resourceUri).toBe(
+        "ui://archlex/diagram-viewer",
+      );
     });
 
     it("includes MCP Apps metadata when ENABLE_MCP_APPS is true", async () => {
@@ -605,6 +917,69 @@ cluster production {
 
       expect(payload.url).toContain("playground.archlex.dev");
       expect(payload.url).toContain(encodeURIComponent(source));
+    });
+  });
+
+  describe("Published Example Validation", () => {
+    it("keeps every bundled example valid against the live parser", async () => {
+      const { ARCHLEX_EXAMPLES } = await import("../src/resources.js");
+      for (const [name, source] of Object.entries(ARCHLEX_EXAMPLES)) {
+        const result = await handleValidateDiagram({ source });
+        const payload = JSON.parse(result.content[0].text);
+        if (!payload.valid) {
+          console.log(
+            `\n${name} validation errors:`,
+            JSON.stringify(payload.diagnostics, null, 2),
+          );
+        }
+        expect(payload, name).toMatchObject({ valid: true, error_count: 0 });
+        expect(
+          payload.diagnostics.some((diagnostic: { code: string }) =>
+            diagnostic.code.includes("UNKNOWN-RESOURCE"),
+          ),
+          name,
+        ).toBe(false);
+      }
+    });
+
+    it("keeps every skill file example valid against the live parser", async () => {
+      const { resolve } = await import("node:path");
+      const { fileURLToPath } = await import("node:url");
+      const projectRoot = resolve(
+        fileURLToPath(import.meta.url),
+        "../../../..",
+      );
+      const skillFiles = [
+        resolve(projectRoot, ".agents/skills/archlex/SKILL.md"),
+        resolve(projectRoot, ".agents/skills/archlex/references/examples.md"),
+      ];
+
+      for (const filePath of skillFiles) {
+        const content = await readFile(filePath, "utf-8");
+        const codeBlockRegex = /```archlex\n([\s\S]*?)```/g;
+        const matches = [...content.matchAll(codeBlockRegex)];
+
+        expect(
+          matches.length,
+          `${filePath} should contain archlex examples`,
+        ).toBeGreaterThan(0);
+
+        for (const [index, match] of matches.entries()) {
+          const source = match[1].trim();
+          const result = await handleValidateDiagram({ source });
+          const payload = JSON.parse(result.content[0].text);
+          expect(payload, `${filePath} example #${index + 1}`).toMatchObject({
+            valid: true,
+            error_count: 0,
+          });
+          expect(
+            payload.diagnostics.some((diagnostic: { code: string }) =>
+              diagnostic.code.includes("UNKNOWN-RESOURCE"),
+            ),
+            `${filePath} example #${index + 1}`,
+          ).toBe(false);
+        }
+      }
     });
   });
 

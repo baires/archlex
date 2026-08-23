@@ -140,4 +140,52 @@ describe("optional presentation metadata", () => {
       rmSync(nonGit, { recursive: true, force: true });
     }
   });
+
+  test("diagram viewer extracts PNG from image content when SVG is absent", async () => {
+    const { extractDiagramViewerPayload } = await import(
+      "../../src/ui/diagram-viewer.js"
+    );
+
+    // Simulate PNG-only tool result (no SVG in structuredContent)
+    const pngOnlyResult = {
+      content: [
+        {
+          type: "image" as const,
+          data: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          mimeType: "image/png",
+        },
+        {
+          type: "text" as const,
+          text: "Rendered successfully",
+        },
+      ],
+      structuredContent: {
+        success: true,
+        source: "provider aws\necs > rds",
+        diagnostics: [],
+        playground_url: "https://playground.archlex.dev/?code=...",
+        nodes_count: 2,
+        edges_count: 1,
+      },
+    };
+
+    const payload = extractDiagramViewerPayload(pngOnlyResult);
+    expect(payload).toBeDefined();
+    expect(payload?.image).toMatch(/^data:image\/png;base64,/);
+    expect(payload?.image).toContain("iVBORw0KGgo");
+    expect(payload?.playgroundUrl).toBe(
+      "https://playground.archlex.dev/?code=...",
+    );
+  });
+
+  test("diagram viewer HTML sizes PNG images and keeps partial previews", async () => {
+    const { DIAGRAM_VIEWER_HTML } = await import(
+      "../../src/ui/diagram-viewer.js"
+    );
+    expect(DIAGRAM_VIEWER_HTML).toContain('querySelector("img")');
+    expect(DIAGRAM_VIEWER_HTML).toContain("naturalWidth");
+    expect(DIAGRAM_VIEWER_HTML).not.toMatch(
+      /result\.isError\) \{\s*status\.textContent = "Diagram rendering failed\.";\s*return;/,
+    );
+  });
 });

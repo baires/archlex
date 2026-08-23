@@ -74,11 +74,11 @@ compatibility endpoints; do not use them for new integrations.
 direction LR
 provider aws
 
-vpc: production {
-  subnet: public {
-    apigateway["API Gateway"] > lambda["Auth Service"]
+vpc production {
+  subnet public {
+    api-gateway["API Gateway"] > lambda["Auth Service"]
   }
-  subnet: private {
+  subnet private {
     lambda["Auth Service"] -[writes]->|SQL| dynamodb["Users Table"]
   }
 }

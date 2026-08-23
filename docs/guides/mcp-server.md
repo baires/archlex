@@ -65,6 +65,14 @@ rasterization and receive raw SVG text instead — intended for text-only or CLI
 clients that save the result to a `.svg` file and view it with their own
 tooling.
 
+Successful PNG results keep the embedded image as `content[0]`. When
+`RENDER_URL_SECRET` is configured and the encrypted token fits
+`RENDER_URL_MAX_LENGTH`, the result also includes a `resource_link`, Markdown
+image syntax, and `structuredContent.image_delivery: "url"` with `image_url`.
+Otherwise the result reports `image_delivery: "embedded"` and
+`image_url_fallback_reason` (`render_url_unconfigured` or `source_too_large`).
+Failed renders set top-level `isError: true` and never publish a URL.
+
 ```json
 {
   "source": "provider k8s\ncluster prod { namespace web { service > deployment } }",
@@ -120,6 +128,17 @@ The hosted server permits open access unless the deployment configures
 `MCP_AUTH_TOKEN`. A protected deployment accepts a bearer token. The Worker
 limits payloads, source length, and requests per IP. It rejects untrusted origins
 when origin enforcement applies.
+
+Stateless render URLs are optional:
+
+- `RENDER_URL_SECRET`: set with `wrangler secret put RENDER_URL_SECRET`. Never
+  store the secret in `wrangler.json`.
+- `RENDER_URL_TTL_SECONDS`: token lifetime in seconds (default `600`).
+- `RENDER_URL_MAX_LENGTH`: maximum complete URL length (default `7500`).
+
+Public `GET /renders/:token.png` bypasses bearer auth and Origin checks, but
+keeps rate limiting, expiry, and authenticated encryption. Without
+`RENDER_URL_SECRET`, rendering stays embedded-only.
 
 Do not place secrets inside architecture source or URLs.
 

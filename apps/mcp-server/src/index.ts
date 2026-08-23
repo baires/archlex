@@ -5,6 +5,7 @@ import { acceptedNotificationResponse } from "./protocol/errors.js";
 import { modernCorsHeaders } from "./protocol/http-headers.js";
 import { handleMcpPost } from "./protocol/router.js";
 import { listTools } from "./registry.js";
+import { handleStatelessRenderRequest } from "./render-endpoint.js";
 import {
   type Env,
   checkRateLimit,
@@ -108,6 +109,26 @@ export default {
       });
     }
 
+    // Rate limiting applies to all routes
+    const rateLimit = await checkRateLimit(request, env);
+    if (!rateLimit.allowed) {
+      logTelemetry("security_event", {
+        type: "rate_limit_exceeded",
+        path: url.pathname,
+      });
+      return jsonResponse(
+        { error: rateLimit.message },
+        rateLimit.status,
+        { "Access-Control-Allow-Origin": allowOrigin },
+        rateLimit.headers,
+      );
+    }
+
+    // Public render endpoint - skip auth and origin checks
+    if (url.pathname.match(/^\/renders\/[^.]+\.png$/)) {
+      return handleStatelessRenderRequest(request, env);
+    }
+
     const corsHeaders = {
       "Access-Control-Allow-Origin": allowOrigin,
     };
@@ -129,20 +150,6 @@ export default {
         { error: authCheck.message },
         authCheck.status,
         corsHeaders,
-      );
-    }
-
-    const rateLimit = await checkRateLimit(request, env);
-    if (!rateLimit.allowed) {
-      logTelemetry("security_event", {
-        type: "rate_limit_exceeded",
-        path: url.pathname,
-      });
-      return jsonResponse(
-        { error: rateLimit.message },
-        rateLimit.status,
-        corsHeaders,
-        rateLimit.headers,
       );
     }
 
@@ -204,7 +211,7 @@ export default {
     if (url.pathname === "/sse" && request.method === "GET") {
       const sessionId = crypto.randomUUID();
       const transport = new WorkerSSEServerTransport(sessionId);
-      const server = createLegacyMcpServer(env);
+      const server = createLegacyMcpServer(env, request);
       activeTransports.set(sessionId, transport);
       await server.connect(transport);
       return transport.createResponse();
@@ -223,7 +230,7 @@ export default {
         return new Response(null, { status: response.status, headers });
       }
 
-      const server = createLegacyMcpServer(env);
+      const server = createLegacyMcpServer(env, request);
       let responseMessage: JSONRPCMessage | undefined;
       let resolveResponse: ((message: JSONRPCMessage) => void) | undefined;
       const responsePromise = new Promise<JSONRPCMessage>((resolve) => {
