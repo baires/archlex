@@ -28,6 +28,7 @@ import {
 import type { RegistryOptions } from "../registry.js";
 import { listResourceTemplates } from "../resource-templates.js";
 import type { Env } from "../security.js";
+import { parseRenderUrlConfig } from "../security.js";
 import { handleLegacyMcpPost } from "../server.js";
 import {
   DEFAULT_PAGE_SIZE,
@@ -278,10 +279,17 @@ async function dispatchModern(
   signal: AbortSignal,
   env?: Env,
   onProgress?: RegistryOptions["onProgress"],
+  request?: Request,
 ): Promise<unknown> {
   const context = validateModernRequest(message);
   const options = {
     enableMcpApps: env?.ENABLE_MCP_APPS === "true",
+    renderLinkConfig: request
+      ? {
+          ...parseRenderUrlConfig(env),
+          baseUrl: new URL(request.url).origin,
+        }
+      : undefined,
     signal,
     onProgress,
   };
@@ -473,6 +481,7 @@ export async function handleMcpPost(
                 abortScope.signal,
                 env,
                 onProgress,
+                request,
               ),
             { abort: abortScope.abort, cleanup: abortScope.cleanup },
           ),
@@ -483,6 +492,8 @@ export async function handleMcpPost(
         message as JSONRPCRequest,
         abortScope?.signal ?? request.signal,
         env,
+        undefined,
+        request,
       );
       if (result instanceof Response) {
         return withHeaders(result, responseHeaders);

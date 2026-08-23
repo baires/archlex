@@ -64,6 +64,11 @@ SVG selection uses `data-archlex-id` and `ElementMapping` to reveal source.
 Cursor movement highlights the narrowest mapped element. Selection styling does
 not enter exported SVG.
 
+Opening `/?code=` hydrates the editor from the URL-encoded ArchLex source. MCP
+`playground_url` values use this query. A present `code` parameter wins over
+versioned local state. Without `code`, the playground restores the last
+persisted source, or the first bundled example.
+
 Versioned local state stores source, example or custom mode, explicit settings,
 theme, and pane sizes. Invalid JSON and unsupported versions fall back to the
 default source and layout.

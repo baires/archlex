@@ -7,6 +7,9 @@ export interface Env {
   RATE_LIMIT_WINDOW_SECONDS?: string;
   MCP_REQUEST_TIMEOUT_MS?: string;
   MCP_MAX_REQUEST_TIMEOUT_MS?: string;
+  RENDER_URL_SECRET?: string;
+  RENDER_URL_TTL_SECONDS?: string;
+  RENDER_URL_MAX_LENGTH?: string;
   RATE_LIMITER?: {
     limit: (options: { key: string }) => Promise<{ success: boolean }>;
   };
@@ -218,4 +221,33 @@ export function logTelemetry(
       ...details,
     }),
   );
+}
+
+/**
+ * Parse render URL configuration from environment variables
+ */
+export function parseRenderUrlConfig(env?: Env): {
+  secret: string;
+  ttlSeconds: number;
+  maxUrlLength: number;
+} {
+  const secret = env?.RENDER_URL_SECRET || "";
+
+  const ttlSeconds = Math.min(
+    86400, // 24 hours max
+    Math.max(
+      60, // 1 minute min
+      Number.parseInt(env?.RENDER_URL_TTL_SECONDS || "600", 10) || 600,
+    ),
+  );
+
+  const maxUrlLength = Math.min(
+    16384, // 16KB max
+    Math.max(
+      512, // 512 bytes min
+      Number.parseInt(env?.RENDER_URL_MAX_LENGTH || "7500", 10) || 7500,
+    ),
+  );
+
+  return { secret, ttlSeconds, maxUrlLength };
 }

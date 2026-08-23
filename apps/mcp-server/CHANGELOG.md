@@ -12,6 +12,22 @@
   - Add resource templates (`archlex://docs/{+path}`, `archlex://examples/{name}`) and prompt argument/template variable completion.
   - Preserve backward compatibility for legacy clients (`2025-03-26` / HTTP+SSE) behind an isolated legacy boundary.
 
+- feat(mcp-server): add stateless URL delivery for rendered diagrams.
+  - Add `GET /renders/:token.png` endpoint for public stateless PNG delivery with encrypted tokens.
+  - Implement AES-256-GCM encryption with gzip compression for render tokens.
+  - Add `RENDER_URL_SECRET`, `RENDER_URL_TTL_SECONDS`, and `RENDER_URL_MAX_LENGTH` environment variables.
+  - Tool results include `image_delivery: "url"` with `image_url`, `image_width`, `image_height`, `alt_text`, `image_mime_type`, and `image_expires_at` when URL delivery succeeds.
+  - Falls back to embedded base64 PNG delivery (`image_delivery: "embedded"`) when token size exceeds limits or URL delivery is unconfigured.
+  - Add MCP `resource_link` and Markdown image syntax in content for clients supporting those capabilities.
+  - Failed renders (with diagnostics errors) suppress URL delivery and set top-level `isError: true`.
+  - Default `RENDER_URL_TTL_SECONDS` is `600`. Set `RENDER_URL_SECRET` with `wrangler secret put`.
+
+- feat(mcp-server): enhance diagnostic hints and MCP Apps viewer compatibility.
+  - Preserve `remediation` field from parser diagnostics and expose as both `remediation` and `hint` for compatibility.
+  - Always advertise `ui://archlex/diagram-viewer` metadata for forward compatibility regardless of `ENABLE_MCP_APPS` setting.
+  - Update diagram viewer to accept both SVG (from `structuredContent.svg`) and PNG (from `content[].type === "image"`) for graceful degradation.
+  - Add comprehensive test coverage for URL delivery, diagnostic preservation, and viewer fallback scenarios.
+
 ## 0.1.10
 
 ### Patch Changes

@@ -13,5 +13,9 @@
   ],
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "RENDER_URL_TTL_SECONDS": "600",
+    "RENDER_URL_MAX_LENGTH": "7500"
   }
 }

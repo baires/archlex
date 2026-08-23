@@ -17,9 +17,36 @@ describe("shared MCP registry", () => {
     ]);
   });
 
-  test("keeps MCP Apps metadata opt-in", async () => {
+  test("advertises render delivery fields and diagnostic hints in outputSchema", async () => {
     const { listTools } = await import("../../src/registry.js");
-    expect(listTools({ enableMcpApps: false })[0]._meta).toBeUndefined();
+    const schema = listTools({ enableMcpApps: false })[0].outputSchema as {
+      properties: Record<string, unknown>;
+    };
+    const properties = schema.properties;
+    for (const field of [
+      "image_delivery",
+      "image_url",
+      "image_mime_type",
+      "image_width",
+      "image_height",
+      "alt_text",
+      "image_expires_at",
+      "image_url_fallback_reason",
+    ]) {
+      expect(properties, field).toHaveProperty(field);
+    }
+    const diagnostics = properties.diagnostics as {
+      items: { properties: Record<string, unknown> };
+    };
+    expect(diagnostics.items.properties).toHaveProperty("hint");
+  });
+
+  test("always advertises MCP Apps viewer metadata for forward compatibility", async () => {
+    const { listTools } = await import("../../src/registry.js");
+    // Metadata is always present for forward compatibility
+    expect(listTools({ enableMcpApps: false })[0]._meta).toEqual({
+      ui: { resourceUri: "ui://archlex/diagram-viewer" },
+    });
     expect(listTools({ enableMcpApps: true })[0]._meta).toEqual({
       ui: { resourceUri: "ui://archlex/diagram-viewer" },
     });

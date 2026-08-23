@@ -28,10 +28,19 @@ import {
   readResource,
 } from "./registry.js";
 import type { Env } from "./security.js";
+import { parseRenderUrlConfig } from "./security.js";
 import { DIAGRAM_VIEWER_MIME_TYPE } from "./ui/diagram-viewer.js";
 
-export function createLegacyMcpServer(env?: Env): Server {
-  const options = { enableMcpApps: env?.ENABLE_MCP_APPS === "true" };
+export function createLegacyMcpServer(env?: Env, request?: Request): Server {
+  const options = {
+    enableMcpApps: env?.ENABLE_MCP_APPS === "true",
+    renderLinkConfig: request
+      ? {
+          ...parseRenderUrlConfig(env),
+          baseUrl: new URL(request.url).origin,
+        }
+      : undefined,
+  };
   const server = new Server(
     { name: SERVER_INFO.name, version: SERVER_INFO.version },
     {
@@ -75,7 +84,7 @@ export async function handleLegacyMcpPost(
   request: Request,
   env?: Env,
 ): Promise<Response> {
-  const server = createLegacyMcpServer(env);
+  const server = createLegacyMcpServer(env, request);
   const transport = new WebStandardStreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
