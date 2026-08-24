@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, readdir, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { DOMParser } from "@xmldom/xmldom";
 
@@ -142,6 +142,16 @@ const IRI_ATTRIBUTES = new Set([
   "stroke",
 ]);
 const OMITTED_ROOT_ATTRIBUTES = new Set(["height", "version", "width"]);
+const OMITTED_ATTRIBUTES = new Set([
+  "baseProfile",
+  "enable-background",
+  "jetwayHookID",
+  "jetwayHooks",
+  "overflow",
+  "space",
+  "xml:space",
+]);
+const OMITTED_CSS_PROPERTIES = new Set(["enable-background"]);
 const OMITTED_ELEMENTS = new Set(["title"]);
 const ATTRIBUTE_ORDER = new Map(
   [
@@ -326,6 +336,7 @@ function parseClassStyles(styleElements, sourceName) {
         }
         const property = trimmed.slice(0, separator).trim().toLowerCase();
         const value = trimmed.slice(separator + 1).trim();
+        if (OMITTED_CSS_PROPERTIES.has(property)) continue;
         if (!INLINABLE_PROPERTIES.has(property)) {
           failSvg(sourceName, `unsupported CSS property ${property}`);
         }
@@ -382,6 +393,8 @@ function inlineGcpSvgStyles(document, sourceName) {
     }
     for (const name of dataAttributes) element.removeAttribute(name);
 
+    applyInlineStyleAttribute(element, sourceName);
+
     if (element.localName === "style") continue;
     const classAttribute = element.getAttribute("class");
     if (!classAttribute) continue;
@@ -405,6 +418,37 @@ function inlineGcpSvgStyles(document, sourceName) {
       defs.parentNode?.removeChild(defs);
     }
   }
+}
+
+function applyInlineStyleAttribute(element, sourceName) {
+  const style = element.getAttribute("style");
+  if (!style) return;
+
+  for (const declaration of style.split(";")) {
+    const trimmed = declaration.trim();
+    if (!trimmed) continue;
+    const separator = trimmed.indexOf(":");
+    if (separator === -1) {
+      failSvg(sourceName, `unsupported CSS declaration ${trimmed}`);
+    }
+    const property = trimmed.slice(0, separator).trim().toLowerCase();
+    const value = trimmed.slice(separator + 1).trim();
+    if (OMITTED_CSS_PROPERTIES.has(property)) continue;
+    if (!INLINABLE_PROPERTIES.has(property)) {
+      failSvg(sourceName, `unsupported CSS property ${property}`);
+    }
+    if (FORBIDDEN_CSS_VALUE.test(value)) {
+      failSvg(
+        sourceName,
+        `forbidden CSS value ${value.slice(0, 40)} in ${property}`,
+      );
+    }
+    if (/url\s*\(/i.test(value) && !fragmentUrlReference(value)) {
+      failSvg(sourceName, `external non-fragment IRI in CSS ${property}`);
+    }
+    element.setAttribute(property, value);
+  }
+  element.removeAttribute("style");
 }
 
 function hasElementChildren(element) {
@@ -463,14 +507,26 @@ function serializeSafeSvg(document, sourceName) {
         }
         continue;
       }
+      if (attribute.name === "xml:base") {
+        failSvg(sourceName, `forbidden XML attribute ${attribute.name}`);
+      }
+      const attributeName =
+        attributeNamespace === XLINK_NAMESPACE ? "href" : attribute.localName;
       if (
-        attributeNamespace === XML_NAMESPACE ||
-        attribute.name === "xml:base"
+        OMITTED_ATTRIBUTES.has(attributeName) ||
+        OMITTED_ATTRIBUTES.has(attribute.name)
+      ) {
+        continue;
+      }
+      if (
+        attributeNamespace === XML_NAMESPACE &&
+        attribute.localName !== "space"
       ) {
         failSvg(sourceName, `forbidden XML attribute ${attribute.name}`);
       }
       if (
         attributeNamespace !== null &&
+        attributeNamespace !== XML_NAMESPACE &&
         !(
           attributeNamespace === XLINK_NAMESPACE &&
           attribute.localName === "href"
@@ -481,9 +537,6 @@ function serializeSafeSvg(document, sourceName) {
           `foreign attribute namespace ${attribute.namespaceURI}`,
         );
       }
-
-      const attributeName =
-        attributeNamespace === XLINK_NAMESPACE ? "href" : attribute.localName;
       if (isRoot && OMITTED_ROOT_ATTRIBUTES.has(attributeName)) continue;
       if (/^on/i.test(attributeName)) {
         failSvg(sourceName, `forbidden event attribute ${attribute.name}`);
@@ -570,35 +623,21 @@ const generatedIconPath = fileURLToPath(
   new URL("../src/icons/generated.ts", import.meta.url),
 );
 
-const officialIconEntries = [
-  ["gcp.bigquery", "bigquery.svg"],
-  ["gcp.bigtable", "bigtable.svg"],
-  ["gcp.cloud-cdn", "cloud-cdn.svg"],
-  ["gcp.cloud-dns", "cloud-dns.svg"],
-  ["gcp.cloud-functions", "cloud-functions.svg"],
-  ["gcp.cloud-load-balancing", "cloud-load-balancing.svg"],
-  ["gcp.cloud-run", "cloud-run.svg"],
-  ["gcp.cloud-spanner", "cloud-spanner.svg"],
-  ["gcp.cloud-sql", "cloud-sql.svg"],
-  ["gcp.cloud-storage", "cloud-storage.svg"],
-  ["gcp.cloud-tasks", "cloud-tasks.svg"],
-  ["gcp.compute-engine", "compute-engine.svg"],
-  ["gcp.firestore", "firestore.svg"],
-  ["gcp.gke", "gke.svg"],
-  ["gcp.iam", "iam.svg"],
-  ["gcp.memorystore", "memorystore.svg"],
-  ["gcp.pubsub", "pubsub.svg"],
-  ["gcp.secret-manager", "secret-manager.svg"],
-  ["gcp.subnet", "subnet.svg"],
-  ["gcp.vertex-ai", "vertex-ai.svg"],
-  ["gcp.vpc", "vpc.svg"],
-  ["gcp.private-service-connect", "private-service-connect.svg"],
-].map(([key, filename]) => ({
-  key,
-  sourcePath: fileURLToPath(
-    new URL(`../assets/official/${filename}`, import.meta.url),
-  ),
-}));
+const officialDir = fileURLToPath(
+  new URL("../assets/official/", import.meta.url),
+);
+
+async function loadOfficialIconEntries() {
+  const files = (await readdir(officialDir))
+    .filter((filename) => filename.endsWith(".svg"))
+    .sort();
+  return files.map((filename) => ({
+    key: `gcp.${filename.slice(0, -4)}`,
+    sourcePath: fileURLToPath(
+      new URL(`../assets/official/${filename}`, import.meta.url),
+    ),
+  }));
+}
 
 export function sanitizeGcpSvg(svg, sourceName) {
   const document = parseSvgDocument(svg, sourceName);
@@ -652,7 +691,7 @@ export async function generateIconModule(entries) {
 }
 
 async function main() {
-  const generated = await generateIconModule(officialIconEntries);
+  const generated = await generateIconModule(await loadOfficialIconEntries());
 
   if (process.argv.includes("--check")) {
     let current = "";

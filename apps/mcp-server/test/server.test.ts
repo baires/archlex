@@ -14,19 +14,19 @@ import {
 } from "../src/tools/render.js";
 import { handleValidateDiagram } from "../src/tools/validate.js";
 
-const CLOUD_ARMOR_ICON: SanitizedIcon = {
-  provider: "gcp",
-  key: "cloud-armor",
-  checksum: "sha256:test-cloud-armor",
+const LEASE_ICON: SanitizedIcon = {
+  provider: "k8s",
+  key: "lease",
+  checksum: "sha256:test-lease",
   viewBox: "0 0 64 64",
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#ff00aa" d="M0 0h64v64H0z"/></svg>',
 };
 
-const cloudArmorIconLoader: IconLoader = {
+const leaseIconLoader: IconLoader = {
   async loadIcons() {
     return {
-      icons: new Map([["gcp:cloud-armor", CLOUD_ARMOR_ICON]]),
+      icons: new Map([["k8s:lease", LEASE_ICON]]),
       diagnostics: [],
     };
   },
@@ -184,14 +184,14 @@ describe("ArchLex MCP Server Tools", () => {
     );
 
     it("hydrates unresolved catalog icons before rendering", async () => {
-      const source = 'provider gcp\narmor: cloud-armor["Edge policy"]';
+      const source = 'provider k8s\nlock: lease["Lease holder"]';
       const result = await handleRenderDiagram(
         { source },
-        { enableMcpApps: true, iconLoader: cloudArmorIconLoader },
+        { enableMcpApps: true, iconLoader: leaseIconLoader },
       );
       const structured = result.structuredContent as Record<string, unknown>;
 
-      expect(structured.svg).toContain('data-archlex-icon="gcp.cloud-armor"');
+      expect(structured.svg).toContain('data-archlex-icon="k8s.lease"');
       expect(structured.svg).toContain("#ff00aa");
       const recoloredPng = await rasterizeSvg(
         String(structured.svg).replace("#ff00aa", "#00ffaa"),
@@ -217,7 +217,7 @@ describe("ArchLex MCP Server Tools", () => {
         },
       };
       const render = handleRenderDiagram(
-        { source: "provider gcp\narmor: cloud-armor" },
+        { source: "provider k8s\nlock: lease" },
         {
           enableMcpApps: true,
           iconLoader: stalledLoader,
