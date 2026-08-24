@@ -43,7 +43,7 @@ describe("domain cancellation propagation", () => {
     };
 
     const rendering = handleRenderDiagram(
-      { source: "provider aws\nbuild: codebuild", format: "svg" },
+      { source: "provider gcp\narmor: cloud-armor", format: "svg" },
       {
         signal: controller.signal,
         iconLoader: stalledLoader,

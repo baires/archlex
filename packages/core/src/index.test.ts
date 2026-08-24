@@ -1,6 +1,6 @@
 import type { SanitizedIcon } from "@archlex/icons-core";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
-import type { LayoutEngine } from "@archlex/model";
+import type { CloudProvider, LayoutEngine } from "@archlex/model";
 import { describe, expect, it, vi } from "vitest";
 import {
   awsProvider,
@@ -9,21 +9,53 @@ import {
   k8sProvider,
 } from "./index.js";
 
-const fetchedAppRunnerIcon: SanitizedIcon = {
-  key: "app-runner",
-  provider: "aws",
-  checksum: "sha256:app-runner",
+const UNRESOLVED_KIND = "runtime-service";
+
+const fetchedRuntimeIcon: SanitizedIcon = {
+  key: UNRESOLVED_KIND,
+  provider: "test",
+  checksum: "sha256:runtime-service",
   viewBox: "0 0 64 64",
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#123456" d="M0 0h64v64H0z"/></svg>',
 };
 
-const alternateAppRunnerIcon: SanitizedIcon = {
-  ...fetchedAppRunnerIcon,
-  checksum: "sha256:alternate-app-runner",
+const alternateRuntimeIcon: SanitizedIcon = {
+  ...fetchedRuntimeIcon,
+  checksum: "sha256:alternate-runtime-service",
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#abcdef" d="M0 0h64v64H0z"/></svg>',
 };
+
+function createUnresolvedIconProvider(): CloudProvider {
+  return {
+    id: "test",
+    name: "Test Provider",
+    catalogVersion: "test",
+    supports(serviceKind: string): boolean {
+      return (
+        serviceKind === UNRESOLVED_KIND ||
+        serviceKind === `test.${UNRESOLVED_KIND}`
+      );
+    },
+    resolveService(serviceKind: string) {
+      if (
+        serviceKind !== UNRESOLVED_KIND &&
+        serviceKind !== `test.${UNRESOLVED_KIND}`
+      ) {
+        return undefined;
+      }
+      return {
+        id: UNRESOLVED_KIND,
+        displayName: "Runtime Service",
+        iconKey: `test.${UNRESOLVED_KIND}`,
+      };
+    },
+    validateGraph() {
+      return [];
+    },
+  };
+}
 
 function createDirectionRecordingLayoutEngine(): {
   readonly engine: LayoutEngine;
@@ -43,7 +75,10 @@ function createDirectionRecordingLayoutEngine(): {
   };
 }
 
-function createCustomIconLayoutEngine(icon: string): LayoutEngine {
+function createCustomIconLayoutEngine(
+  icon: string,
+  nodeId = "apprunner",
+): LayoutEngine {
   return {
     id: "custom-layout",
     async layout() {
@@ -53,7 +88,7 @@ function createCustomIconLayoutEngine(icon: string): LayoutEngine {
           height: 100,
           nodes: [
             {
-              id: "apprunner",
+              id: nodeId,
               x: 10,
               y: 10,
               width: 100,
@@ -78,12 +113,14 @@ function createCustomIconLayoutEngine(icon: string): LayoutEngine {
 
 describe("prepared rendering", () => {
   it("prepares unresolved icon requests and parse plus analysis diagnostics", () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
 
-    const prepared = archlex.prepare("apprunner ->\nunknown-service");
+    const prepared = archlex.prepare("runtime-service ->\nunknown-service");
 
     expect(prepared.iconRequests).toEqual([
-      { provider: "aws", key: "app-runner" },
+      { provider: "test", key: "runtime-service" },
     ]);
     expect(prepared.diagnostics.map((diagnostic) => diagnostic.code)).toEqual(
       expect.arrayContaining([
@@ -94,15 +131,17 @@ describe("prepared rendering", () => {
   });
 
   it("renders a prepared graph with injected icons deterministically", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
-    const prepared = archlex.prepare("apprunner");
-    const icons = new Map([["aws:app-runner", fetchedAppRunnerIcon]]);
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
+    const prepared = archlex.prepare("runtime-service");
+    const icons = new Map([["test:runtime-service", fetchedRuntimeIcon]]);
 
     const first = await archlex.renderPrepared(prepared, { icons });
     const second = await archlex.renderPrepared(prepared, { icons });
 
     expect(first.svg).toContain("#123456");
-    expect(first.graph.nodes[0]?.icon).toBe(fetchedAppRunnerIcon.svgFragment);
+    expect(first.graph.nodes[0]?.icon).toBe(fetchedRuntimeIcon.svgFragment);
     expect(prepared.graph.nodes[0]?.icon).toBeUndefined();
     expect(second.svg).toBe(first.svg);
   });
@@ -129,31 +168,34 @@ describe("prepared rendering", () => {
   it("injects only icon data into custom layout-engine output", async () => {
     const layoutEngine = createCustomIconLayoutEngine(
       '<svg viewBox="0 0 10 10"><rect fill="#000000" width="10" height="10"/></svg>',
+      "runtime-service",
     );
     const archlex = createArchLex({
-      providers: [awsProvider()],
+      providers: [createUnresolvedIconProvider()],
       layoutEngine,
     });
 
-    const result = await archlex.render("apprunner", {
-      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+    const result = await archlex.render("runtime-service", {
+      icons: new Map([["test:runtime-service", fetchedRuntimeIcon]]),
     });
 
     expect(result.layout.nodes[0]).toMatchObject({
       iconKey: "custom.authoritative",
-      icon: fetchedAppRunnerIcon.svgFragment,
+      icon: fetchedRuntimeIcon.svgFragment,
     });
   });
 
   it("renders the current registry when cached geometry is reused", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
-    const prepared = archlex.prepare("apprunner");
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
+    const prepared = archlex.prepare("runtime-service");
 
     const first = await archlex.renderPrepared(prepared, {
-      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+      icons: new Map([["test:runtime-service", fetchedRuntimeIcon]]),
     });
     const second = await archlex.renderPrepared(prepared, {
-      icons: new Map([["aws:app-runner", alternateAppRunnerIcon]]),
+      icons: new Map([["test:runtime-service", alternateRuntimeIcon]]),
     });
 
     expect(first.svg).toContain("#123456");
@@ -255,7 +297,7 @@ describe("prepared rendering", () => {
     const analyze = vi.spyOn(archlex, "analyze");
 
     await archlex.render("apprunner", {
-      icons: new Map([["aws:app-runner", fetchedAppRunnerIcon]]),
+      icons: new Map([["aws:app-runner", fetchedRuntimeIcon]]),
     });
 
     expect(parse).toHaveBeenCalledTimes(1);

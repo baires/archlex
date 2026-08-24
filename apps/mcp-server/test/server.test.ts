@@ -14,19 +14,19 @@ import {
 } from "../src/tools/render.js";
 import { handleValidateDiagram } from "../src/tools/validate.js";
 
-const CODEBUILD_ICON: SanitizedIcon = {
-  provider: "aws",
-  key: "codebuild",
-  checksum: "sha256:test-codebuild",
+const CLOUD_ARMOR_ICON: SanitizedIcon = {
+  provider: "gcp",
+  key: "cloud-armor",
+  checksum: "sha256:test-cloud-armor",
   viewBox: "0 0 64 64",
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#ff00aa" d="M0 0h64v64H0z"/></svg>',
 };
 
-const codebuildIconLoader: IconLoader = {
+const cloudArmorIconLoader: IconLoader = {
   async loadIcons() {
     return {
-      icons: new Map([["aws:codebuild", CODEBUILD_ICON]]),
+      icons: new Map([["gcp:cloud-armor", CLOUD_ARMOR_ICON]]),
       diagnostics: [],
     };
   },
@@ -184,14 +184,14 @@ describe("ArchLex MCP Server Tools", () => {
     );
 
     it("hydrates unresolved catalog icons before rendering", async () => {
-      const source = 'provider aws\nbuild: codebuild["Build and test"]';
+      const source = 'provider gcp\narmor: cloud-armor["Edge policy"]';
       const result = await handleRenderDiagram(
         { source },
-        { enableMcpApps: true, iconLoader: codebuildIconLoader },
+        { enableMcpApps: true, iconLoader: cloudArmorIconLoader },
       );
       const structured = result.structuredContent as Record<string, unknown>;
 
-      expect(structured.svg).toContain('data-archlex-icon="aws.codebuild"');
+      expect(structured.svg).toContain('data-archlex-icon="gcp.cloud-armor"');
       expect(structured.svg).toContain("#ff00aa");
       const recoloredPng = await rasterizeSvg(
         String(structured.svg).replace("#ff00aa", "#00ffaa"),
@@ -217,7 +217,7 @@ describe("ArchLex MCP Server Tools", () => {
         },
       };
       const render = handleRenderDiagram(
-        { source: "provider aws\nbuild: codebuild" },
+        { source: "provider gcp\narmor: cloud-armor" },
         {
           enableMcpApps: true,
           iconLoader: stalledLoader,

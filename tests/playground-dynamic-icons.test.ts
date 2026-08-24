@@ -3,6 +3,7 @@ import { awsProvider } from "@archlex/aws";
 import { createArchLex } from "@archlex/core";
 import { createBrowserIconLoader } from "@archlex/icons-browser";
 import type { CdnProviderDefinition, FetchIcon } from "@archlex/icons-core";
+import type { CloudProvider } from "@archlex/model";
 import { describe, expect, it, vi } from "vitest";
 import {
   createGuardedOperationHandlers,
@@ -18,13 +19,15 @@ const INVALID_ICON_FIXTURE_URL = new URL(
   import.meta.url,
 );
 
-const AWS_FIXTURE_PROVIDER: CdnProviderDefinition = {
-  provider: "aws",
+const UNRESOLVED_KIND = "runtime-service";
+
+const TEST_FIXTURE_PROVIDER: CdnProviderDefinition = {
+  provider: "test",
   baseUrl: "https://icons.test/releases/2026-08-01",
   allowedHosts: ["icons.test"],
   releaseId: "2026-08-01",
   fileExtension: ".svg",
-  mappings: { "app-runner": "runtime-service" },
+  mappings: { [UNRESOLVED_KIND]: "runtime-service" },
   attribution: {
     source: "ArchLex test fixtures",
     license: "MIT",
@@ -33,6 +36,36 @@ const AWS_FIXTURE_PROVIDER: CdnProviderDefinition = {
   timeoutMs: 1_000,
   maxResponseBytes: 10_000,
 };
+
+function createUnresolvedIconProvider(): CloudProvider {
+  return {
+    id: "test",
+    name: "Test Provider",
+    catalogVersion: "test",
+    supports(serviceKind: string): boolean {
+      return (
+        serviceKind === UNRESOLVED_KIND ||
+        serviceKind === `test.${UNRESOLVED_KIND}`
+      );
+    },
+    resolveService(serviceKind: string) {
+      if (
+        serviceKind !== UNRESOLVED_KIND &&
+        serviceKind !== `test.${UNRESOLVED_KIND}`
+      ) {
+        return undefined;
+      }
+      return {
+        id: UNRESOLVED_KIND,
+        displayName: "Runtime Service",
+        iconKey: `test.${UNRESOLVED_KIND}`,
+      };
+    },
+    validateGraph() {
+      return [];
+    },
+  };
+}
 
 function fetchFromFixture(url: URL): FetchIcon {
   return vi.fn(
@@ -45,13 +78,15 @@ function fetchFromFixture(url: URL): FetchIcon {
 
 describe("playground dynamic icon regressions", () => {
   it("fetches once for three nodes with the same missing icon", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
     const prepared = archlex.prepare(
-      'first: app-runner["First"]\nsecond: app-runner["Second"]\nthird: app-runner["Third"]',
+      'first: runtime-service["First"]\nsecond: runtime-service["Second"]\nthird: runtime-service["Third"]',
     );
     const fetchFn = fetchFromFixture(SAFE_ICON_FIXTURE_URL);
     const loader = createBrowserIconLoader({
-      providers: [AWS_FIXTURE_PROVIDER],
+      providers: [TEST_FIXTURE_PROVIDER],
       fetchFn,
     });
 
@@ -59,23 +94,25 @@ describe("playground dynamic icon regressions", () => {
 
     expect(prepared.graph.nodes).toHaveLength(3);
     expect(prepared.iconRequests).toEqual([
-      { provider: "aws", key: "app-runner" },
+      { provider: "test", key: "runtime-service" },
     ]);
-    expect(result.icons.has("aws:app-runner")).toBe(true);
+    expect(result.icons.has("test:runtime-service")).toBe(true);
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
   it("embeds bundled and fixture-fetched artwork in one diagram", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [awsProvider(), createUnresolvedIconProvider()],
+    });
     const loader = createBrowserIconLoader({
-      providers: [AWS_FIXTURE_PROVIDER],
+      providers: [TEST_FIXTURE_PROVIDER],
       fetchFn: fetchFromFixture(SAFE_ICON_FIXTURE_URL),
     });
 
     const operation = renderProgressively(
       archlex,
       loader,
-      "lambda > app-runner",
+      "lambda > test.runtime-service",
     );
     const hydrated = await operation.hydrated;
 
@@ -86,13 +123,15 @@ describe("playground dynamic icon regressions", () => {
   });
 
   it("renders a complete fallback diagram when fixture SVG sanitization fails", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
     const loader = createBrowserIconLoader({
-      providers: [AWS_FIXTURE_PROVIDER],
+      providers: [TEST_FIXTURE_PROVIDER],
       fetchFn: fetchFromFixture(INVALID_ICON_FIXTURE_URL),
     });
 
-    const operation = renderProgressively(archlex, loader, "app-runner");
+    const operation = renderProgressively(archlex, loader, "runtime-service");
     const hydrated = await operation.hydrated;
 
     expect(hydrated?.renderResult.graph.nodes).toHaveLength(1);
@@ -100,8 +139,8 @@ describe("playground dynamic icon regressions", () => {
     expect(hydrated?.renderResult.svg).toContain("#6B7280");
     expect(hydrated?.iconWarnings).toEqual([
       expect.objectContaining({
-        provider: "aws",
-        key: "app-runner",
+        provider: "test",
+        key: "runtime-service",
         code: "ICON_INVALID",
       }),
     ]);
