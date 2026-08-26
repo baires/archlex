@@ -1,5 +1,14 @@
 # @archlex/cli
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [0acd717]
+- Updated dependencies [bf112ed]
+  - @archlex/gcp@0.4.1
+  - @archlex/aws@0.4.1
+
 ## 0.3.4
 
 ### Patch Changes

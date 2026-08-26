@@ -1,5 +1,13 @@
 # @archlex/gcp
 
+## 0.4.1
+
+### Patch Changes
+
+- 0acd717: feat(gcp): bundle remaining catalog service icons
+
+  Import official Google Cloud product icons for missing catalog services, with category-icon fallbacks when a product SVG cannot be sanitized. All non-boundary GCP services now have bundled artwork.
+
 ## 0.4.0
 
 ### Minor Changes
