@@ -5,6 +5,7 @@ import type {
   IconLoader,
   SanitizedIcon,
 } from "@archlex/icons-core";
+import type { CloudProvider } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import {
   isAbortError,
@@ -12,10 +13,12 @@ import {
   renderProgressively,
 } from "./render-pipeline.js";
 
+const UNRESOLVED_KIND = "runtime-service";
+
 const CDN_ICON: SanitizedIcon = {
-  provider: "aws",
-  key: "app-runner",
-  checksum: "sha256:cdn-app-runner",
+  provider: "test",
+  key: UNRESOLVED_KIND,
+  checksum: "sha256:cdn-runtime-service",
   viewBox: "0 0 64 64",
   svgFragment:
     '<svg viewBox="0 0 64 64"><path fill="#123456" d="M0 0h64v64H0z"/></svg>',
@@ -23,17 +26,47 @@ const CDN_ICON: SanitizedIcon = {
 
 const FALLBACK_ICON: SanitizedIcon = {
   ...CDN_ICON,
-  checksum: "sha256:fallback-app-runner",
+  checksum: "sha256:fallback-runtime-service",
   svgFragment:
     '<svg viewBox="0 0 64 64"><circle fill="#abcdef" cx="32" cy="32" r="32"/></svg>',
 };
 
 const FETCH_WARNING: IconDiagnostic = {
-  provider: "aws",
-  key: "app-runner",
+  provider: "test",
+  key: UNRESOLVED_KIND,
   code: "ICON_FETCH_FAILED",
-  message: "Unable to fetch aws/app-runner",
+  message: "Unable to fetch test/runtime-service",
 };
+
+function createUnresolvedIconProvider(): CloudProvider {
+  return {
+    id: "test",
+    name: "Test Provider",
+    catalogVersion: "test",
+    supports(serviceKind: string): boolean {
+      return (
+        serviceKind === UNRESOLVED_KIND ||
+        serviceKind === `test.${UNRESOLVED_KIND}`
+      );
+    },
+    resolveService(serviceKind: string) {
+      if (
+        serviceKind !== UNRESOLVED_KIND &&
+        serviceKind !== `test.${UNRESOLVED_KIND}`
+      ) {
+        return undefined;
+      }
+      return {
+        id: UNRESOLVED_KIND,
+        displayName: "Runtime Service",
+        iconKey: `test.${UNRESOLVED_KIND}`,
+      };
+    },
+    validateGraph() {
+      return [];
+    },
+  };
+}
 
 function loaderReturning(result: IconLoadResult): IconLoader {
   return {
@@ -59,7 +92,9 @@ describe("renderProgressively", () => {
     "resolves the base diagram while remote icon loading is pending",
     { timeout: 15_000 },
     async () => {
-      const archlex = createArchLex({ providers: [awsProvider()] });
+      const archlex = createArchLex({
+        providers: [createUnresolvedIconProvider()],
+      });
       const iconLoad = deferred<IconLoadResult>();
       const iconLoader: IconLoader = {
         loadIcons() {
@@ -70,7 +105,7 @@ describe("renderProgressively", () => {
       const operation = renderProgressively(
         archlex,
         iconLoader,
-        "app: app-runner",
+        "app: runtime-service",
       );
       const base = await operation.base;
 
@@ -79,7 +114,7 @@ describe("renderProgressively", () => {
       expect(operation.hydrated).not.toBeNull();
 
       iconLoad.resolve({
-        icons: new Map([["aws:app-runner", CDN_ICON]]),
+        icons: new Map([["test:runtime-service", CDN_ICON]]),
         diagnostics: [],
       });
       await operation.hydrated;
@@ -87,16 +122,18 @@ describe("renderProgressively", () => {
   );
 
   it("hydrates a remote icon after the base diagram", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
     const iconLoader = loaderReturning({
-      icons: new Map([["aws:app-runner", CDN_ICON]]),
+      icons: new Map([["test:runtime-service", CDN_ICON]]),
       diagnostics: [],
     });
 
     const operation = renderProgressively(
       archlex,
       iconLoader,
-      "app: app-runner",
+      "app: runtime-service",
     );
     const base = await operation.base;
     const hydrated = await operation.hydrated;
@@ -109,16 +146,18 @@ describe("renderProgressively", () => {
   });
 
   it("keeps fallback warnings separate from semantic diagnostics", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
     const iconLoader = loaderReturning({
-      icons: new Map([["aws:app-runner", FALLBACK_ICON]]),
+      icons: new Map([["test:runtime-service", FALLBACK_ICON]]),
       diagnostics: [FETCH_WARNING],
     });
 
     const operation = renderProgressively(
       archlex,
       iconLoader,
-      "app: app-runner",
+      "app: runtime-service",
     );
     const hydrated = await operation.hydrated;
 
@@ -149,7 +188,9 @@ describe("renderProgressively", () => {
   });
 
   it("keeps a successful base result when icon loading fails", async () => {
-    const archlex = createArchLex({ providers: [awsProvider()] });
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
     const iconLoader: IconLoader = {
       async loadIcons() {
         throw new Error("icon CDN unavailable");
@@ -159,7 +200,7 @@ describe("renderProgressively", () => {
     const operation = renderProgressively(
       archlex,
       iconLoader,
-      "app: app-runner",
+      "app: runtime-service",
     );
 
     await expect(operation.base).resolves.toMatchObject({

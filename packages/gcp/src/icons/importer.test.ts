@@ -83,6 +83,19 @@ describe("sanitizeGcpSvg", () => {
     expect(result.svg).toContain('fill="#4285f4"');
   });
 
+  it("inlines presentational style attributes and drops vendor bookkeeping attrs", () => {
+    const result = sanitizeGcpSvg(
+      '<svg viewBox="0 0 24 24" baseProfile="tiny" overflow="visible"><path style="fill:#4285f4;opacity:0.8" d="M0 0h24"/></svg>',
+      "styled-attr.svg",
+    );
+
+    expect(result.svg).not.toContain("style=");
+    expect(result.svg).not.toContain("baseProfile");
+    expect(result.svg).not.toContain("overflow");
+    expect(result.svg).toContain('fill="#4285f4"');
+    expect(result.svg).toContain('opacity="0.8"');
+  });
+
   it.each([
     {
       name: "rejects non-class selectors",
@@ -187,10 +200,10 @@ describe("sanitizeGcpSvg", () => {
       error: /event\.svg.*event/i,
     },
     {
-      name: "rejects inline style attributes",
-      svg: '<svg viewBox="0 0 1 1"><path style="fill:red" d="M0 0h1"/></svg>',
+      name: "rejects active CSS in style attributes",
+      svg: '<svg viewBox="0 0 1 1"><path style="fill:url(https://attacker.invalid/#x)" d="M0 0h1"/></svg>',
       sourceName: "inline-style.svg",
-      error: /inline-style\.svg.*style/i,
+      error: /inline-style\.svg.*(?:forbidden|external|IRI)/i,
     },
     {
       name: "rejects SVGs without geometry",
