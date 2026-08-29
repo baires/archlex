@@ -27,7 +27,7 @@ More clients: [Use with AI agents](https://docs.archlex.dev/guides/agents).
 
 ### Serverless API
 
-![Serverless API architecture diagram](apps/landing/public/diagrams/serverless-api.svg)
+![Serverless API architecture diagram](docs/diagrams/serverless-api.png)
 
 ```archlex
 direction LR
@@ -38,7 +38,7 @@ api-gateway -[invokes]-> lambda -[writes]-> dynamodb
 
 ### Multi-region infrastructure
 
-![Multi-region architecture diagram](apps/landing/public/diagrams/multi-region.svg)
+![Multi-region architecture diagram](docs/diagrams/multi-region.png)
 
 ```archlex
 direction LR
