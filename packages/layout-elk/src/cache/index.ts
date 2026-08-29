@@ -5,17 +5,23 @@ export function computeGeometryFingerprint(
   options?: LayoutOptions,
 ): string {
   const nodeSignature = graph.nodes
-    .map((n) => `${n.id}:${n.serviceKind}`)
+    .map(
+      (n) =>
+        `${n.id}:${n.serviceKind}:${n.label}:${n.accessibleName ?? ""}:${n.iconKey ?? ""}`,
+    )
     .sort()
     .join(";");
 
   const edgeSignature = graph.edges
-    .map((e) => `${e.source}->${e.target}:${e.arrow}`)
+    .map(
+      (e) =>
+        `${e.source}->${e.target}:${e.arrow}:${e.label ?? ""}:${e.kind ?? ""}`,
+    )
     .sort()
     .join(";");
 
   const scopeSignature = graph.scopes
-    .map((s) => `${s.id}:${s.kind}:${s.childrenNodeIds.join(",")}`)
+    .map((s) => `${s.id}:${s.kind}:${s.name}:${s.childrenNodeIds.join(",")}`)
     .sort()
     .join(";");
 

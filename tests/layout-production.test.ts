@@ -180,9 +180,20 @@ describe("Phase 4: Production Layout Engine", () => {
     const fp1 = computeGeometryFingerprint(sampleGraph, { direction: "LR" });
     const fp2 = computeGeometryFingerprint(sampleGraph, { direction: "LR" });
     const fp3 = computeGeometryFingerprint(sampleGraph, { direction: "TB" });
+    const fp4 = computeGeometryFingerprint(
+      {
+        ...sampleGraph,
+        nodes: [
+          { ...sampleGraph.nodes[0], label: "Updated Label" },
+          sampleGraph.nodes[1],
+        ],
+      },
+      { direction: "LR" },
+    );
 
     expect(fp1).toBe(fp2);
     expect(fp1).not.toBe(fp3);
+    expect(fp1).not.toBe(fp4);
   });
 
   it("utilizes geometry cache on repeated layout calls", async () => {
@@ -191,6 +202,26 @@ describe("Phase 4: Production Layout Engine", () => {
 
     expect(second.metadata.durationMs).toBe(0);
     expect(second.graph).toEqual(first.graph);
+  });
+
+  it("updates layout when node label changes", async () => {
+    const updatedGraph: CloudGraph = {
+      ...sampleGraph,
+      nodes: [
+        { ...sampleGraph.nodes[0], label: "Amazon ECS (Updated)" },
+        sampleGraph.nodes[1],
+      ],
+    };
+
+    const first = await inlineEngine.layout(sampleGraph, { direction: "LR" });
+    const second = await inlineEngine.layout(updatedGraph, { direction: "LR" });
+
+    expect(first.graph.nodes.find((n) => n.id === "vpc1/sub1/app")?.label).toBe(
+      "Amazon ECS",
+    );
+    expect(
+      second.graph.nodes.find((n) => n.id === "vpc1/sub1/app")?.label,
+    ).toBe("Amazon ECS (Updated)");
   });
 
   it("honors AbortSignal before layout calculation", async () => {
