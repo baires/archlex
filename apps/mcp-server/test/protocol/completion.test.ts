@@ -66,6 +66,7 @@ describe("completion/complete", () => {
       ),
     );
     expect(values).toEqual([
+      "guides/agents",
       "guides/dynamic-cdn-icons",
       "guides/mcp-server",
       "guides/relationship-types",

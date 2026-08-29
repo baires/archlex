@@ -1,54 +1,43 @@
 import { expect, test } from "@playwright/test";
 
-test("leads with the Playground-first Quiet Ledger story", async ({ page }) => {
+test("leads with agent skill install, then MCP", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Diagrams that know what they mean.",
   );
-  await expect(page.getByText("Open source cloud architecture")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Open playground" }).first(),
-  ).toHaveAttribute("href", /playground/);
+    page.getByText("Open source · Claude, Cursor, Codex"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Install agent skill" }),
+  ).toHaveAttribute("href", "#skill");
   await expect(page.getByRole("link", { name: "Connect MCP" })).toHaveAttribute(
     "href",
     "#mcp",
   );
-  await expect(page.locator(".diagram-stage img")).toHaveAttribute(
+  await expect(page.locator(".hero-compare img").first()).toHaveAttribute(
     "src",
     /\.svg$/,
   );
 });
 
-test("orders the product story as semantics, review, MCP, then packages", async ({
+test("orders the product story as semantics, MCP, skill, then packages", async ({
   page,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".story-row")).toHaveCount(4);
-  await expect(page.locator(".story-row__index")).toHaveText([
-    "01",
-    "02",
-    "03",
-    "04",
-  ]);
-  await expect(page.locator(".story-row h2")).toHaveText([
-    "Not just boxes.",
-    "Readable in code review.",
-    "Cloud judgment for your agent.",
+  await expect(page.getByRole("heading", { level: 2 })).toHaveText([
+    "Semantic Validation and Code Review",
+    "Built for AI agents.",
+    "Official agent skill.",
     "Open source. Embed anywhere.",
+    "See your architecture clearly.",
   ]);
+  await expect(page.getByText("npx skills add baires/archlex")).toBeVisible();
   await expect(
     page.getByText(
       "npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s",
     ),
   ).toBeVisible();
-});
-
-test("keeps narrative sections borderless", async ({ page }) => {
-  await page.goto("/");
-  for (const row of await page.locator(".story-row").all()) {
-    await expect(row).toHaveCSS("border-top-width", "0px");
-    await expect(row).toHaveCSS("border-bottom-width", "0px");
-  }
 });
 
 for (const viewport of [
@@ -68,7 +57,7 @@ for (const viewport of [
       ),
     ).toBe(0);
     await expect(
-      page.getByRole("link", { name: "Open playground" }).first(),
+      page.getByRole("link", { name: /playground/i }).first(),
     ).toBeVisible();
     await expect(page.getByLabel("Theme")).toBeVisible();
   });
@@ -86,16 +75,6 @@ test("keeps secondary navigation discoverable on mobile", async ({ page }) => {
   await expect(
     page.locator("header").getByRole("link", { name: /playground/i }),
   ).toBeVisible();
-  const rowPositions = await page
-    .locator(".story-row")
-    .first()
-    .locator("h2, .story-row__content")
-    .evaluateAll((elements) =>
-      elements.map((element) =>
-        Math.round(element.getBoundingClientRect().top),
-      ),
-    );
-  expect(rowPositions[1]).toBeGreaterThan(rowPositions[0]);
 });
 
 test("supports skip navigation and reduced motion", async ({ browser }) => {
@@ -117,30 +96,28 @@ test("supports skip navigation and reduced motion", async ({ browser }) => {
 test("switches MCP clients with tabs and arrow keys", async ({ page }) => {
   await page.goto("/");
   const mcp = page.locator("#mcp");
-  const codex = mcp.getByRole("tab", { name: "Codex" });
   const claude = mcp.getByRole("tab", { name: "Claude Code" });
+  const cursor = mcp.getByRole("tab", { name: "Cursor" });
 
-  await expect(codex).toHaveAttribute("aria-selected", "true");
-  await codex.focus();
-  await page.keyboard.press("ArrowRight");
-  await expect(claude).toBeFocused();
   await expect(claude).toHaveAttribute("aria-selected", "true");
-  await expect(
-    mcp.getByRole("tabpanel", { name: "Claude Code" }),
-  ).toBeVisible();
-  await expect(mcp.getByRole("tabpanel", { name: "Codex" })).toBeHidden();
+  await claude.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(cursor).toBeFocused();
+  await expect(cursor).toHaveAttribute("aria-selected", "true");
+  await expect(mcp.getByRole("tabpanel", { name: "Cursor" })).toBeVisible();
+  await expect(mcp.getByRole("tabpanel", { name: "Claude Code" })).toBeHidden();
 });
 
 test("copies setup text and announces success", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
   const mcp = page.locator("#mcp");
-  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+  await mcp.getByRole("button", { name: /copy claude code setup/i }).click();
 
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
+    "claude mcp add --transport http archlex https://mcp.archlex.dev/mcp",
   );
-  await expect(mcp.getByRole("status")).toHaveText(/codex setup copied/i);
+  await expect(mcp.getByRole("status")).toHaveText(/claude code setup copied/i);
 });
 
 test("selects setup text when clipboard access fails", async ({ page }) => {
@@ -152,36 +129,33 @@ test("selects setup text when clipboard access fails", async ({ page }) => {
   });
   await page.goto("/");
   const mcp = page.locator("#mcp");
-  await mcp.getByRole("button", { name: /copy codex setup/i }).click();
+  await mcp.getByRole("button", { name: /copy claude code setup/i }).click();
 
   await expect(mcp.getByRole("status")).toHaveText(/selected.*copy manually/i);
   expect(
     await page.evaluate(() => window.getSelection()?.toString()),
-  ).toContain("codex mcp add archlex");
+  ).toContain("claude mcp add --transport http archlex");
 });
 
-test("presents MCP as the second conversion path in story row three", async ({
-  page,
-}) => {
+test("presents MCP as the agent conversion path", async ({ page }) => {
   await page.goto("/");
   const mcp = page.locator("#mcp");
   await expect(
-    mcp.getByRole("heading", { name: "Cloud judgment for your agent." }),
+    mcp.getByRole("heading", { name: "Built for AI agents." }),
   ).toBeVisible();
   await expect(mcp.getByRole("tab")).toHaveCount(5);
   await expect(
-    mcp.getByText("codex mcp add archlex --url https://mcp.archlex.dev/mcp"),
+    mcp.getByText(
+      "claude mcp add --transport http archlex https://mcp.archlex.dev/mcp",
+    ),
   ).toBeVisible();
-  await expect(
-    mcp.getByText("4 tools · AWS + GCP + Kubernetes · no API key"),
-  ).toBeVisible();
+  await expect(mcp.getByText("No API key required")).toBeVisible();
   await expect(
     mcp.getByText(/Design a resilient AWS event ingestion system/),
   ).toBeVisible();
   await expect(
-    mcp.getByRole("link", { name: /full setup guide/i }),
+    mcp.getByRole("link", { name: /full MCP documentation/i }),
   ).toHaveAttribute("href", /guides\/mcp-server/);
-  await expect(mcp.locator(".story-row__index")).toHaveText("03");
 });
 
 test("keeps every setup readable without JavaScript", async ({ browser }) => {
@@ -190,12 +164,13 @@ test("keeps every setup readable without JavaScript", async ({ browser }) => {
   await page.goto("/");
 
   const mcp = page.locator("#mcp");
-  await expect(mcp.getByText(/codex mcp add archlex/)).toBeVisible();
   await expect(
     mcp.getByText(/claude mcp add --transport http archlex/),
   ).toBeVisible();
+  await expect(mcp.getByText(/codex mcp add archlex/)).toBeVisible();
   await expect(mcp.getByText('"mcpServers"')).toBeVisible();
   await expect(mcp.getByText('"servers"')).toBeVisible();
+  await expect(page.getByText("npx skills add baires/archlex")).toBeVisible();
   await context.close();
 });
 
@@ -223,7 +198,7 @@ test("uses the configured GitHub destination", async ({ page }) => {
     "https://github.com/example/archlex",
   );
   await expect(githubLink).toHaveAttribute("target", "_blank");
-  await expect(githubLink).toHaveAttribute("rel", /noreferrer/);
+  await expect(githubLink).toHaveAttribute("rel", /noopener noreferrer/);
 });
 
 test("follows the system theme until the visitor chooses an override", async ({

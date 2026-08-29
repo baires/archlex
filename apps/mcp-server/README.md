@@ -46,16 +46,16 @@ Legacy clients that send `initialize` without per-request metadata continue to w
 
 The recommended endpoint is the Streamable HTTP transport at `https://mcp.archlex.dev/mcp`. The legacy `/sse` and `/messages` routes remain available for older clients.
 
-### Codex
-
-```bash
-codex mcp add archlex --url https://mcp.archlex.dev/mcp
-```
-
 ### Claude Code
 
 ```bash
 claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
+```
+
+### Codex
+
+```bash
+codex mcp add archlex --url https://mcp.archlex.dev/mcp
 ```
 
 ### Cursor

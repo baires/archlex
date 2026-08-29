@@ -11,13 +11,6 @@ interface McpClient {
 
 const clients = [
   {
-    id: "codex",
-    label: "Codex",
-    instruction: "Add ArchLex to the shared Codex MCP configuration.",
-    language: "bash",
-    setup: "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
-  },
-  {
     id: "claude",
     label: "Claude Code",
     instruction: "Register ArchLex as a remote HTTP server.",
@@ -35,6 +28,13 @@ const clients = [
       null,
       2,
     ),
+  },
+  {
+    id: "codex",
+    label: "Codex",
+    instruction: "Add ArchLex to the shared Codex MCP configuration.",
+    language: "bash",
+    setup: "codex mcp add archlex --url https://mcp.archlex.dev/mcp",
   },
   {
     id: "vscode",

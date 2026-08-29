@@ -1,11 +1,29 @@
 ---
 title: Getting Started
-description: "Install ArchLex, register AWS, Google Cloud, and Kubernetes providers, and render your first cloud architecture diagram from ArchLex DSL source."
+description: "Add ArchLex to Claude, Cursor, or Codex, or embed the TypeScript API to render AWS, Google Cloud, and Kubernetes architecture diagrams."
 ---
 
 # Getting Started
 
-## Install ArchLex
+## Use with an AI agent
+
+```bash
+npx skills add baires/archlex
+```
+
+```bash
+claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
+```
+
+Then ask:
+
+> Diagram a serverless API on AWS with API Gateway, Lambda, and DynamoDB.
+
+Full client setup: [Use with AI agents](/guides/agents). Try the
+[playground](https://playground.archlex.dev) if you want to edit the source
+yourself.
+
+## Install the library
 
 Install the core package and the three supported provider packages:
 
@@ -126,5 +144,6 @@ console.log(catalog.relationshipKinds);
 - [Kubernetes Semantics](/specs/k8s-semantics): Kubernetes resources, cluster and namespace containment, and diagnostics
 - [Public API](/specs/public-api): parse, analyze, prepare, render, and catalog methods
 - [Dynamic Icons](/guides/dynamic-cdn-icons): browser and Node.js icon-loading workflows
+- [Use with AI agents](/guides/agents): skill install, MCP setup, and a first prompt
 - [MCP Server](/guides/mcp-server): render, validate, catalog, and example tools for MCP clients
 - [Interactive Playground](https://playground.archlex.dev): edit examples and inspect SVG output beside diagnostics

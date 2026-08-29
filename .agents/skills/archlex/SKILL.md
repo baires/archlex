@@ -1,8 +1,8 @@
 ---
 name: archlex
-description: Author and render cloud architecture diagrams with the ArchLex DSL. Use when creating AWS, GCP, or Kubernetes architecture diagrams, writing or debugging ArchLex source, rendering diagrams through the ArchLex MCP server (render_diagram, validate_diagram, get_cloud_catalog, generate_playground_url), or producing shareable playground links.
+description: Use when creating AWS, GCP, or Kubernetes architecture diagrams; when a user asks to diagram cloud infrastructure, draw a system architecture or topology, or produce a shareable architecture diagram; or when writing or debugging ArchLex DSL source.
 metadata:
-  trigger: Cloud architecture diagrams, AWS/GCP/Kubernetes topology, ArchLex DSL, render_diagram MCP tool, diagram generation
+  trigger: Cloud architecture diagrams, AWS GCP Kubernetes topology, system architecture, draw infrastructure, ArchLex DSL, diagram generation
   author: ArchLex (https://github.com/baires/archlex)
 ---
 

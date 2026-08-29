@@ -1,22 +1,24 @@
 # ArchLex Documentation
 
-ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, and Kubernetes resources with one language and one TypeScript API.
+ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, and Kubernetes resources with one language. Agents write it. Humans can still read it.
 
 ## Start Here
 
-1. Follow the [Getting Started guide](../apps/docs/pages/getting-started.mdx) to install ArchLex, register providers, and render your first diagram.
-2. Use the [Language Specification](specs/language.md) when you write directives, resources, scopes, and relationships.
-3. Check the provider specification for the resources and semantic rules that ArchLex applies:
-   - [AWS](specs/aws-semantics.md)
-   - [Google Cloud](specs/gcp-semantics.md)
-   - [Kubernetes](specs/k8s-semantics.md)
-4. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
+1. Follow [Use with AI agents](guides/agents.md) to install the skill, connect MCP, and ask for a diagram.
+2. Follow the [Getting Started guide](../apps/docs/pages/getting-started.mdx) to embed the TypeScript API.
+3. Use the [Language Specification](specs/language.md) when you write directives, resources, scopes, and relationships.
+4. Check the provider specification for the resources and semantic rules that ArchLex applies:
+    - [AWS](specs/aws-semantics.md)
+    - [Google Cloud](specs/gcp-semantics.md)
+    - [Kubernetes](specs/k8s-semantics.md)
+5. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
 
 ## Build With ArchLex
 
 - [Public API](specs/public-api.md): create an instance, inspect the catalog, prepare icons, and render SVG.
 - [Relationship Types](guides/relationship-types.md): express data flow, traffic, dependencies, and custom relationships.
 - [Dynamic Icons](guides/dynamic-cdn-icons.md): load provider icons in browsers and Node.js.
+- [Use with AI agents](guides/agents.md): skill install, MCP setup, and a first prompt.
 - [MCP Server](guides/mcp-server.md): expose rendering, validation, catalog search, and examples to MCP clients.
 - [Playground](specs/playground.md): understand the editor, examples, icon hydration, and export flow.
 

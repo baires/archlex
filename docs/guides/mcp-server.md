@@ -9,20 +9,23 @@ lastModified: 2026-08-22T14:00:00-03:00
 Use the ArchLex MCP server to render, validate, inspect, and share AWS, Google
 Cloud, and Kubernetes diagrams from an MCP client.
 
+For the 30-second path (skill + one prompt), see
+[Use with AI agents](/guides/agents).
+
 ## Connect
 
 The server uses Streamable HTTP at `https://mcp.archlex.dev/mcp`.
-
-### Codex
-
-```bash
-codex mcp add archlex --url https://mcp.archlex.dev/mcp
-```
 
 ### Claude Code
 
 ```bash
 claude mcp add --transport http archlex https://mcp.archlex.dev/mcp
+```
+
+### Codex
+
+```bash
+codex mcp add archlex --url https://mcp.archlex.dev/mcp
 ```
 
 ### Cursor
