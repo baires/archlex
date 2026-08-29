@@ -81,10 +81,3 @@ and filters after sanitization.
 
 `mountSvg` accepts only ArchLex-generated SVG. Applications should not pass raw
 HTML or unsanitized external SVG through that helper.
-
-## Verification
-
-Tests cover every direction, nested cloud and Kubernetes scopes, cycles,
-disconnected graphs, invalid elements, dense fan-in and fan-out, worker parity,
-layout caching, deterministic serialization, icon injection, themes, keyboard
-focus, and SVG safety.

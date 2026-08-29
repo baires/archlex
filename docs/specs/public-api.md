@@ -144,7 +144,7 @@ const completions = engine.complete(document, source.length);
 
 ### Features
 
-- **Catalog-driven**: All 441 services (194 AWS, 185 GCP, 62 K8s) with relationships
+- **Catalog-driven**: All 445 services (194 AWS, 189 GCP, 62 K8s) with relationships
 - **Human-readable search**: Fuzzy matching against display names and descriptions
 - **Context-aware**: Filters by provider, scope hierarchy, grammar position, and symbol visibility
 - **Semantic ranking**: Orders by prefix match, search relevance, and relationship compatibility

@@ -1,6 +1,6 @@
 ---
 title: Google Cloud Semantics
-description: "Google Cloud semantics in ArchLex, covering the 185-service GCP catalog, containment scopes, relationship rules, and GCP diagnostic codes."
+description: "Google Cloud semantics in ArchLex, covering the 189-service GCP catalog, containment scopes, relationship rules, and GCP diagnostic codes."
 ---
 
 # Google Cloud Semantics
@@ -17,7 +17,7 @@ healthcare, retail, maps, and management services. Use `getCatalog("gcp")` to
 inspect current IDs and aliases. Use `archlex validate --catalog` to validate
 the packaged catalogs.
 
-All 185 GCP services include **search terms** extracted from display names and descriptions for editor completions. For example:
+All 189 GCP services include **search terms** extracted from display names and descriptions for editor completions. For example:
 - Searching "serverless container" finds Cloud Run (`cloud-run`)
 - Searching "managed postgres" finds Cloud SQL (`cloud-sql`)
 - Searching "kubernetes engine" finds GKE (`gke`)
@@ -93,14 +93,3 @@ peering, or service configuration.
 `normal` preserves provider severities. `strict` promotes warnings to errors
 while keeping informational diagnostics. `off` skips Google Cloud semantic
 rules but keeps catalog resolution.
-
-## Verification
-
-```bash
-pnpm --filter @archlex/gcp test
-pnpm --filter @archlex/gcp icons:check
-pnpm validate:catalog
-```
-
-Tests cover catalog identity, aliases, sanitized icons, pinned CDN definitions,
-containment, rules, and all validation modes.

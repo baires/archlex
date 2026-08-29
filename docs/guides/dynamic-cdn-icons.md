@@ -114,9 +114,3 @@ scripts, event handlers, external references, unsafe CSS, active animation,
 unsupported elements, and invalid namespaces. It calculates a stable SHA-256
 checksum before an icon enters a registry or cache.
 
-## Testing
-
-Inject a fixture-backed `fetchFn` in automated tests. Do not depend on AWS,
-Google Cloud, Kubernetes, jsDelivr, or package CDNs. Test success, 404 fallback,
-timeout, cancellation, redirect rejection, size limits, sanitization, cache
-expiry, and request deduplication.

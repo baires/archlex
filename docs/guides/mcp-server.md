@@ -1,7 +1,7 @@
 ---
 title: Remote MCP Server
 description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams."
-lastModified: 2026-08-22T14:00:00-03:00
+lastModified: 2026-08-28T22:00:00-03:00
 ---
 
 # Remote MCP Server
@@ -63,18 +63,9 @@ Pass ArchLex source plus optional `theme`, `direction`, `validation`, and
 `format` values. The server returns the rendered diagram, diagnostics, node and
 edge counts, and a playground URL.
 
-`format` defaults to `"png"` (base64 PNG image block). Use `"svg"` to skip
-rasterization and receive raw SVG text instead — intended for text-only or CLI
-clients that save the result to a `.svg` file and view it with their own
-tooling.
-
-Successful PNG results keep the embedded image as `content[0]`. When
-`RENDER_URL_SECRET` is configured and the encrypted token fits
-`RENDER_URL_MAX_LENGTH`, the result also includes a `resource_link`, Markdown
-image syntax, and `structuredContent.image_delivery: "url"` with `image_url`.
-Otherwise the result reports `image_delivery: "embedded"` and
-`image_url_fallback_reason` (`render_url_unconfigured` or `source_too_large`).
-Failed renders set top-level `isError: true` and never publish a URL.
+`format` defaults to `"png"`. Use `"svg"` from text-only or CLI clients that
+save the file themselves. Failed renders set `isError: true` and do not publish
+a playground URL.
 
 ```json
 {
@@ -127,23 +118,24 @@ originating POST response before its final tool result.
 
 ## Security
 
-The hosted server permits open access unless the deployment configures
-`MCP_AUTH_TOKEN`. A protected deployment accepts a bearer token. The Worker
-limits payloads, source length, and requests per IP. It rejects untrusted origins
-when origin enforcement applies.
+`https://mcp.archlex.dev/mcp` is public on purpose. ArchLex is MIT-licensed and
+the hosted MCP server does not require an account or API key.
 
-Stateless render URLs are optional:
+The server only accepts ArchLex source and returns diagrams. It does not
+connect to your AWS, GCP, or Kubernetes accounts, and it does not read your
+git remotes.
 
-- `RENDER_URL_SECRET`: set with `wrangler secret put RENDER_URL_SECRET`. Never
-  store the secret in `wrangler.json`.
-- `RENDER_URL_TTL_SECONDS`: token lifetime in seconds (default `600`).
-- `RENDER_URL_MAX_LENGTH`: maximum complete URL length (default `7500`).
+The public endpoint rate-limits by IP and caps payload and source size.
 
-Public `GET /renders/:token.png` bypasses bearer auth and Origin checks, but
-keeps rate limiting, expiry, and authenticated encryption. Without
-`RENDER_URL_SECRET`, rendering stays embedded-only.
+Playground links encode diagram source. Keep secrets out of `.archlex` files
+the same way you would keep them out of any other file you commit.
 
-Do not place secrets inside architecture source or URLs.
+To run a private copy, see the
+[MCP server README](https://github.com/baires/archlex/blob/main/apps/mcp-server/README.md).
+Private deployments can set `MCP_AUTH_TOKEN`. Optional URL delivery uses
+`RENDER_URL_SECRET`, `RENDER_URL_TTL_SECONDS` (default `600`), and
+`RENDER_URL_MAX_LENGTH`. When a URL is issued, results include
+`image_delivery: "url"`; otherwise they stay embedded.
 
 ## Local development
 
@@ -151,12 +143,4 @@ Do not place secrets inside architecture source or URLs.
 pnpm dev:mcp
 ```
 
-Connect a client to `http://localhost:8787/mcp`. Run MCP tests with:
-
-```bash
-pnpm --filter @archlex/mcp-server test
-pnpm build:mcp
-```
-
-The build embeds current hand-written `docs/` pages as MCP resources. Run it
-after documentation changes that affect those resources.
+Connect a client to `http://localhost:8787/mcp`.

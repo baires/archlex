@@ -69,7 +69,7 @@ Lambda, ECS, Glue, or SageMaker, so `dynamodb -[orchestrates]-> lambda` is
 flagged while `step-functions -[orchestrates]-> lambda` is accepted.
 Kubernetes declares provider-specific `targets` (Service to workload), `routes`
 (Ingress to Service), `mounts` (workload to storage/configuration), `binds`
-(PersistentVolumeClaim to PersistentVolume), and `scales`
+(PersistentVolumeClaim to PersistentVolume), `scales`
 (HorizontalPodAutoscaler to workload), and `schedules-on` (Pod to Node)
 relationships.
 

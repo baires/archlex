@@ -11,7 +11,7 @@ Register Kubernetes with `k8sProvider()` from `@archlex/k8s` or the core
 re-export. The provider ID is `k8s`, and the current catalog version is
 `2026-08-14-tier1`.
 
-The initial catalog contains 62 resources across workloads, networking,
+The catalog contains 62 resources across workloads, networking,
 configuration, storage, scaling, policy, RBAC, extensibility, and control-plane
 components. Use `getCatalog("k8s")` to inspect IDs and aliases. Run the catalog
 validation command when you update packaged data:
@@ -89,14 +89,3 @@ rejects an unknown provider kind unless it is marked `providerSpecific`.
 `normal` preserves provider severities. `strict` promotes warnings to errors
 while keeping informational diagnostics. `off` skips Kubernetes semantic rules
 but keeps catalog resolution.
-
-## Verification
-
-```bash
-pnpm --filter @archlex/k8s test
-pnpm --filter @archlex/k8s icons:check
-pnpm validate:catalog
-```
-
-Tests cover all 62 canonical resources, aliases, containment, bundled and CDN
-icons, diagnostic codes, and all validation modes.

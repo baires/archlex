@@ -29,7 +29,7 @@ provider resources.
 
 The editor provides **context-aware completions** backed by the language service:
 
-- **Catalog-driven suggestions**: All 441 resources (194 AWS, 185 GCP, 62 K8s) with relationships and containment rules
+- **Catalog-driven suggestions**: All 445 resources (194 AWS, 189 GCP, 62 K8s) with relationships and containment rules
 - **Human-readable search**: Type "elastic kubernetes" to find Amazon EKS, or "relational" for RDS and Aurora
 - **Grammar-aware filtering**: Different suggestions after `:` (resource kinds), `[` (relationships), or in directive positions
 - **Symbol visibility**: Declared identifiers appear as relationship targets
@@ -85,9 +85,3 @@ Keyboard users can reach controls, resize panes, switch narrow-screen tabs, and
 navigate SVG elements. Focus survives hydrated SVG replacement. Diagnostic
 counts use live announcements without replaying the full list after each edit.
 
-## Verification
-
-Unit tests cover render concurrency, icon hydration, status state, workspace
-persistence, transforms, export, and command-bar grouping. Browser tests cover
-responsive layout, keyboard use, CDN fixture routing, selection, and visual
-output.

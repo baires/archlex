@@ -94,14 +94,3 @@ contents, security group rules, routes, or runtime configuration.
 `normal` preserves provider severities. `strict` promotes provider warnings to
 errors while leaving informational diagnostics unchanged. `off` skips AWS
 semantic rules but keeps catalog resolution for labels and icons.
-
-## Verification
-
-```bash
-pnpm --filter @archlex/aws test
-pnpm --filter @archlex/aws icons:check
-pnpm validate:catalog
-```
-
-Tests cover canonical IDs, aliases, icon integrity, diagnostic codes,
-containment, relationships, and all validation modes.

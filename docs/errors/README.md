@@ -62,13 +62,3 @@ Provider specifications describe the rules that each mode affects:
 2. Read its `remediation` field.
 3. Open the code in the [generated index](index.md) when you need its full reference page.
 4. Update the source, then render it again.
-
-## Maintainer Workflow
-
-The diagnostic registries provide the source for the generated index and `AL-*.md` pages. Regenerate those files after you add or change a registered diagnostic:
-
-```bash
-pnpm generate-docs
-```
-
-Do not edit generated pages by hand. Update the registry or generator so the next run keeps the correction.
