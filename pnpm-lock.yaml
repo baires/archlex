@@ -49,8 +49,8 @@ importers:
         specifier: ^22.13.1
         version: 22.20.1
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
       fast-check:
         specifier: ^4.0.0
         version: 4.9.0
@@ -267,8 +267,8 @@ importers:
         specifier: workspace:^
         version: link:../icons
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -406,8 +406,8 @@ importers:
         specifier: workspace:^
         version: link:../icons
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -427,8 +427,8 @@ importers:
         specifier: workspace:*
         version: link:../icons-node
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
     devDependencies:
       typescript:
         specifier: ^5.7.3
@@ -459,8 +459,8 @@ importers:
   packages/icons-core:
     dependencies:
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
     devDependencies:
       typescript:
         specifier: ^5.7.3
@@ -504,8 +504,8 @@ importers:
         specifier: workspace:^
         version: link:../icons
       '@xmldom/xmldom':
-        specifier: 0.9.10
-        version: 0.9.10
+        specifier: 0.9.12
+        version: 0.9.12
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -2371,6 +2371,10 @@ packages:
     resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
     engines: {node: '>=14.6'}
     deprecated: this version has critical issues, please update to the latest version
+
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
+    engines: {node: '>=14.6'}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -6677,6 +6681,8 @@ snapshots:
       tinyrainbow: 2.0.0
 
   '@xmldom/xmldom@0.9.10': {}
+
+  '@xmldom/xmldom@0.9.12': {}
 
   accepts@2.0.0:
     dependencies:
