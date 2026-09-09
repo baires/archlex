@@ -37,6 +37,6 @@
     "@archlex/core": "workspace:*",
     "typescript": "^5.7.3",
     "vite": "^6.1.0",
-    "vitest": "^3.0.5"
+    "vitest": "^4.1.11"
   }
 }
