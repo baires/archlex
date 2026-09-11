@@ -51,7 +51,7 @@ describe("Phase 3: AWS Catalog & Icon Manifest", () => {
   it("manifest has valid SHA-256 checksums and sanitized SVG fragments", () => {
     expect(AWS_CATALOG_MANIFEST.releaseId).toBeDefined();
     expect(AWS_CATALOG_MANIFEST.checksum).toBe(
-      "4b0ceea3ece5e9f3a2c5f201733386b0c9bfefcb71c23c5cca38ce00ebbb0506",
+      "3e8b47a5000651603cc47c7137c8427b94cfbc6e366dfb84c5b0ab36e557b8f5",
     );
     expect(AWS_CATALOG_MANIFEST.checksum).toMatch(/^[a-f0-9]{64}$/);
     expect(Object.keys(AWS_SANITIZED_ICONS).length).toBeGreaterThan(0);
