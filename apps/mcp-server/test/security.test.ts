@@ -40,14 +40,14 @@ describe("MCP Security Middleware", () => {
       expect(result.authorized).toBe(true);
     });
 
-    it("accepts request with valid ?token= query parameter", () => {
+    it("rejects query credentials even when the token is valid", () => {
       const request = new Request(
         "https://mcp.archlex.dev/sse?token=secret-token-123",
       );
       const result = validateAuthentication(request, {
         MCP_AUTH_TOKEN: "secret-token-123",
       });
-      expect(result.authorized).toBe(true);
+      expect(result.authorized).toBe(false);
     });
   });
 

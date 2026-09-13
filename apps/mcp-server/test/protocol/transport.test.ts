@@ -286,7 +286,7 @@ describe("MCP Streamable HTTP Transport Conformance", () => {
       expect(res.status).toBe(200);
     });
 
-    it("accepts requests with valid ?token= query parameter", async () => {
+    it("rejects query credentials even when the token is valid", async () => {
       const baseReq = modernRequest("server/discover");
       const url = new URL(baseReq.url);
       url.searchParams.set("token", "secure-secret-token");
@@ -309,7 +309,7 @@ describe("MCP Streamable HTTP Transport Conformance", () => {
       const env = { MCP_AUTH_TOKEN: "secure-secret-token" };
 
       const res = await worker.fetch(req, env);
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(401);
     });
 
     it("rejects payloads exceeding 512 KB with 413 Payload Too Large", async () => {

@@ -26,6 +26,7 @@ import {
   readResource,
 } from "../registry.js";
 import type { RegistryOptions } from "../registry.js";
+import { createRequestAbortScope } from "../request-limits.js";
 import { listResourceTemplates } from "../resource-templates.js";
 import type { Env } from "../security.js";
 import { parseRenderUrlConfig } from "../security.js";
@@ -57,57 +58,7 @@ import {
 
 export type ProtocolEra = "modern" | "legacy";
 
-const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
-const ABSOLUTE_REQUEST_TIMEOUT_MS = 120_000;
-
-export interface RequestAbortScope {
-  signal: AbortSignal;
-  timeoutMs: number;
-  abort: (reason?: unknown) => void;
-  cleanup: () => void;
-}
-
-function configuredTimeout(value: string | undefined): number | undefined {
-  if (value === undefined) return undefined;
-  const parsed = Number(value);
-  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
-}
-
-export function createRequestAbortScope(
-  requestSignal: AbortSignal,
-  env?: Env,
-): RequestAbortScope {
-  const configuredMaximum = configuredTimeout(env?.MCP_MAX_REQUEST_TIMEOUT_MS);
-  const maximum = Math.min(
-    configuredMaximum ?? ABSOLUTE_REQUEST_TIMEOUT_MS,
-    ABSOLUTE_REQUEST_TIMEOUT_MS,
-  );
-  const timeoutMs = Math.min(
-    configuredTimeout(env?.MCP_REQUEST_TIMEOUT_MS) ??
-      DEFAULT_REQUEST_TIMEOUT_MS,
-    maximum,
-  );
-  const controller = new AbortController();
-  const relayAbort = (): void => controller.abort(requestSignal.reason);
-  requestSignal.addEventListener("abort", relayAbort, { once: true });
-  if (requestSignal.aborted) relayAbort();
-  const timeout = setTimeout(
-    () =>
-      controller.abort(
-        new DOMException(`MCP request exceeded ${timeoutMs}ms`, "TimeoutError"),
-      ),
-    timeoutMs,
-  );
-  return {
-    signal: controller.signal,
-    timeoutMs,
-    abort: (reason?: unknown) => controller.abort(reason),
-    cleanup: () => {
-      clearTimeout(timeout);
-      requestSignal.removeEventListener("abort", relayAbort);
-    },
-  };
-}
+export { createRequestAbortScope } from "../request-limits.js";
 
 function record(value: unknown): Record<string, unknown> | undefined {
   if (typeof value !== "object" || value === null || Array.isArray(value)) {
@@ -419,10 +370,11 @@ export async function handleMcpPost(
   env?: Env,
   responseHeaders: Readonly<Record<string, string>> = {},
 ): Promise<Response> {
-  const legacyRequest = request.clone() as Request;
+  let rawBody: string;
   let message: unknown;
   try {
-    message = await request.json();
+    rawBody = await request.text();
+    message = JSON.parse(rawBody);
   } catch {
     return withHeaders(
       toHttpErrorResponse(
@@ -446,7 +398,7 @@ export async function handleMcpPost(
     const era = classifyProtocolEra(message, request.headers);
     if (era === "legacy") {
       return withHeaders(
-        await handleLegacyMcpPost(legacyRequest, env),
+        await handleLegacyMcpPost(new Request(request, { body: rawBody }), env),
         responseHeaders,
       );
     }

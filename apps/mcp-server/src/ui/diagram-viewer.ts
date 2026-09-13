@@ -333,7 +333,7 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
 
   function findPayload(result) {
     // Prefer SVG from structuredContent
-    if (result && result.structuredContent && result.structuredContent.svg) {
+    if (result && result.structuredContent && typeof result.structuredContent.svg === "string" && result.structuredContent.svg) {
       return {
         type: "svg",
         data: result.structuredContent.svg,
@@ -358,7 +358,7 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
       if (content[i].type === "text") {
         try {
           var parsed = JSON.parse(content[i].text);
-          if (parsed && parsed.svg) {
+          if (parsed && typeof parsed.svg === "string" && parsed.svg) {
             return {
               type: "svg",
               data: parsed.svg,
@@ -399,24 +399,14 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
       return;
     }
 
-    // Clear stage
-    stage.innerHTML = "";
-
-    if (payload.type === "svg") {
-      stage.innerHTML = payload.data;
-      var svg = stage.querySelector("svg");
-      if (svg) {
-        svg.removeAttribute("width");
-        svg.removeAttribute("height");
-        var size = diagramSize();
-        if (size) {
-          svg.setAttribute("width", String(size.width));
-          svg.setAttribute("height", String(size.height));
-        }
-      }
-    } else if (payload.type === "png") {
+    // SVG in image context cannot execute scripts or create active HTML nodes.
+    stage.replaceChildren();
+    if (payload.type === "svg" || payload.type === "png") {
       var img = document.createElement("img");
-      img.src = "data:image/png;base64," + payload.data;
+      img.src = payload.type === "svg"
+        ? "data:image/svg+xml;charset=utf-8," + encodeURIComponent(payload.data)
+        : "data:image/png;base64," + payload.data;
+      img.alt = "Architecture diagram";
       img.style.maxWidth = "none";
       img.style.height = "auto";
       img.onload = function () {
@@ -427,13 +417,20 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
     }
 
     renderErrors(payload.diagnostics);
-    if (payload.playground_url) {
-      playgroundLink.setAttribute("data-url", payload.playground_url);
-      playgroundLink.setAttribute("href", payload.playground_url);
-      playgroundLink.setAttribute("target", "_blank");
-      playgroundLink.setAttribute("rel", "noopener noreferrer");
-    } else {
-      playgroundLink.hidden = true;
+    playgroundLink.hidden = true;
+    playgroundLink.removeAttribute("href");
+    playgroundLink.removeAttribute("data-url");
+    try {
+      var link = new URL(payload.playground_url);
+      if (link.origin === "https://playground.archlex.dev" && !link.username && !link.password) {
+        playgroundLink.setAttribute("data-url", link.href);
+        playgroundLink.setAttribute("href", link.href);
+        playgroundLink.setAttribute("target", "_blank");
+        playgroundLink.setAttribute("rel", "noopener noreferrer");
+        playgroundLink.hidden = false;
+      }
+    } catch (e) {
+      // Missing or invalid destinations remain unavailable.
     }
     status.style.display = "none";
     toolbar.hidden = false;
@@ -465,11 +462,13 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
   // ---------- message handling ----------
 
   window.addEventListener("message", function (event) {
+    // Sandboxed hosts may have opaque origins; pin the actual parent window.
+    if (event.source !== window.parent) return;
     var data = event.data;
-    if (!data || data.jsonrpc !== "2.0") return;
+    if (!data || typeof data !== "object" || Array.isArray(data) || data.jsonrpc !== "2.0") return;
 
     // Response to a pending request
-    if (typeof data.id !== "undefined" && pending[data.id]) {
+    if (typeof data.id !== "undefined" && Object.prototype.hasOwnProperty.call(pending, data.id)) {
       var entry = pending[data.id];
       delete pending[data.id];
       if (data.error) {

@@ -125,17 +125,25 @@ The server only accepts ArchLex source and returns diagrams. It does not
 connect to your AWS, GCP, or Kubernetes accounts, and it does not read your
 git remotes.
 
-The public endpoint rate-limits by IP and caps payload and source size.
+The public endpoint rate-limits by IP and caps payload and source size. POST
+bodies are bounded to 512 KiB, including streamed bodies. Legacy SSE sessions
+expire after five minutes and are capped at 100 per isolate. Public image
+rendering has a request deadline and a four-render concurrency limit per isolate.
 
 Playground links encode diagram source. Keep secrets out of `.archlex` files
 the same way you would keep them out of any other file you commit.
 
 To run a private copy, see the
 [MCP server README](https://github.com/baires/archlex/blob/main/apps/mcp-server/README.md).
-Private deployments can set `MCP_AUTH_TOKEN`. Optional URL delivery uses
+Private deployments can set `MCP_AUTH_TOKEN` and `ALLOWED_ORIGINS`. Supply the
+token in `Authorization: Bearer <token>`; query-string credentials are rejected.
+Optional URL delivery uses
 `RENDER_URL_SECRET`, `RENDER_URL_TTL_SECONDS` (default `600`), and
 `RENDER_URL_MAX_LENGTH`. When a URL is issued, results include
-`image_delivery: "url"`; otherwise they stay embedded.
+`image_delivery: "url"`; otherwise they stay embedded. Render URLs allow anyone
+holding the link to retrieve the image without authentication until expiry,
+with public caching for the remaining lifetime. Choose embedded delivery when
+that sharing model is unsuitable.
 
 ## Local development
 

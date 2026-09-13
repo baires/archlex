@@ -200,15 +200,24 @@ When MCP Apps support arrives in your client:
 
 Open access by default. Configure Worker environment variables for private deployments:
 
-- `MCP_AUTH_TOKEN` (optional): Secret key required via `Authorization: Bearer <token>` or `?token=<token>`.
-- `ALLOWED_ORIGINS` (optional): Comma-separated CORS allowed origins list.
-- `RATE_LIMIT_MAX_REQUESTS` (optional): Max requests per 60s per IP (default: `60`).
-- `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests (default: `30000`).
+- `MCP_AUTH_TOKEN` (optional): High-entropy secret required via `Authorization: Bearer <token>` only (maximum 8192 characters). Query-string credentials are rejected. Verification uses constant-time comparison of fixed-size SHA-256 digests.
+- `ALLOWED_ORIGINS` (optional): Comma-separated allowed origins list. Defaults to unrestricted access; configure explicitly for private or local deployments. Requests without an Origin header remain supported.
+- `RATE_LIMIT_MAX_REQUESTS` (optional): Fallback limiter requests per window per IP (default: `60`, maximum `1000`).
+- `RATE_LIMIT_WINDOW_SECONDS` (optional): Fallback limiter window (default: `60`, maximum `3600`). Invalid limit settings use the defaults. A native `RATE_LIMITER` binding uses its own configured quota.
+- `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests and public render URL work (default: `30000`).
 - `MCP_MAX_REQUEST_TIMEOUT_MS` (optional): Deployment-specific timeout ceiling, capped at `120000` milliseconds (default: `120000`).
 - `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer SVG inclusion (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). The viewer metadata is always advertised for forward compatibility.
 - `RENDER_URL_SECRET` (optional): High-entropy secret for stateless URL delivery encryption (AES-256-GCM). Set with `wrangler secret put RENDER_URL_SECRET`.
 - `RENDER_URL_TTL_SECONDS` (optional): Stateless URL token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): Maximum complete URL length in characters. Defaults to `7500`. URLs exceeding this length fall back to embedded delivery.
+
+POST bodies are limited to 512 KiB of actual bytes, including streamed requests without `Content-Length`. The fallback limiter retains at most 10,000 IP entries per isolate and expires inactive entries; when full, new IPs are rejected without resetting live quotas.
+
+Legacy SSE sessions close on disconnect, cancellation, or after five minutes. Each isolate admits at most 100 active sessions; clients must reconnect after expiry. Public image rendering admits at most four concurrent renders per isolate. Capacity exhaustion returns `503` with `Retry-After`; canceled render work retains its slot until it settles. These local limits supplement the platform's deployment-wide controls.
+
+The MCP Apps viewer accepts messages only from its parent window, displays SVG in passive image context, and permits playground links only to `https://playground.archlex.dev`.
+
+Render URLs are bearer capabilities: anyone holding a URL can retrieve its image without `MCP_AUTH_TOKEN` until expiry, and responses allow public caching for the remaining lifetime. Use embedded image delivery when that sharing model is unsuitable. Playground links encode the diagram source.
 
 ## Development
 
