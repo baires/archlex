@@ -56,7 +56,7 @@ function viewerHarness() {
   let listener: ((event: Record<string, unknown>) => void) | undefined;
   const parent = { postMessage() {} };
   const script = required(
-    DIAGRAM_VIEWER_HTML.match(/<script>([\s\S]*?)<\/script>/),
+    DIAGRAM_VIEWER_HTML.match(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/i),
   )[1];
   runInNewContext(script, {
     URL,
