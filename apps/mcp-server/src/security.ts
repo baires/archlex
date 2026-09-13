@@ -1,3 +1,5 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
 export interface Env {
   MCP_AUTH_TOKEN?: string;
   ALLOWED_ORIGINS?: string;
@@ -34,18 +36,14 @@ export function validateAuthentication(
   }
 
   const authHeader = request.headers.get("Authorization");
-  const url = new URL(request.url);
-  const queryToken = url.searchParams.get("token");
-
-  let token: string | undefined;
-
-  if (authHeader?.startsWith("Bearer ")) {
-    token = authHeader.substring(7).trim();
-  } else if (queryToken) {
-    token = queryToken.trim();
-  }
-
-  if (!token || token !== env.MCP_AUTH_TOKEN) {
+  const candidate = authHeader?.match(/^Bearer\s+(.*)$/i)?.[1]?.trim() ?? "";
+  const token = candidate.length <= 8192 ? candidate : "";
+  // Fixed-size digests avoid secret-length branches and content-dependent equality.
+  const supplied = createHash("sha256").update(token, "utf8").digest();
+  const expected = createHash("sha256")
+    .update(env.MCP_AUTH_TOKEN, "utf8")
+    .digest();
+  if (!timingSafeEqual(supplied, expected)) {
     return {
       authorized: false,
       status: 401,
@@ -92,7 +90,11 @@ export function validatePayloadSize(
  * In-memory sliding window rate limiter fallback
  */
 class InMemoryRateLimiter {
-  private requests = new Map<string, number[]>();
+  private requests = new Map<
+    string,
+    { timestamps: number[]; expiresAt: number }
+  >();
+  private nextSweepAt = 0;
 
   check(
     ip: string,
@@ -101,8 +103,22 @@ class InMemoryRateLimiter {
   ): { allowed: boolean; remaining: number; resetSeconds: number } {
     const now = Date.now();
     const windowStart = now - windowMs;
+    // Do not evict live quotas to make room: IP churn must not reset rate limits.
+    if (now >= this.nextSweepAt || this.requests.size >= 10_000) {
+      for (const [key, entry] of this.requests) {
+        if (entry.expiresAt <= now) this.requests.delete(key);
+      }
+      this.nextSweepAt = now + Math.min(windowMs, 60_000);
+    }
+    if (!this.requests.has(ip) && this.requests.size >= 10_000) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetSeconds: Math.max(1, Math.ceil(windowMs / 1000)),
+      };
+    }
 
-    let timestamps = this.requests.get(ip) || [];
+    let timestamps = this.requests.get(ip)?.timestamps || [];
     timestamps = timestamps.filter((t) => t > windowStart);
 
     if (timestamps.length >= maxRequests) {
@@ -115,7 +131,7 @@ class InMemoryRateLimiter {
     }
 
     timestamps.push(now);
-    this.requests.set(ip, timestamps);
+    this.requests.set(ip, { timestamps, expiresAt: now + windowMs });
 
     return {
       allowed: true,
@@ -126,6 +142,7 @@ class InMemoryRateLimiter {
 
   reset() {
     this.requests.clear();
+    this.nextSweepAt = 0;
   }
 }
 
@@ -137,6 +154,17 @@ export function getClientIp(request: Request): string {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     "127.0.0.1"
   );
+}
+
+function boundedPositiveInteger(
+  value: string | undefined,
+  fallback: number,
+  maximum: number,
+): number {
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0
+    ? Math.min(parsed, maximum)
+    : fallback;
 }
 
 /**
@@ -152,10 +180,15 @@ export async function checkRateLimit(
   headers?: Record<string, string>;
 }> {
   const ip = getClientIp(request);
-  const maxRequests = Number.parseInt(env?.RATE_LIMIT_MAX_REQUESTS || "60", 10);
-  const windowSeconds = Number.parseInt(
-    env?.RATE_LIMIT_WINDOW_SECONDS || "60",
-    10,
+  const maxRequests = boundedPositiveInteger(
+    env?.RATE_LIMIT_MAX_REQUESTS,
+    60,
+    1000,
+  );
+  const windowSeconds = boundedPositiveInteger(
+    env?.RATE_LIMIT_WINDOW_SECONDS,
+    60,
+    3600,
   );
 
   // If Cloudflare Native Rate Limiter binding is available

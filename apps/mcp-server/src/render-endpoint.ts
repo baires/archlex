@@ -1,4 +1,5 @@
 import { readRenderToken } from "./render-links.js";
+import { createRequestAbortScope, waitWithSignal } from "./request-limits.js";
 import type { Env } from "./security.js";
 import { parseRenderUrlConfig } from "./security.js";
 import { renderDiagramPng } from "./tools/render.js";
@@ -11,6 +12,10 @@ const CORS_JSON_HEADERS = {
 const INVALID_TOKEN_BODY = JSON.stringify({
   error: "Invalid or expired token",
 });
+
+// Per-isolate limit includes work still settling after its client has disconnected.
+let activeRenders = 0;
+const MAX_CONCURRENT_RENDERS = 4;
 
 function jsonError(status: number, error: string): Response {
   return new Response(JSON.stringify({ error }), {
@@ -44,16 +49,39 @@ export async function handleStatelessRenderRequest(
     return jsonError(503, "Render URL service not configured");
   }
 
+  const scope = createRequestAbortScope(request.signal, env);
   try {
+    scope.signal.throwIfAborted();
     const now = Date.now();
-    const payload = await readRenderToken(token, config.secret, now);
+    const payload = await waitWithSignal(
+      readRenderToken(token, config.secret, now),
+      scope.signal,
+    );
+    scope.signal.throwIfAborted();
+    if (activeRenders >= MAX_CONCURRENT_RENDERS) {
+      return new Response(
+        JSON.stringify({ error: "Too many active renders" }),
+        {
+          status: 503,
+          headers: { ...CORS_JSON_HEADERS, "Retry-After": "5" },
+        },
+      );
+    }
 
-    const result = await renderDiagramPng({
-      source: payload.source,
-      theme: payload.theme,
-      direction: payload.direction,
-      validation: payload.validation,
+    activeRenders++;
+    const rendering = renderDiagramPng(
+      {
+        source: payload.source,
+        theme: payload.theme,
+        direction: payload.direction,
+        validation: payload.validation,
+      },
+      { signal: scope.signal },
+    ).finally(() => {
+      activeRenders--;
     });
+    const result = await waitWithSignal(rendering, scope.signal);
+    scope.signal.throwIfAborted();
 
     if (result.hasErrors) {
       return new Response(INVALID_TOKEN_BODY, {
@@ -62,7 +90,12 @@ export async function handleStatelessRenderRequest(
       });
     }
 
-    const remainingMs = payload.expiresAt - now;
+    const remainingMs = payload.expiresAt - Date.now();
+    if (remainingMs <= 0)
+      return new Response(INVALID_TOKEN_BODY, {
+        status: 400,
+        headers: CORS_JSON_HEADERS,
+      });
     const remainingSeconds = Math.max(1, Math.floor(remainingMs / 1000));
     const pngBuffer = result.pngBytes.slice(0);
 
@@ -76,9 +109,20 @@ export async function handleStatelessRenderRequest(
       },
     });
   } catch {
+    if (scope.signal.aborted) {
+      const timedOut =
+        scope.signal.reason instanceof DOMException &&
+        scope.signal.reason.name === "TimeoutError";
+      return jsonError(
+        timedOut ? 504 : 408,
+        timedOut ? "Render deadline exceeded" : "Render request canceled",
+      );
+    }
     return new Response(INVALID_TOKEN_BODY, {
       status: 400,
       headers: CORS_JSON_HEADERS,
     });
+  } finally {
+    scope.cleanup();
   }
 }
