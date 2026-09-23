@@ -23,8 +23,9 @@ For a normal diagram request:
    validation internally, so a successful render confirms validity.
 3. **Repair once if needed** — apply the returned diagnostics and retry. When a
    parse error includes `hint`, use it as the likely correction.
-4. **Present** — display the returned image inline, followed by the exact final
-   source in an `archlex` fence and the returned `playground_url`.
+4. **Present** — display the returned image inline when the client supports
+   images. Otherwise embed `png_url` or `svg_url`. Then show the exact final
+   source in an `archlex` fence and the short `playground_url` (`/s/{id}`).
 
 Use the supporting tools only when their condition applies:
 
@@ -47,7 +48,7 @@ compatibility endpoints; do not use them for new integrations.
 | `get_cloud_catalog` | Inspect providers, resource kinds, scopes, relationship kinds |
 | `validate_diagram` | Fast syntax + semantic validation, no rendering; returns `hint` on parse errors |
 | `render_diagram` | Full pipeline: parse, icon hydration, validation, ELK layout, render |
-| `generate_playground_url` | Deep link to `playground.archlex.dev` |
+| `generate_playground_url` | Short share link plus SVG and PNG URLs |
 
 `render_diagram` arguments: `source` (required), `theme` (`light`/`dark`),
 `direction` (`LR`/`RL`/`TB`/`BT`), `validation` (`strict`/`normal`/`off`),

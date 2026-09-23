@@ -1,8 +1,9 @@
 import { readFile, readdir } from "node:fs/promises";
-import { basename, dirname, join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import chalk from "chalk";
 import { Command } from "commander";
+import { diagramId, isDiagramFile } from "../utils/diagram-file.js";
 import { handleError } from "../utils/errors.js";
 import { formatInfo, formatSuccess } from "../utils/formatters.js";
 
@@ -103,7 +104,7 @@ async function loadExamples(): Promise<Example[]> {
   const examples: Example[] = [];
 
   for (const file of files) {
-    if (!file.endsWith(".archlex")) continue;
+    if (!isDiagramFile(file)) continue;
 
     const filePath = join(examplesDir, file);
     const content = await readFile(filePath, "utf-8");
@@ -130,7 +131,7 @@ async function loadExamples(): Promise<Example[]> {
       }
     }
 
-    const id = basename(file, ".archlex");
+    const id = diagramId(file);
 
     examples.push({
       id,

@@ -23,6 +23,10 @@ import {
 } from "./tools/playground.js";
 import { type RenderDiagramArgs, handleRenderDiagram } from "./tools/render.js";
 import {
+  type ShareClientConfig,
+  createShareLinks,
+} from "./tools/share-link.js";
+import {
   type ValidateDiagramArgs,
   handleValidateDiagram,
 } from "./tools/validate.js";
@@ -57,6 +61,7 @@ function toolPresentation(
 export interface RegistryOptions {
   enableMcpApps: boolean;
   renderLinkConfig?: RenderLinkConfig;
+  share?: ShareClientConfig;
   signal?: AbortSignal;
   onProgress?: (progress: Progress) => void;
 }
@@ -75,7 +80,7 @@ export function listTools(options: RegistryOptions): Tool[] {
     ...toolPresentation(true),
     name: "render_diagram",
     description:
-      'Parse ArchLex DSL shorthand code, hydrate cloud service icons, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render a PNG diagram. **Display the image inline**, then include the exact final source in an `archlex` fenced code block and the returned playground link; do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary. Call `render_diagram` directly for normal diagram requests because it validates internally. When a resource identifier is unknown, call `get_cloud_catalog` once with a focused query. Do not call `validate_diagram` first unless the user requests validation-only or rendering failed; repair from render diagnostics and retry once. Do not call `generate_playground_url` after rendering because this result already includes `playground_url`. Relationship kinds inside `-[kind]->` are single lowercase words (e.g. `writes`, `routes`); put free-form display text in pipes: `a -[writes]->|PostgreSQL| b`. Clients that cannot display images: pass `format: "svg"` to skip the PNG, save the returned SVG (in content or `structuredContent.svg`) to a `.svg` file, and open it with your own file/image tooling.',
+      'Parse ArchLex DSL shorthand code, hydrate cloud service icons, validate provider rules (AWS/GCP/Kubernetes), compute ELK graph layout, and render a PNG diagram. **Display the image inline**, then include the exact final source in an `archlex` fenced code block and the returned playground link; do not show raw SVG source code or JSON metadata. The image is the primary output; metadata is supplementary. Call `render_diagram` directly for normal diagram requests because it validates internally. When a resource identifier is unknown, call `get_cloud_catalog` once with a focused query. Do not call `validate_diagram` first unless the user requests validation-only or rendering failed; repair from render diagnostics and retry once. Do not call `generate_playground_url` after rendering because this result already includes a short `playground_url` plus `svg_url` and `png_url` when sharing is available. Display the image inline when the client supports images; otherwise embed the image URL. Relationship kinds inside `-[kind]->` are single lowercase words (e.g. `writes`, `routes`); put free-form display text in pipes: `a -[writes]->|PostgreSQL| b`. Clients that cannot display images: pass `format: "svg"` to skip the PNG, save the returned SVG (in content or `structuredContent.svg`) to a `.svg` file, and open it with your own file/image tooling.',
     inputSchema: {
       type: "object",
       properties: {
@@ -128,6 +133,8 @@ export function listTools(options: RegistryOptions): Tool[] {
           },
         },
         playground_url: { type: "string" },
+        svg_url: { type: "string" },
+        png_url: { type: "string" },
         nodes_count: { type: "number" },
         edges_count: { type: "number" },
         image_delivery: { type: "string", enum: ["url", "embedded"] },
@@ -243,6 +250,10 @@ export async function callTool(
           {
             enableMcpApps: context.enableMcpApps,
             renderLinkConfig: context.renderLinkConfig,
+            createShare: context.share
+              ? (source) =>
+                  createShareLinks(source, context.share as ShareClientConfig)
+              : undefined,
             signal: context.signal,
             onProgress: context.onProgress,
           },
@@ -261,6 +272,12 @@ export async function callTool(
       case "generate_playground_url":
         result = await handleGeneratePlaygroundUrl(
           args as unknown as GeneratePlaygroundUrlArgs,
+          {
+            createShare: context.share
+              ? (source) =>
+                  createShareLinks(source, context.share as ShareClientConfig)
+              : undefined,
+          },
         );
         break;
       default:

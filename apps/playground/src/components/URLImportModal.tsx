@@ -158,7 +158,7 @@ export function URLImportModal({ onImport, onClose }: URLImportModalProps) {
                 id="url-input"
                 type="url"
                 className="form-input"
-                placeholder="https://github.com/user/repo/blob/main/diagram.archlex"
+                placeholder="https://github.com/user/repo/blob/main/diagram.arch"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 disabled={isLoading}

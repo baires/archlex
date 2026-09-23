@@ -12,6 +12,8 @@ export interface Env {
   RENDER_URL_SECRET?: string;
   RENDER_URL_TTL_SECONDS?: string;
   RENDER_URL_MAX_LENGTH?: string;
+  SHARE_ORIGIN?: string;
+  SHARE_SERVICE_TOKEN?: string;
   RATE_LIMITER?: {
     limit: (options: { key: string }) => Promise<{ success: boolean }>;
   };

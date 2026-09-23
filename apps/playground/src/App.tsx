@@ -3,7 +3,7 @@ import { createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
 import { k8sProvider } from "@archlex/k8s";
 import type { Diagnostic, RenderResult, ValidationMode } from "@archlex/model";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CommandBar } from "./components/CommandBar.js";
 import {
   type DiagnosticFilter,
@@ -11,6 +11,7 @@ import {
 } from "./components/DiagnosticsDrawer.js";
 import { Editor, type EditorSelection } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
+import { type ShareDialogState, ShareModal } from "./components/ShareModal.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { URLImportModal } from "./components/URLImportModal.js";
 import { Workspace, useWorkspaceFullscreen } from "./components/Workspace.js";
@@ -31,7 +32,14 @@ import {
   createGuardedOperationHandlers,
   renderProgressively,
 } from "./render-pipeline.js";
-import { resolveInitialSource } from "./url-source.js";
+import {
+  configuredShareOrigin,
+  loadSharedSource,
+  shareDiagram,
+  shareRequestOrigin,
+  sourceAfterShareFailure,
+} from "./share.js";
+import { resolveInitialSource, shareIdToLoad } from "./url-source.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
 const archlex = createArchLex({
@@ -64,6 +72,9 @@ function loadPersistedSource(): string | null {
 }
 
 function loadInitialSource(): string {
+  if (shareIdToLoad(window.location.search)) {
+    return ARCHITECTURE_EXAMPLES[0].source;
+  }
   return resolveInitialSource(
     window.location.search,
     loadPersistedSource(),
@@ -130,16 +141,48 @@ export function App() {
     useState<OperationMessage>(null);
   const [renderDurationMs, setRenderDurationMs] = useState<number | null>(null);
   const [isUrlImportOpen, setIsUrlImportOpen] = useState(false);
+  const [shareDialogState, setShareDialogState] =
+    useState<ShareDialogState | null>(null);
   const renderStartedAtRef = useRef(0);
   const previousSummaryRef = useRef(summarizeStatusDiagnostics([], null));
   const lastSuccessfulDiagnosticsRef = useRef<readonly Diagnostic[]>([]);
   const selectionRequestRef = useRef(0);
   const renderOperationIdRef = useRef(0);
   const diagnosticsTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const shareOperationRef = useRef(0);
+  const sharePendingRef = useRef(
+    Boolean(shareIdToLoad(window.location.search)),
+  );
+  const persistedBeforeShareRef = useRef(loadPersistedSource());
   const fullscreen = useWorkspaceFullscreen();
+
+  useEffect(() => {
+    const id = shareIdToLoad(window.location.search);
+    if (!id) return;
+    let cancelled = false;
+    void loadSharedSource(id, fetch, configuredShareOrigin()).then((result) => {
+      if (cancelled) return;
+      sharePendingRef.current = false;
+      if (result.ok) {
+        setSource(result.source);
+        return;
+      }
+      setOperationMessage({ tone: "error", text: result.message });
+      setSource(
+        sourceAfterShareFailure(
+          persistedBeforeShareRef.current,
+          ARCHITECTURE_EXAMPLES[0].source,
+        ),
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 1. Persist to LocalStorage
   useEffect(() => {
+    if (sharePendingRef.current) return;
     try {
       localStorage.setItem(STORAGE_SOURCE_KEY, source);
     } catch {
@@ -308,6 +351,34 @@ export function App() {
     });
   };
 
+  const closeShareDialog = useCallback(() => {
+    shareOperationRef.current += 1;
+    setShareDialogState(null);
+  }, []);
+
+  const handleShare = useCallback(async () => {
+    if (!source.trim()) return;
+    const operationId = ++shareOperationRef.current;
+    setShareDialogState({ phase: "loading" });
+    const result = await shareDiagram(source, {
+      fetch,
+      origin: shareRequestOrigin(
+        configuredShareOrigin(),
+        window.location.origin,
+      ),
+    });
+    if (operationId !== shareOperationRef.current) return;
+    setShareDialogState(
+      result.ok
+        ? {
+            phase: "ready",
+            playgroundUrl: result.playgroundUrl,
+            svgUrl: result.svgUrl,
+          }
+        : { phase: "error", message: result.message },
+    );
+  }, [source]);
+
   const handleCopySvg = async () => {
     if (!currentSvg) return;
     try {
@@ -384,6 +455,8 @@ export function App() {
         theme={theme}
         examples={ARCHITECTURE_EXAMPLES}
         canExport={Boolean(currentSvg)}
+        canShare={source.trim().length > 0}
+        onShare={handleShare}
         isFullscreen={fullscreen.isFullscreen}
         onDirectionChange={setDirection}
         onValidationChange={setValidation}
@@ -404,6 +477,14 @@ export function App() {
         />
       ) : null}
 
+      {shareDialogState ? (
+        <ShareModal
+          state={shareDialogState}
+          onClose={closeShareDialog}
+          onRetry={handleShare}
+        />
+      ) : null}
+
       <Workspace
         workspaceRef={fullscreen.workspaceRef}
         splitRatio={splitRatio}
@@ -412,7 +493,7 @@ export function App() {
           <Editor
             source={source}
             onSourceChange={setSource}
-            documentLabel="architecture.archlex"
+            documentLabel="architecture.arch"
             onCursorChange={setCursor}
             selection={editorSelection}
             theme={theme}

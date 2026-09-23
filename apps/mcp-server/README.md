@@ -144,6 +144,8 @@ When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL 
 - `RENDER_URL_SECRET`: high-entropy secret for AES-256-GCM encryption. Set with `wrangler secret put RENDER_URL_SECRET`. Never put the secret in `wrangler.json`.
 - `RENDER_URL_TTL_SECONDS` (optional): token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): maximum complete URL length. Defaults to `7500`.
+- `SHARE_ORIGIN`: share Worker origin. Production default is `https://share.archlex.dev`. Local `wrangler dev` can override it in `.dev.vars`.
+- `SHARE_SERVICE_TOKEN`: shared secret so this server can create shares without the public rate limit. Set with `wrangler secret put SHARE_SERVICE_TOKEN`. Never commit it.
 
 **When to use URL delivery:**
 

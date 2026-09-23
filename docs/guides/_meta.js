@@ -3,4 +3,5 @@ export default {
   "mcp-server": "Remote MCP Server",
   "relationship-types": "Relationship Types",
   "dynamic-cdn-icons": "Dynamic CDN Icons",
+  share: "Share a diagram",
 };

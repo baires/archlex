@@ -23,6 +23,8 @@ interface CommandBarProps {
   onSelectExample: (example: ArchitectureExample) => void;
   onImportFile: (content: string, filename: string) => void;
   onOpenUrlImport: () => void;
+  canShare: boolean;
+  onShare: () => Promise<void>;
   onCopySvg: () => Promise<void>;
   onDownloadSvg: () => void;
   onDownloadPng: () => Promise<void>;
@@ -42,6 +44,8 @@ export function CommandBar({
   onSelectExample,
   onImportFile,
   onOpenUrlImport,
+  canShare,
+  onShare,
   onCopySvg,
   onDownloadSvg,
   onDownloadPng,
@@ -159,6 +163,16 @@ export function CommandBar({
           onImportFile={onImportFile}
           onOpenUrlImport={onOpenUrlImport}
         />
+        <button
+          type="button"
+          className="btn-secondary"
+          disabled={!canShare}
+          title="Share"
+          aria-label="Share diagram"
+          onClick={() => void onShare()}
+        >
+          <span className="btn-label">Share</span> <Icon name="link" />
+        </button>
         <ExportMenu
           disabled={!canExport}
           onCopySvg={onCopySvg}

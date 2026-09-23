@@ -18,6 +18,7 @@ import {
   type RenderUrlResult,
   createRenderUrl,
 } from "../render-links.js";
+import { type ShareLinks, sharePreviewText } from "./share-link.js";
 
 const archlex = createArchLex({
   providers: [awsProvider(), gcpProvider(), k8sProvider()],
@@ -56,6 +57,7 @@ export interface RenderDiagramArgs {
 export interface RenderDiagramOptions {
   enableMcpApps?: boolean;
   renderLinkConfig?: RenderLinkConfig;
+  createShare?: (source: string) => Promise<ShareLinks | undefined>;
   signal?: AbortSignal;
   iconLoader?: IconLoader;
   iconHydrationTimeoutMs?: number;
@@ -375,15 +377,17 @@ export async function handleRenderDiagram(
     options?.signal?.throwIfAborted();
 
     const encodedSource = encodeURIComponent(source);
-    const playgroundUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
-
+    const fallbackUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
     const formattedDiagnostics = formatDiagnostics(result.diagnostics, source);
     const hasErrors = result.diagnostics.some((d) => d.severity === "error");
+    const share = hasErrors ? undefined : await options?.createShare?.(source);
+    const playgroundUrl = share?.playgroundUrl ?? fallbackUrl;
     const payload = {
       success: !hasErrors,
       source,
       diagnostics: formattedDiagnostics,
       playground_url: playgroundUrl,
+      ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
       nodes_count: result.graph.nodes.length,
       edges_count: result.graph.edges.length,
       svg: result.svg,
@@ -395,7 +399,10 @@ export async function handleRenderDiagram(
     const summary = hasErrors
       ? `✗ Rendering failed: ${errorCount} error${errorCount === 1 ? "" : "s"}`
       : `✓ Rendered successfully: ${result.graph.nodes.length} node${result.graph.nodes.length === 1 ? "" : "s"}, ${result.graph.edges.length} edge${result.graph.edges.length === 1 ? "" : "s"}. Always display or embed the rendered diagram image inline in your response to the user.`;
-    const textSummary = `${summary}\n\n${formatSourceBlock(source)}`;
+    const preview = share
+      ? `\n\n${sharePreviewText("Architecture diagram", share.svgUrl, share.playgroundUrl)}`
+      : "";
+    const textSummary = `${summary}${preview}\n\n${formatSourceBlock(source)}`;
 
     options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
     return {
@@ -459,11 +466,16 @@ export async function handleRenderDiagram(
       : { delivery: "embedded", reason: "render_url_unconfigured" };
   }
 
+  const share = rendered.hasErrors
+    ? undefined
+    : await options?.createShare?.(source);
+  const playgroundUrl = share?.playgroundUrl ?? rendered.playgroundUrl;
   const payload = {
     success: !rendered.hasErrors,
     source,
     diagnostics: rendered.diagnostics,
-    playground_url: rendered.playgroundUrl,
+    playground_url: playgroundUrl,
+    ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
     nodes_count: rendered.nodesCount,
     edges_count: rendered.edgesCount,
     ...(options?.enableMcpApps ? { svg: rendered.svg } : {}),
@@ -506,20 +518,22 @@ export async function handleRenderDiagram(
     },
   ];
 
-  if (urlResult?.delivery === "url") {
+  const previewUrl =
+    share?.pngUrl ??
+    (urlResult?.delivery === "url" ? urlResult.url : undefined);
+  if (previewUrl) {
     content.push({
       type: "resource_link" as const,
-      uri: urlResult.url,
+      uri: previewUrl,
       name: altText,
       mimeType: "image/png",
     });
   }
 
-  // Add text summary with Markdown if URL available
-  const textSummary =
-    urlResult?.delivery === "url"
-      ? `${summary}\n\n![${altText}](${urlResult.url})\n\n${formatSourceBlock(source)}`
-      : `${summary}\n\n${formatSourceBlock(source)}`;
+  const preview = previewUrl
+    ? `\n\n${sharePreviewText(altText, previewUrl, playgroundUrl)}`
+    : "";
+  const textSummary = `${summary}${preview}\n\n${formatSourceBlock(source)}`;
 
   content.push({
     type: "text" as const,

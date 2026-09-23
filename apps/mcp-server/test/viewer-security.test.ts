@@ -126,6 +126,15 @@ it.each([
   expect(link.attributes.has("href")).toBe(false);
 });
 
+it("preserves a short share link", () => {
+  const harness = viewerHarness();
+  const url = "https://share.archlex.dev/s/PyS4cb6_OVTHGEfGqdAwvw";
+  harness.deliver(harness.parent, "<svg/>", url);
+  const link = required(harness.elements.get("open-playground"));
+  expect(link.hidden).toBe(false);
+  expect(link.attributes.get("href")).toBe(url);
+});
+
 it("preserves an approved playground destination", () => {
   const harness = viewerHarness();
   const url = "https://playground.archlex.dev/?code=ecs";

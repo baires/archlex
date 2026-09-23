@@ -128,7 +128,7 @@ export function ImportMenu({ onImportFile, onOpenUrlImport }: ImportMenuProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".archlex,.txt,text/plain"
+        accept=".arch,.archlex,.txt,text/plain"
         onChange={handleFileSelect}
         style={{ display: "none" }}
       />

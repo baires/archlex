@@ -1,7 +1,7 @@
 ---
 title: Remote MCP Server
 description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams."
-lastModified: 2026-08-28T22:00:00-03:00
+lastModified: 2026-09-23T08:00:00-03:00
 ---
 
 # Remote MCP Server
@@ -130,8 +130,11 @@ bodies are bounded to 512 KiB, including streamed bodies. Legacy SSE sessions
 expire after five minutes and are capped at 100 per isolate. Public image
 rendering has a request deadline and a four-render concurrency limit per isolate.
 
-Playground links encode diagram source. Keep secrets out of `.archlex` files
-the same way you would keep them out of any other file you commit.
+`render_diagram` returns a short `playground_url` (`/s/{id}`) plus `svg_url` and `png_url` when the share service is available. Clients that can display images should show the preview; others can embed the image URL. Keep secrets out of diagram source
+files the same way you would keep them out of any other file you commit. Save
+source as `.arch` (the name to use); `.archlex` files remain valid everywhere
+ArchLex reads a file. For short, expiring links that render the diagram in a
+README, see [Share a diagram](/guides/share).
 
 To run a private copy, see the
 [MCP server README](https://github.com/baires/archlex/blob/main/apps/mcp-server/README.md).

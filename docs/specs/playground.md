@@ -1,6 +1,6 @@
 ---
 title: Playground Specification
-description: "ArchLex playground specification, covering the Monaco editor, context-aware completions, live diagnostics, SVG preview, examples, and export tools."
+description: "ArchLex playground specification, covering the Monaco editor, context-aware completions, live diagnostics, SVG preview, examples, sharing, and export tools."
 ---
 
 # Playground Specification
@@ -79,9 +79,15 @@ You can import source from a file or URL. Copy and download actions use the
 latest successful SVG. PNG export rasterizes that SVG. Exported output includes
 theme and accessibility data but excludes playground selection state.
 
+## Sharing
+
+Share creates a public link for the current source and opens a dialog with two
+copy options: the playground link and a Markdown embed containing the SVG image
+and playground link. A share is created before either option is copied, so you
+can choose the format that fits where you are sharing it.
+
 ## Accessibility
 
 Keyboard users can reach controls, resize panes, switch narrow-screen tabs, and
 navigate SVG elements. Focus survives hydrated SVG replacement. Diagnostic
 counts use live announcements without replaying the full list after each edit.
-

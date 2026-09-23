@@ -69,8 +69,8 @@ Do not change unrelated MCP servers.
 
 > Diagram a serverless API on AWS with API Gateway, Lambda, and DynamoDB.
 
-You should get a rendered diagram, the exact ArchLex source, and a
-[playground](https://playground.archlex.dev) link.
+You should get a rendered diagram when the client can show images, the exact
+ArchLex source, and a short share link.
 
 ```archlex
 direction LR
