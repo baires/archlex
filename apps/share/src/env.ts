@@ -1,3 +1,4 @@
+import type { PreparedDiagram } from "@archlex/core";
 import type { ShareD1 } from "./d1.js";
 
 export const DEFAULT_SHARE_ORIGIN = "https://share.archlex.dev";
@@ -17,4 +18,5 @@ export interface ShareEnv {
   SHARE_RENDER_LIMITER?: RateLimitBinding;
   renderSvg?: (source: string) => Promise<string>;
   rasterize?: (svg: string) => Promise<Uint8Array>;
+  prepare?: (source: string) => PreparedDiagram | Promise<PreparedDiagram>;
 }

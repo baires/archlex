@@ -4,7 +4,7 @@ Cloudflare Worker that stores an `.arch` source in D1 and serves a short playgro
 
 Saving identical source reuses its existing share id and refreshes its expiry. Changed source creates a separate share. A SHA-256 fingerprint index keeps this lookup small and prevents duplicate source rows.
 
-The Worker caps source bodies at 400,000 bytes before parsing, limits public clients to 30 POSTs per IP per hour, and allows at most 1,000 POSTs or 10 MiB of submitted source bytes per UTC day across all clients. These daily limits also apply to service-token calls. Cloudflare edge bindings additionally limit POST bursts to 10 requests per minute and image-render bursts to 30 requests per minute per client IP. Rendered SVG/PNG responses are cached for no longer than the share's remaining lifetime.
+The Worker caps source bodies at 400,000 bytes and diagrams at 2,000 lines, 200 nodes, and 400 edges. Invalid diagrams are rejected before they are stored. Public clients are limited to 30 POSTs per IP per hour and 200 POSTs or 2 MiB of source bytes per IP per UTC day. A global circuit breaker allows at most 20,000 POSTs or 200 MiB of source bytes per UTC day; it protects the service and is not the per-client fairness limit. These daily limits also apply to service-token calls. Cloudflare edge bindings additionally limit POST bursts to 10 requests per minute and image-render bursts to 30 requests per minute per client IP.
 
 ## Local
 

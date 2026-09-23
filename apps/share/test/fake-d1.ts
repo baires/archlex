@@ -14,7 +14,7 @@ interface ShareRow {
   source_hash?: string;
 }
 
-interface LimitRow {
+export interface LimitRow {
   count: number;
   bytesUsed: number;
   windowStart: number;
@@ -23,6 +23,7 @@ interface LimitRow {
 export interface FakeD1 extends ShareD1 {
   queries: RecordedQuery[];
   rows: Map<string, ShareRow>;
+  limits: Map<string, LimitRow>;
 }
 
 export function createAllowingRateLimit(): RateLimitBinding {
@@ -33,7 +34,9 @@ export function createAllowingRateLimit(): RateLimitBinding {
   };
 }
 
-export function createFakeD1(): FakeD1 {
+export function createFakeD1(
+  afterSourceLookup?: (exists: boolean) => Promise<void>,
+): FakeD1 {
   const queries: RecordedQuery[] = [];
   const rows = new Map<string, ShareRow>();
   const limits = new Map<string, LimitRow>();
@@ -41,25 +44,61 @@ export function createFakeD1(): FakeD1 {
   return {
     queries,
     rows,
+    limits,
     prepare(sql: string) {
       return {
         bind(...values: unknown[]) {
           return {
             async run() {
               queries.push({ sql, values });
-              if (sql.includes("DELETE FROM shares")) {
-                const now = Number(values[0]);
-                for (const [id, row] of rows) {
-                  if (row.expires_at <= now) rows.delete(id);
+              if (sql === "DELETE FROM shares WHERE id = ?") {
+                const deleted = rows.delete(String(values[0]));
+                return { success: true, meta: { changes: Number(deleted) } };
+              }
+              if (sql.startsWith("UPDATE post_limits SET bytes_used = MAX")) {
+                const [bytes, key, windowStart] = values;
+                const current = limits.get(`${key}:${windowStart}`);
+                if (current) {
+                  current.bytesUsed = Math.max(
+                    0,
+                    current.bytesUsed - Number(bytes),
+                  );
                 }
                 return { success: true };
               }
-              if (sql.includes("DELETE FROM post_limits")) {
-                const cutoff = Number(values[0]);
-                for (const [key, row] of limits) {
-                  if (row.windowStart < cutoff) limits.delete(key);
+              if (sql.startsWith("UPDATE post_limits SET count = MAX")) {
+                const [bytes, key, windowStart] = values;
+                const current = limits.get(`${key}:${windowStart}`);
+                if (current) {
+                  current.count = Math.max(0, current.count - 1);
+                  current.bytesUsed = Math.max(
+                    0,
+                    current.bytesUsed - Number(bytes),
+                  );
                 }
                 return { success: true };
+              }
+              if (sql.includes("DELETE FROM shares")) {
+                const now = Number(values[0]);
+                let changes = 0;
+                for (const [id, row] of rows) {
+                  if (row.expires_at <= now && changes < 500) {
+                    rows.delete(id);
+                    changes += 1;
+                  }
+                }
+                return { success: true, meta: { changes } };
+              }
+              if (sql.includes("DELETE FROM post_limits")) {
+                const cutoff = Number(values[0]);
+                let changes = 0;
+                for (const [key, row] of limits) {
+                  if (row.windowStart < cutoff && changes < 500) {
+                    limits.delete(key);
+                    changes += 1;
+                  }
+                }
+                return { success: true, meta: { changes } };
               }
               if (sql.startsWith("INSERT INTO shares")) {
                 const [id, source, createdAt, expiresAt] = values;
@@ -74,6 +113,22 @@ export function createFakeD1(): FakeD1 {
             },
             async first<T>(): Promise<T | null> {
               queries.push({ sql, values });
+              if (
+                sql.startsWith(
+                  "UPDATE post_limits SET bytes_used = bytes_used +",
+                )
+              ) {
+                const [bytes, key, windowStart, , maxBytes] = values;
+                const current = limits.get(`${key}:${windowStart}`);
+                if (
+                  !current ||
+                  current.bytesUsed + Number(bytes) > Number(maxBytes)
+                ) {
+                  return null;
+                }
+                current.bytesUsed += Number(bytes);
+                return { bytes_used: current.bytesUsed } as T;
+              }
               if (sql.includes("post_limits")) {
                 const key = `${values[0]}:${values[1]}`;
                 const current = limits.get(key);
@@ -88,6 +143,7 @@ export function createFakeD1(): FakeD1 {
                   ) {
                     return null;
                   }
+                  if (bytesUsed > maxBytes) return null;
                   const next = {
                     count: (current?.count ?? 0) + 1,
                     bytesUsed: (current?.bytesUsed ?? 0) + bytesUsed,
@@ -103,6 +159,27 @@ export function createFakeD1(): FakeD1 {
                   windowStart: Number(values[1]),
                 });
                 return { count: next } as T;
+              }
+              if (sql.startsWith("SELECT id FROM shares WHERE source_hash")) {
+                const sourceHash = String(values[0]);
+                const now = Number(values[1]);
+                const existing = Array.from(rows.values()).find(
+                  (row) =>
+                    row.source_hash === sourceHash && row.expires_at > now,
+                );
+                await afterSourceLookup?.(existing !== undefined);
+                return existing ? ({ id: existing.id } as T) : null;
+              }
+              if (sql.startsWith("UPDATE shares SET expires_at = ?")) {
+                const [expiresAt, sourceHash, now] = values;
+                const existing = Array.from(rows.values()).find(
+                  (row) =>
+                    row.source_hash === sourceHash &&
+                    row.expires_at > Number(now),
+                );
+                if (!existing) return null;
+                existing.expires_at = Number(expiresAt);
+                return { id: existing.id } as T;
               }
               if (
                 sql.startsWith("INSERT INTO shares") &&

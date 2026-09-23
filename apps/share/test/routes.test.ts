@@ -1,6 +1,9 @@
-import { describe, expect, it } from "vitest";
+import type { PreparedDiagram } from "@archlex/core";
+import { describe, expect, it, vi } from "vitest";
+import { BYTES_PER_IP_PER_DAY, deleteExpiredShares } from "../src/d1.js";
 import type { ShareEnv } from "../src/env.js";
 import worker from "../src/index.js";
+import { hashShareSource } from "../src/security.js";
 import { createAllowingRateLimit, createFakeD1 } from "./fake-d1.js";
 
 const SOURCE = 'provider aws\ncdn: cloudfront["CDN"]\n';
@@ -68,6 +71,160 @@ describe("POST /v1/shares", () => {
     expect(response.headers.get("content-type")).toContain("application/json");
   });
 
+  it("counts duplicate submissions without charging their source bytes again", async () => {
+    const database = createFakeD1();
+    const post = () =>
+      worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: { "cf-connecting-ip": "203.0.113.19" },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({ DB: database }),
+      );
+
+    const first = await post();
+    const second = await post();
+    const budgetQueries = database.queries.filter(
+      (query) =>
+        query.sql.includes("bytes_used") &&
+        query.values[0] === "__ip_daily__:203.0.113.19",
+    );
+    const dayStart =
+      Math.floor(Date.now() / (24 * 60 * 60 * 1000)) * (24 * 60 * 60 * 1000);
+    const sourceBytes = new TextEncoder().encode(SOURCE).byteLength;
+
+    expect(first.status).toBe(201);
+    expect(second.status).toBe(201);
+    expect(database.rows.size).toBe(1);
+    expect(budgetQueries.map((query) => query.values[2])).toEqual([
+      sourceBytes,
+      sourceBytes,
+    ]);
+    expect(
+      database.limits.get(`__ip_daily__:203.0.113.19:${dayStart}`)?.bytesUsed,
+    ).toBe(sourceBytes);
+    expect(database.limits.get(`__global_daily__:${dayStart}`)?.bytesUsed).toBe(
+      sourceBytes,
+    );
+  });
+
+  it("refunds duplicate byte charges when identical posts race", async () => {
+    const database = createFakeD1();
+    let preparedCount = 0;
+    let releasePrepared: () => void = () => {};
+    const bothPrepared = new Promise<void>((resolve) => {
+      releasePrepared = resolve;
+    });
+    const sharedEnv = env({
+      DB: database,
+      prepare: async () => {
+        preparedCount += 1;
+        if (preparedCount === 2) releasePrepared();
+        await bothPrepared;
+        return preparedDiagram(1, 0, []);
+      },
+    });
+    const post = () =>
+      worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: { "cf-connecting-ip": "203.0.113.21" },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        sharedEnv,
+      );
+
+    const responses = await Promise.all([post(), post()]);
+
+    expect(responses.map((response) => response.status)).toEqual([201, 201]);
+    expect(database.rows.size).toBe(1);
+    expect(
+      database.queries.filter((query) =>
+        query.sql.includes("bytes_used = MAX(0, bytes_used - ?"),
+      ),
+    ).toHaveLength(2);
+  });
+
+  it("avoids inserting an uncharged share when cleanup races a duplicate", async () => {
+    const now = 1_700_006_400_000;
+    let database: ReturnType<typeof createFakeD1>;
+    database = createFakeD1(async (exists) => {
+      if (exists) await deleteExpiredShares(database, now + 1);
+    });
+    database.rows.set("expired-match", {
+      id: "expired-match",
+      source: SOURCE,
+      created_at: now - 1,
+      expires_at: now + 1,
+      source_hash: await hashShareSource(SOURCE),
+    });
+    database.limits.set(`__ip_daily__:203.0.113.22:${now}`, {
+      count: 199,
+      bytesUsed: BYTES_PER_IP_PER_DAY,
+      windowStart: now,
+    });
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    try {
+      const response = await worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: { "cf-connecting-ip": "203.0.113.22" },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({ DB: database }),
+      );
+
+      expect(response.status).toBe(429);
+      expect(database.rows.size).toBe(0);
+      expect(
+        database.queries.some((query) =>
+          query.sql.includes("ON CONFLICT(source_hash)"),
+        ),
+      ).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("rejects the 201st post from one IP in a UTC day", async () => {
+    const database = createFakeD1();
+    const dayStart = 1_700_006_400_000;
+    let allowed = 0;
+
+    vi.useFakeTimers();
+    try {
+      for (let index = 0; index < 201; index += 1) {
+        vi.setSystemTime(
+          dayStart + Math.floor((index * 24 * 60 * 60 * 1000) / 201),
+        );
+        const response = await worker.fetch(
+          new Request("https://share.archlex.dev/v1/shares", {
+            method: "POST",
+            headers: { "cf-connecting-ip": "203.0.113.20" },
+            body: JSON.stringify({ source: SOURCE }),
+          }),
+          env({ DB: database }),
+        );
+        if (response.status === 201) allowed += 1;
+        if (index === 200) {
+          expect(response.status).toBe(429);
+          expect(await response.json()).toEqual({ error: "rate_limited" });
+        }
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(allowed).toBe(200);
+    expect(
+      database.queries.filter((query) =>
+        query.sql.includes("ON CONFLICT(source_hash)"),
+      ),
+    ).toHaveLength(200);
+  });
+
   it("uses configured origins", async () => {
     const response = await worker.fetch(
       new Request("https://share.example/v1/shares", {
@@ -115,6 +272,79 @@ describe("POST /v1/shares", () => {
     const text = await response.text();
     expect(JSON.parse(text)).toEqual({ error: "payload_too_large" });
     expect(text).not.toContain(source);
+  });
+
+  it("rejects sources with more than 2,000 lines before inserting", async () => {
+    const database = createFakeD1();
+    const renderSvg = vi.fn(async () => "<svg></svg>");
+    const source = `${Array.from({ length: 2_001 }, () => "lambda").join("\n")}`;
+    const response = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source }),
+      }),
+      env({ DB: database, renderSvg }),
+    );
+
+    expect(response.status).toBe(413);
+    expect(await response.json()).toEqual({ error: "diagram_too_large" });
+    expect(database.rows.size).toBe(0);
+    expect(renderSvg).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      "more than 200 nodes",
+      { nodes: 201, edges: 0 },
+      [],
+      413,
+      "diagram_too_large",
+    ],
+    [
+      "more than 400 edges",
+      { nodes: 2, edges: 401 },
+      [],
+      413,
+      "diagram_too_large",
+    ],
+  ])(
+    "rejects %s before inserting",
+    async (_label, counts, diagnostics, status, error) => {
+      const database = createFakeD1();
+      const renderSvg = vi.fn(async () => "<svg></svg>");
+      const response = await worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({
+          DB: database,
+          renderSvg,
+          prepare: () =>
+            preparedDiagram(counts.nodes, counts.edges, diagnostics),
+        }),
+      );
+
+      expect(response.status).toBe(status);
+      expect(await response.json()).toEqual({ error });
+      expect(database.rows.size).toBe(0);
+      expect(renderSvg).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects a source with a parse error before inserting", async () => {
+    const database = createFakeD1();
+    const response = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source: "runtime-service ->\nunknown-service" }),
+      }),
+      env({ DB: database }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "invalid_request" });
+    expect(database.rows.size).toBe(0);
   });
 
   it("skips the rate limit for a matching service token", async () => {
@@ -196,6 +426,48 @@ describe("POST /v1/shares", () => {
     expect(text).not.toContain("SECRET");
   });
 });
+
+function preparedDiagram(
+  nodeCount: number,
+  edgeCount: number,
+  diagnostics: PreparedDiagram["diagnostics"],
+): PreparedDiagram {
+  return {
+    ast: {
+      type: "document",
+      statements: [],
+      span: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 1, offset: 0 },
+      },
+    },
+    graph: {
+      nodes: Array.from({ length: nodeCount }, (_, index) => ({
+        id: `node-${index}`,
+        provider: "aws",
+        serviceKind: "lambda",
+        label: `Node ${index}`,
+        span: {
+          start: { line: 1, column: 1, offset: 0 },
+          end: { line: 1, column: 1, offset: 0 },
+        },
+      })),
+      edges: Array.from({ length: edgeCount }, (_, index) => ({
+        id: `edge-${index}`,
+        source: "node-0",
+        target: "node-1",
+        arrow: "->",
+        span: {
+          start: { line: 1, column: 1, offset: 0 },
+          end: { line: 1, column: 1, offset: 0 },
+        },
+      })),
+      scopes: [],
+    },
+    diagnostics,
+    iconRequests: [],
+  };
+}
 
 describe("GET /v1/shares/:id", () => {
   it("returns source for an active id and allows the playground origin", async () => {

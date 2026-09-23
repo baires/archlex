@@ -1,4 +1,7 @@
 export const SOURCE_MAX_CHARS = 100_000;
+export const MAX_SOURCE_LINES = 2_000;
+export const MAX_NODES = 200;
+export const MAX_EDGES = 400;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const LOCALHOST_ORIGIN = /^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/;
 
@@ -40,7 +43,7 @@ export type SourceParseResult =
   | {
       ok: false;
       status: 400 | 413;
-      error: "invalid_request" | "payload_too_large";
+      error: "invalid_request" | "payload_too_large" | "diagram_too_large";
     };
 
 export function parseShareSource(body: unknown): SourceParseResult {
@@ -53,6 +56,11 @@ export function parseShareSource(body: unknown): SourceParseResult {
   }
   if (source.length > SOURCE_MAX_CHARS) {
     return { ok: false, status: 413, error: "payload_too_large" };
+  }
+  const lineCount =
+    source.split(/\r\n|\r|\n/).length - Number(/(?:\r\n|\r|\n)$/.test(source));
+  if (lineCount > MAX_SOURCE_LINES) {
+    return { ok: false, status: 413, error: "diagram_too_large" };
   }
   return { ok: true, source };
 }

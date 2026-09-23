@@ -2,6 +2,9 @@ import {
   consumeDailyPostBudget,
   consumePostLimit,
   findActiveShare,
+  findActiveShareIdBySource,
+  refreshActiveShareBySource,
+  refundDailySourceBytes,
   saveShareBySource,
 } from "./d1.js";
 import {
@@ -12,12 +15,15 @@ import {
 import { errorResponse } from "./errors.js";
 import {
   acquireRenderSlot,
+  prepareDiagram,
   rasterizeDiagramSvg,
   releaseRenderSlot,
   renderDiagramSvg,
 } from "./render.js";
 import { sanitizeDiagramSvg } from "./sanitize-svg.js";
 import {
+  MAX_EDGES,
+  MAX_NODES,
   SOURCE_MAX_CHARS,
   clientIp,
   corsHeaders,
@@ -183,27 +189,56 @@ async function createShare(
   if (!parsed.ok) return errorResponse(parsed.status, parsed.error, cors);
 
   try {
+    const prepared = await (env.prepare ?? prepareDiagram)(parsed.source);
+    if (
+      prepared.graph.nodes.length > MAX_NODES ||
+      prepared.graph.edges.length > MAX_EDGES
+    ) {
+      return errorResponse(413, "diagram_too_large", cors);
+    }
+    if (
+      prepared.diagnostics.some((diagnostic) => diagnostic.severity === "error")
+    ) {
+      return errorResponse(400, "invalid_request", cors);
+    }
+
     const now = Date.now();
-    const ipAllowed =
-      service || (await consumePostLimit(env.DB, clientIp(request), now));
+    const ip = clientIp(request);
+    const ipAllowed = service || (await consumePostLimit(env.DB, ip, now));
     if (!ipAllowed) return errorResponse(429, "rate_limited", cors);
     const sourceBytes = new TextEncoder().encode(parsed.source).byteLength;
-    const withinDailyBudget = await consumeDailyPostBudget(
+    const sourceHash = await hashShareSource(parsed.source);
+    const expiresAt = now + shareTtlMs(env.SHARE_TTL_DAYS);
+    let withinDailyBudget = await consumeDailyPostBudget(
       env.DB,
+      ip,
       now,
       sourceBytes,
     );
-    if (!withinDailyBudget) return errorResponse(429, "rate_limited", cors);
-    const id = await saveShareBySource(
-      env.DB,
-      {
-        id: createShareId(),
-        source: parsed.source,
-        createdAt: now,
-        expiresAt: now + shareTtlMs(env.SHARE_TTL_DAYS),
-      },
-      await hashShareSource(parsed.source),
-    );
+    let id: string | null;
+    if (withinDailyBudget) {
+      const newId = createShareId();
+      id = await saveShareBySource(
+        env.DB,
+        {
+          id: newId,
+          source: parsed.source,
+          createdAt: now,
+          expiresAt,
+        },
+        sourceHash,
+      );
+      if (id !== newId) {
+        await refundDailySourceBytes(env.DB, ip, now, sourceBytes);
+      }
+    } else {
+      const activeId = await findActiveShareIdBySource(env.DB, sourceHash, now);
+      if (!activeId) return errorResponse(429, "rate_limited", cors);
+      withinDailyBudget = await consumeDailyPostBudget(env.DB, ip, now, 0);
+      if (!withinDailyBudget) return errorResponse(429, "rate_limited", cors);
+      id = await refreshActiveShareBySource(env.DB, sourceHash, now, expiresAt);
+    }
+    if (!id) return errorResponse(429, "rate_limited", cors);
     return json(
       {
         id,

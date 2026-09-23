@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  MAX_SOURCE_LINES,
   SOURCE_MAX_CHARS,
   createShareId,
   encodeShareId,
@@ -74,5 +75,20 @@ describe("parseShareSource", () => {
     expect(parseShareSource({ source: "x".repeat(SOURCE_MAX_CHARS) }).ok).toBe(
       true,
     );
+  });
+
+  it("caps source at 2,000 logical lines, including a trailing newline", () => {
+    const withinLimit = `${Array.from({ length: MAX_SOURCE_LINES }, () => "x").join("\n")}\n`;
+    const overLimit = Array.from(
+      { length: MAX_SOURCE_LINES + 1 },
+      () => "x",
+    ).join("\n");
+
+    expect(parseShareSource({ source: withinLimit }).ok).toBe(true);
+    expect(parseShareSource({ source: overLimit })).toEqual({
+      ok: false,
+      status: 413,
+      error: "diagram_too_large",
+    });
   });
 });

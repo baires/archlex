@@ -1,3 +1,4 @@
+import type { PreparedDiagram } from "@archlex/core";
 import { sanitizeDiagramSvg } from "./sanitize-svg.js";
 
 export const MAX_CONCURRENT_RENDERS = 4;
@@ -135,4 +136,13 @@ export async function renderDiagramSvg(source: string): Promise<string> {
     icons: iconsResult?.icons,
   });
   return sanitizeDiagramSvg(result.svg);
+}
+
+export async function prepareDiagram(source: string): Promise<PreparedDiagram> {
+  const core = await import("@archlex/core");
+  const archlex = core.createArchLex({
+    providers: [core.awsProvider(), core.gcpProvider(), core.k8sProvider()],
+    defaultProvider: "aws",
+  });
+  return archlex.prepare(source);
 }
