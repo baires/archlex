@@ -1,5 +1,11 @@
 # @archlex/icons-core
 
+## 0.2.4
+
+### Patch Changes
+
+- 3afff95: Patch the published icon packages to declare @xmldom/xmldom 0.9.12, resolving the vulnerable dependency version in their 0.2.3 releases.
+
 ## 0.2.3
 
 ### Patch Changes
