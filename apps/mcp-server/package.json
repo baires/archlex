@@ -29,7 +29,7 @@
     "@modelcontextprotocol/sdk": "1.30.0",
     "@modelcontextprotocol/server": "2.0.0",
     "inter-font": "3.19.0",
-    "zod": "^4.2.0"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",
