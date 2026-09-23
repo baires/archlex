@@ -1,5 +1,12 @@
 # @archlex/mcp-server
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [3afff95]
+  - @archlex/icons-core@0.2.4
+
 ## 0.2.1
 
 ### Patch Changes
