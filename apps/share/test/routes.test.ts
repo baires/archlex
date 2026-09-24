@@ -38,6 +38,31 @@ describe("share worker", () => {
 
     expect(response.status).toBe(404);
   });
+
+  it("does not serve a cached image after its share has been revoked", async () => {
+    const cachedImage = new Response("cached svg", {
+      headers: { "content-type": "image/svg+xml" },
+    });
+    const cache = {
+      match: vi.fn(async () => cachedImage.clone()),
+      put: vi.fn(async () => undefined),
+      delete: vi.fn(async () => true),
+    };
+    vi.stubGlobal("caches", { default: cache });
+
+    try {
+      const response = await worker.fetch(
+        new Request("https://share.archlex.dev/s/abc_XYZ-12.svg"),
+        env({ DB: createFakeD1() }),
+      );
+
+      expect(cache.match).toHaveBeenCalledOnce();
+      expect(response.status).toBe(404);
+      expect(await response.text()).toBe('{"error":"not_found"}');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
 
 describe("POST /v1/shares", () => {
@@ -55,11 +80,13 @@ describe("POST /v1/shares", () => {
     expect(response.status).toBe(201);
     const body = (await response.json()) as {
       id: string;
+      revokeToken: string;
       playgroundUrl: string;
       svgUrl: string;
       pngUrl: string;
     };
     expect(body.id).toMatch(/^[A-Za-z0-9_-]+$/);
+    expect(body.revokeToken).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(body.playgroundUrl).toBe(`https://share.archlex.dev/s/${body.id}`);
     expect(body.svgUrl).toBe(`https://share.archlex.dev/s/${body.id}.svg`);
     expect(body.pngUrl).toBe(`https://share.archlex.dev/s/${body.id}.png`);
@@ -72,118 +99,47 @@ describe("POST /v1/shares", () => {
     expect(response.headers.get("content-type")).toContain("application/json");
   });
 
-  it("counts duplicate submissions without charging their source bytes again", async () => {
+  it("mints independent shares for identical source and leaves the first expires_at unchanged", async () => {
     const database = createFakeD1();
-    const post = () =>
-      worker.fetch(
-        new Request("https://share.archlex.dev/v1/shares", {
-          method: "POST",
-          headers: { "cf-connecting-ip": "203.0.113.19" },
-          body: JSON.stringify({ source: SOURCE }),
-        }),
-        env({ DB: database }),
-      );
-
-    const first = await post();
-    const second = await post();
-    const budgetQueries = database.queries.filter(
-      (query) =>
-        query.sql.includes("bytes_used") &&
-        query.values[0] === "__ip_daily__:203.0.113.19",
-    );
-    const dayStart =
-      Math.floor(Date.now() / (24 * 60 * 60 * 1000)) * (24 * 60 * 60 * 1000);
-    const sourceBytes = new TextEncoder().encode(SOURCE).byteLength;
-
-    expect(first.status).toBe(201);
-    expect(second.status).toBe(201);
-    expect(database.rows.size).toBe(1);
-    expect(budgetQueries.map((query) => query.values[2])).toEqual([
-      sourceBytes,
-      sourceBytes,
-    ]);
-    expect(
-      database.limits.get(`__ip_daily__:203.0.113.19:${dayStart}`)?.bytesUsed,
-    ).toBe(sourceBytes);
-    expect(database.limits.get(`__global_daily__:${dayStart}`)?.bytesUsed).toBe(
-      sourceBytes,
-    );
-  });
-
-  it("refunds duplicate byte charges when identical posts race", async () => {
-    const database = createFakeD1();
-    let preparedCount = 0;
-    let releasePrepared: () => void = () => {};
-    const bothPrepared = new Promise<void>((resolve) => {
-      releasePrepared = resolve;
-    });
-    const sharedEnv = env({
-      DB: database,
-      prepare: async () => {
-        preparedCount += 1;
-        if (preparedCount === 2) releasePrepared();
-        await bothPrepared;
-        return preparedDiagram(1, 0, []);
-      },
-    });
-    const post = () =>
-      worker.fetch(
-        new Request("https://share.archlex.dev/v1/shares", {
-          method: "POST",
-          headers: { "cf-connecting-ip": "203.0.113.21" },
-          body: JSON.stringify({ source: SOURCE }),
-        }),
-        sharedEnv,
-      );
-
-    const responses = await Promise.all([post(), post()]);
-
-    expect(responses.map((response) => response.status)).toEqual([201, 201]);
-    expect(database.rows.size).toBe(1);
-    expect(
-      database.queries.filter((query) =>
-        query.sql.includes("bytes_used = MAX(0, bytes_used - ?"),
-      ),
-    ).toHaveLength(2);
-  });
-
-  it("avoids inserting an uncharged share when cleanup races a duplicate", async () => {
-    const now = 1_700_006_400_000;
-    let database: ReturnType<typeof createFakeD1>;
-    database = createFakeD1(async (exists) => {
-      if (exists) await deleteExpiredShares(database, now + 1);
-    });
-    database.rows.set("expired-match", {
-      id: "expired-match",
-      source: SOURCE,
-      created_at: now - 1,
-      expires_at: now + 1,
-      source_hash: await hashShareSource(SOURCE),
-    });
-    database.limits.set(`__ip_daily__:203.0.113.22:${now}`, {
-      count: 199,
-      bytesUsed: BYTES_PER_IP_PER_DAY,
-      windowStart: now,
-    });
+    const now = 1_700_000_000_000;
     vi.useFakeTimers();
     vi.setSystemTime(now);
     try {
-      const response = await worker.fetch(
-        new Request("https://share.archlex.dev/v1/shares", {
-          method: "POST",
-          headers: { "cf-connecting-ip": "203.0.113.22" },
-          body: JSON.stringify({ source: SOURCE }),
-        }),
-        env({ DB: database }),
-      );
+      const post = () =>
+        worker.fetch(
+          new Request("https://share.archlex.dev/v1/shares", {
+            method: "POST",
+            headers: { "cf-connecting-ip": "203.0.113.19" },
+            body: JSON.stringify({ source: SOURCE }),
+          }),
+          env({ DB: database }),
+        );
 
-      expect(response.status).toBe(429);
-      expect(database.rows.size).toBe(0);
-      expect(
-        database.queries.some((query) =>
-          query.sql.includes("ON CONFLICT(source_hash)"),
-        ),
-      ).toBe(false);
+      const first = await post();
+      const firstBody = (await first.json()) as {
+        id: string;
+        revokeToken: string;
+      };
+
+      vi.setSystemTime(now + 10_000);
+      const second = await post();
+      const secondBody = (await second.json()) as {
+        id: string;
+        revokeToken: string;
+      };
+
+      expect(first.status).toBe(201);
+      expect(second.status).toBe(201);
+      expect(firstBody.id).not.toBe(secondBody.id);
+      expect(firstBody.revokeToken).not.toBe(secondBody.revokeToken);
+      expect(database.rows.size).toBe(2);
+
+      const firstRow = database.rows.get(firstBody.id);
+      const secondRow = database.rows.get(secondBody.id);
+      expect(firstRow?.expires_at).toBe(now + 30 * 24 * 60 * 60 * 1000);
+      expect(secondRow?.expires_at).toBe(
+        now + 10_000 + 30 * 24 * 60 * 60 * 1000,
+      );
     } finally {
       vi.useRealTimers();
     }
@@ -221,7 +177,7 @@ describe("POST /v1/shares", () => {
     expect(allowed).toBe(200);
     expect(
       database.queries.filter((query) =>
-        query.sql.includes("ON CONFLICT(source_hash)"),
+        query.sql.includes("INSERT INTO shares"),
       ),
     ).toHaveLength(200);
   });
@@ -480,7 +436,10 @@ describe("GET /v1/shares/:id", () => {
       }),
       env({ DB: database }),
     );
-    const { id } = (await created.json()) as { id: string };
+    const { id, revokeToken } = (await created.json()) as {
+      id: string;
+      revokeToken: string;
+    };
 
     const response = await worker.fetch(
       new Request(`https://share.archlex.dev/v1/shares/${id}`, {
@@ -490,7 +449,9 @@ describe("GET /v1/shares/:id", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ source: SOURCE });
+    const responseText = await response.text();
+    expect(JSON.parse(responseText)).toEqual({ source: SOURCE });
+    expect(responseText).not.toContain(revokeToken);
     expect(response.headers.get("access-control-allow-origin")).toBe(
       "https://playground.archlex.dev",
     );
@@ -615,5 +576,236 @@ describe("GET /s/:id.svg", () => {
     );
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(await response.text()).toContain("<path");
+  });
+});
+
+describe("DELETE /v1/shares/:id", () => {
+  it("returns 204 with cache-control no-store for a valid token and removes the share", async () => {
+    const database = createFakeD1();
+    const created = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source: SOURCE }),
+      }),
+      env({ DB: database }),
+    );
+    const { id, revokeToken } = (await created.json()) as {
+      id: string;
+      revokeToken: string;
+    };
+
+    const getBefore = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`),
+      env({ DB: database }),
+    );
+    expect(getBefore.status).toBe(200);
+
+    const deleted = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`, {
+        method: "DELETE",
+        headers: {
+          origin: "https://playground.archlex.dev",
+          authorization: `Bearer ${revokeToken}`,
+        },
+      }),
+      env({ DB: database }),
+    );
+
+    expect(deleted.status).toBe(204);
+    expect(deleted.headers.get("cache-control")).toContain("no-store");
+    expect(deleted.headers.get("access-control-allow-origin")).toBe(
+      "https://playground.archlex.dev",
+    );
+
+    const getAfter = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`),
+      env({ DB: database }),
+    );
+    expect(getAfter.status).toBe(404);
+  });
+
+  it("returns 404 for a wrong token and leaves the row in the database", async () => {
+    const database = createFakeD1();
+    const created = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source: SOURCE }),
+      }),
+      env({ DB: database }),
+    );
+    const { id } = (await created.json()) as { id: string };
+
+    const response = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: "Bearer wrong-secret-token",
+        },
+      }),
+      env({ DB: database }),
+    );
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ error: "not_found" });
+
+    const getAfter = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`),
+      env({ DB: database }),
+    );
+    expect(getAfter.status).toBe(200);
+  });
+
+  it("returns 404 when authorization header is missing or not bearer", async () => {
+    const database = createFakeD1();
+    const created = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source: SOURCE }),
+      }),
+      env({ DB: database }),
+    );
+    const { id, revokeToken } = (await created.json()) as {
+      id: string;
+      revokeToken: string;
+    };
+
+    const noHeader = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`, {
+        method: "DELETE",
+      }),
+      env({ DB: database }),
+    );
+    expect(noHeader.status).toBe(404);
+
+    const basicAuth = await worker.fetch(
+      new Request(`https://share.archlex.dev/v1/shares/${id}`, {
+        method: "DELETE",
+        headers: { authorization: `Basic ${revokeToken}` },
+      }),
+      env({ DB: database }),
+    );
+    expect(basicAuth.status).toBe(404);
+  });
+
+  it("returns 404 for an expired row or unknown id", async () => {
+    const database = createFakeD1();
+    const missing = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares/nonexistent", {
+        method: "DELETE",
+        headers: { authorization: "Bearer some-token" },
+      }),
+      env({ DB: database }),
+    );
+    expect(missing.status).toBe(404);
+
+    const now = 1_700_000_000_000;
+    database.rows.set("expired-id", {
+      id: "expired-id",
+      source: SOURCE,
+      created_at: now - 40 * 24 * 60 * 60 * 1000,
+      expires_at: now - 1000,
+      revoke_hash: "hash",
+    });
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    try {
+      const expired = await worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares/expired-id", {
+          method: "DELETE",
+          headers: { authorization: "Bearer some-token" },
+        }),
+        env({ DB: database }),
+      );
+      expect(expired.status).toBe(404);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("rate-limits DELETE requests via the post limiter", async () => {
+    const database = createFakeD1();
+    const blockedLimiter = {
+      async limit() {
+        return { success: false };
+      },
+    };
+
+    const response = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares/abc_XYZ-12", {
+        method: "DELETE",
+        headers: { authorization: "Bearer some-token" },
+      }),
+      env({ DB: database, SHARE_POST_LIMITER: blockedLimiter }),
+    );
+
+    expect(response.status).toBe(429);
+    expect(await response.json()).toEqual({ error: "rate_limited" });
+  });
+
+  it("purges both cached image paths (.svg and .png) upon revoke", async () => {
+    const database = createFakeD1();
+    const created = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        body: JSON.stringify({ source: SOURCE }),
+      }),
+      env({ DB: database }),
+    );
+    const { id, revokeToken } = (await created.json()) as {
+      id: string;
+      revokeToken: string;
+    };
+
+    const deletedUrls: string[] = [];
+    const cache = {
+      match: vi.fn(async () => undefined),
+      put: vi.fn(async () => undefined),
+      delete: vi.fn(async (request: Request) => {
+        deletedUrls.push(request.url);
+        return true;
+      }),
+    };
+    vi.stubGlobal("caches", { default: cache });
+
+    try {
+      const response = await worker.fetch(
+        new Request(`https://share.archlex.dev/v1/shares/${id}`, {
+          method: "DELETE",
+          headers: { authorization: `Bearer ${revokeToken}` },
+        }),
+        env({ DB: database }),
+      );
+
+      expect(response.status).toBe(204);
+      expect(deletedUrls).toContain(`https://share.archlex.dev/s/${id}.svg`);
+      expect(deletedUrls).toContain(`https://share.archlex.dev/s/${id}.png`);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("answers preflight for DELETE on /v1/shares/:id", async () => {
+    const response = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares/abc_XYZ-12", {
+        method: "OPTIONS",
+        headers: {
+          origin: "http://localhost:5173",
+          "access-control-request-method": "DELETE",
+          "access-control-request-headers": "authorization",
+        },
+      }),
+      env(),
+    );
+
+    expect(response.status).toBe(204);
+    expect(response.headers.get("access-control-allow-origin")).toBe(
+      "http://localhost:5173",
+    );
+    expect(response.headers.get("access-control-allow-methods")).toContain(
+      "DELETE",
+    );
+    expect(response.headers.get("access-control-allow-headers")).toContain(
+      "authorization",
+    );
   });
 });

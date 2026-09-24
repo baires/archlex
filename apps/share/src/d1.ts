@@ -5,6 +5,8 @@ export interface ShareRecord {
   source: string;
   createdAt: number;
   expiresAt: number;
+  sourceHash?: string | null;
+  revokeHash?: string | null;
 }
 
 export interface BoundStatement {
@@ -23,18 +25,15 @@ interface ShareRow {
   source: string;
   created_at: number;
   expires_at: number;
+  source_hash?: string | null;
+  revoke_hash?: string | null;
 }
 
 const INSERT_SQL =
-  "INSERT INTO shares (id, source, created_at, expires_at) VALUES (?, ?, ?, ?)";
-const SAVE_BY_SOURCE_SQL =
-  "INSERT INTO shares (id, source, created_at, expires_at, source_hash) VALUES (?, ?, ?, ?, ?) ON CONFLICT(source_hash) DO UPDATE SET expires_at = excluded.expires_at RETURNING id";
+  "INSERT INTO shares (id, source, created_at, expires_at, source_hash, revoke_hash) VALUES (?, ?, ?, ?, ?, ?)";
 const SELECT_SQL =
-  "SELECT id, source, created_at, expires_at FROM shares WHERE id = ? AND expires_at > ?";
-const FIND_ACTIVE_SOURCE_SQL =
-  "SELECT id FROM shares WHERE source_hash = ? AND expires_at > ? LIMIT 1";
-const REFRESH_ACTIVE_SOURCE_SQL =
-  "UPDATE shares SET expires_at = ? WHERE source_hash = ? AND expires_at > ? RETURNING id";
+  "SELECT id, source, created_at, expires_at, source_hash, revoke_hash FROM shares WHERE id = ? AND expires_at > ?";
+const DELETE_SHARE_SQL = "DELETE FROM shares WHERE id = ?";
 const DELETE_EXPIRED_SQL = "DELETE FROM shares WHERE expires_at <= ? LIMIT 500";
 const DELETE_OLD_POST_LIMITS_SQL =
   "DELETE FROM post_limits WHERE window_start < ? LIMIT 500";
@@ -67,57 +66,22 @@ export async function insertShare(
   }
   await db
     .prepare(INSERT_SQL)
-    .bind(record.id, record.source, record.createdAt, record.expiresAt)
-    .run();
-}
-
-export async function saveShareBySource(
-  db: ShareD1,
-  record: ShareRecord,
-  sourceHash: string,
-): Promise<string> {
-  if (!isShareId(record.id)) {
-    throw new Error("invalid share id");
-  }
-  const row = await db
-    .prepare(SAVE_BY_SOURCE_SQL)
     .bind(
       record.id,
       record.source,
       record.createdAt,
       record.expiresAt,
-      sourceHash,
+      record.sourceHash ?? null,
+      record.revokeHash ?? null,
     )
-    .first<{ id: string }>();
-  if (!row || !isShareId(row.id)) {
-    throw new Error("could not save share");
-  }
-  return row.id;
+    .run();
 }
 
-export async function findActiveShareIdBySource(
-  db: ShareD1,
-  sourceHash: string,
-  now: number,
-): Promise<string | null> {
-  const row = await db
-    .prepare(FIND_ACTIVE_SOURCE_SQL)
-    .bind(sourceHash, now)
-    .first<{ id: string }>();
-  return row?.id ?? null;
-}
-
-export async function refreshActiveShareBySource(
-  db: ShareD1,
-  sourceHash: string,
-  now: number,
-  expiresAt: number,
-): Promise<string | null> {
-  const row = await db
-    .prepare(REFRESH_ACTIVE_SOURCE_SQL)
-    .bind(expiresAt, sourceHash, now)
-    .first<{ id: string }>();
-  return row?.id ?? null;
+export async function deleteShare(db: ShareD1, id: string): Promise<boolean> {
+  if (!isShareId(id)) return false;
+  const result = await db.prepare(DELETE_SHARE_SQL).bind(id).run();
+  const changes = getChanges(result);
+  return changes !== null ? changes > 0 : true;
 }
 
 export async function consumePostLimit(
@@ -280,5 +244,7 @@ export async function findActiveShare(
     source: row.source,
     createdAt: row.created_at,
     expiresAt: row.expires_at,
+    ...(row.source_hash ? { sourceHash: row.source_hash } : {}),
+    ...(row.revoke_hash ? { revokeHash: row.revoke_hash } : {}),
   };
 }

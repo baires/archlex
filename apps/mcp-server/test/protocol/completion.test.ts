@@ -70,6 +70,7 @@ describe("completion/complete", () => {
       "guides/dynamic-cdn-icons",
       "guides/mcp-server",
       "guides/relationship-types",
+      "guides/share",
     ]);
   });
 

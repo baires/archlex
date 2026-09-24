@@ -89,13 +89,20 @@ export interface ShareClient {
   origin?: string;
 }
 
+export type ShareDiagramResult =
+  | {
+      ok: true;
+      id: string;
+      playgroundUrl: string;
+      svgUrl: string;
+      revokeToken?: string;
+    }
+  | { ok: false; message: string };
+
 export async function shareDiagram(
   source: string,
   client: ShareClient,
-): Promise<
-  | { ok: true; playgroundUrl: string; svgUrl: string }
-  | { ok: false; message: string }
-> {
+): Promise<ShareDiagramResult> {
   const origin = client.origin ?? DEFAULT_SHARE_ORIGIN;
   try {
     const response = await invokeFetch(client.fetch, `${origin}/v1/shares`, {
@@ -117,10 +124,13 @@ export async function shareDiagram(
       };
     }
     const payload = (await response.json()) as {
+      id?: unknown;
       svgUrl?: unknown;
       playgroundUrl?: unknown;
+      revokeToken?: unknown;
     };
     if (
+      typeof payload.id !== "string" ||
       typeof payload.svgUrl !== "string" ||
       typeof payload.playgroundUrl !== "string"
     ) {
@@ -128,9 +138,39 @@ export async function shareDiagram(
     }
     return {
       ok: true,
+      id: payload.id,
       playgroundUrl: payload.playgroundUrl,
       svgUrl: payload.svgUrl,
+      ...(typeof payload.revokeToken === "string"
+        ? { revokeToken: payload.revokeToken }
+        : {}),
     };
+  } catch {
+    return { ok: false, message: "Could not reach the share service" };
+  }
+}
+
+export async function revokeSharedDiagram(
+  id: string,
+  revokeToken: string,
+  client: ShareClient,
+): Promise<{ ok: true } | { ok: false; message: string }> {
+  const origin = client.origin ?? DEFAULT_SHARE_ORIGIN;
+  try {
+    const response = await invokeFetch(
+      client.fetch,
+      `${origin}/v1/shares/${encodeURIComponent(id)}`,
+      {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${revokeToken}`,
+        },
+      },
+    );
+    if (response.status === 204) {
+      return { ok: true };
+    }
+    return { ok: false, message: "Could not revoke share" };
   } catch {
     return { ok: false, message: "Could not reach the share service" };
   }

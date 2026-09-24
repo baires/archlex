@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { handleGeneratePlaygroundUrl } from "../src/tools/playground.js";
 import { handleRenderDiagram } from "../src/tools/render.js";
 import { createShareLinks, sharePreviewText } from "../src/tools/share-link.js";
 
@@ -13,6 +14,7 @@ describe("createShareLinks", () => {
           playgroundUrl: "https://share.archlex.dev/s/PyS4cb6_OVTHGEfGqdAwvw",
           svgUrl: "https://share.archlex.dev/s/PyS4cb6_OVTHGEfGqdAwvw.svg",
           pngUrl: "https://share.archlex.dev/s/PyS4cb6_OVTHGEfGqdAwvw.png",
+          revokeToken: "one-time-token",
         }),
     );
 
@@ -25,6 +27,7 @@ describe("createShareLinks", () => {
     expect(links?.playgroundUrl).toBe(
       "https://share.archlex.dev/s/PyS4cb6_OVTHGEfGqdAwvw",
     );
+    expect(links?.revokeToken).toBe("one-time-token");
     const init = fetchFn.mock.calls[0]?.[1];
     if (!init) throw new Error("missing request init");
     expect(JSON.parse(String(init.body))).toEqual({ source: SOURCE });
@@ -65,6 +68,25 @@ describe("render_diagram share links", () => {
       "![Architecture diagram: 1 node, 0 edges](https://share.archlex.dev/s/abc.png)",
     );
   });
+
+  it("returns revoke token only in structured content", async () => {
+    const result = await handleRenderDiagram(
+      { source: "provider aws\nlambda" },
+      {
+        createShare: async () => ({
+          id: "abc",
+          playgroundUrl: "https://share.archlex.dev/s/abc",
+          svgUrl: "https://share.archlex.dev/s/abc.svg",
+          pngUrl: "https://share.archlex.dev/s/abc.png",
+          revokeToken: "one-time-token",
+        }),
+      },
+    );
+    const structured = result.structuredContent as Record<string, unknown>;
+    expect(structured.revoke_token).toBe("one-time-token");
+    expect(JSON.stringify(result.content)).not.toContain("one-time-token");
+    expect(JSON.stringify(result.content)).not.toContain("Bearer");
+  });
 });
 
 describe("sharePreviewText", () => {
@@ -78,5 +100,25 @@ describe("sharePreviewText", () => {
     ).toBe(
       "![Architecture diagram](https://share.archlex.dev/s/abc.png)\n\nhttps://share.archlex.dev/s/abc",
     );
+  });
+});
+
+describe("generate_playground_url share token", () => {
+  it("puts the revoke token only in structured content", async () => {
+    const result = await handleGeneratePlaygroundUrl(
+      { source: SOURCE },
+      {
+        createShare: async () => ({
+          id: "abc",
+          playgroundUrl: "https://share.archlex.dev/s/abc",
+          svgUrl: "https://share.archlex.dev/s/abc.svg",
+          pngUrl: "https://share.archlex.dev/s/abc.png",
+          revokeToken: "one-time-token",
+        }),
+      },
+    );
+    const structured = result.structuredContent as Record<string, unknown>;
+    expect(structured.revoke_token).toBe("one-time-token");
+    expect(JSON.stringify(result.content)).not.toContain("one-time-token");
   });
 });

@@ -5,6 +5,7 @@ export interface ShareLinks {
   playgroundUrl: string;
   svgUrl: string;
   pngUrl: string;
+  revokeToken?: string;
 }
 
 export interface ShareClientConfig {
@@ -52,6 +53,9 @@ export async function createShareLinks(
       playgroundUrl: body.playgroundUrl,
       svgUrl: body.svgUrl,
       pngUrl: body.pngUrl,
+      ...(typeof body.revokeToken === "string"
+        ? { revokeToken: body.revokeToken }
+        : {}),
     };
   } catch {
     return undefined;

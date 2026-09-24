@@ -67,12 +67,7 @@ describe("image GET", () => {
       "default-src 'none'; base-uri 'none'; sandbox",
     );
     expect(response.headers.get("x-frame-options")).toBe("DENY");
-    const maxAge = Number(
-      response.headers.get("cache-control")?.match(/max-age=(\d+)/)?.[1],
-    );
-    expect(response.headers.get("cache-control")).toContain("public");
-    expect(maxAge).toBeGreaterThan(86_390);
-    expect(maxAge).toBeLessThanOrEqual(86_400);
+    expect(response.headers.get("cache-control")).toBe("no-store");
     const text = await response.text();
     expect(text).not.toContain("script");
     expect(text).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
@@ -104,6 +99,18 @@ describe("image GET", () => {
       expires_at: now + 5 * 60 * 1000,
     });
 
+    let cachedResponse: Response | undefined;
+    const cache = {
+      match: vi.fn(async () => undefined),
+      put: vi.fn(async (_request: Request, response: Response) => {
+        cachedResponse = response.clone();
+      }),
+    };
+    vi.stubGlobal("caches", { default: cache });
+    const tasks: Promise<unknown>[] = [];
+    const ctx = {
+      waitUntil: vi.fn((task: Promise<unknown>) => tasks.push(task)),
+    } as unknown as ExecutionContext;
     const response = await worker.fetch(
       new Request(`https://share.archlex.dev/s/${id}.svg`),
       env({
@@ -111,12 +118,16 @@ describe("image GET", () => {
         renderSvg: async () =>
           '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
       }),
+      ctx,
     );
+    await Promise.all(tasks);
     const maxAge = Number(
-      response.headers.get("cache-control")?.match(/max-age=(\d+)/)?.[1],
+      cachedResponse?.headers.get("cache-control")?.match(/max-age=(\d+)/)?.[1],
     );
 
     expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(cachedResponse?.headers.get("cache-control")).toContain("public");
     expect(maxAge).toBeGreaterThan(0);
     expect(maxAge).toBeLessThanOrEqual(300);
   });
@@ -158,6 +169,13 @@ describe("image GET", () => {
 
     expect(first.status).toBe(200);
     expect(second.status).toBe(200);
+    expect(first.headers.get("cache-control")).toBe("no-store");
+    expect(second.headers.get("cache-control")).toBe("no-store");
+    expect(
+      responses
+        .get(`https://share.archlex.dev/s/${id}.svg`)
+        ?.headers.get("cache-control"),
+    ).toContain("public");
     expect(renderSvg).toHaveBeenCalledTimes(1);
     expect(cache.match.mock.calls.map(([request]) => request.url)).toEqual([
       `https://share.archlex.dev/s/${id}.svg`,

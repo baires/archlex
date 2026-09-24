@@ -11,10 +11,7 @@ export function isShareId(value: string): boolean {
   );
 }
 
-export function encodeShareId(bytes: Uint8Array): string {
-  if (bytes.length !== 16) {
-    throw new Error("share id must be 16 bytes");
-  }
+export function encodeBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
@@ -25,8 +22,47 @@ export function encodeShareId(bytes: Uint8Array): string {
     .replaceAll("=", "");
 }
 
+export function encodeShareId(bytes: Uint8Array): string {
+  if (bytes.length !== 16) {
+    throw new Error("share id must be 16 bytes");
+  }
+  return encodeBase64Url(bytes);
+}
+
 export function createShareId(): string {
   return encodeShareId(crypto.getRandomValues(new Uint8Array(16)));
+}
+
+export function createRevokeToken(): string {
+  return encodeBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+}
+
+export async function hashRevokeToken(token: string): Promise<string> {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token)),
+  );
+  return Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join(
+    "",
+  );
+}
+
+export async function verifyRevokeToken(
+  suppliedToken: string,
+  expectedHash: string | null | undefined,
+): Promise<boolean> {
+  if (!expectedHash || !suppliedToken) return false;
+  const suppliedHash = await hashRevokeToken(suppliedToken);
+  const digest = async (value: string) =>
+    new Uint8Array(
+      await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)),
+    );
+  const [left, right] = await Promise.all([
+    digest(suppliedHash),
+    digest(expectedHash),
+  ]);
+  let diff = 0;
+  for (let i = 0; i < left.length; i += 1) diff |= left[i] ^ right[i];
+  return diff === 0;
 }
 
 export async function hashShareSource(source: string): Promise<string> {
@@ -111,7 +147,7 @@ export function corsHeaders(
   if (!origin || !isAllowedCorsOrigin(origin, playgroundOrigin)) return headers;
   headers.set("access-control-allow-origin", origin);
   headers.set("vary", "origin");
-  headers.set("access-control-allow-methods", "GET, POST, OPTIONS");
-  headers.set("access-control-allow-headers", "content-type");
+  headers.set("access-control-allow-methods", "GET, POST, DELETE, OPTIONS");
+  headers.set("access-control-allow-headers", "content-type, authorization");
   return headers;
 }

@@ -1,11 +1,9 @@
 import {
   consumeDailyPostBudget,
   consumePostLimit,
+  deleteShare,
   findActiveShare,
-  findActiveShareIdBySource,
-  refreshActiveShareBySource,
-  refundDailySourceBytes,
-  saveShareBySource,
+  insertShare,
 } from "./d1.js";
 import {
   DEFAULT_PLAYGROUND_ORIGIN,
@@ -27,12 +25,15 @@ import {
   SOURCE_MAX_CHARS,
   clientIp,
   corsHeaders,
+  createRevokeToken,
   createShareId,
+  hashRevokeToken,
   hashShareSource,
   isServiceClient,
   isShareId,
   parseShareSource,
   shareTtlMs,
+  verifyRevokeToken,
 } from "./security.js";
 
 const MAX_BODY_BYTES = SOURCE_MAX_CHARS * 4;
@@ -143,6 +144,10 @@ export async function handleShareRequest(
     return readShare(sourceMatch[1], env, cors);
   }
 
+  if (request.method === "DELETE" && sourceMatch?.[1]) {
+    return revokeShare(sourceMatch[1], request, env, shareOrigin, cors, ctx);
+  }
+
   const imageMatch = path.match(/^\/s\/([^/]+)\.(svg|png)$/);
   if (request.method === "GET" && imageMatch?.[1] && imageMatch[2]) {
     return renderImage(
@@ -211,39 +216,30 @@ async function createShare(
     const sourceBytes = new TextEncoder().encode(parsed.source).byteLength;
     const sourceHash = await hashShareSource(parsed.source);
     const expiresAt = now + shareTtlMs(env.SHARE_TTL_DAYS);
-    let withinDailyBudget = await consumeDailyPostBudget(
+    const withinDailyBudget = await consumeDailyPostBudget(
       env.DB,
       ip,
       now,
       sourceBytes,
     );
-    let id: string | null;
-    if (withinDailyBudget) {
-      const newId = createShareId();
-      id = await saveShareBySource(
-        env.DB,
-        {
-          id: newId,
-          source: parsed.source,
-          createdAt: now,
-          expiresAt,
-        },
-        sourceHash,
-      );
-      if (id !== newId) {
-        await refundDailySourceBytes(env.DB, ip, now, sourceBytes);
-      }
-    } else {
-      const activeId = await findActiveShareIdBySource(env.DB, sourceHash, now);
-      if (!activeId) return errorResponse(429, "rate_limited", cors);
-      withinDailyBudget = await consumeDailyPostBudget(env.DB, ip, now, 0);
-      if (!withinDailyBudget) return errorResponse(429, "rate_limited", cors);
-      id = await refreshActiveShareBySource(env.DB, sourceHash, now, expiresAt);
-    }
-    if (!id) return errorResponse(429, "rate_limited", cors);
+    if (!withinDailyBudget) return errorResponse(429, "rate_limited", cors);
+
+    const id = createShareId();
+    const revokeToken = createRevokeToken();
+    const revokeHash = await hashRevokeToken(revokeToken);
+    await insertShare(env.DB, {
+      id,
+      source: parsed.source,
+      createdAt: now,
+      expiresAt,
+      sourceHash,
+      revokeHash,
+    });
+
     return json(
       {
         id,
+        revokeToken,
         playgroundUrl: `${shareOrigin}/s/${id}`,
         svgUrl: `${shareOrigin}/s/${id}.svg`,
         pngUrl: `${shareOrigin}/s/${id}.png`,
@@ -253,6 +249,90 @@ async function createShare(
     );
   } catch {
     return errorResponse(503, "unavailable", cors);
+  }
+}
+
+async function revokeShare(
+  id: string,
+  request: Request,
+  env: ShareEnv,
+  shareOrigin: string,
+  cors: Headers,
+  ctx?: ExecutionContext,
+): Promise<Response> {
+  const edgeLimit = await checkRateLimit(
+    env.SHARE_POST_LIMITER,
+    clientIp(request),
+  );
+  if (edgeLimit === "unavailable")
+    return errorResponse(503, "unavailable", cors);
+  if (edgeLimit === "limited") return errorResponse(429, "rate_limited", cors);
+
+  if (!isShareId(id)) return errorResponse(404, "not_found", cors);
+  const token = request.headers
+    .get("authorization")
+    ?.match(/^Bearer\s+(.+)$/i)?.[1]
+    ?.trim();
+  if (!token) return errorResponse(404, "not_found", cors);
+  if (!env.DB) return errorResponse(503, "unavailable", cors);
+
+  try {
+    const now = Date.now();
+    const row = await findActiveShare(env.DB, id, now);
+    if (!row || !row.revokeHash) {
+      return errorResponse(404, "not_found", cors);
+    }
+    const valid = await verifyRevokeToken(token, row.revokeHash);
+    if (!valid) {
+      return errorResponse(404, "not_found", cors);
+    }
+    await deleteShare(env.DB, id);
+    await purgeShareImageCache(id, request, shareOrigin, ctx);
+    cors.set("cache-control", "no-store");
+    return new Response(null, { status: 204, headers: cors });
+  } catch {
+    return errorResponse(503, "unavailable", cors);
+  }
+}
+
+async function purgeShareImageCache(
+  id: string,
+  request: Request,
+  shareOrigin: string,
+  ctx?: ExecutionContext,
+): Promise<void> {
+  const cacheStorage = globalThis.caches as
+    | (CacheStorage & { default?: Cache })
+    | undefined;
+  const cache = cacheStorage?.default;
+  if (!cache) return;
+
+  const requestOrigin = new URL(request.url).origin;
+  const purgeRequests = [
+    new Request(`${requestOrigin}/s/${id}.svg`),
+    new Request(`${requestOrigin}/s/${id}.png`),
+  ];
+  if (shareOrigin !== requestOrigin) {
+    purgeRequests.push(
+      new Request(`${shareOrigin}/s/${id}.svg`),
+      new Request(`${shareOrigin}/s/${id}.png`),
+    );
+  }
+
+  const purge = Promise.all(
+    purgeRequests.map((req) => cache.delete(req).catch(() => false)),
+  );
+  if (ctx) {
+    try {
+      ctx.waitUntil(purge);
+    } catch {
+      // Best-effort
+    }
+  }
+  try {
+    await purge;
+  } catch {
+    // Best-effort
   }
 }
 
@@ -308,9 +388,28 @@ async function renderImage(
   if (cache) {
     try {
       const cached = await cache.match(cacheKey);
-      if (cached) return cached;
+      if (cached) {
+        if (!env.DB) return errorResponse(503, "unavailable");
+        const activeShare = await findActiveShare(env.DB, id, Date.now());
+        if (!activeShare) {
+          try {
+            await cache.delete(cacheKey);
+          } catch {
+            // A failed local eviction must not make the stale image visible.
+          }
+          return errorResponse(404, "not_found");
+        }
+        return noStoreImageResponse(cached);
+      }
     } catch {
-      // A cache read failure should fall through to the normal render path.
+      // A cache or D1 read failure should fall through to fail-closed handling.
+      if (!env.DB) return errorResponse(503, "unavailable");
+      try {
+        const activeShare = await findActiveShare(env.DB, id, Date.now());
+        if (!activeShare) return errorResponse(404, "not_found");
+      } catch {
+        return errorResponse(503, "unavailable");
+      }
     }
   }
 
@@ -346,7 +445,7 @@ async function renderImage(
       new Uint8Array(body).set(png);
       const response = new Response(body, { status: 200, headers });
       if (canCache) cacheImageResponse(cache, cacheKey, response, ctx);
-      return response;
+      return noStoreImageResponse(response);
     }
     const completedAt = Date.now();
     if (completedAt >= row.expiresAt) {
@@ -355,7 +454,7 @@ async function renderImage(
     const headers = imageHeaders("image/svg+xml", row.expiresAt, completedAt);
     const response = new Response(svg, { status: 200, headers });
     if (canCache) cacheImageResponse(cache, cacheKey, response, ctx);
-    return response;
+    return noStoreImageResponse(response);
   } catch {
     return errorResponse(503, "unavailable");
   } finally {
@@ -375,6 +474,16 @@ function cacheImageResponse(
   } catch {
     // Cache writes are best-effort; the rendered image is already available.
   }
+}
+
+function noStoreImageResponse(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set("cache-control", "no-store");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 
 function redirectShare(id: string, playgroundOrigin: string): Response {

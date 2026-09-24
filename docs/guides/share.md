@@ -27,9 +27,11 @@ https://share.archlex.dev/s/{id}
 The image matches the source text. Unsaved playground theme and direction
 overrides are not part of the share.
 
-Saving the same source again reuses its share link and refreshes the 30-day
-expiry. Editing the source creates a separate link, so older links remain
-snapshots of their original source.
+Each Share action creates an independent snapshot, even when the source matches
+an earlier share. The playground shows a one-time revoke token with the new
+link; save it if you may need to revoke that share later. Existing shares
+created before revoke tokens were added cannot be revoked. Anyone with a share
+link can view the full source, so do not share confidential diagrams.
 
 ## The three URLs
 
@@ -54,17 +56,31 @@ curl -X POST https://share.archlex.dev/v1/shares \
   -d '{"source": "provider aws\napi-gateway -[invokes]-> lambda"}'
 ```
 
-The body is `{ "source": "..." }` only. The response returns the id and the
-three URLs:
+The body is `{ "source": "..." }` only. Each successful create returns a new
+id, the three URLs, and a one-time `revokeToken`:
 
 ```json
 {
   "id": "…",
+  "revokeToken": "…",
   "playgroundUrl": "https://share.archlex.dev/s/…",
   "svgUrl": "https://share.archlex.dev/s/….svg",
   "pngUrl": "https://share.archlex.dev/s/….png"
 }
 ```
+
+Store the token securely when the share is created. It is not returned by
+subsequent reads and cannot be recovered. Revoke an active share with:
+
+```bash
+curl -X DELETE https://share.archlex.dev/v1/shares/{id} \
+  -H "authorization: Bearer {revokeToken}"
+```
+
+Revocation returns `204`; the Worker purges both cached image formats, and the
+id and image URLs then return 404. Image responses are not cached by browsers
+or other downstream clients. Shares created before revoke tokens were
+introduced cannot be revoked.
 
 ## Expiry and limits
 
@@ -72,7 +88,7 @@ three URLs:
 - Source is capped at 100,000 characters and 2,000 lines; request bodies are capped at 400,000 bytes while streaming. Diagrams with more than 200 nodes, more than 400 edges, or any error diagnostic are rejected before storage.
 - Public clients can submit 30 POSTs per IP per hour and 200 POSTs or 2 MiB of source per IP per UTC day. Cloudflare edge limits also allow 10 POSTs per minute, 30 image renders per minute per client IP, and 300 uncached image renders per minute globally.
 - A global circuit breaker allows at most 20,000 POSTs or 200 MiB of source bytes per UTC day. This protects service capacity; normal fairness limits are per IP and service-token calls count toward both daily limits.
-- SVG and PNG responses use a path-only edge cache for at most 24 hours and never longer than the share's remaining lifetime. Query strings do not create separate cache entries.
+- The Worker caches SVG and PNG by path only for at most 24 hours and never longer than the share's remaining lifetime. Responses to clients use `Cache-Control: no-store`; query strings do not create separate Worker cache entries.
 - Errors return `{ "error": "<code>" }` with status 400, 404, 413, 429, or
   503.
 

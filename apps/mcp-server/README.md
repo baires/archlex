@@ -96,7 +96,13 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 - `render_diagram({ source, theme, direction, validation, format })` – Hydrates provider icons, renders a diagram, returns the final ArchLex source, and provides a playground URL. `format` is `"png"` (default, base64 image block) or `"svg"` (raw SVG text, skips rasterization — use this from text-only/CLI clients and save the SVG to a file).
 - `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
 - `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
-- `generate_playground_url({ source })` – Deep-link URL to `playground.archlex.dev`.
+- `generate_playground_url({ source })` – Creates a share and returns its playground link when the share service is configured, otherwise a source-encoded deep link.
+
+Share creation returns a one-time `revoke_token` in `structuredContent` only;
+it is omitted from preview text, Markdown, and resource links. Save it when
+returned because it cannot be recovered later. Existing shares created before
+revoke tokens were introduced cannot be revoked. Anyone with a share link can
+view the full diagram source, so do not include confidential content.
 
 ## Modern Protocol Features
 

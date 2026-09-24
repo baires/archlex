@@ -3,6 +3,7 @@ import {
   DEFAULT_SHARE_ORIGIN,
   configuredShareOrigin,
   loadSharedSource,
+  revokeSharedDiagram,
   shareClipboardText,
   shareDiagram,
   shareFailureMessage,
@@ -112,6 +113,7 @@ describe("shareDiagram", () => {
 
     expect(result).toEqual({
       ok: true,
+      id: "abc",
       playgroundUrl: "https://share.archlex.dev/s/abc",
       svgUrl: "https://share.archlex.dev/s/abc.svg",
     });
@@ -132,6 +134,7 @@ describe("shareDiagram", () => {
 
     expect(result).toEqual({
       ok: true,
+      id: "abc",
       playgroundUrl: "https://share.archlex.dev/s/abc",
       svgUrl: "https://share.archlex.dev/s/abc.svg",
     });
@@ -139,6 +142,29 @@ describe("shareDiagram", () => {
     expect(url).toBe(`${DEFAULT_SHARE_ORIGIN}/v1/shares`);
     expect(init?.method).toBe("POST");
     expect(JSON.parse(String(init?.body))).toEqual({ source: SOURCE });
+  });
+
+  it("returns revokeToken when provided in the share response", async () => {
+    const fetchFn = vi.fn(
+      async (_url: RequestInfo | URL, _init?: RequestInit) =>
+        Response.json({
+          id: "abc",
+          revokeToken: "secret-token-123",
+          playgroundUrl: "https://share.archlex.dev/s/abc",
+          svgUrl: "https://share.archlex.dev/s/abc.svg",
+          pngUrl: "https://share.archlex.dev/s/abc.png",
+        }),
+    );
+
+    const result = await shareDiagram(SOURCE, { fetch: fetchFn });
+
+    expect(result).toEqual({
+      ok: true,
+      id: "abc",
+      revokeToken: "secret-token-123",
+      playgroundUrl: "https://share.archlex.dev/s/abc",
+      svgUrl: "https://share.archlex.dev/s/abc.svg",
+    });
   });
 
   it("maps overload statuses to short messages without the response body", () => {
@@ -152,5 +178,39 @@ describe("shareDiagram", () => {
       "Share is temporarily unavailable",
     );
     expect(shareFailureMessage(500, "SECRET")).not.toContain("SECRET");
+  });
+});
+
+describe("revokeSharedDiagram", () => {
+  it("sends DELETE with bearer token to the share endpoint", async () => {
+    const fetchFn = vi.fn(async () => new Response(null, { status: 204 }));
+    const result = await revokeSharedDiagram("abc", "tok-123", {
+      fetch: fetchFn,
+    });
+    expect(result).toEqual({ ok: true });
+    expect(fetchFn).toHaveBeenCalledWith(
+      `${DEFAULT_SHARE_ORIGIN}/v1/shares/abc`,
+      {
+        method: "DELETE",
+        headers: { authorization: "Bearer tok-123" },
+      },
+    );
+  });
+
+  it("returns error message when revoke returns non-204", async () => {
+    const fetchFn = vi.fn(async () => new Response("nope", { status: 404 }));
+    const result = await revokeSharedDiagram("abc", "tok-123", {
+      fetch: fetchFn,
+    });
+    expect(result).toEqual({ ok: false, message: "Could not revoke share" });
+  });
+
+  it("does not include revokeToken in shareClipboardText", () => {
+    const text = shareClipboardText(
+      "https://share.archlex.dev/s/abc.svg",
+      "https://share.archlex.dev/s/abc",
+    );
+    expect(text).not.toContain("tok-123");
+    expect(text).not.toContain("Bearer");
   });
 });

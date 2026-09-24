@@ -22,6 +22,12 @@ export async function handleGeneratePlaygroundUrl(
     share?.playgroundUrl ??
     `https://playground.archlex.dev/?code=${encodedSource}`;
 
+  const structuredContent = {
+    url: playgroundUrl,
+    ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
+    ...(share?.revokeToken ? { revoke_token: share.revokeToken } : {}),
+  };
+
   return {
     content: [
       {
@@ -36,5 +42,6 @@ export async function handleGeneratePlaygroundUrl(
         ),
       },
     ],
+    structuredContent,
   };
 }

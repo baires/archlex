@@ -35,6 +35,7 @@ import {
 import {
   configuredShareOrigin,
   loadSharedSource,
+  revokeSharedDiagram,
   shareDiagram,
   shareRequestOrigin,
   sourceAfterShareFailure,
@@ -372,12 +373,26 @@ export function App() {
       result.ok
         ? {
             phase: "ready",
+            id: result.id,
             playgroundUrl: result.playgroundUrl,
             svgUrl: result.svgUrl,
+            ...(result.revokeToken ? { revokeToken: result.revokeToken } : {}),
           }
         : { phase: "error", message: result.message },
     );
   }, [source]);
+
+  const handleDeleteShare = useCallback(async (id: string, token: string) => {
+    const result = await revokeSharedDiagram(id, token, {
+      fetch,
+      origin: shareRequestOrigin(
+        configuredShareOrigin(),
+        window.location.origin,
+      ),
+    });
+    if (!result.ok) throw new Error(result.message);
+    setShareDialogState(null);
+  }, []);
 
   const handleCopySvg = async () => {
     if (!currentSvg) return;
@@ -482,6 +497,7 @@ export function App() {
           state={shareDialogState}
           onClose={closeShareDialog}
           onRetry={handleShare}
+          onDelete={handleDeleteShare}
         />
       ) : null}
 

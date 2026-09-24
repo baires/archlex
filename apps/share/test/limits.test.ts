@@ -39,7 +39,7 @@ describe("POST rate limit", () => {
     const text = await blocked.text();
     expect(JSON.parse(text)).toEqual({ error: "rate_limited" });
     expect(text).not.toContain("lambda");
-    expect(database.rows.size).toBe(1);
+    expect(database.rows.size).toBe(30);
     const limitQuery = database.queries.find((query) =>
       query.sql.includes("post_limits"),
     );

@@ -2,10 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_SOURCE_LINES,
   SOURCE_MAX_CHARS,
+  corsHeaders,
+  createRevokeToken,
   createShareId,
   encodeShareId,
+  hashRevokeToken,
   isShareId,
   parseShareSource,
+  verifyRevokeToken,
 } from "../src/security.js";
 
 describe("share ids", () => {
@@ -90,5 +94,35 @@ describe("parseShareSource", () => {
       status: 413,
       error: "diagram_too_large",
     });
+  });
+});
+
+describe("revoke tokens and cors", () => {
+  it("mints 32-byte base64url revoke tokens and hashes to sha-256 hex", async () => {
+    const token = createRevokeToken();
+    expect(token).toMatch(/^[-_A-Za-z0-9]+$/);
+    // 32 bytes base64url unpadded is 43 characters
+    expect(token).toHaveLength(43);
+
+    const hash = await hashRevokeToken(token);
+    expect(hash).toMatch(/^[a-f0-9]{64}$/);
+
+    expect(await verifyRevokeToken(token, hash)).toBe(true);
+    expect(await verifyRevokeToken("wrong-token", hash)).toBe(false);
+    expect(await verifyRevokeToken(token, "wrong-hash")).toBe(false);
+    expect(await verifyRevokeToken("", hash)).toBe(false);
+    expect(await verifyRevokeToken(token, null)).toBe(false);
+  });
+
+  it("includes DELETE in methods and authorization in headers for CORS", () => {
+    const headers = corsHeaders(
+      "https://playground.archlex.dev",
+      "https://playground.archlex.dev",
+    );
+    expect(headers.get("access-control-allow-methods")).toContain("DELETE");
+    expect(headers.get("access-control-allow-headers")).toContain(
+      "authorization",
+    );
+    expect(headers.get("access-control-allow-credentials")).toBeNull();
   });
 });

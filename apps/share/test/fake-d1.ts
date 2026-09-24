@@ -12,6 +12,7 @@ interface ShareRow {
   created_at: number;
   expires_at: number;
   source_hash?: string;
+  revoke_hash?: string;
 }
 
 export interface LimitRow {
@@ -101,12 +102,21 @@ export function createFakeD1(
                 return { success: true, meta: { changes } };
               }
               if (sql.startsWith("INSERT INTO shares")) {
-                const [id, source, createdAt, expiresAt] = values;
+                const [
+                  id,
+                  source,
+                  createdAt,
+                  expiresAt,
+                  sourceHash,
+                  revokeHash,
+                ] = values;
                 rows.set(String(id), {
                   id: String(id),
                   source: String(source),
                   created_at: Number(createdAt),
                   expires_at: Number(expiresAt),
+                  source_hash: sourceHash ? String(sourceHash) : undefined,
+                  revoke_hash: revokeHash ? String(revokeHash) : undefined,
                 });
               }
               return { success: true };

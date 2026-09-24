@@ -5,21 +5,35 @@ import { Icon } from "./Icon.js";
 export type ShareDialogState =
   | { phase: "loading" }
   | { phase: "error"; message: string }
-  | { phase: "ready"; playgroundUrl: string; svgUrl: string };
+  | {
+      phase: "ready";
+      id?: string;
+      playgroundUrl: string;
+      svgUrl: string;
+      revokeToken?: string;
+    };
 
 interface ShareModalProps {
   state: ShareDialogState;
   onClose: () => void;
   onRetry: () => void;
+  onDelete?: (id: string, token: string) => Promise<void> | void;
 }
 
-export function ShareModal({ state, onClose, onRetry }: ShareModalProps) {
+export function ShareModal({
+  state,
+  onClose,
+  onRetry,
+  onDelete,
+}: ShareModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const [copyState, setCopyState] = useState<
-    "idle" | "link" | "embed" | "error"
+    "idle" | "link" | "embed" | "revoke" | "error"
   >("idle");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     previousFocusRef.current =
@@ -81,6 +95,35 @@ export function ShareModal({ state, onClose, onRetry }: ShareModalProps) {
       setCopyState(kind);
     } catch {
       setCopyState("error");
+    }
+  };
+
+  const copyRevokeToken = async (token: string) => {
+    try {
+      await navigator.clipboard.writeText(token);
+      setCopyState("revoke");
+    } catch {
+      setCopyState("error");
+    }
+  };
+
+  const deleteShare = async () => {
+    if (
+      state.phase !== "ready" ||
+      !state.id ||
+      !state.revokeToken ||
+      !onDelete
+    ) {
+      return;
+    }
+    setIsDeleting(true);
+    setDeleteError(null);
+    try {
+      await onDelete(state.id, state.revokeToken);
+    } catch {
+      setDeleteError("Could not revoke this share. Try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -192,6 +235,55 @@ export function ShareModal({ state, onClose, onRetry }: ShareModalProps) {
                   {copyState === "embed" ? "Embed copied" : "Copy embed"}
                 </button>
               </section>
+              {state.revokeToken ? (
+                <section className="share-choice">
+                  <div className="share-choice__heading">
+                    <div>
+                      <h3>Revoke access</h3>
+                      <p>
+                        Save this one-time token to revoke the share later.
+                        Anyone with the link can read its source.
+                      </p>
+                    </div>
+                    <span className="share-choice__tag">ONCE</span>
+                  </div>
+                  <div className="share-link-field">
+                    <input
+                      aria-label="One-time revoke token"
+                      readOnly
+                      value={state.revokeToken}
+                      onFocus={(event) => event.currentTarget.select()}
+                    />
+                    <button
+                      type="button"
+                      className="btn-secondary share-copy-button"
+                      onClick={() => {
+                        if (state.phase === "ready" && state.revokeToken) {
+                          void copyRevokeToken(state.revokeToken);
+                        }
+                      }}
+                    >
+                      <Icon name="clipboard" />
+                      {copyState === "revoke" ? "Copied" : "Copy token"}
+                    </button>
+                  </div>
+                  {onDelete && state.id ? (
+                    <button
+                      type="button"
+                      className="btn-secondary share-embed-copy"
+                      disabled={isDeleting}
+                      onClick={() => void deleteShare()}
+                    >
+                      {isDeleting ? "Revoking…" : "Revoke this share"}
+                    </button>
+                  ) : null}
+                  {deleteError ? (
+                    <output className="share-modal__copy-error" role="alert">
+                      {deleteError}
+                    </output>
+                  ) : null}
+                </section>
+              ) : null}
             </div>
           ) : null}
 
