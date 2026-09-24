@@ -54,7 +54,7 @@ describe("image GET", () => {
     expect(response.headers.get("content-type")).toBe("image/svg+xml");
     expect(response.headers.get("x-content-type-options")).toBe("nosniff");
     expect(response.headers.get("content-security-policy")).toBe(
-      "default-src 'none'; sandbox",
+      "default-src 'none'; base-uri 'none'; sandbox",
     );
     expect(response.headers.get("x-frame-options")).toBe("DENY");
     const maxAge = Number(
@@ -65,7 +65,7 @@ describe("image GET", () => {
     expect(maxAge).toBeLessThanOrEqual(30 * 24 * 60 * 60);
     const text = await response.text();
     expect(text).not.toContain("script");
-    expect(text).toContain("<svg");
+    expect(text).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
   });
 
   it("returns a png from the rasterizer", async () => {

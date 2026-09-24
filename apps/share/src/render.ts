@@ -5,6 +5,8 @@ export const MAX_CONCURRENT_RENDERS = 4;
 const MAX_RASTER_DIMENSION = 4096;
 const MAX_RASTER_PIXELS = 4_000_000;
 const ICON_TIMEOUT_MS = 1500;
+const SHARE_FOCUS_STYLE =
+  /<style>\s*g\.archlex-node:focus-visible > rect\.archlex-node-surface \{ stroke: #[\da-f]{6}; stroke-width: 2; \}\s*<\/style>/i;
 
 let inFlight = 0;
 
@@ -135,7 +137,9 @@ export async function renderDiagramSvg(source: string): Promise<string> {
   const result = await archlex.renderPrepared(prepared, {
     icons: iconsResult?.icons,
   });
-  return sanitizeDiagramSvg(result.svg);
+  // The core renderer emits this fixed keyboard-focus rule for the playground.
+  // Share images do not need editor focus CSS; all other style elements fail closed.
+  return sanitizeDiagramSvg(result.svg.replace(SHARE_FOCUS_STYLE, ""));
 }
 
 export async function prepareDiagram(source: string): Promise<PreparedDiagram> {

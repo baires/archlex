@@ -82,6 +82,8 @@ diagram and read its source. Do not put secrets, credentials, or confidential
 topology in a share — keep them out of the `.arch` file the same way you keep
 them out of any file you commit.
 
-Served SVG is sanitized and sandboxed
-(`Content-Security-Policy: default-src 'none'; sandbox`), so a share cannot run
-script in the page that embeds it.
+Served SVG is checked against an element and attribute allowlist and is
+sandboxed for direct navigation
+(`Content-Security-Policy: default-src 'none'; base-uri 'none'; sandbox`).
+ArchLex serves it as an image. A client that fetches the SVG and inlines its
+markup should apply its own sanitization before inserting it into a page.

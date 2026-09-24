@@ -276,7 +276,10 @@ function imageHeaders(
   const headers = new Headers();
   headers.set("content-type", contentType);
   headers.set("x-content-type-options", "nosniff");
-  headers.set("content-security-policy", "default-src 'none'; sandbox");
+  headers.set(
+    "content-security-policy",
+    "default-src 'none'; base-uri 'none'; sandbox",
+  );
   headers.set("x-frame-options", "DENY");
   headers.set("cache-control", `public, max-age=${seconds}`);
   return headers;

@@ -587,3 +587,32 @@ describe("GET /s/:id", () => {
     expect(response.status).toBe(404);
   });
 });
+
+describe("GET /s/:id.svg", () => {
+  it("serves SVG with no-source and base-URI sandbox headers", async () => {
+    const database = createFakeD1();
+    const id = "abc_XYZ-12";
+    database.rows.set(id, {
+      id,
+      source: SOURCE,
+      created_at: Date.now(),
+      expires_at: Date.now() + 60_000,
+    });
+
+    const response = await worker.fetch(
+      new Request(`https://share.archlex.dev/s/${id}.svg`),
+      env({
+        DB: database,
+        renderSvg: async () =>
+          '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
+      }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-security-policy")).toBe(
+      "default-src 'none'; base-uri 'none'; sandbox",
+    );
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(await response.text()).toContain("<path");
+  });
+});
