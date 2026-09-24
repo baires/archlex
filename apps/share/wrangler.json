@@ -30,6 +30,14 @@
         "limit": 30,
         "period": 60
       }
+    },
+    {
+      "name": "SHARE_RENDER_GLOBAL_LIMITER",
+      "namespace_id": "260923003",
+      "simple": {
+        "limit": 300,
+        "period": 60
+      }
     }
   ],
   "cache": {

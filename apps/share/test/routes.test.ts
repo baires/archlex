@@ -14,6 +14,7 @@ function env(overrides: Partial<ShareEnv> = {}): ShareEnv {
     DB: createFakeD1(),
     SHARE_POST_LIMITER: rateLimit,
     SHARE_RENDER_LIMITER: rateLimit,
+    SHARE_RENDER_GLOBAL_LIMITER: rateLimit,
     ...overrides,
   };
 }

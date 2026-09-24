@@ -1,5 +1,7 @@
 import type { PreparedDiagram } from "@archlex/core";
+import type { IconCache, SanitizedIcon } from "@archlex/icons-core";
 import { sanitizeDiagramSvg } from "./sanitize-svg.js";
+import { MAX_NODES } from "./security.js";
 
 export const MAX_CONCURRENT_RENDERS = 4;
 const MAX_RASTER_DIMENSION = 4096;
@@ -7,11 +9,37 @@ const MAX_RASTER_PIXELS = 4_000_000;
 const ICON_TIMEOUT_MS = 1500;
 const SHARE_FOCUS_STYLE =
   /<style>\s*g\.archlex-node:focus-visible > rect\.archlex-node-surface \{ stroke: #[\da-f]{6}; stroke-width: 2; \}\s*<\/style>/i;
+const MAX_CACHED_ICONS = 200;
 
 let inFlight = 0;
+const iconEntries = new Map<string, SanitizedIcon>();
+const iconCache: IconCache = {
+  async get(request) {
+    const key = `${request.provider}:${request.key}`;
+    const icon = iconEntries.get(key);
+    if (!icon) return undefined;
+    iconEntries.delete(key);
+    iconEntries.set(key, icon);
+    return icon;
+  },
+  async set(request, icon) {
+    const key = `${request.provider}:${request.key}`;
+    iconEntries.delete(key);
+    iconEntries.set(key, icon);
+    while (iconEntries.size > MAX_CACHED_ICONS) {
+      const oldest = iconEntries.keys().next().value;
+      if (oldest === undefined) break;
+      iconEntries.delete(oldest);
+    }
+  },
+};
 
 export function resetRenderSlots(): void {
   inFlight = 0;
+}
+
+export function resetIconCache(): void {
+  iconEntries.clear();
 }
 
 export function acquireRenderSlot(): boolean {
@@ -118,13 +146,17 @@ export async function renderDiagramSvg(source: string): Promise<string> {
       k8s.K8S_CDN_PROVIDER,
     ],
     fetchFn: fetchIconInWorker,
+    cache: iconCache,
   });
   const prepared = archlex.prepare(source);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), ICON_TIMEOUT_MS);
   let iconsResult: Awaited<ReturnType<typeof iconLoader.loadIcons>> | undefined;
   try {
-    if (prepared.iconRequests.length > 0) {
+    if (
+      prepared.iconRequests.length > 0 &&
+      prepared.iconRequests.length <= MAX_NODES
+    ) {
       iconsResult = await iconLoader.loadIcons(prepared.iconRequests, {
         signal: controller.signal,
       });

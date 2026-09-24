@@ -16,6 +16,7 @@ export interface ShareEnv {
   SHARE_SERVICE_TOKEN?: string;
   SHARE_POST_LIMITER?: RateLimitBinding;
   SHARE_RENDER_LIMITER?: RateLimitBinding;
+  SHARE_RENDER_GLOBAL_LIMITER?: RateLimitBinding;
   renderSvg?: (source: string) => Promise<string>;
   rasterize?: (svg: string) => Promise<Uint8Array>;
   prepare?: (source: string) => PreparedDiagram | Promise<PreparedDiagram>;

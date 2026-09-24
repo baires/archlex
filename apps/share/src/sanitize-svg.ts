@@ -349,3 +349,7 @@ export function sanitizeDiagramSvg(svg: string): string {
     return EMPTY_SVG;
   }
 }
+
+export function isEmptySanitizedSvg(svg: string): boolean {
+  return svg === EMPTY_SVG;
+}

@@ -70,8 +70,9 @@ three URLs:
 
 - Shares expire after 30 days. Expired ids return 404 and are deleted.
 - Source is capped at 100,000 characters and 2,000 lines; request bodies are capped at 400,000 bytes while streaming. Diagrams with more than 200 nodes, more than 400 edges, or any error diagnostic are rejected before storage.
-- Public clients can submit 30 POSTs per IP per hour and 200 POSTs or 2 MiB of source per IP per UTC day. Cloudflare edge limits also allow 10 POSTs per minute and 30 image renders per minute per client IP.
+- Public clients can submit 30 POSTs per IP per hour and 200 POSTs or 2 MiB of source per IP per UTC day. Cloudflare edge limits also allow 10 POSTs per minute, 30 image renders per minute per client IP, and 300 uncached image renders per minute globally.
 - A global circuit breaker allows at most 20,000 POSTs or 200 MiB of source bytes per UTC day. This protects service capacity; normal fairness limits are per IP and service-token calls count toward both daily limits.
+- SVG and PNG responses use a path-only edge cache for at most 24 hours and never longer than the share's remaining lifetime. Query strings do not create separate cache entries.
 - Errors return `{ "error": "<code>" }` with status 400, 404, 413, 429, or
   503.
 

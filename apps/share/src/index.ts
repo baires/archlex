@@ -3,8 +3,12 @@ import type { ShareEnv } from "./env.js";
 import { handleShareRequest } from "./routes.js";
 
 export default {
-  async fetch(request: Request, env: ShareEnv): Promise<Response> {
-    return handleShareRequest(request, env);
+  async fetch(
+    request: Request,
+    env: ShareEnv,
+    ctx?: ExecutionContext,
+  ): Promise<Response> {
+    return handleShareRequest(request, env, ctx);
   },
   async scheduled(
     _controller: ScheduledController,

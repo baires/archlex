@@ -20,7 +20,7 @@ import {
   releaseRenderSlot,
   renderDiagramSvg,
 } from "./render.js";
-import { sanitizeDiagramSvg } from "./sanitize-svg.js";
+import { isEmptySanitizedSvg, sanitizeDiagramSvg } from "./sanitize-svg.js";
 import {
   MAX_EDGES,
   MAX_NODES,
@@ -116,6 +116,7 @@ async function readJson(
 export async function handleShareRequest(
   request: Request,
   env: ShareEnv,
+  ctx?: ExecutionContext,
 ): Promise<Response> {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -149,6 +150,7 @@ export async function handleShareRequest(
       imageMatch[2] === "png" ? "png" : "svg",
       request,
       env,
+      ctx,
     );
   }
 
@@ -272,7 +274,10 @@ function imageHeaders(
   expiresAt: number,
   now: number,
 ): Headers {
-  const seconds = Math.max(0, Math.floor((expiresAt - now) / 1000));
+  const seconds = Math.min(
+    86_400,
+    Math.max(0, Math.floor((expiresAt - now) / 1000)),
+  );
   const headers = new Headers();
   headers.set("content-type", contentType);
   headers.set("x-content-type-options", "nosniff");
@@ -290,14 +295,37 @@ async function renderImage(
   format: "svg" | "png",
   request: Request,
   env: ShareEnv,
+  ctx?: ExecutionContext,
 ): Promise<Response> {
   if (!isShareId(id)) return errorResponse(404, "not_found");
+  const cacheStorage = globalThis.caches as
+    | (CacheStorage & { default?: Cache })
+    | undefined;
+  const cache = cacheStorage?.default;
+  const cacheKey = new Request(
+    `${new URL(request.url).origin}${new URL(request.url).pathname}`,
+  );
+  if (cache) {
+    try {
+      const cached = await cache.match(cacheKey);
+      if (cached) return cached;
+    } catch {
+      // A cache read failure should fall through to the normal render path.
+    }
+  }
+
   const edgeLimit = await checkRateLimit(
     env.SHARE_RENDER_LIMITER,
     clientIp(request),
   );
   if (edgeLimit === "unavailable") return errorResponse(503, "unavailable");
   if (edgeLimit === "limited") return errorResponse(429, "rate_limited");
+  const globalLimit = await checkRateLimit(
+    env.SHARE_RENDER_GLOBAL_LIMITER,
+    "global",
+  );
+  if (globalLimit === "unavailable") return errorResponse(503, "unavailable");
+  if (globalLimit === "limited") return errorResponse(429, "rate_limited");
   if (!env.DB) return errorResponse(503, "unavailable");
   const now = Date.now();
   const row = await findActiveShare(env.DB, id, now);
@@ -306,6 +334,7 @@ async function renderImage(
   try {
     const raw = await (env.renderSvg ?? renderDiagramSvg)(row.source);
     const svg = sanitizeDiagramSvg(raw);
+    const canCache = !isEmptySanitizedSvg(svg);
     if (format === "png") {
       const png = await (env.rasterize ?? rasterizeDiagramSvg)(svg);
       const completedAt = Date.now();
@@ -315,18 +344,36 @@ async function renderImage(
       const headers = imageHeaders("image/png", row.expiresAt, completedAt);
       const body = new ArrayBuffer(png.byteLength);
       new Uint8Array(body).set(png);
-      return new Response(body, { status: 200, headers });
+      const response = new Response(body, { status: 200, headers });
+      if (canCache) cacheImageResponse(cache, cacheKey, response, ctx);
+      return response;
     }
     const completedAt = Date.now();
     if (completedAt >= row.expiresAt) {
       return errorResponse(404, "not_found");
     }
     const headers = imageHeaders("image/svg+xml", row.expiresAt, completedAt);
-    return new Response(svg, { status: 200, headers });
+    const response = new Response(svg, { status: 200, headers });
+    if (canCache) cacheImageResponse(cache, cacheKey, response, ctx);
+    return response;
   } catch {
     return errorResponse(503, "unavailable");
   } finally {
     releaseRenderSlot();
+  }
+}
+
+function cacheImageResponse(
+  cache: Cache | undefined,
+  cacheKey: Request,
+  response: Response,
+  ctx: ExecutionContext | undefined,
+): void {
+  if (!cache || !ctx) return;
+  try {
+    ctx.waitUntil(cache.put(cacheKey, response.clone()).catch(() => undefined));
+  } catch {
+    // Cache writes are best-effort; the rendered image is already available.
   }
 }
 
