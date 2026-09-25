@@ -51,11 +51,14 @@ api: k8s.deployment
 ```
 
 An implicit resource uses its kind as the local instance ID. Repeated implicit
-references in one scope resolve to that instance. Use names when you need more
-than one instance of a kind.
+references in one scope resolve to that instance. The same implicit name in a
+different scope is a different instance. Use names when you need more than one
+instance of a kind in the same scope.
 
 ArchLex builds stable graph IDs from the containment path and local instance ID.
-Moving a declaration within the same scope does not change its identity.
+Moving a declaration within the same scope does not change its identity. An edge
+written in an ancestor scope still resolves a name when exactly one matching
+instance exists in a descendant scope.
 
 ## Display labels
 
