@@ -91,7 +91,8 @@ vpc production {
 - **Edges**: `a > b` shorthand, `a -> b`, `a <- b`, `a <-> b`, `a -- b`,
   `a -.-> b` (dotted). Chains: `a > b > c`.
 - **Scopes**: `account`, `region`, `vpc`, `subnet` (cloud);
-  `cluster`, `namespace` (Kubernetes).
+  `cluster`, `namespace` (Kubernetes). The same implicit name in another scope
+  is a separate instance.
 
 ## Critical rules
 

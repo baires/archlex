@@ -427,7 +427,12 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
           if (id) return id;
         }
         const global = globalNames.get(name);
-        return global?.length === 1 ? global[0] : undefined;
+        if (global?.length !== 1) return undefined;
+        const id = global[0];
+        // Ancestors may reference a unique descendant. A sibling scope must
+        // declare its own containment-scoped instance instead.
+        if (!env.path || id.startsWith(`${env.path}/`)) return id;
+        return undefined;
       };
 
       const declare = (resource: ResourceAst, env: Environment) => {
@@ -651,9 +656,14 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const graph: CloudGraph = {
         nodes: Array.from(nodesMap.values()),
         edges,
-        scopes: scopes.sort(
-          (a, b) => a.id.split("/").length - b.id.split("/").length,
-        ),
+        scopes: scopes
+          .map((scope) => ({
+            ...scope,
+            childrenNodeIds: Array.from(nodesMap.keys()).filter((id) =>
+              id.startsWith(`${scope.id}/`),
+            ),
+          }))
+          .sort((a, b) => a.id.split("/").length - b.id.split("/").length),
       };
 
       if (graph.nodes.length === 0) {

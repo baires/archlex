@@ -438,6 +438,133 @@ describe("Phase 2 semantic graph", () => {
     });
   });
 
+  it("keeps nested subnet layout when an implicit resource is reused across subnets", async () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const source = `provider aws
+vpc production {
+  subnet public {
+    api-gateway["API Gateway"] > lambda["Auth Service"]
+  }
+  subnet private {
+    lambda["Auth Service"] -[writes]->|SQL| dynamodb["Users Table"]
+  }
+}`;
+
+    const result = await archlex.render(source);
+    const publicLambda = "vpc:production/subnet:public/lambda";
+    const privateLambda = "vpc:production/subnet:private/lambda";
+
+    expect(result.diagnostics.filter((d) => d.severity === "error")).toEqual(
+      [],
+    );
+    expect(result.graph.nodes.map((node) => node.id).sort()).toEqual([
+      "vpc:production/subnet:private/dynamodb",
+      privateLambda,
+      "vpc:production/subnet:public/api-gateway",
+      publicLambda,
+    ]);
+    expect(result.graph.edges).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: "vpc:production/subnet:public/api-gateway",
+          target: publicLambda,
+        }),
+        expect.objectContaining({
+          source: privateLambda,
+          target: "vpc:production/subnet:private/dynamodb",
+          kind: "writes",
+          label: "SQL",
+        }),
+      ]),
+    );
+    expect(
+      result.graph.scopes.find(
+        (scope) => scope.id === "vpc:production/subnet:public",
+      )?.childrenNodeIds,
+    ).toEqual(
+      expect.arrayContaining([
+        "vpc:production/subnet:public/api-gateway",
+        publicLambda,
+      ]),
+    );
+    expect(
+      result.graph.scopes.find(
+        (scope) => scope.id === "vpc:production/subnet:private",
+      )?.childrenNodeIds,
+    ).toEqual(
+      expect.arrayContaining([
+        privateLambda,
+        "vpc:production/subnet:private/dynamodb",
+      ]),
+    );
+
+    const layoutNode = (id: string) => {
+      const node = result.layout.nodes.find((candidate) => candidate.id === id);
+      expect(node, id).toBeDefined();
+      if (!node) throw new Error(`missing layout node ${id}`);
+      return node;
+    };
+    const contains = (parentId: string, childId: string) => {
+      const parent = layoutNode(parentId);
+      const child = layoutNode(childId);
+      expect(child.x).toBeGreaterThanOrEqual(parent.x);
+      expect(child.y - parent.y).toBeGreaterThanOrEqual(36);
+      expect(child.x + child.width).toBeLessThanOrEqual(
+        parent.x + parent.width,
+      );
+      expect(child.y + child.height).toBeLessThanOrEqual(
+        parent.y + parent.height,
+      );
+    };
+
+    const vpc = layoutNode("vpc:production");
+    const publicSubnet = layoutNode("vpc:production/subnet:public");
+    const privateSubnet = layoutNode("vpc:production/subnet:private");
+    expect(publicSubnet.width).toBeGreaterThan(128);
+    expect(privateSubnet.width).toBeGreaterThan(128);
+    expect(vpc.width).toBeGreaterThan(40);
+    contains("vpc:production", "vpc:production/subnet:public");
+    contains("vpc:production", "vpc:production/subnet:private");
+    contains("vpc:production/subnet:public", publicLambda);
+    contains(
+      "vpc:production/subnet:public",
+      "vpc:production/subnet:public/api-gateway",
+    );
+    contains("vpc:production/subnet:private", privateLambda);
+    contains(
+      "vpc:production/subnet:private",
+      "vpc:production/subnet:private/dynamodb",
+    );
+    expect(result.svg).not.toContain(">…</tspan>");
+  });
+
+  it("resolves a unique descendant from an ancestor edge", () => {
+    const archlex = createArchLex({ providers: [awsProvider()] });
+    const parsed = archlex.parse(`vpc production {
+  subnet public {
+    api: ecs
+  }
+  subnet private {
+    db: rds
+  }
+  api > db
+}
+alb > db`);
+
+    const result = archlex.analyze(parsed.ast);
+
+    expect(
+      result.graph.edges.map((edge) => [edge.source, edge.target]),
+    ).toEqual([
+      ["vpc:production/subnet:public/api", "vpc:production/subnet:private/db"],
+      ["alb", "vpc:production/subnet:private/db"],
+    ]);
+    expect(result.graph.nodes.map((node) => node.id)).not.toContain(
+      "vpc:production/api",
+    );
+    expect(result.graph.nodes.map((node) => node.id)).not.toContain("db");
+  });
+
   it("keeps the first duplicate ID and diagnoses later declarations", () => {
     const archlex = createArchLex({ providers: [awsProvider()] });
     const parsed = archlex.parse("api: ecs\napi: rds");

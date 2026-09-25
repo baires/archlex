@@ -40,10 +40,13 @@ runner: gcp.cloud-run        # provider-qualified kind
 primary: rds["Primary DB"]   # display label
 ```
 
-Repeated implicit references in one scope resolve to the same instance. Use
-names when a diagram needs more than one instance of a kind. Graph IDs are
-built from the containment path plus the local instance ID, so moving a
-declaration within the same scope preserves identity.
+Repeated implicit references in one scope resolve to the same instance. The
+same implicit name in a different scope is a different instance. Use names when
+a diagram needs more than one instance of a kind in the same scope. Graph IDs
+are built from the containment path plus the local instance ID, so moving a
+declaration within the same scope preserves identity. An edge written in an
+ancestor scope still resolves a name when exactly one matching instance exists
+in a descendant scope.
 
 ## Display labels
 
