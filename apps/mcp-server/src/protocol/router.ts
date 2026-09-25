@@ -242,7 +242,7 @@ async function dispatchModern(
           baseUrl: new URL(request.url).origin,
         }
       : undefined,
-    share: shareConfigFromEnv(env),
+    share: shareConfigFromEnv(env, request),
     signal,
     onProgress,
   };

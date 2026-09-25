@@ -24,6 +24,14 @@
       }
     },
     {
+      "name": "SHARE_SERVICE_POST_LIMITER",
+      "namespace_id": "260923004",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    },
+    {
       "name": "SHARE_RENDER_LIMITER",
       "namespace_id": "260923002",
       "simple": {

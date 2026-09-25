@@ -167,6 +167,58 @@ describe("shareDiagram", () => {
     });
   });
 
+  it("rejects a share response whose URLs do not match the request origin", async () => {
+    const fetchFn = vi.fn(async () =>
+      Response.json({
+        id: "abc",
+        playgroundUrl: "https://attacker.example/s/abc",
+        svgUrl: "https://share.archlex.dev/s/abc.svg",
+        pngUrl: "https://share.archlex.dev/s/abc.png",
+      }),
+    );
+
+    await expect(shareDiagram(SOURCE, { fetch: fetchFn })).resolves.toEqual({
+      ok: false,
+      message: "Could not share diagram",
+    });
+  });
+
+  it("rejects a response whose URL path does not match its share id", async () => {
+    const fetchFn = vi.fn(async () =>
+      Response.json({
+        id: "abc",
+        playgroundUrl: "https://share.archlex.dev/s/other",
+        svgUrl: "https://share.archlex.dev/s/abc.svg",
+        pngUrl: "https://share.archlex.dev/s/abc.png",
+      }),
+    );
+
+    await expect(shareDiagram(SOURCE, { fetch: fetchFn })).resolves.toEqual({
+      ok: false,
+      message: "Could not share diagram",
+    });
+  });
+
+  it("rejects localhost URLs outside the share Worker development port", async () => {
+    const fetchFn = vi.fn(async () =>
+      Response.json({
+        id: "abc",
+        playgroundUrl: "http://localhost:8788/s/abc",
+        svgUrl: "http://localhost:8788/s/abc.svg",
+      }),
+    );
+
+    await expect(
+      shareDiagram(SOURCE, {
+        fetch: fetchFn,
+        origin: "http://localhost:8788",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      message: "Could not share diagram",
+    });
+  });
+
   it("maps overload statuses to short messages without the response body", () => {
     expect(shareFailureMessage(413, "SECRET")).toBe(
       "Diagram is too large to share",

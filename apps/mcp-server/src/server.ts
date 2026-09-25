@@ -41,7 +41,7 @@ export function createLegacyMcpServer(env?: Env, request?: Request): Server {
           baseUrl: new URL(request.url).origin,
         }
       : undefined,
-    share: shareConfigFromEnv(env),
+    share: shareConfigFromEnv(env, request),
   };
   const server = new Server(
     { name: SERVER_INFO.name, version: SERVER_INFO.version },

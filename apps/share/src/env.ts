@@ -15,6 +15,7 @@ export interface ShareEnv {
   PLAYGROUND_ORIGIN?: string;
   SHARE_SERVICE_TOKEN?: string;
   SHARE_POST_LIMITER?: RateLimitBinding;
+  SHARE_SERVICE_POST_LIMITER?: RateLimitBinding;
   SHARE_RENDER_LIMITER?: RateLimitBinding;
   SHARE_RENDER_GLOBAL_LIMITER?: RateLimitBinding;
   renderSvg?: (source: string) => Promise<string>;

@@ -151,7 +151,15 @@ When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL 
 - `RENDER_URL_TTL_SECONDS` (optional): token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): maximum complete URL length. Defaults to `7500`.
 - `SHARE_ORIGIN`: share Worker origin. Production default is `https://share.archlex.dev`. Local `wrangler dev` can override it in `.dev.vars`.
-- `SHARE_SERVICE_TOKEN`: shared secret so this server can create shares without the public rate limit. Set with `wrangler secret put SHARE_SERVICE_TOKEN`. Never commit it.
+- `SHARE_SERVICE_TOKEN`: shared secret used when the MCP creates shares. Set it with `wrangler secret put SHARE_SERVICE_TOKEN` on both the share and MCP Workers; never put it in `wrangler.json`, `.dev.vars`, or client code. Authenticated MCP calls use a separate 120-per-minute edge limit and are still metered per caller and against the shared service and global daily budgets.
+
+Keep the share Worker origin reachable only through Cloudflare. The MCP hashes
+Cloudflare's `CF-Connecting-IP` value into `x-archlex-client`; the share Worker
+trusts that caller key only when the service token is valid. Cloudflare must
+be the proxy supplying `CF-Connecting-IP`, since a direct request to an exposed
+origin can spoof that header. If the MCP request has no Cloudflare client IP,
+it omits the caller key and the share Worker uses the shared `service:anonymous`
+public per-caller limits.
 
 **When to use URL delivery:**
 

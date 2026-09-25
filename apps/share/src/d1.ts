@@ -54,6 +54,8 @@ export const POSTS_PER_IP_PER_DAY = 200;
 export const BYTES_PER_IP_PER_DAY = 2 * 1024 * 1024;
 export const POSTS_PER_DAY = 20_000;
 export const SOURCE_BYTES_PER_DAY = 200 * 1024 * 1024;
+export const SERVICE_POSTS_PER_DAY = 5_000;
+export const SERVICE_BYTES_PER_DAY = 50 * 1024 * 1024;
 const DELETE_BATCH_SIZE = 500;
 const MAX_DELETE_BATCHES = 20;
 
@@ -102,6 +104,7 @@ export async function consumeDailyPostBudget(
   ip: string,
   now: number,
   sourceBytes: number,
+  service = false,
 ): Promise<boolean> {
   if (
     !Number.isSafeInteger(sourceBytes) ||
@@ -111,17 +114,44 @@ export async function consumeDailyPostBudget(
     return false;
   }
   const dayStart = Math.floor(now / DAY_MS) * DAY_MS;
-  const ipRow = await db
-    .prepare(UPSERT_DAILY_BUDGET_SQL)
-    .bind(
-      `${IP_DAILY_KEY_PREFIX}${ip}`,
-      dayStart,
-      sourceBytes,
-      POSTS_PER_IP_PER_DAY,
-      BYTES_PER_IP_PER_DAY,
-    )
-    .first<{ count: number }>();
-  if (!ipRow) return false;
+  if (service) {
+    const serviceRow = await db
+      .prepare(UPSERT_DAILY_BUDGET_SQL)
+      .bind(
+        "__service_daily__",
+        dayStart,
+        sourceBytes,
+        SERVICE_POSTS_PER_DAY,
+        SERVICE_BYTES_PER_DAY,
+      )
+      .first<{ count: number }>();
+    if (!serviceRow) return false;
+  }
+
+  let ipRow: { count: number } | null;
+  try {
+    ipRow = await db
+      .prepare(UPSERT_DAILY_BUDGET_SQL)
+      .bind(
+        `${IP_DAILY_KEY_PREFIX}${ip}`,
+        dayStart,
+        sourceBytes,
+        POSTS_PER_IP_PER_DAY,
+        BYTES_PER_IP_PER_DAY,
+      )
+      .first<{ count: number }>();
+  } catch (error) {
+    if (service) {
+      await rollbackDailyBudget(db, "__service_daily__", dayStart, sourceBytes);
+    }
+    throw error;
+  }
+  if (!ipRow) {
+    if (service) {
+      await rollbackDailyBudget(db, "__service_daily__", dayStart, sourceBytes);
+    }
+    return false;
+  }
 
   let globalRow: { count: number } | null;
   try {
@@ -142,6 +172,9 @@ export async function consumeDailyPostBudget(
       dayStart,
       sourceBytes,
     );
+    if (service) {
+      await rollbackDailyBudget(db, "__service_daily__", dayStart, sourceBytes);
+    }
     throw error;
   }
   if (!globalRow) {
@@ -151,6 +184,9 @@ export async function consumeDailyPostBudget(
       dayStart,
       sourceBytes,
     );
+    if (service) {
+      await rollbackDailyBudget(db, "__service_daily__", dayStart, sourceBytes);
+    }
     return false;
   }
   return true;

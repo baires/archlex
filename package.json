@@ -24,6 +24,7 @@
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "verify:packages": "node scripts/validate-catalog.mjs",
     "verify:sites": "node scripts/verify-sites.mjs",
+    "check:share-secrets": "node scripts/check-share-secrets.mjs",
     "prepare": "husky",
     "changeset": "changeset",
     "version": "changeset version && biome check --write .",

@@ -7,12 +7,14 @@ import { hashShareSource } from "../src/security.js";
 import { createAllowingRateLimit, createFakeD1 } from "./fake-d1.js";
 
 const SOURCE = 'provider aws\ncdn: cloudfront["CDN"]\n';
+const SERVICE_TOKEN = ["service", "secret"].join("-");
 
 function env(overrides: Partial<ShareEnv> = {}): ShareEnv {
   const rateLimit = createAllowingRateLimit();
   return {
     DB: createFakeD1(),
     SHARE_POST_LIMITER: rateLimit,
+    SHARE_SERVICE_POST_LIMITER: rateLimit,
     SHARE_RENDER_LIMITER: rateLimit,
     SHARE_RENDER_GLOBAL_LIMITER: rateLimit,
     ...overrides,
@@ -304,32 +306,120 @@ describe("POST /v1/shares", () => {
     expect(database.rows.size).toBe(0);
   });
 
-  it("skips the rate limit for a matching service token", async () => {
+  it("limits service-token calls without a caller key as service:anonymous", async () => {
     const database = createFakeD1();
-    const post = (token?: string) =>
+    const post = () =>
       worker.fetch(
         new Request("https://share.archlex.dev/v1/shares", {
           method: "POST",
           headers: {
             "cf-connecting-ip": "203.0.113.9",
-            ...(token ? { authorization: `Bearer ${token}` } : {}),
+            authorization: `Bearer ${SERVICE_TOKEN}`,
           },
           body: JSON.stringify({ source: SOURCE }),
         }),
         {
           DB: database,
-          SHARE_SERVICE_TOKEN: "service-secret",
+          SHARE_SERVICE_TOKEN: SERVICE_TOKEN,
           SHARE_POST_LIMITER: createAllowingRateLimit(),
+          SHARE_SERVICE_POST_LIMITER: createAllowingRateLimit(),
           SHARE_RENDER_LIMITER: createAllowingRateLimit(),
+          SHARE_RENDER_GLOBAL_LIMITER: createAllowingRateLimit(),
         },
       );
 
-    for (let i = 0; i < 30; i += 1) await post();
+    for (let i = 0; i < 30; i += 1) {
+      expect((await post()).status).toBe(201);
+    }
     const blocked = await post();
-    const allowed = await post("service-secret");
 
     expect(blocked.status).toBe(429);
-    expect(allowed.status).toBe(201);
+    expect(database.rows.size).toBe(30);
+  });
+
+  it("limits valid service caller keys independently", async () => {
+    const database = createFakeD1();
+    const post = (callerKey: string) =>
+      worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${SERVICE_TOKEN}`,
+            "x-archlex-client": callerKey,
+          },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({ DB: database, SHARE_SERVICE_TOKEN: SERVICE_TOKEN }),
+      );
+
+    for (let i = 0; i < 30; i += 1) {
+      expect((await post("caller_000000000001")).status).toBe(201);
+    }
+    expect((await post("caller_000000000001")).status).toBe(429);
+    expect((await post("caller_000000000002")).status).toBe(201);
+  });
+
+  it("uses service:anonymous for an invalid caller key", async () => {
+    const database = createFakeD1();
+    const post = () =>
+      worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${SERVICE_TOKEN}`,
+            "x-archlex-client": "short",
+          },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({ DB: database, SHARE_SERVICE_TOKEN: SERVICE_TOKEN }),
+      );
+
+    for (let i = 0; i < 30; i += 1) {
+      expect((await post()).status).toBe(201);
+    }
+    expect((await post()).status).toBe(429);
+  });
+
+  it("ignores the caller key header for unauthenticated requests", async () => {
+    const database = createFakeD1();
+    const post = (callerKey: string) =>
+      worker.fetch(
+        new Request("https://share.archlex.dev/v1/shares", {
+          method: "POST",
+          headers: {
+            "cf-connecting-ip": "203.0.113.41",
+            "x-archlex-client": callerKey,
+          },
+          body: JSON.stringify({ source: SOURCE }),
+        }),
+        env({ DB: database }),
+      );
+
+    for (let i = 0; i < 30; i += 1) {
+      expect((await post("attacker_00000001")).status).toBe(201);
+    }
+    expect((await post("attacker_00000002")).status).toBe(429);
+  });
+
+  it("uses a separate edge limiter for service-token posts", async () => {
+    const blockedServiceLimiter = {
+      async limit() {
+        return { success: false };
+      },
+    };
+    const response = await worker.fetch(
+      new Request("https://share.archlex.dev/v1/shares", {
+        method: "POST",
+        headers: { authorization: `Bearer ${SERVICE_TOKEN}` },
+        body: JSON.stringify({ source: SOURCE }),
+      }),
+      env({
+        SHARE_SERVICE_TOKEN: SERVICE_TOKEN,
+        SHARE_SERVICE_POST_LIMITER: blockedServiceLimiter,
+      }),
+    );
+
+    expect(response.status).toBe(429);
   });
 
   it("returns 503 when D1 is missing and does not echo source", async () => {

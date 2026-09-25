@@ -11,16 +11,86 @@ export interface ShareLinks {
 export interface ShareClientConfig {
   origin: string;
   token?: string;
+  clientAddress?: string;
   fetch?: typeof fetch;
 }
 
-export function shareConfigFromEnv(env?: {
-  SHARE_ORIGIN?: string;
-  SHARE_SERVICE_TOKEN?: string;
-}): ShareClientConfig | undefined {
+export function shareConfigFromEnv(
+  env?: {
+    SHARE_ORIGIN?: string;
+    SHARE_SERVICE_TOKEN?: string;
+  },
+  request?: Request,
+): ShareClientConfig | undefined {
   const origin = env?.SHARE_ORIGIN?.trim();
   if (!origin) return undefined;
-  return { origin, token: env?.SHARE_SERVICE_TOKEN };
+  const clientAddress = request?.headers.get("cf-connecting-ip")?.trim();
+  return {
+    origin,
+    token: env?.SHARE_SERVICE_TOKEN,
+    ...(clientAddress ? { clientAddress } : {}),
+  };
+}
+
+const SHARE_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
+
+function parseShareOrigin(value: string): URL | undefined {
+  try {
+    const url = new URL(value);
+    if (
+      url.username ||
+      url.password ||
+      url.pathname !== "/" ||
+      url.search ||
+      url.hash
+    ) {
+      return undefined;
+    }
+    if (url.protocol === "https:") return url;
+    if (
+      url.protocol === "http:" &&
+      (url.hostname === "localhost" || url.hostname === "127.0.0.1") &&
+      url.port === "8787"
+    ) {
+      return url;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isExpectedShareUrl(
+  value: unknown,
+  origin: URL,
+  expectedPath: string,
+): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return (
+      !url.username &&
+      !url.password &&
+      url.origin === origin.origin &&
+      url.pathname === expectedPath &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function hashClientAddress(address: string): Promise<string> {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(address)),
+  );
+  let binary = "";
+  for (const byte of digest) binary += String.fromCharCode(byte);
+  return btoa(binary)
+    .replaceAll("+", "-")
+    .replaceAll("/", "_")
+    .replaceAll("=", "");
 }
 
 export async function createShareLinks(
@@ -28,10 +98,19 @@ export async function createShareLinks(
   config: ShareClientConfig,
 ): Promise<ShareLinks | undefined> {
   const origin = config.origin.replace(/\/$/, "");
+  const parsedOrigin = parseShareOrigin(origin);
+  if (!parsedOrigin) return undefined;
   const headers: Record<string, string> = {
     "content-type": "application/json",
   };
-  if (config.token) headers.authorization = `Bearer ${config.token}`;
+  if (config.token) {
+    headers.authorization = `Bearer ${config.token}`;
+    if (config.clientAddress) {
+      headers["x-archlex-client"] = await hashClientAddress(
+        config.clientAddress,
+      );
+    }
+  }
   try {
     const response = await (config.fetch ?? fetch)(`${origin}/v1/shares`, {
       method: "POST",
@@ -42,9 +121,10 @@ export async function createShareLinks(
     const body = (await response.json()) as Partial<ShareLinks>;
     if (
       typeof body.id !== "string" ||
-      typeof body.playgroundUrl !== "string" ||
-      typeof body.svgUrl !== "string" ||
-      typeof body.pngUrl !== "string"
+      !SHARE_ID_PATTERN.test(body.id) ||
+      !isExpectedShareUrl(body.playgroundUrl, parsedOrigin, `/s/${body.id}`) ||
+      !isExpectedShareUrl(body.svgUrl, parsedOrigin, `/s/${body.id}.svg`) ||
+      !isExpectedShareUrl(body.pngUrl, parsedOrigin, `/s/${body.id}.png`)
     ) {
       return undefined;
     }

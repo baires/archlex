@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import type { ShareD1 } from "../src/d1.js";
 import {
   BYTES_PER_IP_PER_DAY,
+  SERVICE_BYTES_PER_DAY,
+  SERVICE_POSTS_PER_DAY,
   consumeDailyPostBudget,
   consumePostLimit,
   deleteExpiredPostLimits,
@@ -104,6 +106,57 @@ describe("expired share cleanup", () => {
 });
 
 describe("daily post budgets", () => {
+  it("caps service-token daily posts and bytes separately from callers", async () => {
+    const database = createFakeD1();
+    const now = 1_700_006_400_000;
+    for (let post = 0; post < SERVICE_POSTS_PER_DAY; post += 1) {
+      expect(
+        await consumeDailyPostBudget(
+          database,
+          `service:caller-${post}`,
+          now,
+          0,
+          true,
+        ),
+      ).toBe(true);
+    }
+    expect(
+      await consumeDailyPostBudget(
+        database,
+        "service:another-caller",
+        now,
+        0,
+        true,
+      ),
+    ).toBe(false);
+
+    const bytesDatabase = createFakeD1();
+    for (
+      let caller = 0;
+      caller < SERVICE_BYTES_PER_DAY / BYTES_PER_IP_PER_DAY;
+      caller += 1
+    ) {
+      expect(
+        await consumeDailyPostBudget(
+          bytesDatabase,
+          `service:bytes-${caller}`,
+          now,
+          BYTES_PER_IP_PER_DAY,
+          true,
+        ),
+      ).toBe(true);
+    }
+    expect(
+      await consumeDailyPostBudget(
+        bytesDatabase,
+        "service:bytes-next",
+        now,
+        1,
+        true,
+      ),
+    ).toBe(false);
+  });
+
   it("keeps the hourly and daily rows separate at UTC midnight", async () => {
     const database = createFakeD1();
     const midnight = 1_700_006_400_000;

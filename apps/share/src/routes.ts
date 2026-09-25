@@ -181,7 +181,7 @@ async function createShare(
     return errorResponse(503, "unavailable", cors);
   }
   const edgeLimit = await checkRateLimit(
-    env.SHARE_POST_LIMITER,
+    service ? env.SHARE_SERVICE_POST_LIMITER : env.SHARE_POST_LIMITER,
     service ? "service:mcp" : clientIp(request),
   );
   if (edgeLimit === "unavailable")
@@ -211,16 +211,22 @@ async function createShare(
 
     const now = Date.now();
     const ip = clientIp(request);
-    const ipAllowed = service || (await consumePostLimit(env.DB, ip, now));
-    if (!ipAllowed) return errorResponse(429, "rate_limited", cors);
+    const suppliedCallerKey = request.headers.get("x-archlex-client") ?? "";
+    const callerKey = /^[A-Za-z0-9_-]{16,128}$/.test(suppliedCallerKey)
+      ? suppliedCallerKey
+      : "anonymous";
+    const budgetKey = service ? `service:${callerKey}` : ip;
+    const withinHourlyBudget = await consumePostLimit(env.DB, budgetKey, now);
+    if (!withinHourlyBudget) return errorResponse(429, "rate_limited", cors);
     const sourceBytes = new TextEncoder().encode(parsed.source).byteLength;
     const sourceHash = await hashShareSource(parsed.source);
     const expiresAt = now + shareTtlMs(env.SHARE_TTL_DAYS);
     const withinDailyBudget = await consumeDailyPostBudget(
       env.DB,
-      ip,
+      budgetKey,
       now,
       sourceBytes,
+      service,
     );
     if (!withinDailyBudget) return errorResponse(429, "rate_limited", cors);
 

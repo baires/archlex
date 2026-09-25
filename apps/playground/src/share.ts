@@ -99,6 +99,38 @@ export type ShareDiagramResult =
     }
   | { ok: false; message: string };
 
+function isExpectedShareUrl(
+  value: unknown,
+  origin: string,
+  expectedPath: string,
+): value is string {
+  if (typeof value !== "string") return false;
+  try {
+    const base = new URL(origin);
+    const url = new URL(value);
+    const isLocalOrigin =
+      base.protocol === "http:" &&
+      base.port === "8787" &&
+      (base.hostname === "localhost" || base.hostname === "127.0.0.1");
+    return (
+      (base.protocol === "https:" || isLocalOrigin) &&
+      !base.username &&
+      !base.password &&
+      base.pathname === "/" &&
+      !base.search &&
+      !base.hash &&
+      !url.username &&
+      !url.password &&
+      url.origin === base.origin &&
+      url.pathname === expectedPath &&
+      !url.search &&
+      !url.hash
+    );
+  } catch {
+    return false;
+  }
+}
+
 export async function shareDiagram(
   source: string,
   client: ShareClient,
@@ -131,8 +163,9 @@ export async function shareDiagram(
     };
     if (
       typeof payload.id !== "string" ||
-      typeof payload.svgUrl !== "string" ||
-      typeof payload.playgroundUrl !== "string"
+      !/^[A-Za-z0-9_-]{1,128}$/.test(payload.id) ||
+      !isExpectedShareUrl(payload.svgUrl, origin, `/s/${payload.id}.svg`) ||
+      !isExpectedShareUrl(payload.playgroundUrl, origin, `/s/${payload.id}`)
     ) {
       return { ok: false, message: "Could not share diagram" };
     }
