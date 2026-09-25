@@ -27,7 +27,7 @@
     "@archlex/icons-core": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
+    "typescript": "^7.0.2",
     "vite": "^6.1.0",
     "vitest": "^4.1.11"
   }
