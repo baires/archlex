@@ -423,8 +423,13 @@ export const DIAGRAM_VIEWER_HTML = `<!DOCTYPE html>
     try {
       var link = new URL(payload.playground_url);
       var sharePath = new RegExp("^/s/[A-Za-z0-9_-]+$");
+      var localPlayground =
+        (link.origin === "http://localhost:5173" ||
+          link.origin === "http://127.0.0.1:5173") &&
+        link.pathname === "/";
       var allowed =
         (link.origin === "https://playground.archlex.dev" ||
+          localPlayground ||
           ((link.origin === "https://share.archlex.dev" ||
             link.origin === "http://localhost:5173" ||
             link.origin === "http://127.0.0.1:8787") &&

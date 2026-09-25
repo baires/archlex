@@ -143,3 +143,12 @@ it("preserves an approved playground destination", () => {
   expect(link.hidden).toBe(false);
   expect(link.attributes.get("href")).toBe(url);
 });
+
+it("allows the configured local playground fallback", () => {
+  const harness = viewerHarness();
+  const url = "http://localhost:5173/?code=provider%20aws%0Alambda";
+  harness.deliver(harness.parent, "<svg/>", url);
+  const link = required(harness.elements.get("open-playground"));
+  expect(link.hidden).toBe(false);
+  expect(link.attributes.get("href")).toBe(url);
+});

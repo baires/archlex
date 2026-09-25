@@ -15,7 +15,14 @@ pnpm dev:share
 pnpm dev:playground
 ```
 
-`wrangler dev` reads `apps/share/.dev.vars` and points share links at `http://localhost:5173`. That file may contain origin settings only. Do not put secrets in it, in `wrangler.json`, or in git. Run `pnpm check:share-secrets` to scan the repo and local `.dev.vars` files.
+`wrangler dev` reads `apps/share/.dev.vars`. When using Share from both the playground and the local MCP server, set these public origins:
+
+```dotenv
+SHARE_ORIGIN=http://127.0.0.1:8787
+PLAYGROUND_ORIGIN=http://localhost:5173
+```
+
+`SHARE_ORIGIN` must be the Share Worker origin because the MCP server validates that returned share URLs use the configured worker origin. The share page redirects to `PLAYGROUND_ORIGIN`, while the playground dev server proxies `/v1` and `/s/` to the Worker. This mirrors production, where MCP and Share both use `https://share.archlex.dev` and Share redirects to `https://playground.archlex.dev`. These files may contain origin settings only. Do not put secrets in `.dev.vars`, `wrangler.json`, or git. Run `pnpm check:share-secrets` to scan the repo and local `.dev.vars` files.
 
 The playground dev server proxies `/v1` and `/s/` to `http://127.0.0.1:8787`.
 

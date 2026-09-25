@@ -165,11 +165,29 @@ describe("render_diagram share links", () => {
       },
     );
     const structured = result.structuredContent as Record<string, unknown>;
+    expect(structured.share_status).toBe("created");
     expect(structured.playground_url).toBe("https://share.archlex.dev/s/abc");
     expect(structured.png_url).toBe("https://share.archlex.dev/s/abc.png");
     const text = result.content.find((item) => item.type === "text");
     expect(text && "text" in text ? text.text : "").toContain(
       "![Architecture diagram: 1 node, 0 edges](https://share.archlex.dev/s/abc.png)",
+    );
+  });
+
+  it("marks share creation as unavailable and uses the configured playground fallback", async () => {
+    const result = await handleRenderDiagram(
+      { source: SOURCE },
+      { playgroundOrigin: "http://localhost:5173" },
+    );
+    const structured = result.structuredContent as Record<string, unknown>;
+    const text = result.content.find((item) => item.type === "text");
+
+    expect(structured.share_status).toBe("unavailable");
+    expect(structured.playground_url).toBe(
+      `http://localhost:5173/?code=${encodeURIComponent(SOURCE)}`,
+    );
+    expect(text && "text" in text ? text.text : "").toContain(
+      "Share link unavailable; the playground URL is a source-encoded fallback.",
     );
   });
 
@@ -224,5 +242,18 @@ describe("generate_playground_url share token", () => {
     const structured = result.structuredContent as Record<string, unknown>;
     expect(structured.revoke_token).toBe("one-time-token");
     expect(JSON.stringify(result.content)).not.toContain("one-time-token");
+  });
+
+  it("reports when share creation is unavailable and uses the configured playground origin", async () => {
+    const result = await handleGeneratePlaygroundUrl(
+      { source: SOURCE },
+      { playgroundOrigin: "http://localhost:5173" },
+    );
+    const structured = result.structuredContent as Record<string, unknown>;
+
+    expect(structured.share_status).toBe("unavailable");
+    expect(structured.url).toBe(
+      `http://localhost:5173/?code=${encodeURIComponent(SOURCE)}`,
+    );
   });
 });

@@ -18,7 +18,11 @@ import {
   type RenderUrlResult,
   createRenderUrl,
 } from "../render-links.js";
-import { type ShareLinks, sharePreviewText } from "./share-link.js";
+import {
+  type ShareLinks,
+  sharePreviewText,
+  sourceEncodedPlaygroundUrl,
+} from "./share-link.js";
 
 const archlex = createArchLex({
   providers: [awsProvider(), gcpProvider(), k8sProvider()],
@@ -57,6 +61,7 @@ export interface RenderDiagramArgs {
 export interface RenderDiagramOptions {
   enableMcpApps?: boolean;
   renderLinkConfig?: RenderLinkConfig;
+  playgroundOrigin?: string;
   createShare?: (source: string) => Promise<ShareLinks | undefined>;
   signal?: AbortSignal;
   iconLoader?: IconLoader;
@@ -298,8 +303,10 @@ export async function renderDiagramPng(
   });
   options?.signal?.throwIfAborted();
 
-  const encodedSource = encodeURIComponent(source);
-  const playgroundUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
+  const playgroundUrl = sourceEncodedPlaygroundUrl(
+    source,
+    options?.playgroundOrigin,
+  );
 
   const formattedDiagnostics = formatDiagnostics(result.diagnostics, source);
   const hasErrors = result.diagnostics.some((d) => d.severity === "error");
@@ -376,17 +383,21 @@ export async function handleRenderDiagram(
     });
     options?.signal?.throwIfAborted();
 
-    const encodedSource = encodeURIComponent(source);
-    const fallbackUrl = `https://playground.archlex.dev/?code=${encodedSource}`;
+    const fallbackUrl = sourceEncodedPlaygroundUrl(
+      source,
+      options?.playgroundOrigin,
+    );
     const formattedDiagnostics = formatDiagnostics(result.diagnostics, source);
     const hasErrors = result.diagnostics.some((d) => d.severity === "error");
     const share = hasErrors ? undefined : await options?.createShare?.(source);
     const playgroundUrl = share?.playgroundUrl ?? fallbackUrl;
+    const shareStatus = share ? "created" : "unavailable";
     const payload = {
       success: !hasErrors,
       source,
       diagnostics: formattedDiagnostics,
       playground_url: playgroundUrl,
+      share_status: shareStatus,
       ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
       ...(share?.revokeToken ? { revoke_token: share.revokeToken } : {}),
       nodes_count: result.graph.nodes.length,
@@ -403,7 +414,11 @@ export async function handleRenderDiagram(
     const preview = share
       ? `\n\n${sharePreviewText("Architecture diagram", share.svgUrl, share.playgroundUrl)}`
       : "";
-    const textSummary = `${summary}${preview}\n\n${formatSourceBlock(source)}`;
+    const shareNotice =
+      !share && !hasErrors
+        ? "\n\nShare link unavailable; the playground URL is a source-encoded fallback."
+        : "";
+    const textSummary = `${summary}${shareNotice}${preview}\n\n${formatSourceBlock(source)}`;
 
     options?.onProgress?.({ progress: 5, total: 5, message: "Rendering" });
     return {
@@ -471,11 +486,13 @@ export async function handleRenderDiagram(
     ? undefined
     : await options?.createShare?.(source);
   const playgroundUrl = share?.playgroundUrl ?? rendered.playgroundUrl;
+  const shareStatus = share ? "created" : "unavailable";
   const payload = {
     success: !rendered.hasErrors,
     source,
     diagnostics: rendered.diagnostics,
     playground_url: playgroundUrl,
+    share_status: shareStatus,
     ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
     ...(share?.revokeToken ? { revoke_token: share.revokeToken } : {}),
     nodes_count: rendered.nodesCount,
@@ -535,7 +552,11 @@ export async function handleRenderDiagram(
   const preview = previewUrl
     ? `\n\n${sharePreviewText(altText, previewUrl, playgroundUrl)}`
     : "";
-  const textSummary = `${summary}${preview}\n\n${formatSourceBlock(source)}`;
+  const shareNotice =
+    !share && !rendered.hasErrors
+      ? "\n\nShare link unavailable; the playground URL is a source-encoded fallback."
+      : "";
+  const textSummary = `${summary}${shareNotice}${preview}\n\n${formatSourceBlock(source)}`;
 
   content.push({
     type: "text" as const,

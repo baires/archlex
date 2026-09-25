@@ -69,8 +69,9 @@ Do not change unrelated MCP servers.
 
 > Diagram a serverless API on AWS with API Gateway, Lambda, and DynamoDB.
 
-You should get a rendered diagram when the client can show images, the exact
-ArchLex source, and a short share link.
+You should get a rendered diagram when the client can show images and the exact
+ArchLex source. The playground URL is a short share link when `share_status` is
+`created`; otherwise it is a source-encoded editable fallback.
 
 ```archlex
 direction LR

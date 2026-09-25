@@ -101,6 +101,7 @@ describe("ArchLex MCP Server Tools", () => {
 
       // All required fields present
       expect(structured.success).toBe(true);
+      expect(structured.share_status).toBe("unavailable");
       expect(structured.svg).toBeUndefined();
       expect(structured.source).toBe(source);
       expect(structured.diagnostics).toBeDefined();

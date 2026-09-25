@@ -1,4 +1,5 @@
 export const DEFAULT_SHARE_ORIGIN = "https://share.archlex.dev";
+export const DEFAULT_PLAYGROUND_ORIGIN = "https://playground.archlex.dev";
 
 export interface ShareLinks {
   id: string;
@@ -13,6 +14,36 @@ export interface ShareClientConfig {
   token?: string;
   clientAddress?: string;
   fetch?: typeof fetch;
+}
+
+export type ShareStatus = "created" | "unavailable";
+
+export function sourceEncodedPlaygroundUrl(
+  source: string,
+  configuredOrigin?: string,
+): string {
+  let origin = DEFAULT_PLAYGROUND_ORIGIN;
+  if (configuredOrigin) {
+    try {
+      const url = new URL(configuredOrigin);
+      const isLocalHttp =
+        url.protocol === "http:" &&
+        (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+      if (
+        (url.protocol === "https:" || isLocalHttp) &&
+        !url.username &&
+        !url.password &&
+        url.pathname === "/" &&
+        !url.search &&
+        !url.hash
+      ) {
+        origin = url.origin;
+      }
+    } catch {
+      // Invalid deployment configuration falls back to the public playground.
+    }
+  }
+  return `${origin}/?code=${encodeURIComponent(source)}`;
 }
 
 export function shareConfigFromEnv(

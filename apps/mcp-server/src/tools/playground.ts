@@ -1,4 +1,4 @@
-import type { ShareLinks } from "./share-link.js";
+import { type ShareLinks, sourceEncodedPlaygroundUrl } from "./share-link.js";
 
 export interface GeneratePlaygroundUrlArgs {
   source: string;
@@ -8,6 +8,7 @@ export async function handleGeneratePlaygroundUrl(
   args: GeneratePlaygroundUrlArgs,
   options?: {
     createShare?: (source: string) => Promise<ShareLinks | undefined>;
+    playgroundOrigin?: string;
   },
 ) {
   const { source } = args;
@@ -17,13 +18,14 @@ export async function handleGeneratePlaygroundUrl(
   }
 
   const share = await options?.createShare?.(source);
-  const encodedSource = encodeURIComponent(source);
   const playgroundUrl =
     share?.playgroundUrl ??
-    `https://playground.archlex.dev/?code=${encodedSource}`;
+    sourceEncodedPlaygroundUrl(source, options?.playgroundOrigin);
+  const shareStatus = share ? "created" : "unavailable";
 
   const structuredContent = {
     url: playgroundUrl,
+    share_status: shareStatus,
     ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
     ...(share?.revokeToken ? { revoke_token: share.revokeToken } : {}),
   };
@@ -35,6 +37,7 @@ export async function handleGeneratePlaygroundUrl(
         text: JSON.stringify(
           {
             url: playgroundUrl,
+            share_status: shareStatus,
             ...(share ? { svg_url: share.svgUrl, png_url: share.pngUrl } : {}),
           },
           null,

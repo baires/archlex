@@ -243,6 +243,7 @@ async function dispatchModern(
         }
       : undefined,
     share: shareConfigFromEnv(env, request),
+    playgroundOrigin: env?.PLAYGROUND_ORIGIN,
     signal,
     onProgress,
   };

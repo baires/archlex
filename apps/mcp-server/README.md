@@ -93,10 +93,10 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 
 ## Tools
 
-- `render_diagram({ source, theme, direction, validation, format })` – Hydrates provider icons, renders a diagram, returns the final ArchLex source, and provides a playground URL. `format` is `"png"` (default, base64 image block) or `"svg"` (raw SVG text, skips rasterization — use this from text-only/CLI clients and save the SVG to a file).
+- `render_diagram({ source, theme, direction, validation, format })` – Hydrates provider icons, renders a diagram, returns the final ArchLex source, and provides a playground URL. Check `share_status`: `created` means `playground_url` is a short, revocable share and `svg_url`/`png_url` are available; `unavailable` means it is a source-encoded playground fallback, not a short share. `format` is `"png"` (default, base64 image block) or `"svg"` (raw SVG text, skips rasterization — use this from text-only/CLI clients and save the SVG to a file).
 - `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
 - `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
-- `generate_playground_url({ source })` – Creates a share and returns its playground link when the share service is configured, otherwise a source-encoded deep link.
+- `generate_playground_url({ source })` – Creates a share and returns a playground URL. Check `share_status` to distinguish a short share from a source-encoded fallback.
 
 Share creation returns a one-time `revoke_token` in `structuredContent` only;
 it is omitted from preview text, Markdown, and resource links. Save it when
@@ -151,6 +151,7 @@ When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL 
 - `RENDER_URL_TTL_SECONDS` (optional): token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): maximum complete URL length. Defaults to `7500`.
 - `SHARE_ORIGIN`: share Worker origin. Production default is `https://share.archlex.dev`. Local `wrangler dev` can override it in `.dev.vars`.
+- `PLAYGROUND_ORIGIN`: playground origin used for source-encoded fallback links. Production is `https://playground.archlex.dev`; use `http://localhost:5173` locally.
 - `SHARE_SERVICE_TOKEN`: shared secret used when the MCP creates shares. Set it with `wrangler secret put SHARE_SERVICE_TOKEN` on both the share and MCP Workers; never put it in `wrangler.json`, `.dev.vars`, or client code. Authenticated MCP calls use a separate 120-per-minute edge limit and are still metered per caller and against the shared service and global daily budgets.
 
 Keep the share Worker origin reachable only through Cloudflare. The MCP hashes
@@ -231,11 +232,30 @@ POST bodies are limited to 512 KiB of actual bytes, including streamed requests 
 
 Legacy SSE sessions close on disconnect, cancellation, or after five minutes. Each isolate admits at most 100 active sessions; clients must reconnect after expiry. Public image rendering admits at most four concurrent renders per isolate. Capacity exhaustion returns `503` with `Retry-After`; canceled render work retains its slot until it settles. These local limits supplement the platform's deployment-wide controls.
 
-The MCP Apps viewer accepts messages only from its parent window, displays SVG in passive image context, and permits playground links only to `https://playground.archlex.dev`.
+The MCP Apps viewer accepts messages only from its parent window, displays SVG in passive image context, and permits playground links only to the production playground/share origins and the exact local playground fallback origin `http://localhost:5173` (or `http://127.0.0.1:5173`).
 
 Render URLs are bearer capabilities: anyone holding a URL can retrieve its image without `MCP_AUTH_TOKEN` until expiry, and responses allow public caching for the remaining lifetime. Use embedded image delivery when that sharing model is unsuitable. Playground links encode the diagram source.
 
 ## Development
+
+For local end-to-end sharing, run the Share Worker and playground first, then
+start the MCP Worker. Configure only public origins in local `.dev.vars` files:
+
+```dotenv
+# apps/share/.dev.vars
+SHARE_ORIGIN=http://127.0.0.1:8787
+PLAYGROUND_ORIGIN=http://localhost:5173
+
+# apps/mcp-server/.dev.vars
+SHARE_ORIGIN=http://127.0.0.1:8787
+PLAYGROUND_ORIGIN=http://localhost:5173
+```
+
+The Share Worker uses port `8787`; when it is already running, Wrangler starts
+the MCP Worker on the next available port (typically `8788`). Open the playground
+at `http://localhost:5173` and connect the MCP client to the MCP Worker port.
+Keep `SHARE_SERVICE_TOKEN` out of `.dev.vars`; local development may use public
+share limits, while production uses the shared Worker secret described above.
 
 ```bash
 # Sync docs & start local worker

@@ -93,7 +93,11 @@ service count in prompt text.
 
 ### `generate_playground_url`
 
-Create a deep link that opens source in the web playground.
+Create a playground URL without rendering. Check `share_status`: `created`
+means `url` is a short share link and `svg_url`/`png_url` are available;
+`unavailable` means `url` is a source-encoded editable fallback. The one-time
+`revoke_token` is returned in `structuredContent` only and should not be shown
+to users.
 
 ## Resources and prompts
 
@@ -130,7 +134,13 @@ bodies are bounded to 512 KiB, including streamed bodies. Legacy SSE sessions
 expire after five minutes and are capped at 100 per isolate. Public image
 rendering has a request deadline and a four-render concurrency limit per isolate.
 
-`render_diagram` returns a short `playground_url` (`/s/{id}`) plus `svg_url` and `png_url` when the share service is available. Clients that can display images should show the preview; others can embed the image URL. Keep secrets out of diagram source
+`render_diagram` returns `share_status`. When it is `created`, `playground_url`
+is a short `/s/{id}` share URL and the result includes `svg_url` and `png_url`.
+When it is `unavailable`, the URL is an editable source-encoded playground
+fallback and cannot be revoked. Clients should not describe that fallback as a
+share link. Clients that can display images should show the preview; others can
+embed the image URL. The one-time `revoke_token` appears only in
+`structuredContent`; never include it in user-facing text. Keep secrets out of diagram source
 files the same way you would keep them out of any other file you commit. Save
 source as `.arch` (the name to use); `.archlex` files remain valid everywhere
 ArchLex reads a file. For short, expiring links that render the diagram in a
@@ -150,8 +160,17 @@ that sharing model is unsuitable.
 
 ## Local development
 
+For end-to-end local sharing, set `SHARE_ORIGIN=http://127.0.0.1:8787` in both
+`apps/share/.dev.vars` and `apps/mcp-server/.dev.vars`; set
+`PLAYGROUND_ORIGIN=http://localhost:5173` in both files. Share publishes URLs on
+the Worker origin, and the playground dev server proxies `/v1` and `/s/` to that
+Worker. Start Share on port `8787`, Playground on `5173`, then MCP (Wrangler
+uses the next available port, typically `8788`). This matches production's
+same-origin MCP-to-Share contract while keeping the playground on its own host.
+
 ```bash
 pnpm dev:mcp
 ```
 
-Connect a client to `http://localhost:8787/mcp`.
+Connect a client to the MCP Worker's local port, typically
+`http://localhost:8788/mcp` when Share is running alongside it.

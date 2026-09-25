@@ -14,6 +14,7 @@ export interface Env {
   RENDER_URL_MAX_LENGTH?: string;
   SHARE_ORIGIN?: string;
   SHARE_SERVICE_TOKEN?: string;
+  PLAYGROUND_ORIGIN?: string;
   RATE_LIMITER?: {
     limit: (options: { key: string }) => Promise<{ success: boolean }>;
   };
