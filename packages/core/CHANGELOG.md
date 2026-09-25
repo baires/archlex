@@ -1,5 +1,11 @@
 # @archlex/core
 
+## 0.5.1
+
+### Patch Changes
+
+- 6568174: Keep nested subnet layout when the same implicit resource name is reused across scopes.
+
 ## 0.5.0
 
 ### Minor Changes
