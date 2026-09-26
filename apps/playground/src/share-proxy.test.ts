@@ -8,7 +8,7 @@ describe("playground share proxy", () => {
       "utf8",
     );
 
-    expect(config).toContain('"/v1": "http://127.0.0.1:8789"');
-    expect(config).toContain('"^/s/": "http://127.0.0.1:8789"');
+    expect(config).toContain('"/v1": "http://127.0.0.1:8787"');
+    expect(config).toContain('"^/s/": "http://127.0.0.1:8787"');
   });
 });
