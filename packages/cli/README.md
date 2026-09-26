@@ -9,10 +9,12 @@ Command-line interface for ArchLex - cloud architecture diagrams with semantic v
 npm install -g @archlex/cli
 
 # Or use with npx
-npx @archlex/cli render diagram.archlex
+npx @archlex/cli render diagram.arch
 ```
 
 ## Commands
+
+Save diagram source as `.arch` files. The `.archlex` extension remains valid and is still accepted everywhere.
 
 ### `render` - Render diagrams to SVG or PNG
 
@@ -20,26 +22,26 @@ Render a ArchLex diagram to SVG or PNG format.
 
 ```bash
 # Render to SVG (default)
-archlex render diagram.archlex
+archlex render diagram.arch
 
 # Specify output file
-archlex render diagram.archlex --output diagram.svg
+archlex render diagram.arch --output diagram.svg
 
 # Render to PNG (requires Playwright)
-archlex render diagram.archlex --output diagram.png
+archlex render diagram.arch --output diagram.png
 
 # Render with options
-archlex render diagram.archlex \
+archlex render diagram.arch \
   --direction TB \
   --validation strict \
   --theme light \
   --output diagram.svg
 
 # Read from stdin
-cat diagram.archlex | archlex render --stdin --output diagram.svg
+cat diagram.arch | archlex render --stdin --output diagram.svg
 
 # PNG with custom scale and background
-archlex render diagram.archlex \
+archlex render diagram.arch \
   --output diagram.png \
   --scale 3 \
   --background-color white
@@ -61,13 +63,13 @@ Validate a ArchLex diagram without rendering.
 
 ```bash
 # Validate a file
-archlex validate diagram.archlex
+archlex validate diagram.arch
 
 # Validate with strict mode (default)
-archlex validate diagram.archlex --validation strict
+archlex validate diagram.arch --validation strict
 
 # Validate from stdin
-cat diagram.archlex | archlex validate --stdin
+cat diagram.arch | archlex validate --stdin
 ```
 
 **Options:**
@@ -94,7 +96,7 @@ archlex examples ls
 archlex examples get aws-3-tier-web
 
 # Use an example as starting point
-archlex examples get aws-3-tier-web > my-diagram.archlex
+archlex examples get aws-3-tier-web > my-diagram.arch
 ```
 
 **Available Examples:**
@@ -129,12 +131,12 @@ jobs:
       
       - name: Validate diagrams
         run: |
-          archlex validate docs/architecture/*.archlex
+          archlex validate docs/architecture/*.arch
       
       - name: Generate PNGs
         run: |
-          for file in docs/architecture/*.archlex; do
-            archlex render "$file" --output "${file%.archlex}.png"
+          for file in docs/architecture/*.arch; do
+            archlex render "$file" --output "${file%.arch}.png"
           done
       
       - name: Upload artifacts
@@ -151,15 +153,15 @@ validate-diagrams:
   image: node:22
   script:
     - npm install -g @archlex/cli
-    - archlex validate docs/**/*.archlex
+    - archlex validate docs/**/*.arch
 
 generate-diagrams:
   image: node:22
   script:
     - npm install -g @archlex/cli
     - |
-      find docs -name "*.archlex" -exec sh -c '
-        archlex render "$1" --output "${1%.archlex}.png"
+      find docs -name "*.arch" -exec sh -c '
+        archlex render "$1" --output "${1%.arch}.png"
       ' sh {} \;
   artifacts:
     paths:
@@ -172,7 +174,7 @@ Add to `.husky/pre-commit` or use lint-staged:
 
 ```bash
 #!/bin/sh
-archlex validate $(git diff --cached --name-only --diff-filter=ACMR | grep '\.archlex$')
+archlex validate $(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(arch|archlex)$')
 ```
 
 ## PNG Export
@@ -195,7 +197,7 @@ For CI/CD environments, you may want to cache the browser:
 
 ```bash
 # Pipe from file
-cat diagram.archlex | archlex render --stdin
+cat diagram.arch | archlex render --stdin
 
 # Pipe from command
 echo "provider aws
@@ -211,10 +213,10 @@ When no `--output` is specified for the `render` command, SVG is written to stdo
 
 ```bash
 # Redirect to file
-archlex render diagram.archlex > output.svg
+archlex render diagram.arch > output.svg
 
 # Pipe to other tools
-archlex render diagram.archlex | svgo --input - --output optimized.svg
+archlex render diagram.arch | svgo --input - --output optimized.svg
 ```
 
 ## Examples
@@ -223,13 +225,13 @@ archlex render diagram.archlex | svgo --input - --output optimized.svg
 
 ```bash
 # Validate all diagrams in a directory
-for file in diagrams/*.archlex; do
+for file in diagrams/*.arch; do
   archlex validate "$file" || echo "Failed: $file"
 done
 
 # Generate PNGs for all diagrams
-find . -name "*.archlex" -exec sh -c '
-  archlex render "$1" --output "${1%.archlex}.png" --scale 2
+find . -name "*.arch" -exec sh -c '
+  archlex render "$1" --output "${1%.arch}.png" --scale 2
 ' sh {} \;
 ```
 
@@ -237,20 +239,20 @@ find . -name "*.archlex" -exec sh -c '
 
 ```bash
 # Using watchexec
-watchexec -w diagram.archlex archlex render diagram.archlex -o diagram.svg
+watchexec -w diagram.arch archlex render diagram.arch -o diagram.svg
 
 # Using nodemon
-nodemon --watch diagram.archlex --exec "archlex render diagram.archlex -o diagram.svg"
+nodemon --watch diagram.arch --exec "archlex render diagram.arch -o diagram.svg"
 ```
 
 ### Integration with Other Tools
 
 ```bash
 # Optimize SVG output with svgo
-archlex render diagram.archlex | svgo --input - --output - > optimized.svg
+archlex render diagram.arch | svgo --input - --output - > optimized.svg
 
 # Convert to PDF with Inkscape
-archlex render diagram.archlex -o diagram.svg
+archlex render diagram.arch -o diagram.svg
 inkscape diagram.svg --export-filename=diagram.pdf
 ```
 

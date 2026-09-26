@@ -24,6 +24,8 @@ describe("shared MCP registry", () => {
     };
     const properties = schema.properties;
     for (const field of [
+      "share_status",
+      "revoke_token",
       "image_delivery",
       "image_url",
       "image_mime_type",
@@ -39,6 +41,33 @@ describe("shared MCP registry", () => {
       items: { properties: Record<string, unknown> };
     };
     expect(diagnostics.items.properties).toHaveProperty("hint");
+  });
+
+  test("advertises the playground link and share-token output contract", async () => {
+    const { listTools } = await import("../../src/registry.js");
+    const tools = listTools({ enableMcpApps: false });
+    const playground = tools.find(
+      (tool) => tool.name === "generate_playground_url",
+    );
+    expect(playground?.outputSchema).toMatchObject({
+      required: ["url", "share_status"],
+      properties: {
+        share_status: { enum: ["created", "unavailable"] },
+        svg_url: { type: "string" },
+        png_url: { type: "string" },
+        revoke_token: { type: "string" },
+      },
+    });
+  });
+
+  test("tool instructions distinguish a created share from an editable fallback", async () => {
+    const { listTools, SERVER_INSTRUCTIONS } = await import(
+      "../../src/registry.js"
+    );
+    const render = listTools({ enableMcpApps: false })[0];
+    expect(render.description).toContain("share_status");
+    expect(render.description).toContain("source-encoded playground fallback");
+    expect(SERVER_INSTRUCTIONS).toContain("share_status");
   });
 
   test("always advertises MCP Apps viewer metadata for forward compatibility", async () => {
@@ -83,6 +112,15 @@ describe("shared MCP registry", () => {
     expect(content?.type === "text" ? content.text : undefined).toContain(
       "provider 'aws'",
     );
+    expect(content?.type === "text" ? content.text : undefined).toContain(
+      "Do not call `validate_diagram` first unless the user asks for validation-only",
+    );
+    expect(content?.type === "text" ? content.text : undefined).toContain(
+      "share_status",
+    );
+    expect(content?.type === "text" ? content.text : undefined).not.toContain(
+      "for provider 'aws' first",
+    );
   });
 
   test("delegates callable domain behavior", async () => {
@@ -96,5 +134,21 @@ describe("shared MCP registry", () => {
     expect(text?.type === "text" ? text.text : undefined).toContain(
       "https://playground.archlex.dev/",
     );
+  });
+
+  test("passes the configured playground origin to fallback links", async () => {
+    const { callTool } = await import("../../src/registry.js");
+    const result = await callTool(
+      "generate_playground_url",
+      { source: "provider aws\nlambda" },
+      {
+        enableMcpApps: false,
+        playgroundOrigin: "http://localhost:5173",
+      },
+    );
+    expect(result.structuredContent).toMatchObject({
+      url: "http://localhost:5173/?code=provider%20aws%0Alambda",
+      share_status: "unavailable",
+    });
   });
 });

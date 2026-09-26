@@ -31,6 +31,7 @@ import { listResourceTemplates } from "../resource-templates.js";
 import type { Env } from "../security.js";
 import { parseRenderUrlConfig } from "../security.js";
 import { handleLegacyMcpPost } from "../server.js";
+import { shareConfigFromEnv } from "../tools/share-link.js";
 import {
   DEFAULT_PAGE_SIZE,
   JSONRPC_ERROR_CODES,
@@ -241,6 +242,8 @@ async function dispatchModern(
           baseUrl: new URL(request.url).origin,
         }
       : undefined,
+    share: shareConfigFromEnv(env, request),
+    playgroundOrigin: env?.PLAYGROUND_ORIGIN,
     signal,
     onProgress,
   };

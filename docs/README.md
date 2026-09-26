@@ -20,6 +20,7 @@ ArchLex compiles text architecture definitions into accessible SVG diagrams. You
 - [Dynamic Icons](guides/dynamic-cdn-icons.md): load provider icons in browsers and Node.js.
 - [Use with AI agents](guides/agents.md): skill install, MCP setup, and a first prompt.
 - [MCP Server](guides/mcp-server.md): expose rendering, validation, catalog search, and examples to MCP clients.
+- [Share a diagram](guides/share.md): create short playground and image URLs that render a diagram in a README.
 - [Playground](specs/playground.md): understand the editor, examples, icon hydration, and export flow.
 
 ## Understand the System

@@ -1,0 +1,65 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "archlex-share",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-02-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "rules": [
+    {
+      "type": "Data",
+      "globs": ["**/*.ttf"],
+      "fallthrough": true
+    }
+  ],
+  "vars": {
+    "SHARE_TTL_DAYS": "30"
+  },
+  "ratelimits": [
+    {
+      "name": "SHARE_POST_LIMITER",
+      "namespace_id": "260923001",
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    },
+    {
+      "name": "SHARE_SERVICE_POST_LIMITER",
+      "namespace_id": "260923004",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    },
+    {
+      "name": "SHARE_RENDER_LIMITER",
+      "namespace_id": "260923002",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    },
+    {
+      "name": "SHARE_RENDER_GLOBAL_LIMITER",
+      "namespace_id": "260923003",
+      "simple": {
+        "limit": 300,
+        "period": 60
+      }
+    }
+  ],
+  "cache": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "archlex-share",
+      "database_id": "d93ad9bc-4f4c-4dae-9c85-ac073ba60a85",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": ["15 3 * * *"]
+  }
+}

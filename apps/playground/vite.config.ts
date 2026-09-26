@@ -54,10 +54,13 @@ export default defineConfig({
     // Chunk size warnings
     chunkSizeWarningLimit: 1000, // 1MB warning threshold
   },
-  // Server compression
   server: {
     headers: {
-      "Cache-Control": "public, max-age=31536000, immutable",
+      "Cache-Control": "no-store",
+    },
+    proxy: {
+      "/v1": "http://127.0.0.1:8787",
+      "^/s/": "http://127.0.0.1:8787",
     },
   },
 });

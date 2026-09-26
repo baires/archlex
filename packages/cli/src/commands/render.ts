@@ -37,7 +37,7 @@ interface RenderOptions {
 export function createRenderCommand(): Command {
   return new Command("render")
     .description("Render a ArchLex diagram to SVG or PNG")
-    .argument("[input]", "Input .archlex file (or use --stdin)")
+    .argument("[input]", "Input .arch or .archlex file (or use --stdin)")
     .option("-o, --output <path>", "Output file path (.svg or .png)")
     .option(
       "-d, --direction <direction>",
@@ -150,7 +150,7 @@ async function renderCommand(
   const outputPath = options.output
     ? resolve(options.output)
     : inputPath
-      ? inputPath.replace(/\.archlex$/, ".svg")
+      ? inputPath.replace(/\.(?:archlex|arch)$/, ".svg")
       : undefined;
 
   const outputFormat = outputPath

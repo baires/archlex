@@ -23,7 +23,7 @@ export const LEGACY_PROTOCOL_VERSIONS = ["2025-03-26"] as const;
  * Server identity constants
  */
 export const SERVER_NAME = "archlex-mcp-server" as const;
-export const SERVER_VERSION = "0.2.0" as const;
+export const SERVER_VERSION = "0.2.1" as const;
 export const SERVER_INFO = {
   name: SERVER_NAME,
   version: SERVER_VERSION,

@@ -84,15 +84,13 @@ export const ARCHLEX_EXAMPLES = {
   "aws-microservices": `direction LR
 provider aws
 
-vpc production {
-  subnet public {
-    api-gateway["API Gateway"] > lambda["Auth Service"]
-  }
-  subnet private {
-    lambda["Auth Service"] -[writes]-> dynamodb["Users Table"]
-    lambda["Auth Service"] -[publishes]-> sns["User Events"]
-  }
-}`,
+auth: lambda["Auth Service"]
+users: dynamodb["Users Table"]
+events: sns["User Events"]
+
+api-gateway["API Gateway"] -[invokes]-> auth
+auth -[writes]-> users
+auth -[publishes]-> events`,
   "gcp-data-pipeline": `direction LR
 provider gcp
 

@@ -33,9 +33,9 @@ Rules:
 4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.
 
 Workflow:
-1. Call \`get_cloud_catalog\` for provider '${args.provider}' first to discover exact resource kind names before authoring.
-2. Draft the source, then iterate with \`validate_diagram\` until it reports 0 errors.
-3. Finally call \`render_diagram\` (it also returns diagnostics, so a single call confirms the result). Always display or embed the rendered diagram image inline in your response to the user, accompanied by the playground link.`,
+1. Use familiar catalog identifiers directly. Call \`get_cloud_catalog\` once with a focused query only when a resource identifier, scope, or relationship is unknown.
+2. Draft the source and call \`render_diagram\` directly; it validates and returns diagnostics. Do not call \`validate_diagram\` first unless the user asks for validation-only. If rendering fails, repair from its diagnostics and retry once.
+3. Display or embed the returned image inline, then include the exact source and \`playground_url\`. Check \`share_status\`: call it a short share link only when it is \`created\`; otherwise explain that it is a source-encoded fallback. Never include \`revoke_token\` in user-facing text.`,
         },
       },
     ],
