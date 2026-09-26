@@ -1,5 +1,11 @@
 # @archlex/icons-node
 
+## 0.2.5
+
+### Patch Changes
+
+- 700024b: Declare Node.js ambient types explicitly for TypeScript 6 and 7 compatibility
+
 ## 0.2.4
 
 ### Patch Changes
