@@ -1,4 +1,20 @@
 export const DEFAULT_SHARE_ORIGIN = "https://share.archlex.dev";
+export const DEFAULT_LOCAL_SHARE_ORIGIN = "http://127.0.0.1:8787";
+
+export function sharePublicOrigin(
+  configured: string,
+  pageOrigin: string,
+): string {
+  if (configured) return configured;
+  if (
+    pageOrigin.startsWith("http://localhost:") ||
+    pageOrigin.startsWith("http://127.0.0.1:") ||
+    pageOrigin.startsWith("http://[::1]:")
+  ) {
+    return DEFAULT_LOCAL_SHARE_ORIGIN;
+  }
+  return DEFAULT_SHARE_ORIGIN;
+}
 
 export function shareRequestOrigin(
   configured: string,
@@ -87,6 +103,7 @@ export async function loadSharedSource(
 export interface ShareClient {
   fetch: typeof fetch;
   origin?: string;
+  shareOrigin?: string;
 }
 
 export type ShareDiagramResult =
@@ -136,6 +153,7 @@ export async function shareDiagram(
   client: ShareClient,
 ): Promise<ShareDiagramResult> {
   const origin = client.origin ?? DEFAULT_SHARE_ORIGIN;
+  const shareOrigin = client.shareOrigin ?? origin;
   try {
     const response = await invokeFetch(client.fetch, `${origin}/v1/shares`, {
       method: "POST",
@@ -164,8 +182,16 @@ export async function shareDiagram(
     if (
       typeof payload.id !== "string" ||
       !/^[A-Za-z0-9_-]{1,128}$/.test(payload.id) ||
-      !isExpectedShareUrl(payload.svgUrl, origin, `/s/${payload.id}.svg`) ||
-      !isExpectedShareUrl(payload.playgroundUrl, origin, `/s/${payload.id}`)
+      !isExpectedShareUrl(
+        payload.svgUrl,
+        shareOrigin,
+        `/s/${payload.id}.svg`,
+      ) ||
+      !isExpectedShareUrl(
+        payload.playgroundUrl,
+        shareOrigin,
+        `/s/${payload.id}`,
+      )
     ) {
       return { ok: false, message: "Could not share diagram" };
     }
