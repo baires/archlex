@@ -1,5 +1,11 @@
 # @archlex/cli
 
+## 0.3.6
+
+### Patch Changes
+
+- 6213503: Accept `.arch` as a diagram input. `.archlex` remains valid. README examples now use `.arch` as the canonical extension.
+
 ## 0.3.5
 
 ### Patch Changes
