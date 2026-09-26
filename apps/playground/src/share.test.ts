@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  DEFAULT_LOCAL_SHARE_ORIGIN,
   DEFAULT_SHARE_ORIGIN,
   configuredShareOrigin,
   loadSharedSource,
@@ -7,6 +8,7 @@ import {
   shareClipboardText,
   shareDiagram,
   shareFailureMessage,
+  sharePublicOrigin,
   shareRequestOrigin,
 } from "./share.js";
 
@@ -29,6 +31,20 @@ describe("shareRequestOrigin", () => {
     ).toBe("http://localhost:5173");
     expect(shareRequestOrigin("", "https://playground.archlex.dev")).toBe(
       "https://share.archlex.dev",
+    );
+  });
+});
+
+describe("sharePublicOrigin", () => {
+  it("uses the configured worker origin or its local development default", () => {
+    expect(sharePublicOrigin("", "http://localhost:5174")).toBe(
+      DEFAULT_LOCAL_SHARE_ORIGIN,
+    );
+    expect(
+      sharePublicOrigin("http://127.0.0.1:8787", "http://localhost:5174"),
+    ).toBe("http://127.0.0.1:8787");
+    expect(sharePublicOrigin("", "https://playground.archlex.dev")).toBe(
+      DEFAULT_SHARE_ORIGIN,
     );
   });
 });
@@ -142,6 +158,34 @@ describe("shareDiagram", () => {
     expect(url).toBe(`${DEFAULT_SHARE_ORIGIN}/v1/shares`);
     expect(init?.method).toBe("POST");
     expect(JSON.parse(String(init?.body))).toEqual({ source: SOURCE });
+  });
+
+  it("accepts worker URLs returned through the local playground proxy", async () => {
+    const fetchFn = vi.fn(async () =>
+      Response.json({
+        id: "local-share",
+        playgroundUrl: "http://127.0.0.1:8787/s/local-share",
+        svgUrl: "http://127.0.0.1:8787/s/local-share.svg",
+        pngUrl: "http://127.0.0.1:8787/s/local-share.png",
+      }),
+    );
+
+    const result = await shareDiagram(SOURCE, {
+      fetch: fetchFn,
+      origin: "http://localhost:5174",
+      shareOrigin: "http://127.0.0.1:8787",
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      id: "local-share",
+      playgroundUrl: "http://127.0.0.1:8787/s/local-share",
+      svgUrl: "http://127.0.0.1:8787/s/local-share.svg",
+    });
+    expect(fetchFn).toHaveBeenCalledWith(
+      "http://localhost:5174/v1/shares",
+      expect.objectContaining({ method: "POST" }),
+    );
   });
 
   it("returns revokeToken when provided in the share response", async () => {

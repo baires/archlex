@@ -145,8 +145,13 @@ export function ShareModal({
         aria-busy={state.phase === "loading"}
       >
         <div className="share-modal__masthead">
-          <div className="share-modal__mark" aria-hidden="true">
-            <Icon name="link" size={18} />
+          <div className="share-modal__heading">
+            <p className="share-modal__eyebrow">ARCHLEX · SHARE</p>
+            <h2 id="share-modal-title" className="share-modal__title">
+              {state.phase === "loading"
+                ? "Preparing your link"
+                : "Ready to share"}
+            </h2>
           </div>
           <button
             ref={closeRef}
@@ -160,16 +165,10 @@ export function ShareModal({
         </div>
 
         <div className="share-modal__content">
-          <p className="share-modal__eyebrow">ARCHLEX · SHARE</p>
-          <h2 id="share-modal-title" className="share-modal__title">
-            {state.phase === "loading"
-              ? "Preparing your link"
-              : "Ready to share"}
-          </h2>
           <p id="share-modal-intro" className="share-modal__intro">
             {state.phase === "loading"
               ? "Saving this diagram so anyone with the link can open it."
-              : "Anyone with the link can open this diagram in the playground."}
+              : "Anyone with the link can open this diagram and read its source."}
           </p>
 
           {state.phase === "loading" ? (
@@ -191,14 +190,10 @@ export function ShareModal({
 
           {state.phase === "ready" ? (
             <div className="share-modal__options">
-              <section className="share-choice share-choice--primary">
-                <div className="share-choice__heading">
-                  <div>
-                    <h3>Playground link</h3>
-                    <p>Opens the editable diagram in ArchLex.</p>
-                  </div>
-                  <span className="share-choice__tag">LINK</span>
-                </div>
+              <section
+                className="share-choice share-choice--primary"
+                aria-label="Share link"
+              >
                 <div className="share-link-field">
                   <input
                     aria-label="Share link"
@@ -215,37 +210,31 @@ export function ShareModal({
                     {copyState === "link" ? "Copied" : "Copy link"}
                   </button>
                 </div>
+                <div className="share-modal__secondary-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary share-embed-copy"
+                    onClick={() => void copyText(embedText, "embed")}
+                  >
+                    <Icon name="clipboard" />
+                    {copyState === "embed"
+                      ? "Markdown copied"
+                      : "Copy Markdown"}
+                  </button>
+                  <details className="share-embed-details">
+                    <summary>Preview Markdown</summary>
+                    <pre className="share-embed-preview">{embedText}</pre>
+                  </details>
+                </div>
               </section>
 
-              <section className="share-choice">
-                <div className="share-choice__heading">
-                  <div>
-                    <h3>Markdown embed</h3>
-                    <p>Paste into a README or Markdown document.</p>
-                  </div>
-                  <span className="share-choice__tag">MD</span>
-                </div>
-                <pre className="share-embed-preview">{embedText}</pre>
-                <button
-                  type="button"
-                  className="btn-secondary share-embed-copy"
-                  onClick={() => void copyText(embedText, "embed")}
-                >
-                  <Icon name="clipboard" />
-                  {copyState === "embed" ? "Embed copied" : "Copy embed"}
-                </button>
-              </section>
               {state.revokeToken ? (
-                <section className="share-choice">
+                <section className="share-choice share-choice--revoke">
                   <div className="share-choice__heading">
                     <div>
                       <h3>Revoke access</h3>
-                      <p>
-                        Save this one-time token to revoke the share later.
-                        Anyone with the link can read its source.
-                      </p>
+                      <p>This token is shown only once.</p>
                     </div>
-                    <span className="share-choice__tag">ONCE</span>
                   </div>
                   <div className="share-link-field">
                     <input
@@ -270,7 +259,7 @@ export function ShareModal({
                   {onDelete && state.id ? (
                     <button
                       type="button"
-                      className="btn-secondary share-embed-copy"
+                      className="btn-secondary share-revoke-button"
                       disabled={isDeleting}
                       onClick={() => void deleteShare()}
                     >
@@ -296,7 +285,6 @@ export function ShareModal({
         </div>
 
         <div className="share-modal__footer">
-          <span>ARCHLEX PLAYGROUND</span>
           {state.phase === "error" ? (
             <button type="button" className="btn-primary" onClick={onRetry}>
               Try again

@@ -37,6 +37,7 @@ import {
   loadSharedSource,
   revokeSharedDiagram,
   shareDiagram,
+  sharePublicOrigin,
   shareRequestOrigin,
   sourceAfterShareFailure,
 } from "./share.js";
@@ -360,13 +361,13 @@ export function App() {
   const handleShare = useCallback(async () => {
     if (!source.trim()) return;
     const operationId = ++shareOperationRef.current;
+    const configuredOrigin = configuredShareOrigin();
+    const pageOrigin = window.location.origin;
     setShareDialogState({ phase: "loading" });
     const result = await shareDiagram(source, {
       fetch,
-      origin: shareRequestOrigin(
-        configuredShareOrigin(),
-        window.location.origin,
-      ),
+      origin: shareRequestOrigin(configuredOrigin, pageOrigin),
+      shareOrigin: sharePublicOrigin(configuredOrigin, pageOrigin),
     });
     if (operationId !== shareOperationRef.current) return;
     setShareDialogState(
