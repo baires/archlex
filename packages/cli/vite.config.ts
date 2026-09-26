@@ -45,7 +45,7 @@ export default defineConfig({
           const files = readdirSync(examplesDir);
 
           for (const file of files) {
-            if (file.endsWith(".archlex")) {
+            if (file.endsWith(".arch") || file.endsWith(".archlex")) {
               copyFileSync(
                 resolve(examplesDir, file),
                 resolve(distExamplesDir, file),

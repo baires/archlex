@@ -23,8 +23,12 @@ For a normal diagram request:
    validation internally, so a successful render confirms validity.
 3. **Repair once if needed** — apply the returned diagnostics and retry. When a
    parse error includes `hint`, use it as the likely correction.
-4. **Present** — display the returned image inline, followed by the exact final
-   source in an `archlex` fence and the returned `playground_url`.
+4. **Present** — display the returned image inline when the client supports
+   images. Otherwise embed `png_url` or `svg_url` when present. Then show the
+   exact final source in an `archlex` fence. Check `share_status`: describe
+   `playground_url` as a short share link only when it is `created`; when it is
+   `unavailable`, describe it as a source-encoded editable fallback that cannot
+   be revoked. Never include `revoke_token` in user-facing text.
 
 Use the supporting tools only when their condition applies:
 
@@ -47,7 +51,7 @@ compatibility endpoints; do not use them for new integrations.
 | `get_cloud_catalog` | Inspect providers, resource kinds, scopes, relationship kinds |
 | `validate_diagram` | Fast syntax + semantic validation, no rendering; returns `hint` on parse errors |
 | `render_diagram` | Full pipeline: parse, icon hydration, validation, ELK layout, render |
-| `generate_playground_url` | Deep link to `playground.archlex.dev` |
+| `generate_playground_url` | Playground URL; check `share_status` for short share vs source-encoded fallback |
 
 `render_diagram` arguments: `source` (required), `theme` (`light`/`dark`),
 `direction` (`LR`/`RL`/`TB`/`BT`), `validation` (`strict`/`normal`/`off`),
@@ -64,7 +68,9 @@ compatibility endpoints; do not use them for new integrations.
   file) plus the final source in an `archlex` fenced code block.
 - A successful modern response has `resultType: "complete"`; read the image
   from `content` and the exact source, diagnostics, counts, and
-  `playground_url` from `structuredContent`.
+  `playground_url` and `share_status` from `structuredContent`. Share URLs and
+  the one-time revoke token are present only when share creation succeeds; keep
+  the token out of the user-facing response.
 - Clients may include `_meta.progressToken` to receive request-scoped SSE
   progress for parsing, validation, icon hydration, layout, and rendering.
 

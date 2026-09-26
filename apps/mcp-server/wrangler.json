@@ -16,6 +16,8 @@
   },
   "vars": {
     "RENDER_URL_TTL_SECONDS": "600",
-    "RENDER_URL_MAX_LENGTH": "7500"
+    "RENDER_URL_MAX_LENGTH": "7500",
+    "SHARE_ORIGIN": "https://share.archlex.dev",
+    "PLAYGROUND_ORIGIN": "https://playground.archlex.dev"
   }
 }

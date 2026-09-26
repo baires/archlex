@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { resolveInitialSource, sourceFromSearch } from "./url-source.js";
+import {
+  resolveInitialSource,
+  shareIdFromSearch,
+  shareIdToLoad,
+  sourceFromSearch,
+} from "./url-source.js";
 
 const MCP_CODE_QUERY =
   "code=direction%20LR%0Aprovider%20aws%0A%0Acdn%3A%20cloudfront%5B%22Global%20CDN%22%5D%0Aapi%3A%20api-gateway%5B%22Public%20API%22%5D%0Ahandler%3A%20lambda%5B%22Order%20Handler%22%5D%0Aorders%3A%20dynamodb%5B%22Orders%20Table%22%5D%0Aevents%3A%20eventbridge%5B%22Order%20Events%22%5D%0A%0Acdn%20-%5Broutes%5D-%3E%20api%0Aapi%20-%5Binvokes%5D-%3E%20handler%0Ahandler%20-%5Bwrites%5D-%3E%20orders%0Ahandler%20-%5Bpublishes%5D-%3E%20events";
@@ -27,6 +32,24 @@ describe("sourceFromSearch", () => {
     expect(sourceFromSearch("")).toBeUndefined();
     expect(sourceFromSearch("?theme=dark")).toBeUndefined();
     expect(sourceFromSearch("?code=")).toBeUndefined();
+  });
+});
+
+describe("shareIdFromSearch", () => {
+  it("reads a charset-safe s param", () => {
+    expect(shareIdFromSearch("?s=abc_XYZ-12")).toBe("abc_XYZ-12");
+  });
+
+  it("rejects missing, empty, and unsafe ids", () => {
+    expect(shareIdFromSearch("")).toBeUndefined();
+    expect(shareIdFromSearch("?s=")).toBeUndefined();
+    expect(shareIdFromSearch("?s=abc.svg")).toBeUndefined();
+    expect(shareIdFromSearch("?s=id%27%20OR%201")).toBeUndefined();
+  });
+
+  it("lets code win when both params exist", () => {
+    expect(shareIdToLoad(`?s=abc_XYZ-12&${MCP_CODE_QUERY}`)).toBeUndefined();
+    expect(shareIdToLoad("?s=abc_XYZ-12")).toBe("abc_XYZ-12");
   });
 });
 

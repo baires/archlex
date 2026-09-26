@@ -29,6 +29,7 @@ import {
 } from "./registry.js";
 import type { Env } from "./security.js";
 import { parseRenderUrlConfig } from "./security.js";
+import { shareConfigFromEnv } from "./tools/share-link.js";
 import { DIAGRAM_VIEWER_MIME_TYPE } from "./ui/diagram-viewer.js";
 
 export function createLegacyMcpServer(env?: Env, request?: Request): Server {
@@ -40,6 +41,8 @@ export function createLegacyMcpServer(env?: Env, request?: Request): Server {
           baseUrl: new URL(request.url).origin,
         }
       : undefined,
+    share: shareConfigFromEnv(env, request),
+    playgroundOrigin: env?.PLAYGROUND_ORIGIN,
   };
   const server = new Server(
     { name: SERVER_INFO.name, version: SERVER_INFO.version },

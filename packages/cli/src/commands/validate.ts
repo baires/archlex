@@ -38,7 +38,7 @@ interface ValidateOptions {
 export function createValidateCommand(): Command {
   return new Command("validate")
     .description("Validate an ArchLex diagram or internal service catalogs")
-    .argument("[input]", "Input .archlex file (or use --stdin)")
+    .argument("[input]", "Input .arch or .archlex file (or use --stdin)")
     .option(
       "-v, --validation <mode>",
       "Validation mode (normal, strict, off)",

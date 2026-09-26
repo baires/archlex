@@ -42,6 +42,9 @@ pnpm dev:landing
 
 # Start MCP Server for agent integration
 pnpm dev:mcp
+
+# Start the share Worker (http://127.0.0.1:8787)
+pnpm dev:share
 ```
 
 ### Package-Targeted Builds
@@ -50,6 +53,7 @@ pnpm dev:mcp
 pnpm build:playground
 pnpm build:landing
 pnpm build:mcp
+pnpm build:share
 pnpm build:docs
 ```
 
