@@ -54,8 +54,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "archlex-share",
-      "database_id": "d93ad9bc-4f4c-4dae-9c85-ac073ba60a85",
+      "database_name": "archlex-prod",
+      "database_id": "da915d59-b185-4717-bd69-703c34776198",
       "migrations_dir": "migrations"
     }
   ],
