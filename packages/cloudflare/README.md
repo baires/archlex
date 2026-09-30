@@ -76,3 +76,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `registrar` | Registrar | management |
 | `rules` | Rules | management |
 | `ruleset-engine` | Ruleset Engine | management |
+| `version-management` | Version Management | management |

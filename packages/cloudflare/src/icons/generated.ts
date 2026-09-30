@@ -211,6 +211,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/stream.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M44.903 22.632a8.8 8.8 0 0 0-6-2.04 14.475 14.475 0 0 0-27.75-3.443A10.22 10.22 0 0 0 3.9 19.542a10.95 10.95 0 0 0-3.9 8.25 10.68 10.68 0 0 0 10.635 10.687h28.41a9 9 0 0 0 5.858-15.847m-5.858 12.847H10.642A7.68 7.68 0 0 1 3 27.814a7.94 7.94 0 0 1 2.827-6 7.16 7.16 0 0 1 4.673-1.687q.718 0 1.425.127l1.305.233.383-1.268A11.467 11.467 0 0 1 36 22.264l.075 1.74 1.695-.27a6.18 6.18 0 0 1 5.182 1.215A6.08 6.08 0 0 1 45 29.524a6 6 0 0 1-5.955 5.955"/><path clip-rule="evenodd" d="m19.29 18.668 2.264-1.29L32.87 24.08l.002 2.58-11.314 6.73-2.267-1.29V18.668Zm3 2.632v8.162l6.876-4.09z" fill-rule="evenodd"/></svg>',
     },
+    "version-management": {
+      key: "version-management",
+      provider: "cloudflare",
+      checksum:
+        "e9b04d348152afea533594c552db98333c14ffb01af90e2a4d99b36b02762c4a",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/version-management.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5.915 3.508a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.34 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.341 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838"/><path d="M14.223 1.5H4.615l-.5.5v2.378H3.19l-.5.5v1.408h-.913l-.5.5v7.213l.5.5h8.684l.5-.5v-1.408h.915l.5-.5v-1.609h1.847l.5-.5V2.001zm-.5 1v1.18H5.115V2.5zM4.115 5.379v.968H3.69v-.968zM2.69 7.286v.968h-.413v-.968zm7.27 6.213H2.278V9.254h.415v2.838l.5.5H9.96zm1.415-1.908H3.693V7.348h.425v2.635l.5.5h6.759v1.11zm-6.26-2.109V4.679h8.608v4.803z"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",
