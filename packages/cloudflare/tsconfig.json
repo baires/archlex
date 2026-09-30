@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    {
+      "path": "../model/tsconfig.json"
+    },
+    {
+      "path": "../icons-core/tsconfig.json"
+    }
+  ],
+  "include": ["src/**/*"]
+}
