@@ -968,3 +968,149 @@ describe("theme directive", () => {
     expect(result.svg).toContain('fill="#1f2937"');
   });
 });
+
+describe("provider identity validation dispatch", () => {
+  const providers = [
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+    cloudflareProvider(),
+  ];
+
+  it.each(["aws", "gcp", "k8s", "cloudflare"])(
+    "validates mixed resources without foreign catalog diagnostics under %s",
+    (provider) => {
+      const archlex = createArchLex({ providers });
+      for (const validation of ["normal", "strict", "off"] as const) {
+        const result = archlex.prepare(
+          `provider ${provider}\ncloudflare.workers > aws.lambda\ncloudflare.workers > gcp.cloud-run\ncloudflare.workers > k8s.deployment`,
+          { validation },
+        );
+        expect(
+          result.diagnostics.filter((diagnostic) =>
+            diagnostic.code.includes("UNKNOWN-RESOURCE"),
+          ),
+        ).toEqual([]);
+        expect(result.graph.edges).toHaveLength(3);
+      }
+    },
+  );
+
+  it.each(["normal", "strict", "off"] as const)(
+    "does not interpret foreign kind collisions as provider-local endpoints in %s mode",
+    (validation) => {
+      const foreign: CloudProvider = {
+        ...cloudflareProvider(),
+        resolveService(kind) {
+          return { id: kind, displayName: kind, iconKey: `cloudflare.${kind}` };
+        },
+      };
+      const archlex = createArchLex({
+        providers: [awsProvider(), gcpProvider(), k8sProvider(), foreign],
+      });
+      for (const [provider, edges] of [
+        [
+          "aws",
+          "cloudflare.lambda -[targets]-> cloudflare.rds\ncloudflare.lambda -[targets]-> aws.rds",
+        ],
+        [
+          "gcp",
+          "cloudflare.cloud-sql -[routes]-> cloudflare.cloud-run\ncloudflare.cloud-sql -[routes]-> gcp.cloud-run",
+        ],
+        [
+          "k8s",
+          "cloudflare.deployment -[targets]-> cloudflare.deployment\ncloudflare.deployment -[targets]-> k8s.deployment",
+        ],
+      ]) {
+        const result = archlex.prepare(`provider ${provider}\n${edges}`, {
+          validation,
+        });
+        expect(
+          result.diagnostics.filter(
+            (diagnostic) =>
+              diagnostic.code.includes("RELATIONSHIP-INVALID-ENDPOINT") ||
+              diagnostic.code.includes("UNKNOWN-RESOURCE"),
+          ),
+        ).toEqual([]);
+      }
+    },
+  );
+
+  it.each(["normal", "strict", "off"] as const)(
+    "keeps invalid qualified AWS placement diagnostics in %s mode",
+    (validation) => {
+      const archlex = createArchLex({ providers });
+      const result = archlex.prepare(
+        `provider cloudflare
+vpc first { proxy: aws.rds-proxy }
+vpc second { db: aws.rds }
+proxy > db
+cloudflare.workers > proxy`,
+        { validation },
+      );
+      const diagnostics = result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "AWS-RDS-PROXY-NETWORK-001",
+      );
+      expect(diagnostics).toHaveLength(validation === "off" ? 0 : 1);
+      if (validation !== "off") expect(diagnostics[0]?.severity).toBe("error");
+    },
+  );
+});
+
+describe("qualified provider-local relationship validation", () => {
+  it.each([
+    [
+      "gcp",
+      "gcp.cloud-sql -[routes]-> gcp.cloud-run",
+      "GCP-RELATIONSHIP-INVALID-ENDPOINT-001",
+    ],
+    [
+      "k8s",
+      "k8s.deployment -[targets]-> k8s.deployment",
+      "K8S-RELATIONSHIP-INVALID-ENDPOINT-001",
+    ],
+  ])(
+    "validates %s endpoints under a Cloudflare default",
+    (_provider, edge, code) => {
+      const archlex = createArchLex({
+        providers: [cloudflareProvider(), gcpProvider(), k8sProvider()],
+      });
+      for (const validation of ["normal", "strict", "off"] as const) {
+        const result = archlex.prepare(
+          `provider cloudflare\nworkers\n${edge}`,
+          { validation },
+        );
+        const diagnostics = result.diagnostics.filter(
+          (diagnostic) => diagnostic.code === code,
+        );
+        if (validation === "off") expect(diagnostics).toEqual([]);
+        else {
+          expect(diagnostics.length).toBeGreaterThan(0);
+          expect(
+            diagnostics.every(
+              (diagnostic) =>
+                diagnostic.severity ===
+                (validation === "strict" ? "error" : "warning"),
+            ),
+          ).toBe(true);
+        }
+      }
+    },
+  );
+});
+
+describe("qualified provider relationship vocabulary", () => {
+  it("recognizes registered Kubernetes relationship kinds under Cloudflare", () => {
+    const archlex = createArchLex({
+      providers: [cloudflareProvider(), k8sProvider()],
+    });
+    const result = archlex.prepare(
+      "provider cloudflare\nk8s.service -[targets]-> k8s.deployment",
+    );
+    expect(
+      result.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "AL-SEM-UNKNOWN-RELATIONSHIP",
+      ),
+    ).toEqual([]);
+  });
+});

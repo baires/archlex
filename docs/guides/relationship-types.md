@@ -56,6 +56,19 @@ The area of each kind is part of the language metadata
 
 ## Provider validation
 
+Mixed diagrams validate resources by their provider identity, including qualified
+resources such as `cloudflare.workers`, `aws.lambda`, `gcp.cloud-run`, and
+`k8s.deployment`. Each provider receives its own nodes, edges whose endpoints
+both belong to that provider, and the matching containment context. Resource
+names shared by providers do not activate another provider's rules. Core recognizes
+relationship kinds declared by any registered provider, including Kubernetes
+`targets` in a diagram whose default provider is Cloudflare.
+
+Cross-provider edges remain in the rendered graph. Provider-local relationship
+constraints do not apply to those edges; core syntax and structural diagnostics
+still apply. `off` skips provider validation for every provider.
+
+
 Providers declare which kinds they understand and which services may take part
 in them. AWS, Google Cloud, and Kubernetes each ship relationship definitions
 with allowed sources and targets; a typed edge that violates them produces a

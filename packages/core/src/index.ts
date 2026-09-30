@@ -309,12 +309,15 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
       const directives = collectDirectives(ast.statements, diagnostics);
       const providerId =
         analyzeOptions?.provider ?? directives.provider ?? defaultProvider;
-      const provider = providerMap.get(providerId);
       const validation =
         analyzeOptions?.validation ?? directives.validation ?? "normal";
       const knownRelationships = new Set([
         ...KNOWN_RELATIONSHIPS,
-        ...(provider?.listRelationships?.().map(({ kind }) => kind) ?? []),
+        ...Array.from(providerMap.values()).flatMap(
+          (registeredProvider) =>
+            registeredProvider.listRelationships?.().map(({ kind }) => kind) ??
+            [],
+        ),
       ]);
       const globalNames = new Map<string, string[]>();
 
@@ -682,12 +685,43 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         );
       }
 
-      if (provider && validation !== "off") {
-        const providerDiagnostics = provider.validateGraph(
-          graph,
-          validation as ValidationMode,
-        );
-        diagnostics.push(...providerDiagnostics);
+      if (validation !== "off") {
+        for (const registeredProvider of providerMap.values()) {
+          const providerNodes = graph.nodes.filter(
+            (node) => node.provider === registeredProvider.id,
+          );
+          if (
+            providerNodes.length === 0 &&
+            registeredProvider.id !== providerId
+          ) {
+            continue;
+          }
+          const nodeIds = new Set(providerNodes.map((node) => node.id));
+          const providerGraph: CloudGraph = {
+            nodes: providerNodes,
+            edges: graph.edges.filter(
+              (edge) => nodeIds.has(edge.source) && nodeIds.has(edge.target),
+            ),
+            scopes: graph.scopes
+              .map((scope) => ({
+                ...scope,
+                childrenNodeIds: scope.childrenNodeIds.filter((id) =>
+                  nodeIds.has(id),
+                ),
+              }))
+              .filter(
+                (scope) =>
+                  registeredProvider.id === providerId ||
+                  scope.childrenNodeIds.length > 0,
+              ),
+          };
+          diagnostics.push(
+            ...registeredProvider.validateGraph(
+              providerGraph,
+              validation as ValidationMode,
+            ),
+          );
+        }
       }
 
       return { graph, diagnostics };
