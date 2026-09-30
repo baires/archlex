@@ -450,6 +450,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/kv.svg",
     sha256: "6af2d48c3c7f883b5ddd3bbfa11e27b1acb292513832afaf371dde2bd1ba7919",
   },
+  "r2-data-catalog": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/r2-data-catalog.svg",
+    sha256: "d830439d65e19ff6bc960476595237277ab54ef241b90f09f860a4bb7890ee23",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1147,6 +1152,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.kv"],
     iconKey: "cloudflare.kv",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "r2-data-catalog",
+    displayName: "R2 Data Catalog",
+    category: "storage",
+    aliases: ["cloudflare.r2-data-catalog"],
+    iconKey: "cloudflare.r2-data-catalog",
     allowedContainment: ["account"],
   },
 ];

@@ -140,3 +140,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `durable-objects` | Durable Objects | storage |
 | `hyperdrive` | Hyperdrive | storage |
 | `kv` | Workers KV | storage |
+| `r2-data-catalog` | R2 Data Catalog | storage |
