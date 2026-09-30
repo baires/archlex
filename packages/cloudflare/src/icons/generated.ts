@@ -193,6 +193,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/google-tag-gateway.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M4 14h22v-4H4zm0 8h22v-4H4zm36 16H26v-4h14zm-14-8h14v-4H26zm34 24H26v-4h34zm-34-8h34v-4H26z"/></svg>',
     },
+    "health-checks": {
+      key: "health-checks",
+      provider: "cloudflare",
+      checksum:
+        "faba477022785be0c3ea4db8378eb1a542105c55cb486fdc1b56c3f16c2d1932",
+      viewBox: "0 0 64 65",
+      svgFragment:
+        '<svg height="65" viewBox="0 0 64 65" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/health-checks.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="65" fill="#fff"/><path d="M43.12 9.045A16.23 16.23 0 0 0 32 13.185a16.37 16.37 0 0 0-11.12-4.14A16.9 16.9 0 0 0 4 25.935c0 4.22 2.28 8.83 4.54 11.51 4.86 5.79 21.46 20.02 22.16 20.62h2.6c.7-.6 17.29-14.83 22.16-20.62 2.26-2.68 4.54-7.29 4.54-11.51a16.9 16.9 0 0 0-16.88-16.89M32 53.905c-3.28-2.84-12-10.47-17.31-15.74h5.18l1.75-1 4.47-8.12 5.61 12.33h3.64l4.17-9.28 2.82 4.24 1.67.89h6.24c-5.13 5.25-14.75 13.66-18.24 16.68m21.59-20.69h-8.52l-4.24-6.36-3.49.29-3.83 8.54-5.42-12-3.58-.09-5.82 10.57h-7.64A15.3 15.3 0 0 1 8 25.935a12.9 12.9 0 0 1 12.88-12.89 12.11 12.11 0 0 1 9.59 4.3h3.05a12.27 12.27 0 0 1 9.6-4.32A12.9 12.9 0 0 1 56 25.935a14.74 14.74 0 0 1-2.41 7.28"/></svg>',
+    },
     images: {
       key: "images",
       provider: "cloudflare",

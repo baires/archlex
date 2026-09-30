@@ -215,6 +215,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/dns.svg",
     sha256: "a947bd2f5c9737de76f00c03b11576248565beabad2453ddf49840073939eb09",
   },
+  "health-checks": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/health-checks.svg",
+    sha256: "7aab473376e22d243a43d12ccaf7416c62f982474ed986f5987bc0e7e31771f7",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -536,6 +541,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.dns"],
     iconKey: "cloudflare.dns",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "health-checks",
+    displayName: "Health Checks",
+    category: "networking",
+    aliases: ["cloudflare.health-checks"],
+    iconKey: "cloudflare.health-checks",
     allowedContainment: ["account"],
   },
 ];

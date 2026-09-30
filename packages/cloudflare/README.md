@@ -89,3 +89,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `cloudflare-mesh` | Cloudflare Mesh | networking |
 | `cloudflare-wan` | Cloudflare WAN | networking |
 | `dns` | DNS | networking |
+| `health-checks` | Health Checks | networking |
