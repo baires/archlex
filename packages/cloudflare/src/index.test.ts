@@ -8,11 +8,13 @@ describe("Workers catalog slice", () => {
     const unqualified = provider.resolveService("workers");
     const qualified = provider.resolveService("cloudflare.workers");
 
-    expect(unqualified).toEqual({
-      id: "workers",
-      displayName: "Workers",
-      iconKey: "cloudflare.workers",
-    });
+    expect(unqualified).toEqual(
+      expect.objectContaining({
+        id: "workers",
+        displayName: "Workers",
+        iconKey: "cloudflare.workers",
+      }),
+    );
     expect(qualified).toEqual(unqualified);
     expect(provider.supports("workers")).toBe(true);
     expect(provider.supports("cloudflare.workers")).toBe(true);
@@ -35,16 +37,17 @@ describe("Workers catalog slice", () => {
     );
   });
 
-  it("pins the approved Workers revision and withholds official artwork", () => {
+  it("pins the Workers revision and provides attributed official artwork", () => {
     expect(WORKERS_ARTWORK_PIN).toEqual({
       revision: "48f601bf4293fa9032505f858656d0db5b559131",
       sourcePath: "src/icons/workers.svg",
       sha256:
         "c7f249bbc68c02c2fdaa590c18378c0debde017e80772437ac474a9a508197a8",
     });
-    expect(cloudflareProvider().resolveService("workers")?.iconSvg).toBe(
-      undefined,
-    );
+    const icon = cloudflareProvider().resolveService("workers")?.iconSvg;
+    expect(icon).toContain("CC BY 4.0");
+    expect(icon).toContain('fill="#fff"');
+    expect(icon).toContain(WORKERS_ARTWORK_PIN.revision);
   });
 
   it("resolves workers without network requests", async () => {

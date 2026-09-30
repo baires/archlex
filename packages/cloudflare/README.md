@@ -1,12 +1,17 @@
 # @archlex/cloudflare
 
-Cloudflare provider for ArchLex. `cloudflareProvider()` recognizes Workers
-(`workers` and `cloudflare.workers`) and can be injected into `createArchLex`.
-Official artwork is not bundled; distribution and presentation remain blocked.
+Cloudflare product catalog and official SVG artwork for ArchLex. Register
+`cloudflareProvider()` with `createArchLex` to author Cloudflare-only diagrams or
+use qualified resources such as `cloudflare.workers` alongside AWS, Google Cloud,
+and Kubernetes resources. These resources provide recognition and artwork;
+product-specific networking validation is separate work.
 
-The package uses the existing strict TypeScript, Vite, and pnpm workspace setup.
-Its software is MIT licensed; that license does not cover future upstream
-Cloudflare artwork.
+Resources can appear at the root or within an `account` scope. Icons are bundled,
+so rendering and package imports require no network requests. The same original
+glyph is presented on a white backing in both themes, with its original viewBox,
+path geometry, and colors preserved.
+
+## Commands
 
 From the repository root:
 
@@ -14,15 +19,34 @@ From the repository root:
 pnpm --filter @archlex/cloudflare build
 pnpm --filter @archlex/cloudflare typecheck
 pnpm --filter @archlex/cloudflare test
+pnpm --filter @archlex/cloudflare icons:generate
+pnpm --filter @archlex/cloudflare icons:check
+pnpm validate:catalog
 ```
 
-Workers recognition is covered by `src/index.test.ts`. Rendering uses explicit
-provider injection and does not fetch artwork.
+Generation consumes local revision-pinned SVG inputs. It verifies source hashes,
+rejects unsafe SVG and unmapped assets, and writes deterministic fragments.
+`icons:check` reports drift without rewriting. An upstream revision update is a
+separate reviewed source-sync operation; ordinary generation does not download.
 
-Follow-up work: [official artwork clearance](https://github.com/baires/archlex/issues/93),
-[SVG fill rules](https://github.com/baires/archlex/issues/95),
-[theme presentation](https://github.com/baires/archlex/issues/96), and
-[artwork importer](https://github.com/baires/archlex/issues/73).
+## Artwork and licenses
 
-No artwork is bundled until those gates are cleared. Build and import perform
-no network requests.
+Source: Cloudflare, Inc. and contributors to the [Cloudflare documentation icon
+repository](https://github.com/cloudflare/cloudflare-docs/tree/48f601bf4293fa9032505f858656d0db5b559131/src/icons),
+pinned to `48f601bf4293fa9032505f858656d0db5b559131`.
+
+Software is MIT licensed (`LICENSE`). Artwork is CC BY 4.0 (`LICENSE-ARTWORK`),
+with attribution, source references, and modifications recorded in `NOTICE.md`
+and in exported icon descriptions. Sanitization and the white backing are
+technical changes. Cloudflare names and trademarks remain with their owners;
+this community provider is not endorsed by Cloudflare.
+
+## Resources
+
+Every resource also resolves as `cloudflare.<id>`. Categories reuse the existing
+ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` to
+`management`, and `observability` to `monitoring`.
+
+| ID | Display name | Category |
+| --- | --- | --- |
+| `workers` | Workers | compute |
