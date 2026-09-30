@@ -12,6 +12,8 @@ npm install -g @archlex/cli
 npx @archlex/cli render diagram.arch
 ```
 
+Cloudflare Workers diagrams are supported with `provider cloudflare` and the `workers` resource (or `cloudflare.workers` in mixed diagrams). Render and validate share the same catalog. The initial Cloudflare slice uses the existing text fallback; official artwork is not bundled.
+
 ## Commands
 
 Save diagram source as `.arch` files. The `.archlex` extension remains valid and is still accepted everywhere.

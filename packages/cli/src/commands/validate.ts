@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { AWS_SERVICE_CATALOG } from "@archlex/aws";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -158,7 +159,12 @@ async function validateCommand(
   spinner.start("Validating diagram");
 
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
   });
 
   let result: Awaited<ReturnType<typeof archlex.render>>;

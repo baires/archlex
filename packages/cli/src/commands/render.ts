@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { extname, resolve } from "node:path";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -102,7 +103,12 @@ async function renderCommand(
   spinner.start("Rendering diagram");
 
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
   });
 
   let result: Awaited<ReturnType<typeof archlex.render>>;
