@@ -112,6 +112,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/images.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M42 8.94H6l-1.5 1.5v29.903l1.5 1.5h36l1.5-1.5V10.44zm-1.5 3v14.018l-6-4.913-1.965.06-3.81 3.51-4.073-3-1.852.06-10.5 8.775-4.8-3.3V11.94zm-33 26.903V30.81l3.975 2.775 1.815-.082 10.523-8.753 4.125 3 1.905-.105 3.75-3.472 6.907 5.655v9zm6.81-14.723a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/></svg>',
     },
+    moq: {
+      key: "moq",
+      provider: "cloudflare",
+      checksum:
+        "d05ebf80c1be1f391d3ff4f6bb88e3c3c27c9b5b9e842d3d9d716f54d5b851c6",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/moq.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M19.17 11.482a3.435 3.435 0 0 1 0-4.837L17.048 4.5a6.435 6.435 0 0 0 0 9.082z"/><path d="M14.933 15.75a9.427 9.427 0 0 1 0-13.312L12.818.285a12.42 12.42 0 0 0 0 17.558zm16.02-2.145a6.436 6.436 0 0 0 0-9.105L28.83 6.645a3.435 3.435 0 0 1 0 4.838z"/><path d="M35.182 17.843a12.42 12.42 0 0 0 0-17.558l-2.115 2.123a9.427 9.427 0 0 1 0 13.312zM27 9.075a3 3 0 1 0-4.448 2.625L10.5 48h3l2.025-6h16.943l2.032 6h3L25.402 11.723A3 3 0 0 0 27 9.075m-3 7.823L26.378 24h-4.793zM28.92 31.5h-9.863l1.5-4.5h6.826zM16.5 39l1.5-4.5h11.933l1.5 4.5z"/></svg>',
+    },
     pages: {
       key: "pages",
       provider: "cloudflare",

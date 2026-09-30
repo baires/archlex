@@ -100,6 +100,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/images.svg",
     sha256: "90efddac7d07512c9aa0c482cd206eef8329a7f9fb20669f47d5010a7dfdbce1",
   },
+  moq: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/moq.svg",
+    sha256: "fb2ddfadb4a117030878397481ff395f7e8e27b868acb56406dc35068f2065b9",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -237,6 +242,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.images"],
     iconKey: "cloudflare.images",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "moq",
+    displayName: "Media over QUIC",
+    category: "networking",
+    aliases: ["cloudflare.moq"],
+    iconKey: "cloudflare.moq",
     allowedContainment: ["account"],
   },
 ];
