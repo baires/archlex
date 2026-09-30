@@ -355,6 +355,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/dmarc-management.svg",
     sha256: "7341d1ae95d4366fdb5d6c3af819ae3714eea2afa3d929e07c3355ec1bea9e9b",
   },
+  "email-security": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/email-security.svg",
+    sha256: "f2e3b5b6cc4512d38b9b356f57a710181bccc93e47e2a0fd668a012e173351d9",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -900,6 +905,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.dmarc-management"],
     iconKey: "cloudflare.dmarc-management",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "email-security",
+    displayName: "Email Security",
+    category: "security",
+    aliases: ["cloudflare.email-security"],
+    iconKey: "cloudflare.email-security",
     allowedContainment: ["account"],
   },
 ];

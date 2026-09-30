@@ -292,6 +292,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/email-routing.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M42.038 10.568h-36l-1.5 1.5v23.864l1.5 1.5h36l1.5-1.5V12.068zm-18 15.397L10.005 13.568h28.072l-14.04 12.397ZM17.288 24l-9.75 8.61V15.36zm2.25 2.003 3.494 3.082h1.988l3.48-3.082 9.578 8.43H10.005zM30.788 24l9.75-8.61v17.25z"/></svg>',
     },
+    "email-security": {
+      key: "email-security",
+      provider: "cloudflare",
+      checksum:
+        "87aa0321b257ece51f60f544092085791adf40ed7918fb1216d2ddc97477f269",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/email-security.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path clip-rule="evenodd" d="m57.49 14.12-1.36-.19a27.92 27.92 0 0 1-15.37-7.59L39.57 5h-3l-1.16 1.34a27.92 27.92 0 0 1-15.33 7.59l-1.36.19-1.72 2V20H7l-2 2v25l2 2h16.639c5.317 6.809 12.012 10.33 12.783 10.735l.048.025.71.36h1.8l.71-.36c.79-.39 19.52-10 19.52-29.52V16.1zM28.858 49c4.02 4.245 8.258 6.593 9.222 7.09 2-1.02 17.13-9.5 17.13-25.85v-12.4a32.1 32.1 0 0 1-17.13-8.5 32.15 32.15 0 0 1-17.13 8.5V20H44l2 2v25l-2 2zM9 42.409V26.397l8.887 7.748zM12.088 45l8.83-8.212 3.268 2.849h2.628l3.501-3.053L39.045 45zM42 42.294l-8.658-8.348L42 26.397zM12.337 24h26.326L25.5 35.476z" fill-rule="evenodd"/></svg>',
+    },
     "email-service": {
       key: "email-service",
       provider: "cloudflare",
