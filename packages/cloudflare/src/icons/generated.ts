@@ -49,6 +49,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="65" viewBox="0 0 64 65" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/browser-run.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="65" fill="#fff"/><path d="M23.3 18.2a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m-6.7 0a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m13.3-.61a2.1 2.1 0 1 0 0 1.22zm28.1-1.6V12.7l-2-2h-1.39v5.29zm0 9.67v-4.99h-3.39v4.99zm0 9.67v-4.99h-3.39v4.99zM58 45v-4.99h-3.39V45zm-3.39 9.6H56l2-2v-2.93h-3.39zm-17.9-4H41v4h-4.29zm8.96 0h4.29v4h-4.29zm-8.96-29H41v4h-4.29zm8.96 0h4.29v4h-4.29zm4.29-6.9h-4.29v-4h4.29zm-8.96 0h-4.29v-4H41zm-8.96-4h-24l-2 2v39.9l2 2h24v-4h-22v-25h22v-4h-22v-6.9h22z"/></svg>',
     },
+    cache: {
+      key: "cache",
+      provider: "cloudflare",
+      checksum:
+        "7cbab7b305519a6415ed10f3019732184e47f172f0c07be2f1d65886006a21ef",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cache.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M37.125 22.227a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.138"/><path clip-rule="evenodd" d="M11.59 6.55 12.75 6h22.5l1.16.55 6.75 8.25.34.95v.419l.006.005v9.64l-1.5 1.5H6l-1.5-1.5V15.75l.34-.95zM7.5 17.674v6.64h33.006V18.75H40.5v-1.076zm31.682-3H8.818L13.461 9h21.078l4.643 5.675Z" fill-rule="evenodd"/><path d="M37.125 36.907a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.139Z"/><path clip-rule="evenodd" d="m6 29.355-1.5 1.5v9.639l1.5 1.5h36.006l1.5-1.5v-9.639l-1.5-1.5zm1.5 9.639v-6.639h33.006v6.639z" fill-rule="evenodd"/></svg>',
+    },
     containers: {
       key: "containers",
       provider: "cloudflare",
