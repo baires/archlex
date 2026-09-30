@@ -60,3 +60,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `pages` | Pages | compute |
 | `sandbox` | Sandbox | compute |
 | `workflows` | Workflows | compute |
+| `automatic-platform-optimization` | Automatic Platform Optimization | networking |
