@@ -98,3 +98,46 @@ SHA-256 digests of the retrieved pinned legal files:
 The dashboard sprite was not a usable research source: its supplied URL returned
 HTTP 403 during the earlier investigation. Its contents and license are
 unverified; it is not the source for this inventory.
+
+## CF06 sanitizer and presentation probe
+
+On 2026-09-29, four representative SVGs from the pinned revision were fetched
+into temporary local research, sanitized twice, and supplied through a throwaway
+provider to the existing SVG renderer. No upstream SVG, generated fragment,
+preview image, or research adapter was added to this repository. Temporary
+previews are not release assets and do not establish distribution permission.
+
+| Sample | Area | Source bytes | ViewBox | Outcome |
+| --- | --- | --- | --- | --- |
+| DNS | Edge/networking | 535 | `0 0 48 48` | Sanitizes; black default fill has poor dark-theme contrast |
+| Tunnel | Connectivity | 496 | `0 0 24 24` | Sanitizes; black default fill has poor dark-theme contrast |
+| Workers | Compute | 327 | `0 0 48 49` | Sanitizes; non-square geometry stays proportional; dark contrast fails |
+| R2 | Storage | 2005 | `0 0 40 40` | Sanitizes, but lost even-odd fill behavior removes interior detail |
+
+Repeated sanitization produced identical checksums for every sample. All four
+omit explicit fill, stroke, and `currentColor`; they contain no local IDs or
+external references. Therefore this sample set does not exercise local ID
+collisions; existing sanitizer/renderer regression tests remain necessary.
+
+Light/dark exported SVGs were loaded in a local headless browser and inspected
+at native diagram scale, where the renderer places icons at 48 CSS pixels.
+ViewBoxes with different dimensions fit the same icon viewport without stretching.
+An isolated-node preview was used rather than inventing a network topology.
+
+The current sanitizer strips `fill-rule="evenodd"` from R2. The exported result
+is a solid cylinder silhouette instead of the source's interior detail. Passing
+sanitization alone is therefore insufficient evidence of artwork fidelity.
+The source paths were not edited or recolored during this probe.
+
+Decision: **record a presentation blocker before generation**. Preserve safe SVG
+fill rules with an independently authored regression fixture, then establish an
+allowed inherited-color policy and recheck native-size light/dark exports. Do
+not approve the current output for shipping. The existing icon package's 50
+tests pass, but do not establish compatibility with every source icon.
+
+Follow-up gates:
+
+- [Distribution clearance](https://github.com/baires/archlex/issues/93)
+- [Compound SVG fill-rule preservation](https://github.com/baires/archlex/issues/95)
+- Theme treatment must be reviewed against the established artwork permissions
+  before importer output is accepted.
