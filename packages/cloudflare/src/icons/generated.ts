@@ -94,6 +94,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/automatic-platform-optimization.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M18.431 10.486a1.258 1.258 0 1 0 .001-2.515 1.258 1.258 0 0 0 0 2.515Zm4.021 0a1.258 1.258 0 1 0 0-2.516 1.258 1.258 0 0 0 0 2.516m4.023 0a1.258 1.258 0 1 0 0-2.516 1.258 1.258 0 0 0 0 2.516"/><path d="M43.356 4.463H14.532l-1.5 1.5v7.133h-2.775l-1.5 1.5v4.222h-2.74l-1.5 1.5v21.64l1.5 1.5h26.052l1.5-1.5v-4.222h2.744l1.5-1.5v-4.829h5.543l1.5-1.5V5.963zm-1.5 3v3.533H16.032V7.463zm-28.824 8.633V19h-1.275v-2.904zm-4.275 5.722v2.906h-1.24v-2.906zm21.812 18.64H7.517V27.725H8.76v8.512l1.5 1.5h20.308v2.723Zm4.244-5.722H11.76V22h1.275v7.906l1.5 1.5h20.277v3.329Zm-18.78-6.329v-14.41h25.823v14.41H16.032Z"/><path d="M29.46 16.71h-.502l-3.014 4.52v.502h2.484v3.014h.503l3.013-4.52v-.503H29.46v-3.014Z"/></svg>',
     },
+    bots: {
+      key: "bots",
+      provider: "cloudflare",
+      checksum:
+        "4537f33a552284fbc6a3c046d540e805bb3404f7f17b11aa5dc90145b354c423",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/bots.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M40.488 15.863H25.5v-4.335a3 3 0 1 0-3 0v4.335H7.512l-1.5 1.5v23.081l1.5 1.5h32.976l1.5-1.5v-23.08l-1.5-1.5Zm-1.5 23.081H9.012v-20.08h29.976z"/><path d="M17.008 28.544a2.493 2.493 0 0 0 2.49-2.497 2.493 2.493 0 0 0-2.49-2.495 2.493 2.493 0 0 0-2.491 2.495 2.493 2.493 0 0 0 2.49 2.497Zm13.984 0a2.493 2.493 0 0 0 2.49-2.497 2.493 2.493 0 0 0-2.49-2.495 2.493 2.493 0 0 0-2.49 2.495 2.493 2.493 0 0 0 2.49 2.497m-2.25 3.205h-9.484v3h9.484z"/></svg>',
+    },
     "browser-run": {
       key: "browser-run",
       provider: "cloudflare",
