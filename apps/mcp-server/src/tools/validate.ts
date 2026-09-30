@@ -1,18 +1,24 @@
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+    cloudflareProvider(),
+  ],
   defaultProvider: "aws",
 });
 
 export interface ValidateDiagramArgs {
   source: string;
-  provider?: "aws" | "gcp" | "k8s";
+  provider?: "aws" | "gcp" | "k8s" | "cloudflare";
   validation?: "strict" | "normal" | "off";
 }
 
