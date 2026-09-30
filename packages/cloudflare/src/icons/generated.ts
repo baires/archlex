@@ -139,6 +139,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cache.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M37.125 22.227a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.138"/><path clip-rule="evenodd" d="M11.59 6.55 12.75 6h22.5l1.16.55 6.75 8.25.34.95v.419l.006.005v9.64l-1.5 1.5H6l-1.5-1.5V15.75l.34-.95zM7.5 17.674v6.64h33.006V18.75H40.5v-1.076zm31.682-3H8.818L13.461 9h21.078l4.643 5.675Z" fill-rule="evenodd"/><path d="M37.125 36.907a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.139Z"/><path clip-rule="evenodd" d="m6 29.355-1.5 1.5v9.639l1.5 1.5h36.006l1.5-1.5v-9.639l-1.5-1.5zm1.5 9.639v-6.639h33.006v6.639z" fill-rule="evenodd"/></svg>',
     },
+    casb: {
+      key: "casb",
+      provider: "cloudflare",
+      checksum:
+        "6b81483c42da1c2820b495f42201e7473785746d7c13ae94dd7a3d4066e7026d",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/casb.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M4.718 2.374a2.344 2.344 0 0 0-2.344 2.344v2.146l-.607-.603-.661.665 1.747 1.737 1.729-1.739-.665-.661-.605.609V4.718c0-.777.63-1.406 1.406-1.406h6.564c.777 0 1.406.63 1.406 1.406V5.89h.938V4.718a2.344 2.344 0 0 0-2.344-2.344zm7.97 6.286v2.622c0 .777-.63 1.406-1.406 1.406H4.718c-.777 0-1.406-.63-1.406-1.406V9.656h-.938v1.626a2.344 2.344 0 0 0 2.344 2.344h6.564a2.344 2.344 0 0 0 2.344-2.344V8.667l.607.603.661-.665-1.747-1.737-1.729 1.74.665.66z"/><path d="m5.042 8.234.801-.773 1.543 1.61 3.249-3.277.792.783-4.041 4.098-2.344-2.44Z"/></svg>',
+    },
     "china-network": {
       key: "china-network",
       provider: "cloudflare",

@@ -110,3 +110,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `api-shield` | Api Shield | security |
 | `bots` | Bot Management | security |
 | `browser-isolation` | Browser Isolation | security |
+| `casb` | CASB | security |

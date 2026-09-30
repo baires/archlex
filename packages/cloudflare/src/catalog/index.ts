@@ -320,6 +320,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/browser-isolation.svg",
     sha256: "0d3b20e105f66584c3161b39c33b616d1f2e9d5fad6b7ff1ce10d0f6b622610e",
   },
+  casb: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/casb.svg",
+    sha256: "e930afda01c580f87ea49f74a12ee48bde6c44d8e1c344ea119fa459bf30380c",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -809,6 +814,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.browser-isolation"],
     iconKey: "cloudflare.browser-isolation",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "casb",
+    displayName: "CASB",
+    category: "security",
+    aliases: ["cloudflare.casb"],
+    iconKey: "cloudflare.casb",
     allowedContainment: ["account"],
   },
 ];
