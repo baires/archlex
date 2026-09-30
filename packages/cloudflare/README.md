@@ -72,3 +72,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `realtime-turn` | Realtime TURN | networking |
 | `stream` | Stream | networking |
 | `zaraz` | Zaraz | networking |
+| `flagship` | Flagship | management |

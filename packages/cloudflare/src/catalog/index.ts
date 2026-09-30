@@ -130,6 +130,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/zaraz.svg",
     sha256: "cc7d4f2b08540dbdf740f20f5a10dbcf3024f549a330829b318a9004c6ea77f6",
   },
+  flagship: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/flagship.svg",
+    sha256: "491edad3b81d4c081f86dac86dd6985692e82549d9872aaa7d658f9e5df14c30",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -315,6 +320,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.zaraz"],
     iconKey: "cloudflare.zaraz",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "flagship",
+    displayName: "Flagship",
+    category: "management",
+    aliases: ["cloudflare.flagship"],
+    iconKey: "cloudflare.flagship",
     allowedContainment: ["account"],
   },
 ];
