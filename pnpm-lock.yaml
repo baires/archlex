@@ -405,6 +405,9 @@ importers:
       '@archlex/aws':
         specifier: workspace:^
         version: link:../aws
+      '@archlex/cloudflare':
+        specifier: workspace:^
+        version: link:../cloudflare
       '@archlex/diagnostics':
         specifier: workspace:^
         version: link:../diagnostics

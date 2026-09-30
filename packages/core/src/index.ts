@@ -1,4 +1,5 @@
 import { awsProvider } from "@archlex/aws";
+import { cloudflareProvider } from "@archlex/cloudflare";
 import { createDiagnostic, diagnosticRegistry } from "@archlex/diagnostics";
 import { gcpProvider } from "@archlex/gcp";
 import type { IconRegistry, IconRequest } from "@archlex/icons-core";
@@ -840,7 +841,7 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
 }
 
 export { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
-export { awsProvider, gcpProvider, k8sProvider };
+export { awsProvider, cloudflareProvider, gcpProvider, k8sProvider };
 export {
   ARCHLEX_LANGUAGE_METADATA,
   KNOWN_RELATIONSHIPS,

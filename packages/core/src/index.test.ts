@@ -4,6 +4,7 @@ import type { CloudProvider, LayoutEngine } from "@archlex/model";
 import { describe, expect, it, vi } from "vitest";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -847,6 +848,54 @@ cluster production {
       ]),
     );
     expect(result.svg).toContain('data-archlex-icon="k8s.deployment"');
+  });
+
+  it("renders a Cloudflare Workers diagram offline through provider injection", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    const archlex = createArchLex({ providers: [cloudflareProvider()] });
+
+    const result = await archlex.render(`provider cloudflare
+workers["API"]`);
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+    ).not.toContain("AL-SEM-UNKNOWN-RESOURCE");
+    expect(result.graph.nodes).toEqual([
+      expect.objectContaining({
+        id: "workers",
+        provider: "cloudflare",
+        serviceKind: "workers",
+        label: "API",
+        accessibleName: "API (Workers)",
+      }),
+    ]);
+    expect(result.svg).toContain("API");
+    expect(result.svg).toContain("Workers");
+    fetchSpy.mockRestore();
+  });
+
+  it("resolves qualified Workers in an AWS document", async () => {
+    const archlex = createArchLex({
+      providers: [awsProvider(), cloudflareProvider()],
+    });
+
+    const result = await archlex.render("provider aws\ncloudflare.workers");
+    const workers = result.graph.nodes.find(
+      (node) => node.serviceKind === "workers",
+    );
+
+    expect(workers).toEqual(
+      expect.objectContaining({
+        provider: "cloudflare",
+        serviceKind: "workers",
+        label: "Workers",
+      }),
+    );
+    expect(
+      result.diagnostics.map((diagnostic) => diagnostic.code),
+    ).not.toContain("AL-SEM-UNKNOWN-RESOURCE");
+    expect(result.svg).toContain("Workers");
   });
 });
 

@@ -18,6 +18,7 @@ export default defineConfig({
         "packages/diagnostics/src/index.ts",
       ),
       "@archlex/aws": resolve(root, "packages/aws/src/index.ts"),
+      "@archlex/cloudflare": resolve(root, "packages/cloudflare/src/index.ts"),
       "@archlex/gcp": resolve(root, "packages/gcp/src/index.ts"),
       "@archlex/k8s": resolve(root, "packages/k8s/src/index.ts"),
       "@archlex/icons-core": resolve(root, "packages/icons-core/src/index.ts"),
