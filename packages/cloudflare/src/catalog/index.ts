@@ -440,6 +440,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/durable-objects.svg",
     sha256: "0dbcda18ae121f794eb2cbdddb9c1de380e9963472b370cc5cc3bd8625d4eda4",
   },
+  hyperdrive: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/hyperdrive.svg",
+    sha256: "0f7eef14f391019d5a45e0ed2c1e20d90140afb8f7d6a87bad50e17bb55315fc",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1121,6 +1126,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.durable-objects"],
     iconKey: "cloudflare.durable-objects",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "hyperdrive",
+    displayName: "Hyperdrive",
+    category: "storage",
+    aliases: ["cloudflare.hyperdrive"],
+    iconKey: "cloudflare.hyperdrive",
     allowedContainment: ["account"],
   },
 ];
