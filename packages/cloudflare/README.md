@@ -106,3 +106,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `radar` | Radar | monitoring |
 | `web-analytics` | Web Analytics | monitoring |
 | `access` | Access | security |
+| `ai-crawl-control` | Ai Crawl Control | security |

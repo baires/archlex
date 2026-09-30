@@ -300,6 +300,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/access.svg",
     sha256: "2ba818719f0fc5f688e1645b111f1f32b5395e5b5b557fb7b0b404f38825b999",
   },
+  "ai-crawl-control": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/ai-crawl-control.svg",
+    sha256: "1ffa8215c0b4b668cca9101cc2d51704ede98bd72bc3858f694d67ef54913eb9",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -757,6 +762,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.access"],
     iconKey: "cloudflare.access",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "ai-crawl-control",
+    displayName: "Ai Crawl Control",
+    category: "security",
+    aliases: ["cloudflare.ai-crawl-control"],
+    iconKey: "cloudflare.ai-crawl-control",
     allowedContainment: ["account"],
   },
 ];
