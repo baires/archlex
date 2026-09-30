@@ -328,6 +328,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/flagship.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M14.923 3.233A.5.5 0 0 0 14.5 3h-12a.5.5 0 0 0-.353.854L4.794 6.5 2.147 9.146A.5.5 0 0 0 2.5 10h8.352l-1.803 3.785a.5.5 0 1 0 .903.43l5-10.5a.5.5 0 0 0-.03-.482M11.327 9h-7.62l2.147-2.146a.5.5 0 0 0 0-.708L3.707 4h10z"/></svg>',
     },
+    gateway: {
+      key: "gateway",
+      provider: "cloudflare",
+      checksum:
+        "7e53543596759950e9106b6106b78d5fb4f7189ebe86fa22e0d7946e00725bad",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/gateway.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M15.45 7.125h-2.577V3.508l-.41-.408H3.925l-.41.41v3.08h.922V4.023h7.513v7.555H4.438v-1.553h-.923v2.065l.41.41h8.538l.41-.41V8.048H16z"/><path d="M8.453 7.238H0l.517.87H8.97zM9.21 8.51H.755l.517.868h8.453z"/></svg>',
+    },
     "google-tag-gateway": {
       key: "google-tag-gateway",
       provider: "cloudflare",

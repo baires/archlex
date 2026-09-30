@@ -119,3 +119,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `dmarc-management` | DMARC Management | security |
 | `email-security` | Email Security | security |
 | `firewall` | Firewall | security |
+| `gateway` | Gateway | security |
