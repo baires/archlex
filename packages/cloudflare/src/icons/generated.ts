@@ -283,6 +283,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/multi-cloud-networking.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path d="M60.519 27.763a9.87 9.87 0 0 0-6.386-2.288 15.962 15.962 0 0 0-26.906-8.907c-.116 0-.229-.016-.345-.016a15.89 15.89 0 0 0-14.705 9.714 11.46 11.46 0 0 0-7.834 2.682A12.19 12.19 0 0 0 0 38.16a11.907 11.907 0 0 0 11.882 11.881h30.6a10.04 10.04 0 0 0 8.377-4.518h3.1a10.123 10.123 0 0 0 6.56-17.76M42.486 46.041H11.86A7.893 7.893 0 0 1 4 38.16a8.15 8.15 0 0 1 2.915-6.15 7.34 7.34 0 0 1 4.785-1.755q.74.002 1.471.131l1.737.3.523-1.686a11.98 11.98 0 0 1 23.423 3.182l.063 2.282 2.254-.363a6.33 6.33 0 0 1 5.283 1.222A6.18 6.18 0 0 1 48.525 40a6.046 6.046 0 0 1-6.039 6.041m11.472-4.518H52.4a10.13 10.13 0 0 0-3.35-9.241 9.88 9.88 0 0 0-6.387-2.289 15.86 15.86 0 0 0-10.156-12.437 11.978 11.978 0 0 1 17.818 10.111l.064 2.283 2.254-.364a6.34 6.34 0 0 1 5.283 1.222A6.18 6.18 0 0 1 60 35.485a6.046 6.046 0 0 1-6.042 6.038"/></svg>',
     },
+    "network-error-logging": {
+      key: "network-error-logging",
+      provider: "cloudflare",
+      checksum:
+        "0180e4830e97b26fd8da7107b5afc11ed9d62d96991977a203dede8a04a93dbf",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/network-error-logging.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M10.86 13.14a1.57 1.57 0 1 0-1.57-1.57 1.56 1.56 0 0 0 1.57 1.57m5.02 0a1.57 1.57 0 1 0-1.57-1.57 1.57 1.57 0 0 0 1.57 1.57m5.02 0a1.57 1.57 0 1 0-1.57-1.57 1.57 1.57 0 0 0 1.57 1.57"/><path d="M42 6H6L4.5 7.5v33L6 42h36l1.5-1.5v-33Zm-1.5 3v5.17h-33V9Zm-33 8.17h33v11.31h-6.63l-3.22-4.83-2.65.21-2.9 6.42-4.08-8.93-2.68-.1L14 29.16H7.49ZM7.49 39v-6.84h7.42l1.31-.77 3.35-6.08 4.21 9.22h2.73l3.15-7 2.16 3.24 1.24.67h7.45V39Z"/></svg>',
+    },
     "network-interconnect": {
       key: "network-interconnect",
       provider: "cloudflare",
