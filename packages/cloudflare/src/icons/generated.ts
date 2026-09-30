@@ -49,6 +49,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/containers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
     },
+    "dynamic-workers": {
+      key: "dynamic-workers",
+      provider: "cloudflare",
+      checksum:
+        "07f3c507735d11312cc9b75fe4870a9e5920f427ca2feb8ca1233fb1defe6955",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg fill="none" height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/dynamic-workers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path d="M21 45.243v1.5L15.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm20 0v1.5L35.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm19 0v1.5L54.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm-49.759-3.399L7.42 45.947l2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm-9.996-22.126L30.342 33h-5.11l9.912-13.294L25.018 6h5.092z" fill="#000"/><path d="m47.814 18.35.187.262-.005 1.9-.187.26L38.996 33h-4.95l9.692-13.447L34.06 6h4.934zm-23.015-8.166.38.567-6.027 8.627 6.056 8.883-2.374 3.521-7.836-11.494.009-1.557v-.311l7.817-11.192z" fill="#000"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",
