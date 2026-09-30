@@ -128,3 +128,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `ssl` | SSL/TLS | security |
 | `turnstile` | Turnstile | security |
 | `waf` | WAF | security |
+| `waiting-room` | Waiting Room | security |

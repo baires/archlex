@@ -661,6 +661,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/waf.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="m43.5 25.995 1.5-1.5v-9l-1.5-1.5h-6.3V6.54l-1.5-1.5H4.5L3 6.54v9l1.5 1.5h6.293v6H4.5L3 24.54v9l1.5 1.5h6.293v7.5l1.5 1.5H43.5l1.5-1.5v-9l-1.5-1.5h-6.3v-6zm-1.5-3H29.392V17.04H42zM34.2 8.04v6H21.6v-6zM6 8.04h12.6v6H6zm7.793 9h12.6v6h-12.6zM6 25.995h12.6v6H6zm7.793 15.045v-6h12.6v6zm28.207 0H29.392v-6H42zm-7.792-9H21.6v-6h12.6z"/></svg>',
     },
+    "waiting-room": {
+      key: "waiting-room",
+      provider: "cloudflare",
+      checksum:
+        "6b2d6bff9233f043a80370f9338f35ef7daf429f966149c05290dfb4db0e7c03",
+      viewBox: "0 0 48 49",
+      svgFragment:
+        '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/waiting-room.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path clip-rule="evenodd" d="m8.769 5.5 1.5-1.5h26.599l1.5 1.5v12.12h4.268l1.5 1.5v17.39l-1.5 1.5h-5.55v6.794h-3V38.01H13.37v6.794h-3V38.01H4.5L3 36.51V19.12l1.5-1.5h4.269zm0 15.12H6v14.39h35.136V20.62h-2.768v10.12l-1.5 1.5h-26.6l-1.5-1.5zm3-13.62v16.472h23.599V7zm23.599 19.472h-23.6v2.768h23.6z" fill-rule="evenodd"/></svg>',
+    },
     "web-analytics": {
       key: "web-analytics",
       provider: "cloudflare",
