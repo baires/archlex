@@ -634,6 +634,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/tunnel.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="24" height="24" fill="#fff"/><path d="M24 9v14a1 1 0 0 1-2 0V9a7.01 7.01 0 0 0-7-7H9a7.007 7.007 0 0 0-7 7v14a1 1 0 1 1-2 0V9a9.01 9.01 0 0 1 9-9h6a9.01 9.01 0 0 1 9 9m-5 0v9a3 3 0 0 1-2.411 2.941l.306.611a1 1 0 1 1-1.79.896L14.382 21H9.619l-.723 1.448a1 1 0 1 1-1.79-.896l.306-.61A3 3 0 0 1 5 18V9a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3M7 9v6h10V9a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1m4 8v2h2v-2zm-3 2h1v-2H7v1a1 1 0 0 0 1 1m9-1v-1h-2v2h1a1 1 0 0 0 1-1"/></svg>',
     },
+    turnstile: {
+      key: "turnstile",
+      provider: "cloudflare",
+      checksum:
+        "dc874c00300d429b03ab0bacca9192769046cd63b8039b0416961cc60ccab9ec",
+      viewBox: "0 0 54 54",
+      svgFragment:
+        '<svg height="54" viewBox="0 0 54 54" width="54" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/turnstile.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="54" height="54" fill="#fff"/><path d="M27.315 7.261a19.45 19.45 0 0 0-13.518 4.917l1.23-6.743-3.193-.582-2.162 11.836 11.84 2.16.582-3.193-6.08-1.11a16.173 16.173 0 1 1-4.982 8.064l-3.142-.824A19.478 19.478 0 1 0 27.315 7.261"/><path clip-rule="evenodd" d="M38.847 21.919 35.928 19 24.477 30.452 19.923 25.9 17 28.822l7.483 7.484 2.923-2.923-.011-.012z" fill-rule="evenodd"/></svg>',
+    },
     "version-management": {
       key: "version-management",
       provider: "cloudflare",

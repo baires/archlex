@@ -400,6 +400,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/ssl.svg",
     sha256: "6d5e8f99515690cdca6b05c7e1bec9345d8b09734c389db690d69f679f2275ce",
   },
+  turnstile: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/turnstile.svg",
+    sha256: "0f2a6ef8fc054d78171f60a6ec4dfe3434850da4c84d72307a6a993d3fccfa2a",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1017,6 +1022,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.ssl", "ssl-tls"],
     iconKey: "cloudflare.ssl",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "turnstile",
+    displayName: "Turnstile",
+    category: "security",
+    aliases: ["cloudflare.turnstile"],
+    iconKey: "cloudflare.turnstile",
     allowedContainment: ["account"],
   },
 ];

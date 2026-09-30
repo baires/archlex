@@ -126,3 +126,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `privacy-proxy` | Privacy Proxy | security |
 | `security-center` | Security Center | security |
 | `ssl` | SSL/TLS | security |
+| `turnstile` | Turnstile | security |
