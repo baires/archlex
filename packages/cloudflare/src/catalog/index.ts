@@ -195,6 +195,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/byoip.svg",
     sha256: "b7b8fe0e56b5f69974baaa913dd608e6374776e7c8f2a7b709fef044a6e358a3",
   },
+  "china-network": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/china-network.svg",
+    sha256: "d680c58cd4fc747729e3b79292b224ed959c32bc3bd93b9c3fef132eae60a694",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -484,6 +489,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.byoip"],
     iconKey: "cloudflare.byoip",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "china-network",
+    displayName: "China Network",
+    category: "networking",
+    aliases: ["cloudflare.china-network"],
+    iconKey: "cloudflare.china-network",
     allowedContainment: ["account"],
   },
 ];
