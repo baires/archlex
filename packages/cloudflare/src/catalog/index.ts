@@ -230,6 +230,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/magic-transit.svg",
     sha256: "9423b5bb0ce720e316ea71e316229e42659126fb5cd290fe74d968b54b077bd0",
   },
+  "multi-cloud-networking": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/multi-cloud-networking.svg",
+    sha256: "a0580f9bbd405baaeecc5048fbcbe2f095debe94a8e3fae0d89f5928a5fb931c",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -575,6 +580,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.magic-transit"],
     iconKey: "cloudflare.magic-transit",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "multi-cloud-networking",
+    displayName: "Multi-Cloud Networking",
+    category: "networking",
+    aliases: ["cloudflare.multi-cloud-networking"],
+    iconKey: "cloudflare.multi-cloud-networking",
     allowedContainment: ["account"],
   },
 ];
