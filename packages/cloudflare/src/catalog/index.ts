@@ -420,6 +420,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/warp-client.svg",
     sha256: "493bb41cd96c9189ac6889b93d9898a2fb617085621c275971a7d33dfb18f711",
   },
+  "agent-memory": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/agent-memory.svg",
+    sha256: "f14b9951bec37a6374a88e28a377094285c2b62663c4ed51049ea585de50fe3b",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1069,6 +1074,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.warp-client", "cloudflare-one-client"],
     iconKey: "cloudflare.warp-client",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "agent-memory",
+    displayName: "Agent Memory",
+    category: "storage",
+    aliases: ["cloudflare.agent-memory"],
+    iconKey: "cloudflare.agent-memory",
     allowedContainment: ["account"],
   },
 ];

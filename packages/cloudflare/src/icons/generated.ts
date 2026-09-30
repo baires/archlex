@@ -22,6 +22,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="81" viewBox="0 0 81 81" width="81" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/aegis.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="81" height="81" fill="#fff"/><path clip-rule="evenodd" d="m60.516 21.794 1.37.2 1.7 1.94v14.18c0 9.86-4.76 17.17-9.5 22a41 41 0 0 1-10 7.52l-.7.36h-1.8l-.72-.36a31 31 0 0 1-3.47-2.08l2.27-3.29a28 28 0 0 0 2.83 1.71 37.8 37.8 0 0 0 8.78-6.65c4.28-4.37 8.35-10.73 8.35-19.2v-12.41a31.55 31.55 0 0 1-17.13-8.53 31.63 31.63 0 0 1-17.14 8.54v6.05h-4v-7.78l1.71-2 1.29-.23a27.56 27.56 0 0 0 15.41-7.65l1.15-1.28h3l1.15 1.28a27.48 27.48 0 0 0 15.45 7.68m-22.32 16.12a11.71 11.71 0 0 0-18.032 1.774c-.406.608-.754 1.25-1.039 1.918a11.7 11.7 0 0 0-.93 4.598 18.4 18.4 0 0 0 1.672 6.79q.798 1.846 1.73 3.626a52 52 0 0 0 1.708 2.994c1.242 2 2.468 3.85 3.39 5.15.282.391.797 1.087 1.157 1.57l.394.53h3.16s1.098-1.44 1.57-2.09c.938-1.29 2.2-3.1 3.458-5.14a52 52 0 0 0 3.5-6.62 18.2 18.2 0 0 0 1.691-6.83 11.73 11.73 0 0 0-3.43-8.27m-1.942 13.55a46 46 0 0 1-3.23 6.09 79 79 0 0 1-3.18 4.75c-.867-1.23-2-2.88-3.11-4.74a47 47 0 0 1-3.18-6.09 14.8 14.8 0 0 1-1.347-5.27 7.71 7.71 0 0 1 7.707-7.71 7.71 7.71 0 0 1 7.711 7.71 14.5 14.5 0 0 1-1.371 5.26m-4.215-7.2a3 3 0 0 0-1.539-.82 2.93 2.93 0 0 0-1.73.17 3 3 0 0 0-1.352 1.102 2.98 2.98 0 0 0-.078 3.21 2.98 2.98 0 0 0 1.851 1.368q.43.105.872.084a3 3 0 0 0 1.988-.892c.27-.273.488-.596.64-.952a3.15 3.15 0 0 0 .168-1.74 3 3 0 0 0-.82-1.53" fill-rule="evenodd"/></svg>',
     },
+    "agent-memory": {
+      key: "agent-memory",
+      provider: "cloudflare",
+      checksum:
+        "bc1c4a704471fa611311bd1a912e2bbb31c05eae725c1fb91f6e45b6b18cc64a",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg fill="none" height="64" viewBox="0 0 16 16" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/agent-memory.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M10.72 1.5H9.265v3.198l1.455.004zM7.36 3.347l1.516 1.517-1.032 1.025-1.513-1.513zM4.485 6.28h3.202l-.005 1.455H4.485zm1.848 3.36 1.515-1.516 1.026 1.032-1.512 1.512zm2.932 2.875V9.313l1.455.005v3.197zm3.36-1.845-1.517-1.517 1.032-1.026 1.514 1.514zM15.5 7.735h-3.202l.005-1.455H15.5zm-1.846-3.359-1.517 1.516-1.025-1.032 1.513-1.513zM2 1.829v.82h-.822v1.315H2v.821h1.314v-.82h.821V2.65h-.821v-.821zm0 12.842v-1.5H.5v-1.314H2v-1.499h1.314v1.499h1.5v1.314h-1.5v1.5z" fill="currentColor"/></svg>',
+    },
     agents: {
       key: "agents",
       provider: "cloudflare",
