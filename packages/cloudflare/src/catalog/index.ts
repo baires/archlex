@@ -85,6 +85,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/client-ip-geolocation.svg",
     sha256: "ff20f023abb88ea7e40dc00129efd9764b9079ecf2ea999d9bcd73770177d529",
   },
+  "client-side-security": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/client-side-security.svg",
+    sha256: "fb074e20826bd35444fb8db5439447a3a8a20ffcafefd900b3ad540cc16a2883",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -198,6 +203,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.client-ip-geolocation"],
     iconKey: "cloudflare.client-ip-geolocation",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "client-side-security",
+    displayName: "Client-side Security",
+    category: "networking",
+    aliases: ["cloudflare.client-side-security"],
+    iconKey: "cloudflare.client-side-security",
     allowedContainment: ["account"],
   },
 ];
