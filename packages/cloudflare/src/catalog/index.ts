@@ -350,6 +350,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/ddos-protection.svg",
     sha256: "f0c6908b526c69a0256980f3ed1c7a7a8b9f101e2ec2f63225823622fedeb5f0",
   },
+  "dmarc-management": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/dmarc-management.svg",
+    sha256: "7341d1ae95d4366fdb5d6c3af819ae3714eea2afa3d929e07c3355ec1bea9e9b",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -887,6 +892,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.ddos-protection"],
     iconKey: "cloudflare.ddos-protection",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "dmarc-management",
+    displayName: "DMARC Management",
+    category: "security",
+    aliases: ["cloudflare.dmarc-management"],
+    iconKey: "cloudflare.dmarc-management",
     allowedContainment: ["account"],
   },
 ];

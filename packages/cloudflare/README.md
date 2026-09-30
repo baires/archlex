@@ -116,3 +116,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `data-localization` | Data Localization | security |
 | `data-loss-prevention` | Data Loss Prevention | security |
 | `ddos-protection` | DDoS Protection | security |
+| `dmarc-management` | DMARC Management | security |
