@@ -77,3 +77,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `rules` | Rules | management |
 | `ruleset-engine` | Ruleset Engine | management |
 | `version-management` | Version Management | management |
+| `email-routing` | Email Routing | messaging |
