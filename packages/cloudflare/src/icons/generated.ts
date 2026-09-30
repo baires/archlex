@@ -247,6 +247,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="none" height="65" viewBox="0 0 65 65" width="65" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/log-explorer.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="65" height="65" fill="#fff"/><path d="M31.748 52.24a18.994 18.994 0 0 1-5-37.32v-4.13a23 23 0 1 0 27.45 27.45h-4.13a19.07 19.07 0 0 1-18.32 14" fill="currentColor"/><path d="m32.748 6.24-2 2v24l2 2h24l2-2a26.03 26.03 0 0 0-26-26m2 24V10.33a22.04 22.04 0 0 1 19.91 19.91z" fill="currentColor"/></svg>',
     },
+    logs: {
+      key: "logs",
+      provider: "cloudflare",
+      checksum:
+        "86be767244d3de57dbbdb337059e07f430ac7c6e8c616a0f108a4147f73b1dd7",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/logs.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M42 22.569h-6.082V18.06l-.435-1.054L23.535 4.97h-.005l-1.06-.44H7.53l-1.5 1.5v36l1.5 1.5h26.888l1.5-1.5v-4.461H42l1.5-1.5v-12zm-18.03-12.9 6.844 6.89H23.97zm8.948 30.861H9.03v-33h11.94v10.53l1.5 1.5h10.448v3.009H14.976l-1.5 1.5v12l1.5 1.5h17.942zm7.582-5.961H16.476v-9H40.5z"/><path d="M24.188 27.78h-3.203l-1.702 4.597h3.202zm6.75 0h-3.203l-1.702 4.597h3.202zm6.75 0h-3.203l-1.702 4.597h3.202z"/></svg>',
+    },
     "magic-transit": {
       key: "magic-transit",
       provider: "cloudflare",

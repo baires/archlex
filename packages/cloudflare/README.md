@@ -101,3 +101,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `analytics` | Analytics | monitoring |
 | `dex` | Digital Experience Monitoring | monitoring |
 | `log-explorer` | Log Explorer | monitoring |
+| `logs` | Logs | monitoring |
