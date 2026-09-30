@@ -470,6 +470,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/secrets-store.svg",
     sha256: "53fb94e04dd1c58e64fbcb8a1e86ce21bdfe0d0424440ecacf86de8a86c35e91",
   },
+  vectorize: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/vectorize.svg",
+    sha256: "01573bc19bafc569d8862a2c0da2a2365f7d56785999ac3b45d775709755b12b",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1199,6 +1204,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.secrets-store"],
     iconKey: "cloudflare.secrets-store",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "vectorize",
+    displayName: "Vectorize",
+    category: "storage",
+    aliases: ["cloudflare.vectorize"],
+    iconKey: "cloudflare.vectorize",
     allowedContainment: ["account"],
   },
 ];

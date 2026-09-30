@@ -733,6 +733,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="54" viewBox="0 0 54 54" width="54" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/turnstile.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="54" height="54" fill="#fff"/><g><path d="M27.315 7.261a19.45 19.45 0 0 0-13.518 4.917l1.23-6.743-3.193-.582-2.162 11.836 11.84 2.16.582-3.193-6.08-1.11a16.173 16.173 0 1 1-4.982 8.064l-3.142-.824A19.478 19.478 0 1 0 27.315 7.261"/><path clip-rule="evenodd" d="M38.847 21.919 35.928 19 24.477 30.452 19.923 25.9 17 28.822l7.483 7.484 2.923-2.923-.011-.012z" fill-rule="evenodd"/></g></svg>',
     },
+    vectorize: {
+      key: "vectorize",
+      provider: "cloudflare",
+      checksum:
+        "dab4e5c8166cb03938d2a60f7ad49313b40996185524a62baf1a511714255dc8",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg height="48" viewBox="0 0 48 48" width="48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/vectorize.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><g fill="none"><path clip-rule="evenodd" d="M7.388 36.971V5.77h3v5.282h2.957l1.5-1.5h1.5l1.5 1.5h2.795l1.5-1.5h1.5l1.5 1.5h12.323V5.77h3v31.201h1.512v2.873h1.52v3H4.505v-3H5.88V36.97zm5.958-22.914 1.5 1.5h1.499l1.499-1.5h2.796l1.5 1.5h1.5l1.498-1.5h12.325v6.066h-3.85l-1.499-1.5h-1.5l-1.5 1.5h-11.27l-1.5-1.5h-1.499l-1.5 1.5h-2.958v-6.066zm0 9.072h-2.959v5.931h11.377l1.499-1.5h1.5l1.499 1.5h2.853l1.5-1.5h1.5l1.499 1.5h3.85v-5.93h-3.85l-1.5 1.5h-1.5l-1.5-1.5h-11.27l-1.5 1.5h-1.499zm8.417 8.936 1.5 1.5h1.5l1.5-1.5h2.852l1.5 1.5h1.5l1.499-1.5h3.85v4.906H10.387v-4.906z" fill="currentColor" fill-rule="evenodd"/></g></svg>',
+    },
     "version-management": {
       key: "version-management",
       provider: "cloudflare",

@@ -144,3 +144,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `r2-sql` | R2 SQL | storage |
 | `r2` | R2 | storage |
 | `secrets-store` | Secrets Store | storage |
+| `vectorize` | Vectorize | storage |
