@@ -15,6 +15,7 @@
  *   node scripts/validate-catalog.mjs
  */
 
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -312,6 +313,8 @@ async function loadModules() {
     k8sProvider: k8sModule.k8sProvider,
     cloudflareProvider: cloudflareModule.cloudflareProvider,
     WORKERS_ARTWORK_PIN: cloudflareModule.WORKERS_ARTWORK_PIN,
+    CLOUDFLARE_ARTWORK_PINS: cloudflareModule.CLOUDFLARE_ARTWORK_PINS,
+    CLOUDFLARE_ICONS: cloudflareModule.CLOUDFLARE_ICONS,
     validateCatalogManifest: diagModule.validateCatalogManifest,
     validateCatalogContainment: diagModule.validateCatalogContainment,
     validateRelationshipDefinitions: diagModule.validateRelationshipDefinitions,
@@ -383,16 +386,20 @@ function printCheck(label, count) {
   console.log(`  ${label}: ${count === 0 ? "PASS" : `FAIL (${count} issues)`}`);
 }
 
-function artworkPinsFromModule(workersPin) {
-  const pins = new Map();
+function artworkPinsFromModule(workersPin, allPins) {
+  const pins = new Map(Object.entries(allPins ?? {}));
   if (workersPin) pins.set("workers", workersPin);
   return pins;
 }
 
-function iconMappings(services, artworkPins) {
+function iconMappings(services, artworkPins, bundledIcons) {
   const icons = new Set();
   for (const service of services) {
-    if (service.iconKey && artworkPins.has(service.id)) {
+    if (
+      service.iconKey &&
+      artworkPins.has(service.id) &&
+      bundledIcons?.[service.id]
+    ) {
       icons.add(service.iconKey);
     }
   }
@@ -409,6 +416,8 @@ async function main() {
     k8sProvider,
     cloudflareProvider,
     WORKERS_ARTWORK_PIN,
+    CLOUDFLARE_ARTWORK_PINS,
+    CLOUDFLARE_ICONS,
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
@@ -466,7 +475,14 @@ async function main() {
     KNOWN_RELATIONSHIPS,
   );
   const inventory = loadCoverageInventory();
-  const artworkPins = artworkPinsFromModule(WORKERS_ARTWORK_PIN);
+  execFileSync("pnpm", ["--filter", "@archlex/cloudflare", "icons:check"], {
+    cwd: ROOT,
+    stdio: "pipe",
+  });
+  const artworkPins = artworkPinsFromModule(
+    WORKERS_ARTWORK_PIN,
+    CLOUDFLARE_ARTWORK_PINS,
+  );
   const registrationDiagnostics = validateCloudflareRegistration({
     services,
     supportedScopes: provider.supportedScopes ?? [],
@@ -478,7 +494,7 @@ async function main() {
     ? validateIncludedInventory({
         inventory,
         services,
-        icons: iconMappings(services, artworkPins),
+        icons: iconMappings(services, artworkPins, CLOUDFLARE_ICONS),
         supportedScopes: provider.supportedScopes ?? [],
       })
     : [];
