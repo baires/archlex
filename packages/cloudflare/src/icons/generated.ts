@@ -94,6 +94,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="none" height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/argo-smart-routing.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path clip-rule="evenodd" d="M5.5 13c0-3.88 3.165-7 7.037-7 3.873 0 7.038 3.12 7.038 7s-3.165 7-7.038 7C8.665 20 5.5 16.88 5.5 13m7.037-3C10.846 10 9.5 11.357 9.5 13s1.346 3 3.037 3c1.692 0 3.038-1.357 3.038-3s-1.346-3-3.038-3" fill="#000" fill-rule="evenodd"/><path d="m38.215 29.91.373-4.396-16.035-9.193-2.006 3.461zM14.5 41V23h-4v18zm19.855-4.897 1.993 3.451 4.545-2.608-1.866-3.52zm-4.945 7.434-1.997-3.457 4.339-2.486 1.994 3.454zm-2.603 1.493-4.336 2.489-2-3.462 4.34-2.486zm23.01-14.221a2.05 2.05 0 1 0 0-4.1 2.05 2.05 0 0 0 0 4.1" fill="#000"/><path clip-rule="evenodd" d="M49.817 20a8.684 8.684 0 0 0-8.684 8.579v.024c0 1.62.531 3.361 1.189 4.936.672 1.61 1.552 3.224 2.409 4.64a59 59 0 0 0 3.453 5.066h3.132v-.001l.314-.404a59 59 0 0 0 3.197-4.646c.874-1.416 1.773-3.03 2.459-4.642.67-1.575 1.214-3.32 1.214-4.95v-.023A8.684 8.684 0 0 0 49.817 20m1.606 16.093a53 53 0 0 1-1.656 2.515 53 53 0 0 1-1.614-2.5c-.798-1.32-1.572-2.747-2.14-4.11-.58-1.39-.877-2.549-.88-3.383a4.683 4.683 0 0 1 9.367 0c-.003.827-.303 1.98-.895 3.37-.58 1.361-1.368 2.789-2.182 4.108M12.537 58C8.665 58 5.5 54.88 5.5 51s3.165-7 7.037-7c3.873 0 7.038 3.12 7.038 7s-3.165 7-7.038 7M9.5 51c0 1.643 1.346 3 3.037 3 1.692 0 3.038-1.357 3.038-3s-1.346-3-3.038-3S9.5 49.357 9.5 51" fill="#000" fill-rule="evenodd"/></svg>',
     },
+    artifacts: {
+      key: "artifacts",
+      provider: "cloudflare",
+      checksum:
+        "1504a08c62a69886b484f5a02ec79d53e68bee71c3d629d41aa2eff9ce9909c1",
+      viewBox: "0 0 512 512",
+      svgFragment:
+        '<svg fill="none" height="200" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/artifacts.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M112 144h160l48 48h80v176a32 32 0 0 1-32 32H144a32 32 0 0 1-32-32z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="M272 144v48h48m-144 56h80m-80 72h160m-160-72v72m80-72v72" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
+    },
     "automatic-platform-optimization": {
       key: "automatic-platform-optimization",
       provider: "cloudflare",

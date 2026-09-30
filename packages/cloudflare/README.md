@@ -131,3 +131,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `waiting-room` | Waiting Room | security |
 | `warp-client` | Cloudflare One Client | security |
 | `agent-memory` | Agent Memory | storage |
+| `artifacts` | Artifacts | storage |
