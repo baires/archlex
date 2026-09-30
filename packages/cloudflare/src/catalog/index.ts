@@ -185,6 +185,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/aegis.svg",
     sha256: "8775b7dbaa9eab22fa5e5544f207db518a42d1a6b1dbd57e8cc6586c81dc95eb",
   },
+  "argo-smart-routing": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/argo-smart-routing.svg",
+    sha256: "1c65768f51b95f3c5253bc005cac7e46c730382fa4f0d6f6034e5b93c6b29475",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -458,6 +463,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.aegis"],
     iconKey: "cloudflare.aegis",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "argo-smart-routing",
+    displayName: "Argo Smart Routing",
+    category: "networking",
+    aliases: ["cloudflare.argo-smart-routing"],
+    iconKey: "cloudflare.argo-smart-routing",
     allowedContainment: ["account"],
   },
 ];
