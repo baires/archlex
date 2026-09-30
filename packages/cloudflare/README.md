@@ -68,3 +68,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `images` | Images | networking |
 | `moq` | Media over QUIC | networking |
 | `realtime-kit` | RealtimeKit | networking |
+| `realtime-sfu` | Realtime SFU | networking |
