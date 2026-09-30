@@ -27,7 +27,9 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "icons:generate": "tsx scripts/import-official-icons.mjs",
+    "icons:check": "tsx scripts/import-official-icons.mjs --check"
   },
   "dependencies": {
     "@archlex/icons-core": "workspace:*",
