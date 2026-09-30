@@ -60,6 +60,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/pages.svg",
     sha256: "cbbf879380cbccce8570b4f7720098d6d214f5b2d77aad2ca5e7301a941791e7",
   },
+  sandbox: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/sandbox.svg",
+    sha256: "2eb0c0906849b151acd1563d57b4989bf322c3a78f836b7e9b714b336c267068",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -133,6 +138,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "compute",
     aliases: ["cloudflare.pages"],
     iconKey: "cloudflare.pages",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "sandbox",
+    displayName: "Sandbox",
+    category: "compute",
+    aliases: ["cloudflare.sandbox"],
+    iconKey: "cloudflare.sandbox",
     allowedContainment: ["account"],
   },
 ];
