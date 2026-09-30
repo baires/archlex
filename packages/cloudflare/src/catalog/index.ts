@@ -140,6 +140,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/registrar.svg",
     sha256: "5ab2fbc0ad74719090351333d273e2ad97e581587128a91d7911e65e9619fb3d",
   },
+  rules: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/rules.svg",
+    sha256: "0a0d9b208c1b9104781728a644ab1a65a232a2733637d50577319f4751105618",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -341,6 +346,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "management",
     aliases: ["cloudflare.registrar"],
     iconKey: "cloudflare.registrar",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "rules",
+    displayName: "Rules",
+    category: "management",
+    aliases: ["cloudflare.rules"],
+    iconKey: "cloudflare.rules",
     allowedContainment: ["account"],
   },
 ];
