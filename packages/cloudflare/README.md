@@ -99,3 +99,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `tunnel` | Tunnel | networking |
 | `workers-vpc` | Workers VPC | networking |
 | `analytics` | Analytics | monitoring |
+| `dex` | Digital Experience Monitoring | monitoring |

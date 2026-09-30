@@ -265,6 +265,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/analytics.svg",
     sha256: "b61ac443f9452464a9a0973476be839b26be0d89b692a603d0d3a95204a23660",
   },
+  dex: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/dex.svg",
+    sha256: "d32687ae1e63920149deb1d1cd9dc46917bc459664c5bf6e078880cf117b95ed",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -666,6 +671,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "monitoring",
     aliases: ["cloudflare.analytics"],
     iconKey: "cloudflare.analytics",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "dex",
+    displayName: "Digital Experience Monitoring",
+    category: "monitoring",
+    aliases: ["cloudflare.dex"],
+    iconKey: "cloudflare.dex",
     allowedContainment: ["account"],
   },
 ];
