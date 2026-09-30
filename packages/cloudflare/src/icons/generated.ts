@@ -58,6 +58,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="none" height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/dynamic-workers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path d="M21 45.243v1.5L15.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm20 0v1.5L35.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm19 0v1.5L54.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm-49.759-3.399L7.42 45.947l2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm-9.996-22.126L30.342 33h-5.11l9.912-13.294L25.018 6h5.092z" fill="#000"/><path d="m47.814 18.35.187.262-.005 1.9-.187.26L38.996 33h-4.95l9.692-13.447L34.06 6h4.934zm-23.015-8.166.38.567-6.027 8.627 6.056 8.883-2.374 3.521-7.836-11.494.009-1.557v-.311l7.817-11.192z" fill="#000"/></svg>',
     },
+    pages: {
+      key: "pages",
+      provider: "cloudflare",
+      checksum:
+        "009c583541e3e4e59912a0a73cff5876984620e95b13aa96f4429f40734d0749",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/pages.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="m21.375 7.5-1.95 3H9v27h8.7l-.525 3H7.5L6 39V9l1.5-1.5zm9.45 0H40.5L42 9v30l-1.5 1.5H26.625l1.95-3H39v-27h-8.7z"/><path d="M21.45 28.5h-8.7l-1.275-2.325 15.6-24 2.7 1.125-3.225 16.2h8.7l1.275 2.325-15.6 24-2.7-1.125zM11.175 13.725a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1m2.775 0a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1m2.775 0a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",
