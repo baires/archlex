@@ -115,3 +115,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `cloudflare-network-firewall` | Cloudflare Network Firewall | security |
 | `data-localization` | Data Localization | security |
 | `data-loss-prevention` | Data Loss Prevention | security |
+| `ddos-protection` | DDoS Protection | security |

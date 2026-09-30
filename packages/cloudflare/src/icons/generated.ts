@@ -238,6 +238,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/data-loss-prevention.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="m1.5 1.75.5-.5h9.982l.5.5v3.014a3 3 0 0 0-1-.255V2.25H2.5v10.495h4v1H2l-.5-.5zm8.968 2.745H3.49v-1h6.978zM3.49 6.512h3.948v-1H3.49zm3.948 1.983H3.49v-1h3.948zm3.995 4.85v-1.17a.81.81 0 0 0 .363-.875.81.81 0 0 0-.796-.626.82.82 0 0 0-.796.626.81.81 0 0 0 .363.875v1.17zm2.76-4.129.432.429v4.801l-.431.429H7.806l-.431-.429V9.645l.431-.429h.78v-1.44c0-.637.255-1.248.708-1.698a2.42 2.42 0 0 1 3.412 0c.453.45.708 1.061.708 1.698v1.44zM9.977 6.759c-.271.27-.424.636-.424 1.017v1.44h2.896v-1.44c0-.381-.152-.747-.424-1.017a1.45 1.45 0 0 0-2.048 0m-1.635 7.154v-3.735h5.318v3.735H8.341Z" fill-rule="evenodd"/></svg>',
     },
+    "ddos-protection": {
+      key: "ddos-protection",
+      provider: "cloudflare",
+      checksum:
+        "f6d398726a551f2b8368ab1eeb075555e01eaf8d042a4e7a4697f42daa98b11e",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/ddos-protection.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="m17.4 22.5-2.24 2.14 6.46 6.74 11.2-11.3-2.19-2.17-8.97 9.07zM39 9.7l-1.05-.147a21.77 21.77 0 0 1-11.9-5.86l-.918-1.03h-2.32l-.895 1.03a21.6 21.6 0 0 1-11.8 5.86l-1.05.147-1.33 1.54v10.9c-.039 15.1 14.4 22.5 15 22.8l.548.278h1.39l.548-.278c.61-.301 15.1-7.72 15.1-22.8v-10.9zm-1.76 12.4c0 12.6-11.7 19.2-13.2 20-1.5-.772-13.2-7.32-13.2-20v-9.57c4.97-.795 9.58-3.08 13.2-6.56 3.64 3.48 8.25 5.77 13.2 6.56z"/></svg>',
+    },
     dex: {
       key: "dex",
       provider: "cloudflare",
