@@ -137,3 +137,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `agent-memory` | Agent Memory | storage |
 | `artifacts` | Artifacts | storage |
 | `d1` | D1 | storage |
+| `durable-objects` | Durable Objects | storage |

@@ -301,6 +301,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/dns.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><g><path d="M39 30.98h-2.125v-8.574H25.148v-5.449h2.102l1.25-1.25V9l-1.25-1.25h-6.738L19.262 9v6.707l1.25 1.25h2.136v5.45H11.125v8.573H9l-1.25 1.25V39L9 40.25h6.742l1.25-1.25v-6.77l-1.25-1.25h-2.117v-6.074h9.023v6.074h-2.136l-1.25 1.25V39l1.25 1.25h6.738L28.5 39v-6.77l-1.25-1.25h-2.102v-6.074h9.235v6.074h-2.121l-1.25 1.25V39l1.25 1.25H39L40.25 39v-6.77ZM21.762 10.25H26v4.238h-4.238Zm-7.27 27.5H10.25v-4.27h4.238Zm11.508 0h-4.238v-4.27H26Zm11.75 0h-4.238v-4.27h4.238Z"/></g></svg>',
     },
+    "durable-objects": {
+      key: "durable-objects",
+      provider: "cloudflare",
+      checksum:
+        "e8f300699850835a3fe82e9e5d158e669a5c640da0ffc9c5d88a275770b9fb0e",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/durable-objects.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><g><path clip-rule="evenodd" d="M32.214 6h-.202a26 26 0 1 0 .327 52q.266 0 .527-.014A26 26 0 0 0 58.012 32 26 26 0 0 0 32.865 6.014a10 10 0 0 0-.65-.013m-9.503 6.063A22 22 0 0 0 10.104 30h7.804q.068-1.79.252-3.51l3.998.24A46 46 0 0 0 21.91 30H30V10.519c-1.784.81-3.475 2.582-4.9 5.41q-.139.278-.274.567l-3.873-1.145q.276-.627.575-1.221c.363-.72.757-1.412 1.182-2.067M30 34h-8.09c.226 5.584 1.392 10.5 3.19 14.071 1.425 2.829 3.116 4.6 4.9 5.41zm-7.29 17.937a22 22 0 0 1-1.182-2.067c-2.131-4.233-3.393-9.795-3.62-15.87h-7.806A22 22 0 0 0 22.71 51.937m19.554-.472A22 22 0 0 0 53.921 34h-7.15a51 51 0 0 1-.26 3.589l-3.998-.24q.185-1.627.255-3.349H34v19.742c2.032-.641 3.973-2.486 5.577-5.671q.129-.255.252-.517l3.874 1.145q-.267.6-.553 1.171a23 23 0 0 1-.885 1.595M42.768 30H34V10.258c2.032.641 3.973 2.486 5.577 5.671 1.799 3.572 2.965 8.487 3.191 14.071m4.003 0c-.227-6.075-1.49-11.637-3.621-15.87a22 22 0 0 0-.885-1.595A22 22 0 0 1 53.921 30z" fill="currentColor" fill-rule="evenodd"/></g></svg>',
+    },
     "dynamic-workers": {
       key: "dynamic-workers",
       provider: "cloudflare",

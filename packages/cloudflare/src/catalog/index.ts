@@ -435,6 +435,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/d1.svg",
     sha256: "95f4d30259b641cd1c1ed5c46142a1ce4a8a83cb6e33d07fed0fd429b340d064",
   },
+  "durable-objects": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/durable-objects.svg",
+    sha256: "0dbcda18ae121f794eb2cbdddb9c1de380e9963472b370cc5cc3bd8625d4eda4",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1108,6 +1113,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.d1"],
     iconKey: "cloudflare.d1",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "durable-objects",
+    displayName: "Durable Objects",
+    category: "storage",
+    aliases: ["cloudflare.durable-objects"],
+    iconKey: "cloudflare.durable-objects",
     allowedContainment: ["account"],
   },
 ];
