@@ -120,3 +120,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `email-security` | Email Security | security |
 | `firewall` | Firewall | security |
 | `gateway` | Gateway | security |
+| `key-transparency` | Key Transparency | security |
