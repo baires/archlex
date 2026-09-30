@@ -373,6 +373,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/stream.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M44.903 22.632a8.8 8.8 0 0 0-6-2.04 14.475 14.475 0 0 0-27.75-3.443A10.22 10.22 0 0 0 3.9 19.542a10.95 10.95 0 0 0-3.9 8.25 10.68 10.68 0 0 0 10.635 10.687h28.41a9 9 0 0 0 5.858-15.847m-5.858 12.847H10.642A7.68 7.68 0 0 1 3 27.814a7.94 7.94 0 0 1 2.827-6 7.16 7.16 0 0 1 4.673-1.687q.718 0 1.425.127l1.305.233.383-1.268A11.467 11.467 0 0 1 36 22.264l.075 1.74 1.695-.27a6.18 6.18 0 0 1 5.182 1.215A6.08 6.08 0 0 1 45 29.524a6 6 0 0 1-5.955 5.955"/><path clip-rule="evenodd" d="m19.29 18.668 2.264-1.29L32.87 24.08l.002 2.58-11.314 6.73-2.267-1.29V18.668Zm3 2.632v8.162l6.876-4.09z" fill-rule="evenodd"/></svg>',
     },
+    "time-services": {
+      key: "time-services",
+      provider: "cloudflare",
+      checksum:
+        "4cb0f0705889e179dd0bc2307fd8f8b3e32a530012416571d7ca4d2e63743e9a",
+      viewBox: "0 0 48 49",
+      svgFragment:
+        '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/time-services.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="M24 5.04a19.5 19.5 0 1 0 0 39 19.5 19.5 0 0 0 0-39m0 36a16.5 16.5 0 1 1 0-33 16.5 16.5 0 0 1 0 33"/><path d="M25.5 11.715h-3V25.62l8.1 8.422 2.16-2.077-7.26-7.552z"/></svg>',
+    },
     "version-management": {
       key: "version-management",
       provider: "cloudflare",
