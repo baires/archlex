@@ -175,6 +175,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/client-side-security.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M9.9 21.15c.675 0 1.275-.6 1.275-1.275S10.575 18.6 9.9 18.6s-1.275.6-1.275 1.275.6 1.275 1.275 1.275m4.05 0c.675 0 1.275-.6 1.275-1.275s-.6-1.275-1.275-1.275-1.275.6-1.275 1.275.6 1.275 1.275 1.275m5.325-1.275c0 .675-.6 1.275-1.275 1.275-.75 0-1.275-.6-1.275-1.275S17.325 18.6 18 18.6s1.275.6 1.275 1.275"/><path clip-rule="evenodd" d="m26.628 2.754 2.24-.002.86.965a20.48 20.48 0 0 0 11.468 5.73l1.022.151 1.282 1.484v10.603c0 7.385-3.546 12.87-7.075 16.49-3.52 3.614-7.113 5.469-7.47 5.648l-.533.268-1.349-.001-.528-.267c-.366-.184-3.954-2.04-7.47-5.648a29 29 0 0 1-.638-.675H6L4.5 36V16.5L6 15h6v-3.92l1.282-1.485 1.022-.15a20.48 20.48 0 0 0 11.468-5.728zM15 15h15l1.5 1.5V36L30 37.5h-7.287c2.35 2.08 4.466 3.266 5.037 3.569.69-.367 3.637-2.022 6.527-4.987 3.19-3.274 6.223-8.048 6.223-14.397v-9.308a23.5 23.5 0 0 1-12.75-6.398A23.5 23.5 0 0 1 15 12.374zm13.5 19.5v-9.75h-21v9.75zM7.5 18v3.75h21V18z" fill-rule="evenodd"/></svg>',
     },
+    "cloudflare-challenges": {
+      key: "cloudflare-challenges",
+      provider: "cloudflare",
+      checksum:
+        "715960a457e88b1cf5fb54546c3b5daf96ed9436edd30c639414109d38715f13",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cloudflare-challenges.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path d="m51.392 41.465-9.244 9.345-5.563-5.812 2.889-2.766 2.721 2.842 6.353-6.422z"/><path d="M44.002 30A14.013 14.013 0 0 1 58 43.998V44l-.01.519A14.002 14.002 0 0 1 41.27 57.73a14 14 0 0 1-10.46-9.04H8l-2-2a16.685 16.685 0 0 1 16.685-16.685H30.1l.414.005c2.396.06 4.73.634 6.853 1.66A14 14 0 0 1 44 30v1.57zm-.004 4A10 10 0 1 0 54 44.002 10.014 10.014 0 0 0 43.998 34m-21.629.01a12.684 12.684 0 0 0-12.21 10.68h19.859a14 14 0 0 1 3.672-10.162 12.7 12.7 0 0 0-3.276-.518l-.315-.004h-7.414zM26.39 6c6.181 0 11.193 5.011 11.193 11.192 0 6.182-5.012 11.194-11.193 11.194-6.182 0-11.193-5.012-11.193-11.194C15.197 11.012 20.208 6 26.39 6m0 4a7.193 7.193 0 1 0 0 14.386 7.193 7.193 0 0 0 0-14.386"/></svg>',
+    },
     "cloudflare-mesh": {
       key: "cloudflare-mesh",
       provider: "cloudflare",

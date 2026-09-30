@@ -111,3 +111,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `bots` | Bot Management | security |
 | `browser-isolation` | Browser Isolation | security |
 | `casb` | CASB | security |
+| `cloudflare-challenges` | Cloudflare Challenges | security |

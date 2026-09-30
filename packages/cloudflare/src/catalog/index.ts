@@ -325,6 +325,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/casb.svg",
     sha256: "e930afda01c580f87ea49f74a12ee48bde6c44d8e1c344ea119fa459bf30380c",
   },
+  "cloudflare-challenges": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/cloudflare-challenges.svg",
+    sha256: "9e710492ad57ff2604fa9e863cc1b99ae8951d6247d2eabfa757a357708e160c",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -822,6 +827,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.casb"],
     iconKey: "cloudflare.casb",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "cloudflare-challenges",
+    displayName: "Cloudflare Challenges",
+    category: "security",
+    aliases: ["cloudflare.cloudflare-challenges"],
+    iconKey: "cloudflare.cloudflare-challenges",
     allowedContainment: ["account"],
   },
 ];
