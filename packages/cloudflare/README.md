@@ -55,3 +55,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `workers-ai` | Workers AI | ai-ml |
 | `agents` | Agents | compute |
 | `browser-run` | Browser Run | compute |
+| `containers` | Containers | compute |

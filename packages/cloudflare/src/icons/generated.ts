@@ -40,6 +40,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="65" viewBox="0 0 64 65" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/browser-run.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="65" fill="#fff"/><path d="M23.3 18.2a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m-6.7 0a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m13.3-.61a2.1 2.1 0 1 0 0 1.22zm28.1-1.6V12.7l-2-2h-1.39v5.29zm0 9.67v-4.99h-3.39v4.99zm0 9.67v-4.99h-3.39v4.99zM58 45v-4.99h-3.39V45zm-3.39 9.6H56l2-2v-2.93h-3.39zm-17.9-4H41v4h-4.29zm8.96 0h4.29v4h-4.29zm-8.96-29H41v4h-4.29zm8.96 0h4.29v4h-4.29zm4.29-6.9h-4.29v-4h4.29zm-8.96 0h-4.29v-4H41zm-8.96-4h-24l-2 2v39.9l2 2h24v-4h-22v-25h22v-4h-22v-6.9h22z"/></svg>',
     },
+    containers: {
+      key: "containers",
+      provider: "cloudflare",
+      checksum:
+        "3d9c7c1fed9af9e0bd8fbc5709e9e7f8db00bf7055a3d88de52e101488ccb9bf",
+      viewBox: "0 0 512 512",
+      svgFragment:
+        '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/containers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",
