@@ -418,6 +418,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/key-transparency.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><g fill="none"><g clip-path="url(#clip0_49_5295)"><path d="M63.89 28.8H29a14.57 14.57 0 1 0 0 4h18.11v8.94h4V32.8H56v13h4v-13h3.89zM14.57 41.37A10.57 10.57 0 1 1 25.13 30.8a10.58 10.58 0 0 1-10.56 10.57" fill="#000"/></g><clipPath id="clip0_49_5295"><path d="M0 0h64v64H0z" fill="#fff"/></clipPath></g></svg>',
     },
+    kv: {
+      key: "kv",
+      provider: "cloudflare",
+      checksum:
+        "96d14cbbb7ff2a6c31de0f782b4c6d70eb75a527a1805e78e53c6bb3e84c04a8",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/kv.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><g fill="none"><path d="M22 44.95h-7v-4h7zm-7-8h7v-4h-7zm7-8h-7v-4h7zm4 16h23v-4H26zm23-8H26v-4h23zm-23-8h23v-4H26z" fill="currentColor"/><path clip-rule="evenodd" d="m6 12 2-2h19l1.675.907 3.408 5.225H56l2 2V52l-2 2H8l-2-2zm4 2v36h44V20.132H31l-1.675-.908L25.917 14z" fill="currentColor" fill-rule="evenodd"/></g></svg>',
+    },
     "load-balancing": {
       key: "load-balancing",
       provider: "cloudflare",

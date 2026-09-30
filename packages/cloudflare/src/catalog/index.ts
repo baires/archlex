@@ -445,6 +445,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/hyperdrive.svg",
     sha256: "0f7eef14f391019d5a45e0ed2c1e20d90140afb8f7d6a87bad50e17bb55315fc",
   },
+  kv: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/kv.svg",
+    sha256: "6af2d48c3c7f883b5ddd3bbfa11e27b1acb292513832afaf371dde2bd1ba7919",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1134,6 +1139,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.hyperdrive"],
     iconKey: "cloudflare.hyperdrive",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "kv",
+    displayName: "Workers KV",
+    category: "storage",
+    aliases: ["cloudflare.kv"],
+    iconKey: "cloudflare.kv",
     allowedContainment: ["account"],
   },
 ];
