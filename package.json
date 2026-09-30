@@ -36,6 +36,7 @@
   "devDependencies": {
     "@archlex/aws": "workspace:*",
     "@archlex/core": "workspace:*",
+    "@archlex/cloudflare": "workspace:*",
     "@archlex/diagnostics": "workspace:*",
     "@archlex/gcp": "workspace:*",
     "@archlex/icons": "workspace:*",
