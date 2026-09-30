@@ -67,3 +67,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `google-tag-gateway` | Google Tag Gateway | networking |
 | `images` | Images | networking |
 | `moq` | Media over QUIC | networking |
+| `realtime-kit` | RealtimeKit | networking |

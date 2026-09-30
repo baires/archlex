@@ -130,6 +130,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/pages.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="m21.375 7.5-1.95 3H9v27h8.7l-.525 3H7.5L6 39V9l1.5-1.5zm9.45 0H40.5L42 9v30l-1.5 1.5H26.625l1.95-3H39v-27h-8.7z"/><path d="M21.45 28.5h-8.7l-1.275-2.325 15.6-24 2.7 1.125-3.225 16.2h8.7l1.275 2.325-15.6 24-2.7-1.125zM11.175 13.725a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1m2.775 0a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1m2.775 0a1.05 1.05 0 1 0 0-2.1 1.05 1.05 0 0 0 0 2.1"/></svg>',
     },
+    "realtime-kit": {
+      key: "realtime-kit",
+      provider: "cloudflare",
+      checksum:
+        "5e01c0062eb6bd5bcef11ea27ff9633cb444fae988e0ef34d221019afd5e1571",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/realtime-kit.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path clip-rule="evenodd" d="M22.042 41.959c4.322 4.322 9.34 8.043 13.56 10.83 4.681 3.091 10.79 2.76 15.628-.493l6.707-4.511-12.955-9.917-6.551 6.504-2.824-.005-15.974-15.974-.005-2.823 6.505-6.552-9.918-12.955-4.51 6.707C8.45 17.61 8.12 23.717 11.21 28.4c2.787 4.22 6.508 9.237 10.83 13.56m11.355 14.168c-4.346-2.87-9.603-6.759-14.184-11.34s-8.47-9.837-11.34-14.184c-4.099-6.208-3.516-14.074.512-20.065l6.066-9.019 3.247-.1L30.37 17.974l-.169 2.624-6.33 6.377L37.027 40.13l6.376-6.33 2.625-.169L62.58 46.302l-.1 3.248-9.019 6.065c-5.99 4.029-13.857 4.611-20.065.512" fill-rule="evenodd"/></svg>',
+    },
     sandbox: {
       key: "sandbox",
       provider: "cloudflare",
