@@ -35,6 +35,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/workers-ai.svg",
     sha256: "0c4ce98f190e00a8ab7bd25fa3e420114e983840c55dbcec640e3f36a1f03cd6",
   },
+  agents: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/agents.svg",
+    sha256: "b70925f5134efb4a35ae387c2b7c60f93edcfc598ad53816c1b070d516994459",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -68,6 +73,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "ai-ml",
     aliases: ["cloudflare.workers-ai"],
     iconKey: "cloudflare.workers-ai",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "agents",
+    displayName: "Agents",
+    category: "compute",
+    aliases: ["cloudflare.agents"],
+    iconKey: "cloudflare.agents",
     allowedContainment: ["account"],
   },
 ];
