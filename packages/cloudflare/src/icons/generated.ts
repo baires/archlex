@@ -661,6 +661,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/sandbox.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><g stroke="currentColor" stroke-width="0"><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></g></svg>',
     },
+    "secrets-store": {
+      key: "secrets-store",
+      provider: "cloudflare",
+      checksum:
+        "ae6b89bca959868abf4a8947eeb3a5a788d1de68367a449fc1dce6b2988278db",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/secrets-store.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><g fill="none"><path d="M49.558 29.614H14.442v26.337h35.116z" stroke="currentColor" stroke-linejoin="bevel" stroke-width="4"/><path d="M35.871 39.674a3.871 3.871 0 1 0-5.591 3.451V49.4h3.44v-6.275a3.86 3.86 0 0 0 2.151-3.451" fill="currentColor"/><path d="M21.208 29.614h21.584V18.822a10.79 10.79 0 1 0-21.584 0z" stroke="currentColor" stroke-miterlimit="10" stroke-width="4"/></g></svg>',
+    },
     "security-center": {
       key: "security-center",
       provider: "cloudflare",

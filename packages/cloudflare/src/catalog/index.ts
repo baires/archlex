@@ -465,6 +465,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/r2.svg",
     sha256: "d830439d65e19ff6bc960476595237277ab54ef241b90f09f860a4bb7890ee23",
   },
+  "secrets-store": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/secrets-store.svg",
+    sha256: "53fb94e04dd1c58e64fbcb8a1e86ce21bdfe0d0424440ecacf86de8a86c35e91",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1186,6 +1191,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.r2"],
     iconKey: "cloudflare.r2",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "secrets-store",
+    displayName: "Secrets Store",
+    category: "storage",
+    aliases: ["cloudflare.secrets-store"],
+    iconKey: "cloudflare.secrets-store",
     allowedContainment: ["account"],
   },
 ];
