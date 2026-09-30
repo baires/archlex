@@ -148,6 +148,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/realtime-sfu.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path clip-rule="evenodd" d="M22.042 41.959c4.322 4.322 9.34 8.043 13.56 10.83 4.681 3.091 10.79 2.76 15.628-.493l6.707-4.511-12.955-9.917-6.551 6.504-2.824-.005-15.974-15.974-.005-2.823 6.505-6.552-9.918-12.955-4.51 6.707C8.45 17.61 8.12 23.717 11.21 28.4c2.787 4.22 6.508 9.237 10.83 13.56m11.355 14.168c-4.346-2.87-9.603-6.759-14.184-11.34s-8.47-9.837-11.34-14.184c-4.099-6.208-3.516-14.074.512-20.065l6.066-9.019 3.247-.1L30.37 17.974l-.169 2.624-6.33 6.377L37.027 40.13l6.376-6.33 2.625-.169L62.58 46.302l-.1 3.248-9.019 6.065c-5.99 4.029-13.857 4.611-20.065.512" fill-rule="evenodd"/></svg>',
     },
+    "realtime-turn": {
+      key: "realtime-turn",
+      provider: "cloudflare",
+      checksum:
+        "f816f5d9702315fd0a3e7cda37ce6254a15caffb0b6e8c48f26d9295e80060c1",
+      viewBox: "0 0 64 64",
+      svgFragment:
+        '<svg height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/realtime-turn.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path clip-rule="evenodd" d="M22.042 41.959c4.322 4.322 9.34 8.043 13.56 10.83 4.681 3.091 10.79 2.76 15.628-.493l6.707-4.511-12.955-9.917-6.551 6.504-2.824-.005-15.974-15.974-.005-2.823 6.505-6.552-9.918-12.955-4.51 6.707C8.45 17.61 8.12 23.717 11.21 28.4c2.787 4.22 6.508 9.237 10.83 13.56m11.355 14.168c-4.346-2.87-9.603-6.759-14.184-11.34s-8.47-9.837-11.34-14.184c-4.099-6.208-3.516-14.074.512-20.065l6.066-9.019 3.247-.1L30.37 17.974l-.169 2.624-6.33 6.377L37.027 40.13l6.376-6.33 2.625-.169L62.58 46.302l-.1 3.248-9.019 6.065c-5.99 4.029-13.857 4.611-20.065.512" fill-rule="evenodd"/></svg>',
+    },
     sandbox: {
       key: "sandbox",
       provider: "cloudflare",

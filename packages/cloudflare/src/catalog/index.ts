@@ -115,6 +115,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/realtime-sfu.svg",
     sha256: "cbe7bb6834c22644d3103eff28a18caebd5c306dece01d34c4d964d6434fdd78",
   },
+  "realtime-turn": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/realtime-turn.svg",
+    sha256: "cbe7bb6834c22644d3103eff28a18caebd5c306dece01d34c4d964d6434fdd78",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -276,6 +281,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.realtime-sfu"],
     iconKey: "cloudflare.realtime-sfu",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "realtime-turn",
+    displayName: "Realtime TURN",
+    category: "networking",
+    aliases: ["cloudflare.realtime-turn"],
+    iconKey: "cloudflare.realtime-turn",
     allowedContainment: ["account"],
   },
 ];
