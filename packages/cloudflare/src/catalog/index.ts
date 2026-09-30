@@ -330,6 +330,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/cloudflare-challenges.svg",
     sha256: "9e710492ad57ff2604fa9e863cc1b99ae8951d6247d2eabfa757a357708e160c",
   },
+  "cloudflare-network-firewall": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/cloudflare-network-firewall.svg",
+    sha256: "b5f5dc814ff464c41a3364185311c60f90a11394e82eca91dd44900904681f2b",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -835,6 +840,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.cloudflare-challenges"],
     iconKey: "cloudflare.cloudflare-challenges",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "cloudflare-network-firewall",
+    displayName: "Cloudflare Network Firewall",
+    category: "security",
+    aliases: ["cloudflare.cloudflare-network-firewall", "magic-firewall"],
+    iconKey: "cloudflare.cloudflare-network-firewall",
     allowedContainment: ["account"],
   },
 ];

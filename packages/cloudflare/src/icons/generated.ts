@@ -193,6 +193,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cloudflare-mesh.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="32" height="32" fill="#fff"/><path d="M10 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0m6-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4M8 11a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M8 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m0 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg>',
     },
+    "cloudflare-network-firewall": {
+      key: "cloudflare-network-firewall",
+      provider: "cloudflare",
+      checksum:
+        "dc9f07174d4630e61132dfce5d0bcf292fea1b941237dac950410ce9f80d3ff4",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cloudflare-network-firewall.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="m13.591 3.476 1.417.767-.394.691-1.375-.84.038 1.607h-.797l.038-1.607-1.374.84-.394-.691 1.416-.767-1.416-.767.394-.692 1.374.84-.038-1.607h.797l-.037 1.607 1.374-.84.393.691-.108.06z"/><path d="m2 2.5-.5.5v10.5l.5.5h12l.5-.5V10l-.5-.5h-2.25v-3l-.5-.5H8.5V3L8 2.5zm6.5 8h5V13h-5zm-1 0V13h-5v-2.5zm-1.75-1V7h5v2.5zm-1 0V7H2.5v2.5zM7.5 6h-5V3.5h5z" fill-rule="evenodd"/></svg>',
+    },
     "cloudflare-wan": {
       key: "cloudflare-wan",
       provider: "cloudflare",

@@ -112,3 +112,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `browser-isolation` | Browser Isolation | security |
 | `casb` | CASB | security |
 | `cloudflare-challenges` | Cloudflare Challenges | security |
+| `cloudflare-network-firewall` | Cloudflare Network Firewall | security |
