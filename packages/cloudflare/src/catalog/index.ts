@@ -455,6 +455,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/r2-data-catalog.svg",
     sha256: "d830439d65e19ff6bc960476595237277ab54ef241b90f09f860a4bb7890ee23",
   },
+  "r2-sql": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/r2-sql.svg",
+    sha256: "c83b4e6188590a5138383cbdfd29eb1a2fefdd7b8c0f7a5cb87001322b7a2a3d",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1160,6 +1165,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "storage",
     aliases: ["cloudflare.r2-data-catalog"],
     iconKey: "cloudflare.r2-data-catalog",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "r2-sql",
+    displayName: "R2 SQL",
+    category: "storage",
+    aliases: ["cloudflare.r2-sql"],
+    iconKey: "cloudflare.r2-sql",
     allowedContainment: ["account"],
   },
 ];
