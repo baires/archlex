@@ -3,7 +3,11 @@ import { readFileSync } from "node:fs";
 import { basename } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { WORKERS_ARTWORK_PIN } from "./catalog/index.js";
-import { CLOUDFLARE_ARTWORK_PINS, CLOUDFLARE_ICONS } from "./index.js";
+import {
+  CLOUDFLARE_ARTWORK_PINS,
+  CLOUDFLARE_ICONS,
+  CLOUDFLARE_INCLUDED_IDS,
+} from "./index.js";
 import { cloudflareProvider } from "./index.js";
 
 describe("Workers catalog slice", () => {
@@ -68,6 +72,24 @@ describe("Workers catalog slice", () => {
 });
 
 describe("included Cloudflare resource integration", () => {
+  it("ships exactly the 92 included resources documented in the README", () => {
+    const services = cloudflareProvider().listServices?.() ?? [];
+    expect(CLOUDFLARE_INCLUDED_IDS).toHaveLength(92);
+    expect(services.map((service) => service.id).sort()).toEqual(
+      [...CLOUDFLARE_INCLUDED_IDS].sort(),
+    );
+    const readme = readFileSync(
+      new URL("../README.md", import.meta.url),
+      "utf8",
+    );
+    const rows = [...readme.matchAll(/^\| `([^`]+)` \| (.+) \| ([^|]+) \|$/gm)];
+    expect(rows).toHaveLength(92);
+    for (const service of services) {
+      expect(
+        rows.filter((row) => row[1] === service.id).map((row) => row.slice(1)),
+      ).toEqual([[service.id, service.displayName, service.category]]);
+    }
+  });
   it("resolves every canonical id and inventory alias once with bundled artwork", () => {
     const provider = cloudflareProvider();
     const services = provider.listServices?.() ?? [];

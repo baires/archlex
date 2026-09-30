@@ -26,7 +26,9 @@ pnpm validate:catalog
 
 Generation consumes local revision-pinned SVG inputs. It verifies source hashes,
 rejects unsafe SVG and unmapped assets, and writes deterministic fragments.
-`icons:check` reports drift without rewriting. An upstream revision update is a
+`icons:check` reports drift without rewriting and enforces the complete 92-resource
+contract, rejecting missing or unexpected resources even when their assets and
+pins are removed together. `pnpm validate:catalog` also checks that contract. An upstream revision update is a
 separate reviewed source-sync operation; ordinary generation does not download.
 
 ## Artwork and licenses

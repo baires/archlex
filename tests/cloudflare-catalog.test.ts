@@ -25,6 +25,8 @@ describe("Cloudflare catalog maintenance", () => {
     expect(output).toContain("Alias Validation: PASS");
     expect(output).toContain("Scope Validation: PASS");
     expect(output).toContain("Artwork Mapping Validation: PASS");
+    expect(output).toContain("Included catalog completeness: PASS");
+    expect(output).toContain("Included resource contract: 92 resources");
     expect(output).toContain("RESULT: PASSED");
   });
 

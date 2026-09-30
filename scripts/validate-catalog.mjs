@@ -9,7 +9,7 @@
  * 3. Provider relationship rules (unique kinds and valid source/target service IDs).
  * 4. Cloudflare aliases, supported scopes, and artwork mappings.
  * 5. Approved coverage inventory completeness. Included entries missing a resource
- *    or icon fail clearly. A proposed inventory is not yet the completeness authority.
+ *    or icon fail clearly. The shipped resource contract is always enforced.
  *
  * Usage:
  *   node scripts/validate-catalog.mjs
@@ -315,6 +315,7 @@ async function loadModules() {
     WORKERS_ARTWORK_PIN: cloudflareModule.WORKERS_ARTWORK_PIN,
     CLOUDFLARE_ARTWORK_PINS: cloudflareModule.CLOUDFLARE_ARTWORK_PINS,
     CLOUDFLARE_ICONS: cloudflareModule.CLOUDFLARE_ICONS,
+    CLOUDFLARE_INCLUDED_IDS: cloudflareModule.CLOUDFLARE_INCLUDED_IDS,
     validateCatalogManifest: diagModule.validateCatalogManifest,
     validateCatalogContainment: diagModule.validateCatalogContainment,
     validateRelationshipDefinitions: diagModule.validateRelationshipDefinitions,
@@ -418,6 +419,7 @@ async function main() {
     WORKERS_ARTWORK_PIN,
     CLOUDFLARE_ARTWORK_PINS,
     CLOUDFLARE_ICONS,
+    CLOUDFLARE_INCLUDED_IDS,
     validateCatalogManifest,
     validateCatalogContainment,
     validateRelationshipDefinitions,
@@ -490,6 +492,19 @@ async function main() {
     inventory,
     artworkPins,
   });
+  const contractDiagnostics = validateIncludedInventory({
+    inventory: {
+      entries: CLOUDFLARE_INCLUDED_IDS.map((id) => ({
+        status: "included",
+        resourceId: id,
+        iconKey: `cloudflare.${id}`,
+        allowedContainment: ["account"],
+      })),
+    },
+    services,
+    icons: iconMappings(services, artworkPins, CLOUDFLARE_ICONS),
+    supportedScopes: provider.supportedScopes ?? [],
+  });
   const completenessDiagnostics = inventoryEnforcesCompleteness(inventory)
     ? validateIncludedInventory({
         inventory,
@@ -502,6 +517,7 @@ async function main() {
     ...cloudflareReport.diagnostics,
     ...registrationDiagnostics,
     ...completenessDiagnostics,
+    ...contractDiagnostics,
   ];
   const cloudflareErrors = cloudflareDiagnostics.filter(
     (diagnostic) => diagnostic.severity === "error",
@@ -566,18 +582,13 @@ async function main() {
     "Artwork Mapping Validation",
     countCheck(cloudflareDiagnostics, "artwork"),
   );
-  if (!inventory) {
-    console.log("  Inventory completeness: not registered");
-  } else if (!inventoryEnforcesCompleteness(inventory)) {
-    console.log(
-      `  Inventory completeness: deferred (${inventory.status}, ${includedEntries(inventory).length} included)`,
-    );
-  } else {
-    printCheck(
-      "Inventory completeness",
-      countCheck(cloudflareDiagnostics, "inventory"),
-    );
-  }
+  printCheck(
+    "Included catalog completeness",
+    countCheck(cloudflareDiagnostics, "inventory"),
+  );
+  console.log(
+    `  Included resource contract: ${CLOUDFLARE_INCLUDED_IDS.length} resources`,
+  );
 
   if (cloudflareDiagnostics.length > 0) {
     console.log(`  Diagnostics (${cloudflareDiagnostics.length}):`);

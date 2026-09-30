@@ -159,3 +159,24 @@ identified as changes in per-icon attribution and package notices.
 Source paths and SHA-256 values are product provenance, separate from the local
 planning inventory. Exported SVGs carry per-icon source, license, and modification
 attribution so they do not depend solely on an npm package notice.
+
+## Completed catalog and validation (2026-09-30)
+
+The provider includes 92 product resources from the pinned source revision;
+34 navigation, documentation, and brand assets remain excluded. Every included
+resource has a canonical ID, qualified `cloudflare.<id>` alias, bundled official
+artwork, and root/account placement. The package README lists the full catalog.
+
+`pnpm --filter @archlex/cloudflare icons:generate` works from local, hash-checked
+SVG inputs. `icons:check` checks byte-identical output without writing and enforces
+the 92-resource product contract. `pnpm validate:catalog` includes that contract,
+artwork, aliases, and scopes alongside the other provider catalogs. These checks
+do not require local planning/specification files.
+
+Safe winding rules and stroke miter limits are preserved. Original inherited SVG
+presentation is moved onto an inner group so renderer symbol extraction retains
+fill-none and stroke behavior. The white backing stays outside that group.
+Native-size light/dark exports of DNS, Tunnel, Workers, R2, and Secrets Store were
+visually inspected, including R2 cutouts and Secrets Store stroke-only details.
+The earlier CF06 sanitizer and contrast observations describe the historical
+probe; this implementation addresses those presentation failures.
