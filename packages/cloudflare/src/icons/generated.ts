@@ -94,6 +94,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="none" height="64" viewBox="0 0 64 64" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/dynamic-workers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="64" fill="#fff"/><path d="M21 45.243v1.5L15.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm20 0v1.5L35.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm19 0v1.5L54.876 54h-4.423l5.658-8.014-5.762-8.236h4.409zm-49.759-3.399L7.42 45.947l2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm20 0-2.822 4.103 2.834 4.222-2.046 3.083-4.459-6.645.007-1.362 4.459-6.485zm-9.996-22.126L30.342 33h-5.11l9.912-13.294L25.018 6h5.092z" fill="#000"/><path d="m47.814 18.35.187.262-.005 1.9-.187.26L38.996 33h-4.95l9.692-13.447L34.06 6h4.934zm-23.015-8.166.38.567-6.027 8.627 6.056 8.883-2.374 3.521-7.836-11.494.009-1.557v-.311l7.817-11.192z" fill="#000"/></svg>',
     },
+    "google-tag-gateway": {
+      key: "google-tag-gateway",
+      provider: "cloudflare",
+      checksum:
+        "4a4ac01dfb1144fdd296e6d458f7da384450d222e05966085e5d38eb466a2ac7",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/google-tag-gateway.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M4 14h22v-4H4zm0 8h22v-4H4zm36 16H26v-4h14zm-14-8h14v-4H26zm34 24H26v-4h34zm-34-8h34v-4H26z"/></svg>',
+    },
     pages: {
       key: "pages",
       provider: "cloudflare",

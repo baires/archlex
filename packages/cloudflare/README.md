@@ -64,3 +64,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `cache` | Cache | networking |
 | `client-ip-geolocation` | Client Ip Geolocation | networking |
 | `client-side-security` | Client-side Security | networking |
+| `google-tag-gateway` | Google Tag Gateway | networking |

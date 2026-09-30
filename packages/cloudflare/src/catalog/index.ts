@@ -90,6 +90,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/client-side-security.svg",
     sha256: "fb074e20826bd35444fb8db5439447a3a8a20ffcafefd900b3ad540cc16a2883",
   },
+  "google-tag-gateway": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/google-tag-gateway.svg",
+    sha256: "cc7d4f2b08540dbdf740f20f5a10dbcf3024f549a330829b318a9004c6ea77f6",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -211,6 +216,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.client-side-security"],
     iconKey: "cloudflare.client-side-security",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "google-tag-gateway",
+    displayName: "Google Tag Gateway",
+    category: "networking",
+    aliases: ["cloudflare.google-tag-gateway"],
+    iconKey: "cloudflare.google-tag-gateway",
     allowedContainment: ["account"],
   },
 ];
