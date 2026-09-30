@@ -472,6 +472,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/privacy-gateway.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M9.5 30.71H14v3.27c0 .29.23.52.5.52h18.4c.27 0 .6-.23.6-.52V15.02c0-.29-.33-.52-.6-.52H14.5a.52.52 0 0 0-.5.52v3.27H9.5v-5.7A2.57 2.57 0 0 1 12.06 10h23.38A2.57 2.57 0 0 1 38 12.59v8.91h7.5l2 2H38v12.91A2.57 2.57 0 0 1 35.44 39H12.06a2.57 2.57 0 0 1-2.56-2.59zM6 27.5l-2.43-1.96 21.93-.04 2 2zm-3.5-4-2-2H22l2 2z"/></svg>',
     },
+    "privacy-pass": {
+      key: "privacy-pass",
+      provider: "cloudflare",
+      checksum:
+        "f1aa3d4ee0e91e051c3eeae42e90c5c5771e30a0cf81ed41af1243524a138cc5",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/privacy-pass.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M9.5 30.71H14v3.27c0 .29.23.52.5.52h18.4c.27 0 .6-.23.6-.52V15.02c0-.29-.33-.52-.6-.52H14.5a.52.52 0 0 0-.5.52v3.27H9.5v-5.7A2.57 2.57 0 0 1 12.06 10h23.38A2.57 2.57 0 0 1 38 12.59v8.91h7.5l2 2H38v12.91A2.57 2.57 0 0 1 35.44 39H12.06a2.57 2.57 0 0 1-2.56-2.59zM6 27.5l-2.43-1.96 21.93-.04 2 2zm-3.5-4-2-2H22l2 2z"/></svg>',
+    },
     queues: {
       key: "queues",
       provider: "cloudflare",
