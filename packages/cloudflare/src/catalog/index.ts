@@ -225,6 +225,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/load-balancing.svg",
     sha256: "bb3327d0dbc07c39c492473f8846845545e7b35f6af9ee6a5f62856392744832",
   },
+  "magic-transit": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/magic-transit.svg",
+    sha256: "9423b5bb0ce720e316ea71e316229e42659126fb5cd290fe74d968b54b077bd0",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -562,6 +567,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.load-balancing"],
     iconKey: "cloudflare.load-balancing",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "magic-transit",
+    displayName: "Magic Transit",
+    category: "networking",
+    aliases: ["cloudflare.magic-transit"],
+    iconKey: "cloudflare.magic-transit",
     allowedContainment: ["account"],
   },
 ];

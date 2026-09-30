@@ -91,3 +91,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `dns` | DNS | networking |
 | `health-checks` | Health Checks | networking |
 | `load-balancing` | Load Balancing | networking |
+| `magic-transit` | Magic Transit | networking |
