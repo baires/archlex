@@ -200,6 +200,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/china-network.svg",
     sha256: "d680c58cd4fc747729e3b79292b224ed959c32bc3bd93b9c3fef132eae60a694",
   },
+  "cloudflare-mesh": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/cloudflare-mesh.svg",
+    sha256: "f120a74486ead2852b17a031f081fd84d748087d48c6aa671d2974edebe01321",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -497,6 +502,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.china-network"],
     iconKey: "cloudflare.china-network",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "cloudflare-mesh",
+    displayName: "Cloudflare Mesh",
+    category: "networking",
+    aliases: ["cloudflare.cloudflare-mesh"],
+    iconKey: "cloudflare.cloudflare-mesh",
     allowedContainment: ["account"],
   },
 ];

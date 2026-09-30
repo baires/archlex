@@ -86,3 +86,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `argo-smart-routing` | Argo Smart Routing | networking |
 | `byoip` | Bring Your Own IP | networking |
 | `china-network` | China Network | networking |
+| `cloudflare-mesh` | Cloudflare Mesh | networking |
