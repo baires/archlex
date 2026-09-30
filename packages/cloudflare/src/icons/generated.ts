@@ -103,6 +103,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/bots.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M40.488 15.863H25.5v-4.335a3 3 0 1 0-3 0v4.335H7.512l-1.5 1.5v23.081l1.5 1.5h32.976l1.5-1.5v-23.08l-1.5-1.5Zm-1.5 23.081H9.012v-20.08h29.976z"/><path d="M17.008 28.544a2.493 2.493 0 0 0 2.49-2.497 2.493 2.493 0 0 0-2.49-2.495 2.493 2.493 0 0 0-2.491 2.495 2.493 2.493 0 0 0 2.49 2.497Zm13.984 0a2.493 2.493 0 0 0 2.49-2.497 2.493 2.493 0 0 0-2.49-2.495 2.493 2.493 0 0 0-2.49 2.495 2.493 2.493 0 0 0 2.49 2.497m-2.25 3.205h-9.484v3h9.484z"/></svg>',
     },
+    "browser-isolation": {
+      key: "browser-isolation",
+      provider: "cloudflare",
+      checksum:
+        "aa9b582e6a791c96ebba9f583804f2e80f81be9a348395fadeec68779f8d4820",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/browser-isolation.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M3.625 5.375a.525.525 0 1 0 0-1.05.525.525 0 0 0 0 1.05m1.675 0a.525.525 0 1 0 0-1.05.525.525 0 0 0 0 1.05m1.675 0a.525.525 0 1 0 0-1.05.525.525 0 0 0 0 1.05"/><path d="M14 2.975H2l-.5.5v9.975l.5.5h12l.5-.5V3.475zm-.5 1V5.7h-11V3.975zm-11 8.975V6.7h11v6.25z"/><path d="m9.9 9.15.1-.05-.375-.65-1.275.8.025-1.525h-.75L7.65 9.25l-1.275-.8L6 9.1l1.325.725L6 10.55l.375.65 1.275-.8-.025 1.5h.75l-.025-1.5 1.275.8.375-.65-1.325-.725z"/></svg>',
+    },
     "browser-run": {
       key: "browser-run",
       provider: "cloudflare",

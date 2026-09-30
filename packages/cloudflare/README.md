@@ -109,3 +109,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `ai-crawl-control` | Ai Crawl Control | security |
 | `api-shield` | Api Shield | security |
 | `bots` | Bot Management | security |
+| `browser-isolation` | Browser Isolation | security |

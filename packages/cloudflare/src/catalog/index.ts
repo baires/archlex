@@ -315,6 +315,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/bots.svg",
     sha256: "2c8e25ceba36b5a940565ee53cdfbb0bf66beaafd08d9085efca8f40379d187e",
   },
+  "browser-isolation": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/browser-isolation.svg",
+    sha256: "0d3b20e105f66584c3161b39c33b616d1f2e9d5fad6b7ff1ce10d0f6b622610e",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -796,6 +801,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.bots", "bot-management"],
     iconKey: "cloudflare.bots",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "browser-isolation",
+    displayName: "Browser Isolation",
+    category: "security",
+    aliases: ["cloudflare.browser-isolation"],
+    iconKey: "cloudflare.browser-isolation",
     allowedContainment: ["account"],
   },
 ];
