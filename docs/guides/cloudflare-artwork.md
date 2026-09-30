@@ -1,13 +1,14 @@
 ---
 title: Cloudflare Artwork Research
-description: "Official SVG provenance, distribution requirements, and the unresolved permission gate for the planned Cloudflare provider."
+description: "Official SVG provenance, CC BY 4.0 attribution, and presentation policy for the Cloudflare provider."
 ---
 
 # Cloudflare artwork research
 
 Research date: 2026-09-29 (America/Sao_Paulo).
-CF01 evidence is prepared. Official artwork distribution remains blocked; this
-document does not establish permission to ship the assets.
+The original CF01 investigation is preserved below. On 2026-09-30 the project
+owner selected the repository content license, CC BY 4.0, as the implementation
+basis for the included product pictograms.
 
 ## Official source
 
@@ -43,13 +44,15 @@ written permission for logos. Whether particular product pictograms are covered
 needs clarification; do not assume every pictogram is a logo, or that every
 pictogram is exempt.
 
-Decision: **copyright terms are identified; artwork classification and trademark
-authorization for this distribution are unresolved**. Do not bundle source SVGs,
-generated artwork, or publish an official-artwork package until an applicable
-basis is established. Metadata inventory and topology specification can proceed.
-No Cloudflare provider or artwork has shipped through this work.
+Implementation decision (2026-09-30): treat the selected product SVGs as CC BY
+4.0 repository content, retain source and license attribution in the package and
+exported icons, and indicate technical changes. The company logo and excluded
+navigation/documentation artwork are outside the 92-resource completion set.
+This is a copyright implementation basis, not a claim that CC BY grants trademark
+rights or that Cloudflare endorses ArchLex. No publication or push is part of
+this implementation.
 
-## Required clarification
+## Original clarification questions
 
 Prepare these questions for a human to resolve with Cloudflare or qualified
 counsel. No message has been sent on the user's behalf.
@@ -141,3 +144,18 @@ Follow-up gates:
 - [Compound SVG fill-rule preservation](https://github.com/baires/archlex/issues/95)
 - Theme treatment must be reviewed against the established artwork permissions
   before importer output is accepted.
+
+
+## Implementation presentation policy (2026-09-30)
+
+Source SVGs remain byte-identical to the pinned upstream assets. The importer
+uses the shared sanitizer, including safe `fill-rule` and `clip-rule` support,
+and retains glyph paths and viewBoxes. It adds an opaque white backing inside
+the same viewBox for both light and dark diagrams; it does not recolor the glyph,
+stretch it, or depend on inherited theme colors. The backing and sanitization are
+identified as changes in per-icon attribution and package notices.
+
+`packages/cloudflare/NOTICE.md` and `LICENSE-ARTWORK` accompany distributions.
+Source paths and SHA-256 values are product provenance, separate from the local
+planning inventory. Exported SVGs carry per-icon source, license, and modification
+attribution so they do not depend solely on an npm package notice.

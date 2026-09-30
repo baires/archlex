@@ -8,7 +8,7 @@
     "url": "https://github.com/baires/archlex.git",
     "directory": "packages/cloudflare"
   },
-  "license": "MIT",
+  "license": "MIT AND CC-BY-4.0",
   "author": "Alexis Sgarbossa",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,7 +20,7 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": ["dist", "README.md", "LICENSE", "NOTICE.md", "LICENSE-ARTWORK"],
   "publishConfig": {
     "access": "public"
   },
