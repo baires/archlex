@@ -454,6 +454,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/version-management.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5.915 3.508a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.34 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.341 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838"/><path d="M14.223 1.5H4.615l-.5.5v2.378H3.19l-.5.5v1.408h-.913l-.5.5v7.213l.5.5h8.684l.5-.5v-1.408h.915l.5-.5v-1.609h1.847l.5-.5V2.001zm-.5 1v1.18H5.115V2.5zM4.115 5.379v.968H3.69v-.968zM2.69 7.286v.968h-.413v-.968zm7.27 6.213H2.278V9.254h.415v2.838l.5.5H9.96zm1.415-1.908H3.693V7.348h.425v2.635l.5.5h6.759v1.11zm-6.26-2.109V4.679h8.608v4.803z"/></svg>',
     },
+    "web-analytics": {
+      key: "web-analytics",
+      provider: "cloudflare",
+      checksum:
+        "ee56c75bcc072d38ddc9ad91b2ed9e1e50f048282e00428c5b210d273da881b8",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/web-analytics.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5 8.5V7H4v1.5zm1.75 0h-1v-3h1zm1.75 0V4h-1v4.5z"/><path d="M3.722 2.343A5 5 0 0 1 6.5 1.5a5.005 5.005 0 0 1 5 5 5 5 0 0 1-1.129 3.164l4.108 4.107-.707.708-4.108-4.108a4.999 4.999 0 1 1-5.942-8.028M6.5 2.5a4 4 0 1 0 0 8 4 4 0 0 0 0-8" fill-rule="evenodd"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",

@@ -290,6 +290,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/radar.svg",
     sha256: "1fc1cb17563f7606aa6b342a4bb7a38d6abc07b0320cbf670e1f20a547be3dad",
   },
+  "web-analytics": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/web-analytics.svg",
+    sha256: "9be63ad926197ef63f5951c18b0050178ea8b36964e07201e4a07a6f7e69e978",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -731,6 +736,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "monitoring",
     aliases: ["cloudflare.radar"],
     iconKey: "cloudflare.radar",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "web-analytics",
+    displayName: "Web Analytics",
+    category: "monitoring",
+    aliases: ["cloudflare.web-analytics"],
+    iconKey: "cloudflare.web-analytics",
     allowedContainment: ["account"],
   },
 ];
