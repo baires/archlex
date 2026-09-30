@@ -375,6 +375,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/key-transparency.svg",
     sha256: "d3ba2272743979794f976014027fde6d0fa5699c5387c4da3829f2934187255e",
   },
+  "privacy-gateway": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/privacy-gateway.svg",
+    sha256: "6e5e2edc8de378ddb1b86cf24f2d2cecae13e5b0cdc9f8b0a13e9a25a18d73ac",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -952,6 +957,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.key-transparency"],
     iconKey: "cloudflare.key-transparency",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "privacy-gateway",
+    displayName: "Privacy Gateway",
+    category: "security",
+    aliases: ["cloudflare.privacy-gateway"],
+    iconKey: "cloudflare.privacy-gateway",
     allowedContainment: ["account"],
   },
 ];
