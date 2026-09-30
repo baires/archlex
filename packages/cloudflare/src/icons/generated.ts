@@ -229,6 +229,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/data-localization.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5.873 4.855a.75.75 0 1 0-1.23.859.75.75 0 0 0 1.23-.859m5.491 6.497a.75.75 0 1 1-.858-1.23.75.75 0 0 1 .858 1.23"/><path d="M8.053 1.5h-.05a6.5 6.5 0 1 0 .05 0M5.677 3.016A5.5 5.5 0 0 0 2.526 7.5h1.95q.018-.447.064-.878l1 .06q-.045.398-.062.818H7.5V2.63c-.446.202-.869.645-1.225 1.352l-.068.142-.969-.286a5.5 5.5 0 0 1 .44-.822zM7.5 8.5H5.478c.056 1.396.348 2.625.797 3.518.356.707.779 1.15 1.225 1.352zm-1.823 4.484a6 6 0 0 1-.295-.517C4.85 11.41 4.534 10.02 4.477 8.5H2.526a5.5 5.5 0 0 0 3.151 4.484m4.89-.118A5.5 5.5 0 0 0 13.48 8.5h-1.787a13 13 0 0 1-.066.897l-1-.06q.048-.406.065-.837H8.5v4.935c.508-.16.993-.621 1.394-1.417l.063-.13.968.287a6 6 0 0 1-.36.692zm.125-5.366H8.5V2.565c.508.16.993.621 1.394 1.417.45.893.741 2.122.798 3.518m1 0c-.056-1.519-.372-2.91-.905-3.968a6 6 0 0 0-.22-.398A5.5 5.5 0 0 1 13.48 7.5h-1.787z" fill-rule="evenodd"/></svg>',
     },
+    "data-loss-prevention": {
+      key: "data-loss-prevention",
+      provider: "cloudflare",
+      checksum:
+        "7bd861ac558211f721d50da4071da84320f4a019f59e6a74242c0c5e27452828",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/data-loss-prevention.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="m1.5 1.75.5-.5h9.982l.5.5v3.014a3 3 0 0 0-1-.255V2.25H2.5v10.495h4v1H2l-.5-.5zm8.968 2.745H3.49v-1h6.978zM3.49 6.512h3.948v-1H3.49zm3.948 1.983H3.49v-1h3.948zm3.995 4.85v-1.17a.81.81 0 0 0 .363-.875.81.81 0 0 0-.796-.626.82.82 0 0 0-.796.626.81.81 0 0 0 .363.875v1.17zm2.76-4.129.432.429v4.801l-.431.429H7.806l-.431-.429V9.645l.431-.429h.78v-1.44c0-.637.255-1.248.708-1.698a2.42 2.42 0 0 1 3.412 0c.453.45.708 1.061.708 1.698v1.44zM9.977 6.759c-.271.27-.424.636-.424 1.017v1.44h2.896v-1.44c0-.381-.152-.747-.424-1.017a1.45 1.45 0 0 0-2.048 0m-1.635 7.154v-3.735h5.318v3.735H8.341Z" fill-rule="evenodd"/></svg>',
+    },
     dex: {
       key: "dex",
       provider: "cloudflare",

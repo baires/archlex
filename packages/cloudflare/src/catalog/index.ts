@@ -340,6 +340,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/data-localization.svg",
     sha256: "ca92063ab55f419b622f312791cccdc978b60bcc14727f332a7b7aa87ef3ee49",
   },
+  "data-loss-prevention": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/data-loss-prevention.svg",
+    sha256: "021322cf1e27352be2caa1a1d4fea063ad56901a7a42d62885d61b13f70d90e1",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -861,6 +866,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.data-localization"],
     iconKey: "cloudflare.data-localization",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "data-loss-prevention",
+    displayName: "Data Loss Prevention",
+    category: "security",
+    aliases: ["cloudflare.data-loss-prevention"],
+    iconKey: "cloudflare.data-loss-prevention",
     allowedContainment: ["account"],
   },
 ];
