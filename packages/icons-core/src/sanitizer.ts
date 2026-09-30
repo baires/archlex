@@ -55,6 +55,8 @@ const ALLOWED_ATTRIBUTES = new Set([
   "ry",
   "d",
   "fill",
+  "fill-rule",
+  "clip-rule",
   "stroke",
   "stroke-width",
   "stroke-linecap",
@@ -262,6 +264,15 @@ function sanitizeNode(
       if (!ALLOWED_ATTRIBUTES.has(attributeName)) {
         element.removeAttribute(attribute.name);
         continue;
+      }
+      if (attributeName === "fill-rule" || attributeName === "clip-rule") {
+        const value = attribute.value.trim();
+        if (!["nonzero", "evenodd", "inherit"].includes(value)) {
+          throw new Error(
+            `Invalid winding rule "${attributeName}" in SVG for ${provider}/${key}`,
+          );
+        }
+        element.setAttribute(attribute.name, value);
       }
       validateUriReference(attributeName, attribute.value, provider, key);
     }

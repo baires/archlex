@@ -105,3 +105,50 @@ describe("sanitizeSvg", () => {
     expect(icon.svgFragment).toContain('fill="#326ce5"');
   });
 });
+
+describe("compound SVG geometry", () => {
+  const compoundPath = "M2 2H22V22H2ZM7 7H17V17H7Z";
+
+  it("preserves an independently authored evenodd cutout deterministically", async () => {
+    const source = `<svg viewBox="0 0 24 24"><path d="${compoundPath}" fill-rule="evenodd" clip-rule="evenodd"/></svg>`;
+    const first = await sanitizeSvg("test", "compound", source);
+    const second = await sanitizeSvg("test", "compound", source);
+    expect(first.svgFragment).toContain('fill-rule="evenodd"');
+    expect(first.svgFragment).toContain('clip-rule="evenodd"');
+    expect(first).toEqual(second);
+  });
+
+  it.each(["fill-rule", "clip-rule"])(
+    "retains safe %s values from presentation styles",
+    async (attribute) => {
+      for (const value of ["evenodd", "nonzero", "inherit"]) {
+        const icon = await sanitizeSvg(
+          "test",
+          "styled",
+          `<svg viewBox="0 0 24 24"><path d="${compoundPath}" style="${attribute}:${value}"/></svg>`,
+        );
+        expect(icon.svgFragment).toContain(`${attribute}="${value}"`);
+      }
+    },
+  );
+
+  it.each(["fill-rule", "clip-rule"])(
+    "rejects invalid %s values",
+    async (attribute) => {
+      for (const value of [
+        "unknown",
+        "url(https://example.com/icon.svg)",
+        "evenodd !important",
+        "",
+      ]) {
+        await expect(
+          sanitizeSvg(
+            "test",
+            "invalid-rule",
+            `<svg viewBox="0 0 24 24"><path d="${compoundPath}" ${attribute}="${value}"/></svg>`,
+          ),
+        ).rejects.toThrow("Invalid winding rule");
+      }
+    },
+  );
+});

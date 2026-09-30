@@ -98,3 +98,10 @@ Visit [archlex.dev](https://archlex.dev) for full documentation.
 ## License
 
 MIT
+
+## SVG winding rules
+
+`sanitizeSvg` preserves `fill-rule` and `clip-rule` so compound shapes retain
+cutouts and clipping geometry. Supported values are `nonzero`, `evenodd`, and
+`inherit`, including presentation styles. Invalid values are rejected; external
+references and active SVG content remain forbidden.
