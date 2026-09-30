@@ -88,7 +88,7 @@ export function listTools(options: RegistryOptions): Tool[] {
         source: {
           type: "string",
           description:
-            'ArchLex DSL. Canonical forms: app: ecs["Next.js"]; cdn -[routes]-> app; or rds-proxy > rds > ecs. Start with direction LR and provider aws/gcp/k8s.',
+            'ArchLex DSL. Canonical forms: app: ecs["Next.js"]; cdn -[routes]-> app; or rds-proxy > rds > ecs. Start with direction LR and provider aws/gcp/k8s/cloudflare.',
         },
         theme: {
           type: "string",
@@ -173,8 +173,9 @@ export function listTools(options: RegistryOptions): Tool[] {
           },
           provider: {
             type: "string",
-            enum: ["aws", "gcp", "k8s"],
-            description: "Cloud provider ('aws', 'gcp', or 'k8s')",
+            enum: ["aws", "gcp", "k8s", "cloudflare"],
+            description:
+              "Cloud provider ('aws', 'gcp', 'k8s', or 'cloudflare')",
           },
           validation: {
             type: "string",
@@ -195,7 +196,7 @@ export function listTools(options: RegistryOptions): Tool[] {
         properties: {
           provider: {
             type: "string",
-            enum: ["aws", "gcp", "k8s", "all"],
+            enum: ["aws", "gcp", "k8s", "cloudflare", "all"],
             description: "Provider catalog filter",
           },
           query: {

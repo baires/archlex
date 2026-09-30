@@ -33,7 +33,7 @@ export const ARCHLEX_SYNTAX_GUIDE = `# ArchLex DSL Syntax Guide
 ArchLex uses a concise text language for declaring cloud infrastructure architecture diagrams.
 
 ## Directives (placed at top of document)
-- \`provider aws\`, \`provider gcp\`, or \`provider k8s\`
+- \`provider aws\`, \`provider gcp\`, \`provider k8s\`, or \`provider cloudflare\`
 - \`direction LR\` (Left-to-Right), \`RL\`, \`TB\` (Top-to-Bottom), or \`BT\`
 - \`validation normal\` (default), \`strict\`, or \`off\`
 
@@ -41,7 +41,7 @@ ArchLex uses a concise text language for declaring cloud infrastructure architec
 - Shorthand resource node: \`rds-proxy\` or \`lambda\`
 - Named instance node: \`api: lambda\`
 - Custom display label: \`primary: rds["Primary DB"]\`
-- Fully qualified provider prefix: \`aws.rds\`, \`gcp.gke\`, or \`k8s.deployment\`
+- Fully qualified provider prefix: \`aws.rds\`, \`gcp.gke\`, \`k8s.deployment\`, or \`cloudflare.workers\`
 
 ## Relationships / Edges
 - Forward connection shorthand: \`rds-proxy > rds > ecs\`
