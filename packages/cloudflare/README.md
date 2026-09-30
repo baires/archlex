@@ -62,3 +62,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `workflows` | Workflows | compute |
 | `automatic-platform-optimization` | Automatic Platform Optimization | networking |
 | `cache` | Cache | networking |
+| `client-ip-geolocation` | Client Ip Geolocation | networking |

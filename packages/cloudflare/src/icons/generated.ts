@@ -58,6 +58,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cache.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M37.125 22.227a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.138"/><path clip-rule="evenodd" d="M11.59 6.55 12.75 6h22.5l1.16.55 6.75 8.25.34.95v.419l.006.005v9.64l-1.5 1.5H6l-1.5-1.5V15.75l.34-.95zM7.5 17.674v6.64h33.006V18.75H40.5v-1.076zm31.682-3H8.818L13.461 9h21.078l4.643 5.675Z" fill-rule="evenodd"/><path d="M37.125 36.907a1.569 1.569 0 1 0 0-3.138 1.569 1.569 0 0 0 0 3.139Z"/><path clip-rule="evenodd" d="m6 29.355-1.5 1.5v9.639l1.5 1.5h36.006l1.5-1.5v-9.639l-1.5-1.5zm1.5 9.639v-6.639h33.006v6.639z" fill-rule="evenodd"/></svg>',
     },
+    "client-ip-geolocation": {
+      key: "client-ip-geolocation",
+      provider: "cloudflare",
+      checksum:
+        "692571704c7b360fdde9d95f2cdf3dc31a603a4391b8558371fb0b3ee4b8fa89",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/client-ip-geolocation.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M25.12 7h-.422A17.41 17.41 0 0 0 8.354 18.216a9.7 9.7 0 0 1 3.016-.356 14.82 14.82 0 0 1 6.557-6.6 20 20 0 0 0-2.84 6.905h-1.664a9.66 9.66 0 0 1 4.57 2.713h5.225v6.884h-2.603c-.03.887-.196 1.793-.44 2.68h3.043v8.385c-1.703-.723-3.213-2.544-4.308-5.033-.463 1-.985 1.985-1.516 2.911q.255.438.533.863a15 15 0 0 1-.785-.428 58 58 0 0 1-1.397 2.252 17.4 17.4 0 0 0 8.812 2.435h.563A17.414 17.414 0 0 0 25.12 7M13.613 27.763a2.626 2.626 0 0 0-2.628-2.563 2.626 2.626 0 0 0-2.63 2.621 2.626 2.626 0 0 0 2.865 2.61 2.625 2.625 0 0 0 2.393-2.669Zm-6.139-6.349A6.92 6.92 0 0 0 4 27.466c0 5.133 7.067 14.006 7.067 14.006s6.93-8.873 6.93-14.006c0-3.85-3.15-6.99-7.012-6.99a7 7 0 0 0-3.51.937Zm15.744-3.216H17.86c1.031-4.078 3.02-7.186 5.358-8.164zm14.694 0h-3.43a20.4 20.4 0 0 0-2.598-6.536 14.86 14.86 0 0 1 6.028 6.503zM25.897 9.84c2.545.743 4.688 4.018 5.82 8.325h-5.82zm0 11.004h6.329a27 27 0 0 1 .033 6.918h-6.362zm0 18.144v-8.546h5.88c-1.072 4.433-3.288 7.789-5.88 8.546m5.987-1.789a20.5 20.5 0 0 0 2.652-6.757h3.49a14.85 14.85 0 0 1-6.142 6.757m3.081-9.436a31 31 0 0 0-.027-6.918h3.925a14.84 14.84 0 0 1 .06 6.918z"/></svg>',
+    },
     containers: {
       key: "containers",
       provider: "cloudflare",
