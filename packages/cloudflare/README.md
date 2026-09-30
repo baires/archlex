@@ -59,3 +59,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `dynamic-workers` | Dynamic Workers | compute |
 | `pages` | Pages | compute |
 | `sandbox` | Sandbox | compute |
+| `workflows` | Workflows | compute |
