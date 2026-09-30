@@ -652,6 +652,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/version-management.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5.915 3.508a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.34 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838m1.341 0a.419.419 0 1 0 0-.838.419.419 0 0 0 0 .838"/><path d="M14.223 1.5H4.615l-.5.5v2.378H3.19l-.5.5v1.408h-.913l-.5.5v7.213l.5.5h8.684l.5-.5v-1.408h.915l.5-.5v-1.609h1.847l.5-.5V2.001zm-.5 1v1.18H5.115V2.5zM4.115 5.379v.968H3.69v-.968zM2.69 7.286v.968h-.413v-.968zm7.27 6.213H2.278V9.254h.415v2.838l.5.5H9.96zm1.415-1.908H3.693V7.348h.425v2.635l.5.5h6.759v1.11zm-6.26-2.109V4.679h8.608v4.803z"/></svg>',
     },
+    waf: {
+      key: "waf",
+      provider: "cloudflare",
+      checksum:
+        "d2755bdbd6803a99456ee63e1a41d36f8cf80a1bffa4a7cbe19eb788269ce789",
+      viewBox: "0 0 48 49",
+      svgFragment:
+        '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/waf.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="m43.5 25.995 1.5-1.5v-9l-1.5-1.5h-6.3V6.54l-1.5-1.5H4.5L3 6.54v9l1.5 1.5h6.293v6H4.5L3 24.54v9l1.5 1.5h6.293v7.5l1.5 1.5H43.5l1.5-1.5v-9l-1.5-1.5h-6.3v-6zm-1.5-3H29.392V17.04H42zM34.2 8.04v6H21.6v-6zM6 8.04h12.6v6H6zm7.793 9h12.6v6h-12.6zM6 25.995h12.6v6H6zm7.793 15.045v-6h12.6v6zm28.207 0H29.392v-6H42zm-7.792-9H21.6v-6h12.6z"/></svg>',
+    },
     "web-analytics": {
       key: "web-analytics",
       provider: "cloudflare",

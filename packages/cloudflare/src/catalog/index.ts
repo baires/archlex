@@ -405,6 +405,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/turnstile.svg",
     sha256: "0f2a6ef8fc054d78171f60a6ec4dfe3434850da4c84d72307a6a993d3fccfa2a",
   },
+  waf: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/waf.svg",
+    sha256: "518cfb94b52f52cd59ff959efd7a222521ee00a6601101fbbfa945c239590497",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1030,6 +1035,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.turnstile"],
     iconKey: "cloudflare.turnstile",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "waf",
+    displayName: "WAF",
+    category: "security",
+    aliases: ["cloudflare.waf"],
+    iconKey: "cloudflare.waf",
     allowedContainment: ["account"],
   },
 ];

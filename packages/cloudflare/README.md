@@ -127,3 +127,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `security-center` | Security Center | security |
 | `ssl` | SSL/TLS | security |
 | `turnstile` | Turnstile | security |
+| `waf` | WAF | security |
