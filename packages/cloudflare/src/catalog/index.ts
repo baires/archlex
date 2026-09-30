@@ -305,6 +305,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/ai-crawl-control.svg",
     sha256: "1ffa8215c0b4b668cca9101cc2d51704ede98bd72bc3858f694d67ef54913eb9",
   },
+  "api-shield": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/api-shield.svg",
+    sha256: "63df8f6fe6a873a7fcea229f9c6d60c4f1ea52ad321d75b8a473a571f40eebe9",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -770,6 +775,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.ai-crawl-control"],
     iconKey: "cloudflare.ai-crawl-control",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "api-shield",
+    displayName: "Api Shield",
+    category: "security",
+    aliases: ["cloudflare.api-shield"],
+    iconKey: "cloudflare.api-shield",
     allowedContainment: ["account"],
   },
 ];

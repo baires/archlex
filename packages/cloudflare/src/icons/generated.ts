@@ -67,6 +67,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/analytics.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M23.25 39a14.245 14.245 0 0 1-3.75-27.99V7.912A17.25 17.25 0 1 0 40.087 28.5H36.99A14.3 14.3 0 0 1 23.25 39"/><path d="M24 4.5 22.5 6v18l1.5 1.5h18l1.5-1.5A19.52 19.52 0 0 0 24 4.5m1.5 18V7.567A16.53 16.53 0 0 1 40.432 22.5z"/></svg>',
     },
+    "api-shield": {
+      key: "api-shield",
+      provider: "cloudflare",
+      checksum:
+        "5bbe4fbff97c5a9f3c6841c7ab75c8373ec2db2634f9ab93754fc0c820585d4e",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/api-shield.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M37.807 4.5H10.192L8.692 6v12.66c0 16.162 13.103 23.798 14.595 24.622h1.463c1.5-.824 14.58-8.46 14.58-24.622V6zM11.692 18.66V7.5H22.5v31.71c-3.75-2.745-10.808-9.36-10.808-20.55m24.615 0c0 11.19-7.02 17.805-10.8 20.55V7.5h10.8z"/><path d="M37.807 4.5H10.192L8.692 6v12.66c0 16.162 13.103 23.798 14.595 24.622h1.463c1.5-.824 14.58-8.46 14.58-24.622V6zM11.692 18.66V7.5H22.5v31.71c-3.75-2.745-10.808-9.36-10.808-20.55m24.615 0c0 11.19-7.02 17.805-10.8 20.55V7.5h10.8z"/><path d="M37.807 4.5H10.192L8.692 6v12.66c0 16.162 13.103 23.798 14.595 24.622h1.463c1.5-.824 14.58-8.46 14.58-24.622V6zM11.692 18.66V7.5H22.5v31.71c-3.75-2.745-10.808-9.36-10.808-20.55m24.615 0c0 11.19-7.02 17.805-10.8 20.55V7.5h10.8z"/></svg>',
+    },
     "argo-smart-routing": {
       key: "argo-smart-routing",
       provider: "cloudflare",
