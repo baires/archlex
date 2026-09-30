@@ -255,6 +255,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/tunnel.svg",
     sha256: "11b640f1b8f73a10ba22ee59e2a25c1d6884528510e24c5f7ac28672289eeaf0",
   },
+  "workers-vpc": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/workers-vpc.svg",
+    sha256: "c7f249bbc68c02c2fdaa590c18378c0debde017e80772437ac474a9a508197a8",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -640,6 +645,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.tunnel"],
     iconKey: "cloudflare.tunnel",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "workers-vpc",
+    displayName: "Workers VPC",
+    category: "networking",
+    aliases: ["cloudflare.workers-vpc"],
+    iconKey: "cloudflare.workers-vpc",
     allowedContainment: ["account"],
   },
 ];

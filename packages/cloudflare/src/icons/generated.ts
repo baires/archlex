@@ -418,6 +418,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/workers-ai.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="20" height="20" fill="#fff"/><path d="M10.72 1.5H9.265v3.198l1.455.004zM7.36 3.347l1.516 1.517-1.032 1.025-1.513-1.513 1.03-1.029ZM4.485 6.28h3.202l-.005 1.455H4.485zm1.848 3.36 1.515-1.516 1.026 1.032-1.512 1.512-1.03-1.029Zm2.932 2.875V9.313l1.455.005v3.197zm3.36-1.845-1.517-1.517 1.032-1.026 1.514 1.514zM15.5 7.735h-3.202l.005-1.455H15.5zm-1.847-3.359-1.516 1.516-1.025-1.032 1.513-1.513 1.028 1.03ZM2 1.829v.82h-.822v1.315H2v.821h1.314v-.82h.821V2.65h-.821v-.821zm0 12.842v-1.5H.5v-1.314H2v-1.499h1.314v1.499h1.5v1.314h-1.5v1.5z"/></svg>',
     },
+    "workers-vpc": {
+      key: "workers-vpc",
+      provider: "cloudflare",
+      checksum:
+        "43812a07a7db58d79314fe41c71889d4cbee97c175b456b378a733073f70b942",
+      viewBox: "0 0 48 49",
+      svgFragment:
+        '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/workers-vpc.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="m18.63 37.418-9.645-12.9 9.592-12.533-1.852-2.527L5.917 23.595l-.015 1.808 10.86 14.542z"/><path d="M21.997 6.503h-3.712l13.387 18.3-13.072 17.7h3.735L35.4 24.81z"/><path d="M29.175 6.503h-3.758l13.598 18.082-13.598 17.918h3.765l12.908-17.01v-1.808z"/></svg>',
+    },
     workflows: {
       key: "workflows",
       provider: "cloudflare",

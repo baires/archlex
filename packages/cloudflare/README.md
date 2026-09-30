@@ -97,3 +97,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `spectrum` | Spectrum | networking |
 | `time-services` | Time Services | networking |
 | `tunnel` | Tunnel | networking |
+| `workers-vpc` | Workers VPC | networking |
