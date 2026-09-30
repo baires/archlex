@@ -310,6 +310,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/email-service.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M42.038 10.568h-36l-1.5 1.5v23.864l1.5 1.5h36l1.5-1.5V12.068zm-18 15.397L10.005 13.568h28.072l-14.04 12.397ZM17.288 24l-9.75 8.61V15.36zm2.25 2.003 3.494 3.082h1.988l3.48-3.082 9.578 8.43H10.005zM30.788 24l9.75-8.61v17.25z"/></svg>',
     },
+    firewall: {
+      key: "firewall",
+      provider: "cloudflare",
+      checksum:
+        "9ef930a3fee3354d0bbe24ccefb398f8a3e57abda0fe98ddd7aac176615b2c81",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/firewall.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><g fill-rule="evenodd"><path d="m1.5 2 .5-.5h5.5L8 2v3l-.5.5H5.149v2.032L6.08 6.6l.566.566-1.897 1.897L2.85 7.166l.566-.566.932.932V5.5H2L1.5 5zM7 4.5v-2H2.5v2z"/><path d="M2 14h12l.5-.5v-9L14 4h-3.25l-.5.5V7H8.5l-.5.5V10H2l-.5.5v3zm.5-3h2.25v2H2.5zm3.25 2v-2h4.5v2zm7.75-5H9v2h4.5zm0-1V5h-2.25v2zm-2.25 4h2.25v2h-2.25z"/></g></svg>',
+    },
     flagship: {
       key: "flagship",
       provider: "cloudflare",

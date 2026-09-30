@@ -360,6 +360,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/email-security.svg",
     sha256: "f2e3b5b6cc4512d38b9b356f57a710181bccc93e47e2a0fd668a012e173351d9",
   },
+  firewall: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/firewall.svg",
+    sha256: "64d335859ea11e746c7ee2f9ac9425a496d7fca1e26e34494608869170afaed9",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -913,6 +918,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.email-security"],
     iconKey: "cloudflare.email-security",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "firewall",
+    displayName: "Firewall",
+    category: "security",
+    aliases: ["cloudflare.firewall"],
+    iconKey: "cloudflare.firewall",
     allowedContainment: ["account"],
   },
 ];
