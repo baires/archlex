@@ -160,6 +160,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/email-routing.svg",
     sha256: "4d5a02f2b816cf48c7207bb2980bf92dcaf27575111463cdd8d79a1f73430067",
   },
+  "email-service": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/email-service.svg",
+    sha256: "4d5a02f2b816cf48c7207bb2980bf92dcaf27575111463cdd8d79a1f73430067",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -393,6 +398,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "messaging",
     aliases: ["cloudflare.email-routing"],
     iconKey: "cloudflare.email-routing",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "email-service",
+    displayName: "Email Service",
+    category: "messaging",
+    aliases: ["cloudflare.email-service"],
+    iconKey: "cloudflare.email-service",
     allowedContainment: ["account"],
   },
 ];
