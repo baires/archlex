@@ -79,3 +79,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `version-management` | Version Management | management |
 | `email-routing` | Email Routing | messaging |
 | `email-service` | Email Service | messaging |
+| `pipelines` | Pipelines | messaging |
