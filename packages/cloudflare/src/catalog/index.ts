@@ -285,6 +285,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/network-error-logging.svg",
     sha256: "f9a9bf4a1d5a222945c753dd593f332eb02c60f0d6418aca26fa7c3eddbd9fb4",
   },
+  radar: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/radar.svg",
+    sha256: "1fc1cb17563f7606aa6b342a4bb7a38d6abc07b0320cbf670e1f20a547be3dad",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -718,6 +723,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "monitoring",
     aliases: ["cloudflare.network-error-logging"],
     iconKey: "cloudflare.network-error-logging",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "radar",
+    displayName: "Radar",
+    category: "monitoring",
+    aliases: ["cloudflare.radar"],
+    iconKey: "cloudflare.radar",
     allowedContainment: ["account"],
   },
 ];
