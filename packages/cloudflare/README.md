@@ -81,3 +81,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `email-service` | Email Service | messaging |
 | `pipelines` | Pipelines | messaging |
 | `queues` | Queues | messaging |
+| `resolver-1111` | 1.1.1.1 Resolver | networking |
