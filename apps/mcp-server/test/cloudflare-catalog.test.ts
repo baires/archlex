@@ -45,16 +45,21 @@ describe("Cloudflare MCP catalog discovery", () => {
       expect.objectContaining({
         provider: "cloudflare",
         query: "workers",
-        count: 1,
+        count: expect.any(Number),
       }),
     );
-    expect(cloudflarePayload.matches).toEqual([
-      expect.objectContaining({
-        provider: "cloudflare",
-        id: "workers",
-        aliases: ["cloudflare.workers"],
-      }),
-    ]);
+    expect(cloudflarePayload.count).toBeGreaterThan(1);
+    expect(cloudflarePayload.count).toBe(cloudflarePayload.matches.length);
+    expect(cloudflarePayload.count).toBeLessThanOrEqual(20);
+    expect(cloudflarePayload.matches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          provider: "cloudflare",
+          id: "workers",
+          aliases: ["cloudflare.workers"],
+        }),
+      ]),
+    );
     expect(mixedPayload.provider).toBe("all");
     expect(mixedPayload.count).toBeLessThanOrEqual(5);
     expect(mixedPayload.matches).toEqual(

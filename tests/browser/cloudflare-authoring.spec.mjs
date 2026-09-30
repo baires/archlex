@@ -26,9 +26,10 @@ test("Workers completion survives diagnostic updates and renders offline", async
     .getByRole("textbox", { name: "Type to narrow down results." })
     .fill(">Trigger Suggest");
   await page.getByText("Trigger Suggest", { exact: true }).click();
+  await page.keyboard.type("workers");
   await page
     .locator(".suggest-widget")
-    .getByText("Workers", { exact: true })
+    .getByRole("option", { name: "Workers, Class", exact: true })
     .click();
   await expect(page.locator(".editor-pane")).toHaveAttribute(
     "data-test-source",
