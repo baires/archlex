@@ -121,6 +121,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cloudflare-mesh.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="32" height="32" fill="#fff"/><path d="M10 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0m6-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4M8 11a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M8 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m0 7a2 2 0 1 0 0 4 2 2 0 0 0 0-4m8-7a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg>',
     },
+    "cloudflare-wan": {
+      key: "cloudflare-wan",
+      provider: "cloudflare",
+      checksum:
+        "47b0ed4ed897731d0fc6680facf760e086381c61fe0709f6d1236aa434c28816",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/cloudflare-wan.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M43.5 22.5H31.567l11.003-4.575-1.148-2.775-11.047 4.56 8.453-8.46-2.123-2.123-8.415 8.423 4.575-10.988-2.775-1.155-4.59 11.04V4.5h-3v11.895L18 5.393 15.225 6.54l4.56 11.047-8.49-8.452-2.123 2.115 8.415 8.422L6.6 15.105l-1.155 2.767L16.5 22.5h-12v3h11.933L5.43 30l1.147 2.775 11.048-4.56-8.453 8.452 2.123 2.123 8.415-8.415-4.575 10.987 2.775 1.155L22.5 31.5v11.932h3V31.5L30 42.502l2.775-1.14-4.522-11.025 8.452 8.453 2.123-2.123-8.416-8.415L41.4 32.828l1.155-2.776L31.5 25.5h12zm-12 0v3l-1.14 2.76-2.107 2.107-2.753 1.088h-3l-2.753-1.14-2.107-2.108-1.14-2.76V22.5l1.14-2.76 2.107-2.107L22.5 16.5h3l2.753 1.14 2.107 2.107z"/></svg>',
+    },
     containers: {
       key: "containers",
       provider: "cloudflare",
