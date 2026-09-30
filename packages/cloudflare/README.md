@@ -73,3 +73,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `stream` | Stream | networking |
 | `zaraz` | Zaraz | networking |
 | `flagship` | Flagship | management |
+| `registrar` | Registrar | management |
