@@ -240,6 +240,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/network-interconnect.svg",
     sha256: "c974c8c9fa547e145029d5679741954f99eba131391a8d090eeefc62e987122e",
   },
+  spectrum: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/spectrum.svg",
+    sha256: "a0853d205c4a3a34d690c98b792ff2781a967c55c15035d5b623bf1bc472cb01",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -601,6 +606,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.network-interconnect"],
     iconKey: "cloudflare.network-interconnect",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "spectrum",
+    displayName: "Spectrum",
+    category: "networking",
+    aliases: ["cloudflare.spectrum"],
+    iconKey: "cloudflare.spectrum",
     allowedContainment: ["account"],
   },
 ];

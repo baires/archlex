@@ -355,6 +355,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/sandbox.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
     },
+    spectrum: {
+      key: "spectrum",
+      provider: "cloudflare",
+      checksum:
+        "7a9ceaf1c506f7bacfca04c42a8591ee3eb7c889ed78647c80bef24b059fd072",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/spectrum.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M24.667 44.843h-1.335l-.54-.27c-.592-.3-14.64-7.5-14.64-22.14V11.828l1.29-1.5L10.5 10.2a20.94 20.94 0 0 0 11.497-5.7l.885-.99h2.25l.878.99a20.87 20.87 0 0 0 11.527 5.7l1.02.143 1.29 1.5v10.59c0 14.654-14.047 21.817-14.64 22.14zm-13.5-31.718v9.308c0 12.255 11.385 18.622 12.848 19.387 1.5-.75 12.847-7.133 12.847-19.387v-9.308A24 24 0 0 1 24 6.75a24 24 0 0 1-12.848 6.375z"/><path d="M25.5 14.265h-3v6.615h3z"/><path d="m29.82 16.055-4.678 4.678 2.12 2.121 4.678-4.677z"/><path d="M33.735 22.5H27.12v3h6.615z"/><path d="m27.27 25.138-2.12 2.121 4.677 4.678 2.121-2.121z"/><path d="M25.5 27.12h-3v6.615h3z"/><path d="m20.737 25.146-4.678 4.677 2.121 2.122 4.678-4.678z"/><path d="M20.88 22.5h-6.615v3h6.615z"/><path d="m18.173 16.056-2.121 2.12 4.677 4.678 2.121-2.12z"/></svg>',
+    },
     stream: {
       key: "stream",
       provider: "cloudflare",
