@@ -82,3 +82,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `pipelines` | Pipelines | messaging |
 | `queues` | Queues | messaging |
 | `resolver-1111` | 1.1.1.1 Resolver | networking |
+| `aegis` | Cloudflare Aegis | networking |

@@ -180,6 +180,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/1.1.1.1.svg",
     sha256: "678ae727d11aa156f2d314b0377864e05a3c7e8382c78c9eeaba7119d777a710",
   },
+  aegis: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/aegis.svg",
+    sha256: "8775b7dbaa9eab22fa5e5544f207db518a42d1a6b1dbd57e8cc6586c81dc95eb",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -445,6 +450,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.resolver-1111"],
     iconKey: "cloudflare.resolver-1111",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "aegis",
+    displayName: "Cloudflare Aegis",
+    category: "networking",
+    aliases: ["cloudflare.aegis"],
+    iconKey: "cloudflare.aegis",
     allowedContainment: ["account"],
   },
 ];
