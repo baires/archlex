@@ -1,5 +1,5 @@
 import { awsProvider } from "@archlex/aws";
-import { createArchLex } from "@archlex/core";
+import { cloudflareProvider, createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
 import { k8sProvider } from "@archlex/k8s";
 import type { Diagnostic, RenderResult, ValidationMode } from "@archlex/model";
@@ -45,7 +45,12 @@ import { resolveInitialSource, shareIdToLoad } from "./url-source.js";
 import { downloadDataUrl, svgToPng } from "./utils/export.js";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+    cloudflareProvider(),
+  ],
 });
 
 const catalogMetadata = archlex.getCatalog();
@@ -53,9 +58,16 @@ const catalogMetadata = archlex.getCatalog();
 const STORAGE_SOURCE_KEY = "archlex_source_v1";
 const STORAGE_OPTIONS_KEY = "archlex_options_v1";
 
-function providerFromSource(source: string): "aws" | "gcp" | "k8s" | "unknown" {
-  const provider = /^provider\s+(aws|gcp|k8s)\s*$/m.exec(source)?.[1];
-  return provider === "aws" || provider === "gcp" || provider === "k8s"
+function providerFromSource(
+  source: string,
+): "aws" | "gcp" | "k8s" | "cloudflare" | "unknown" {
+  const provider = /^provider\s+(aws|gcp|k8s|cloudflare)\s*$/m.exec(
+    source,
+  )?.[1];
+  return provider === "aws" ||
+    provider === "gcp" ||
+    provider === "k8s" ||
+    provider === "cloudflare"
     ? provider
     : "unknown";
 }
