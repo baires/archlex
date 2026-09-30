@@ -105,3 +105,6 @@ MIT
 cutouts and clipping geometry. Supported values are `nonzero`, `evenodd`, and
 `inherit`, including presentation styles. Invalid values are rejected; external
 references and active SVG content remain forbidden.
+
+Stroke joins retain `stroke-miterlimit` when it is a finite SVG number of at
+least 1, or `inherit`. Invalid values are rejected during sanitization.

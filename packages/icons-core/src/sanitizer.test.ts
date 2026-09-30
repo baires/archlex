@@ -152,3 +152,25 @@ describe("compound SVG geometry", () => {
     },
   );
 });
+
+it("preserves safe stroke miter limits", async () => {
+  const icon = await sanitizeSvg(
+    "test",
+    "miter",
+    '<svg viewBox="0 0 24 24"><path d="M0 0L12 24L24 0" stroke="black" stroke-miterlimit="10"/></svg>',
+  );
+  expect(icon.svgFragment).toContain('stroke-miterlimit="10"');
+});
+
+it.each(["0", "0.9", "Infinity", "NaN", "10px", "url(#x)", ""])(
+  "rejects invalid stroke miter limit %s",
+  async (value) => {
+    await expect(
+      sanitizeSvg(
+        "test",
+        "miter",
+        `<svg viewBox="0 0 24 24"><path stroke-miterlimit="${value}"/></svg>`,
+      ),
+    ).rejects.toThrow("Invalid stroke miter limit");
+  },
+);

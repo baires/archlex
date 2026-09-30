@@ -59,6 +59,7 @@ const ALLOWED_ATTRIBUTES = new Set([
   "clip-rule",
   "stroke",
   "stroke-width",
+  "stroke-miterlimit",
   "stroke-linecap",
   "stroke-linejoin",
   "stroke-dasharray",
@@ -270,6 +271,20 @@ function sanitizeNode(
         if (!["nonzero", "evenodd", "inherit"].includes(value)) {
           throw new Error(
             `Invalid winding rule "${attributeName}" in SVG for ${provider}/${key}`,
+          );
+        }
+        element.setAttribute(attribute.name, value);
+      }
+      if (attributeName === "stroke-miterlimit") {
+        const value = attribute.value.trim();
+        if (
+          value !== "inherit" &&
+          (!/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?$/i.test(value) ||
+            !Number.isFinite(Number(value)) ||
+            Number(value) < 1)
+        ) {
+          throw new Error(
+            `Invalid stroke miter limit in SVG for ${provider}/${key}`,
           );
         }
         element.setAttribute(attribute.name, value);
