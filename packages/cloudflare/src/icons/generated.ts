@@ -103,6 +103,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/google-tag-gateway.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M4 14h22v-4H4zm0 8h22v-4H4zm36 16H26v-4h14zm-14-8h14v-4H26zm34 24H26v-4h34zm-34-8h34v-4H26z"/></svg>',
     },
+    images: {
+      key: "images",
+      provider: "cloudflare",
+      checksum:
+        "161d84913ef647f77d9d2d5470387ea943042e02af32418094f4abb644841f7a",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/images.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M42 8.94H6l-1.5 1.5v29.903l1.5 1.5h36l1.5-1.5V10.44zm-1.5 3v14.018l-6-4.913-1.965.06-3.81 3.51-4.073-3-1.852.06-10.5 8.775-4.8-3.3V11.94zm-33 26.903V30.81l3.975 2.775 1.815-.082 10.523-8.753 4.125 3 1.905-.105 3.75-3.472 6.907 5.655v9zm6.81-14.723a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/></svg>',
+    },
     pages: {
       key: "pages",
       provider: "cloudflare",
