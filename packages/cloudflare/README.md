@@ -80,3 +80,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `email-routing` | Email Routing | messaging |
 | `email-service` | Email Service | messaging |
 | `pipelines` | Pipelines | messaging |
+| `queues` | Queues | messaging |

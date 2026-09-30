@@ -170,6 +170,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/pipelines.svg",
     sha256: "a916fa7dd95ee8a93e2f9bbc41a65309fa8b59f0e8f3a3ba54dadc1b2512bccc",
   },
+  queues: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/queues.svg",
+    sha256: "e9f234976c8962ae5d62315f507337b00ad60e8cf486c53ec84bebc9eaf68fdb",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -419,6 +424,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "messaging",
     aliases: ["cloudflare.pipelines"],
     iconKey: "cloudflare.pipelines",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "queues",
+    displayName: "Queues",
+    category: "messaging",
+    aliases: ["cloudflare.queues"],
+    iconKey: "cloudflare.queues",
     allowedContainment: ["account"],
   },
 ];
