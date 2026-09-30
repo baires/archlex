@@ -71,3 +71,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `realtime-sfu` | Realtime SFU | networking |
 | `realtime-turn` | Realtime TURN | networking |
 | `stream` | Stream | networking |
+| `zaraz` | Zaraz | networking |
