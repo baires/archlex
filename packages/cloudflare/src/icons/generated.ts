@@ -166,6 +166,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/sandbox.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
     },
+    stream: {
+      key: "stream",
+      provider: "cloudflare",
+      checksum:
+        "8133918950af6f5a16e6998ccdd4283eb89bb742ab52c96d630da6cada115695",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/stream.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M44.903 22.632a8.8 8.8 0 0 0-6-2.04 14.475 14.475 0 0 0-27.75-3.443A10.22 10.22 0 0 0 3.9 19.542a10.95 10.95 0 0 0-3.9 8.25 10.68 10.68 0 0 0 10.635 10.687h28.41a9 9 0 0 0 5.858-15.847m-5.858 12.847H10.642A7.68 7.68 0 0 1 3 27.814a7.94 7.94 0 0 1 2.827-6 7.16 7.16 0 0 1 4.673-1.687q.718 0 1.425.127l1.305.233.383-1.268A11.467 11.467 0 0 1 36 22.264l.075 1.74 1.695-.27a6.18 6.18 0 0 1 5.182 1.215A6.08 6.08 0 0 1 45 29.524a6 6 0 0 1-5.955 5.955"/><path clip-rule="evenodd" d="m19.29 18.668 2.264-1.29L32.87 24.08l.002 2.58-11.314 6.73-2.267-1.29V18.668Zm3 2.632v8.162l6.876-4.09z" fill-rule="evenodd"/></svg>',
+    },
     workers: {
       key: "workers",
       provider: "cloudflare",
