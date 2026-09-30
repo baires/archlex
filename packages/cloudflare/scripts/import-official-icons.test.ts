@@ -91,3 +91,15 @@ describe("offline Cloudflare icon importer", () => {
     );
   });
 });
+
+it("retains inherited presentation when renderer extracts SVG children", async () => {
+  const options = await fixture(
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2H22V22H2Z"/></svg>',
+  );
+  await runImporter(options);
+  const generated = await readFile(options.outputPath, "utf8");
+  expect(generated).toContain(
+    '<g fill="none" stroke="currentColor" stroke-width="2">',
+  );
+  expect(generated).toContain('fill="#fff"');
+});

@@ -57,10 +57,29 @@ export async function generateIcons({ services, pins, sourceDirectory }) {
     }
     const [x, y, width, height] = dimensions;
     const attribution = `Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/${revision}/${pin.sourcePath}; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.`;
-    const fragment = sanitized.svgFragment.replace(
-      /(<svg\b[^>]*>)/,
-      `$1<desc>${attribution}</desc><rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff"/>`,
-    );
+    // The renderer extracts SVG children into a symbol. Move inherited
+    // presentation onto a group so stripping the outer tag retains it.
+    const root = sanitized.svgFragment.match(/^<svg\b([^>]*)>/);
+    if (!root) throw new Error(`Missing sanitized SVG root: ${service.id}`);
+    const viewportAttributes = new Set([
+      "xmlns",
+      "viewbox",
+      "width",
+      "height",
+      "version",
+    ]);
+    const viewport = [];
+    const presentation = [];
+    for (const attribute of root[1].matchAll(/([^\s=]+)="([^"]*)"/g)) {
+      (viewportAttributes.has(attribute[1].toLowerCase())
+        ? viewport
+        : presentation
+      ).push(attribute[0]);
+    }
+    const children = sanitized.svgFragment
+      .slice(root[0].length)
+      .replace(/<\/svg>$/, "");
+    const fragment = `<svg ${viewport.join(" ")}><desc>${attribution}</desc><rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff"/><g${presentation.length ? ` ${presentation.join(" ")}` : ""}>${children}</g></svg>`;
     icons[service.id] = {
       ...sanitized,
       svgFragment: fragment,

@@ -41,6 +41,10 @@ and in exported icon descriptions. Sanitization and the white backing are
 technical changes. Cloudflare names and trademarks remain with their owners;
 this community provider is not endorsed by Cloudflare.
 
+
+Inherited SVG presentation settings are carried by an inner group so exported
+symbols preserve source fill and stroke behavior after removing the SVG viewport.
+
 ## Resources
 
 Every resource also resolves as `cloudflare.<id>`. Categories reuse the existing
