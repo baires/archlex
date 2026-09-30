@@ -20,6 +20,8 @@ export {
   WORKERS_ARTWORK_PIN,
 } from "./catalog/index.js";
 
+export { CLOUDFLARE_INCLUDED_IDS } from "./catalog/included-ids.js";
+
 export { CLOUDFLARE_ICONS } from "./icons/generated.js";
 import { CLOUDFLARE_ICONS } from "./icons/generated.js";
 

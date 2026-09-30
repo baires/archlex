@@ -103,3 +103,13 @@ it("retains inherited presentation when renderer extracts SVG children", async (
   );
   expect(generated).toContain('fill="#fff"');
 });
+
+it("rejects coherent included-resource deletions and unexpected resources", async () => {
+  const options = await fixture();
+  await expect(
+    generateIcons({ ...options, requiredIds: ["sample", "missing"] }),
+  ).rejects.toThrow("Missing included resource: missing");
+  await expect(generateIcons({ ...options, requiredIds: [] })).rejects.toThrow(
+    "Excluded or unknown resource: sample",
+  );
+});

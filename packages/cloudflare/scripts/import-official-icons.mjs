@@ -9,11 +9,29 @@ import {
   initialServices,
 } from "../src/catalog/index.ts";
 
+import { CLOUDFLARE_INCLUDED_IDS } from "../src/catalog/included-ids.ts";
+
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repositoryRoot = resolve(packageRoot, "../..");
 const revision = "48f601bf4293fa9032505f858656d0db5b559131";
 
-export async function generateIcons({ services, pins, sourceDirectory }) {
+export async function generateIcons({
+  services,
+  pins,
+  sourceDirectory,
+  requiredIds,
+}) {
+  if (requiredIds) {
+    const actual = new Set(services.map((service) => service.id));
+    const expected = new Set(requiredIds);
+    for (const id of expected) {
+      if (!actual.has(id)) throw new Error(`Missing included resource: ${id}`);
+    }
+    for (const id of actual) {
+      if (!expected.has(id))
+        throw new Error(`Excluded or unknown resource: ${id}`);
+    }
+  }
   const icons = {};
   const mappedFiles = new Set();
   const ids = new Set();
@@ -132,6 +150,7 @@ if (
     throw new Error("Supported argument: --check");
   await runImporter({
     services: initialServices,
+    requiredIds: CLOUDFLARE_INCLUDED_IDS,
     pins: CLOUDFLARE_ARTWORK_PINS,
     sourceDirectory: resolve(packageRoot, "assets/official"),
     outputPath: resolve(packageRoot, "src/icons/generated.ts"),
