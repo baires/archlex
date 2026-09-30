@@ -190,6 +190,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/argo-smart-routing.svg",
     sha256: "1c65768f51b95f3c5253bc005cac7e46c730382fa4f0d6f6034e5b93c6b29475",
   },
+  byoip: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/byoip.svg",
+    sha256: "b7b8fe0e56b5f69974baaa913dd608e6374776e7c8f2a7b709fef044a6e358a3",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -471,6 +476,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.argo-smart-routing"],
     iconKey: "cloudflare.argo-smart-routing",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "byoip",
+    displayName: "Bring Your Own IP",
+    category: "networking",
+    aliases: ["cloudflare.byoip"],
+    iconKey: "cloudflare.byoip",
     allowedContainment: ["account"],
   },
 ];

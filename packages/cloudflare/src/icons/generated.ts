@@ -67,6 +67,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="65" viewBox="0 0 64 65" width="64" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/browser-run.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="64" height="65" fill="#fff"/><path d="M23.3 18.2a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m-6.7 0a2.1 2.1 0 1 1-4.2 0 2.1 2.1 0 0 1 4.2 0m13.3-.61a2.1 2.1 0 1 0 0 1.22zm28.1-1.6V12.7l-2-2h-1.39v5.29zm0 9.67v-4.99h-3.39v4.99zm0 9.67v-4.99h-3.39v4.99zM58 45v-4.99h-3.39V45zm-3.39 9.6H56l2-2v-2.93h-3.39zm-17.9-4H41v4h-4.29zm8.96 0h4.29v4h-4.29zm-8.96-29H41v4h-4.29zm8.96 0h4.29v4h-4.29zm4.29-6.9h-4.29v-4h4.29zm-8.96 0h-4.29v-4H41zm-8.96-4h-24l-2 2v39.9l2 2h24v-4h-22v-25h22v-4h-22v-6.9h22z"/></svg>',
     },
+    byoip: {
+      key: "byoip",
+      provider: "cloudflare",
+      checksum:
+        "ff2b0c2a3649cc28dcb7dce0e290fb3fed993e4d7ad1963c573fdbe5c38e3074",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/byoip.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M38.693 16.328a1.575 1.575 0 1 1-3.15 0 1.575 1.575 0 0 1 3.15 0M43.5 21.48v-9.638l-1.5-1.5H6l-1.5 1.5v9.638l1.5 1.5h36zm-36-8.138h33v6.638h-33zm29.625 16.095a1.568 1.568 0 1 0 0 3.137 1.568 1.568 0 0 0 0-3.136Zm-8.55 5.25H7.5V28.02h21l1.5-3H6l-1.5 1.5v9.637l1.5 1.5h24.082zm15.165-3.75a6.615 6.615 0 1 0-13.23 0c0 4.155 4.83 10.5 5.378 11.175h2.355c.562-.742 5.497-7.065 5.497-11.227zm-3 0c0 1.898-1.928 5.25-3.66 7.726-1.688-2.468-3.57-5.82-3.57-7.725a3.615 3.615 0 0 1 7.23 0Z"/></svg>',
+    },
     cache: {
       key: "cache",
       provider: "cloudflare",
