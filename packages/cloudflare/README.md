@@ -124,3 +124,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `privacy-gateway` | Privacy Gateway | security |
 | `privacy-pass` | Privacy Pass | security |
 | `privacy-proxy` | Privacy Proxy | security |
+| `security-center` | Security Center | security |

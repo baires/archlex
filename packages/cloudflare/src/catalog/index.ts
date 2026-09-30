@@ -390,6 +390,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/privacy-proxy.svg",
     sha256: "6e5e2edc8de378ddb1b86cf24f2d2cecae13e5b0cdc9f8b0a13e9a25a18d73ac",
   },
+  "security-center": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/security-center.svg",
+    sha256: "b4e50cdbc9bb71c1e726abe313077b260f6618424a45d07ae96fae20f8eb26a8",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -991,6 +996,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.privacy-proxy"],
     iconKey: "cloudflare.privacy-proxy",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "security-center",
+    displayName: "Security Center",
+    category: "security",
+    aliases: ["cloudflare.security-center"],
+    iconKey: "cloudflare.security-center",
     allowedContainment: ["account"],
   },
 ];
