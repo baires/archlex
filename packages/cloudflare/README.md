@@ -90,3 +90,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `cloudflare-wan` | Cloudflare WAN | networking |
 | `dns` | DNS | networking |
 | `health-checks` | Health Checks | networking |
+| `load-balancing` | Load Balancing | networking |

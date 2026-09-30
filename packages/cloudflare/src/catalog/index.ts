@@ -220,6 +220,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/health-checks.svg",
     sha256: "7aab473376e22d243a43d12ccaf7416c62f982474ed986f5987bc0e7e31771f7",
   },
+  "load-balancing": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/load-balancing.svg",
+    sha256: "bb3327d0dbc07c39c492473f8846845545e7b35f6af9ee6a5f62856392744832",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -549,6 +554,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.health-checks"],
     iconKey: "cloudflare.health-checks",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "load-balancing",
+    displayName: "Load Balancing",
+    category: "networking",
+    aliases: ["cloudflare.load-balancing"],
+    iconKey: "cloudflare.load-balancing",
     allowedContainment: ["account"],
   },
 ];
