@@ -235,6 +235,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/multi-cloud-networking.svg",
     sha256: "a0580f9bbd405baaeecc5048fbcbe2f095debe94a8e3fae0d89f5928a5fb931c",
   },
+  "network-interconnect": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/network-interconnect.svg",
+    sha256: "c974c8c9fa547e145029d5679741954f99eba131391a8d090eeefc62e987122e",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -588,6 +593,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.multi-cloud-networking"],
     iconKey: "cloudflare.multi-cloud-networking",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "network-interconnect",
+    displayName: "Cloudflare Network Interconnect",
+    category: "networking",
+    aliases: ["cloudflare.network-interconnect"],
+    iconKey: "cloudflare.network-interconnect",
     allowedContainment: ["account"],
   },
 ];

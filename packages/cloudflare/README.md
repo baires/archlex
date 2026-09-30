@@ -93,3 +93,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `load-balancing` | Load Balancing | networking |
 | `magic-transit` | Magic Transit | networking |
 | `multi-cloud-networking` | Multi-Cloud Networking | networking |
+| `network-interconnect` | Cloudflare Network Interconnect | networking |
