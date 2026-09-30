@@ -113,3 +113,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `casb` | CASB | security |
 | `cloudflare-challenges` | Cloudflare Challenges | security |
 | `cloudflare-network-firewall` | Cloudflare Network Firewall | security |
+| `data-localization` | Data Localization | security |

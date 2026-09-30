@@ -220,6 +220,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/containers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
     },
+    "data-localization": {
+      key: "data-localization",
+      provider: "cloudflare",
+      checksum:
+        "2674655cc5c209aba5d2ac77e0c9923686ef95b4ff45216713230e4b8502da06",
+      viewBox: "0 0 16 16",
+      svgFragment:
+        '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/data-localization.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="16" height="16" fill="#fff"/><path d="M5.873 4.855a.75.75 0 1 0-1.23.859.75.75 0 0 0 1.23-.859m5.491 6.497a.75.75 0 1 1-.858-1.23.75.75 0 0 1 .858 1.23"/><path d="M8.053 1.5h-.05a6.5 6.5 0 1 0 .05 0M5.677 3.016A5.5 5.5 0 0 0 2.526 7.5h1.95q.018-.447.064-.878l1 .06q-.045.398-.062.818H7.5V2.63c-.446.202-.869.645-1.225 1.352l-.068.142-.969-.286a5.5 5.5 0 0 1 .44-.822zM7.5 8.5H5.478c.056 1.396.348 2.625.797 3.518.356.707.779 1.15 1.225 1.352zm-1.823 4.484a6 6 0 0 1-.295-.517C4.85 11.41 4.534 10.02 4.477 8.5H2.526a5.5 5.5 0 0 0 3.151 4.484m4.89-.118A5.5 5.5 0 0 0 13.48 8.5h-1.787a13 13 0 0 1-.066.897l-1-.06q.048-.406.065-.837H8.5v4.935c.508-.16.993-.621 1.394-1.417l.063-.13.968.287a6 6 0 0 1-.36.692zm.125-5.366H8.5V2.565c.508.16.993.621 1.394 1.417.45.893.741 2.122.798 3.518m1 0c-.056-1.519-.372-2.91-.905-3.968a6 6 0 0 0-.22-.398A5.5 5.5 0 0 1 13.48 7.5h-1.787z" fill-rule="evenodd"/></svg>',
+    },
     dex: {
       key: "dex",
       provider: "cloudflare",

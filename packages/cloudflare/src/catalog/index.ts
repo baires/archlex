@@ -335,6 +335,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/cloudflare-network-firewall.svg",
     sha256: "b5f5dc814ff464c41a3364185311c60f90a11394e82eca91dd44900904681f2b",
   },
+  "data-localization": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/data-localization.svg",
+    sha256: "ca92063ab55f419b622f312791cccdc978b60bcc14727f332a7b7aa87ef3ee49",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -848,6 +853,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.cloudflare-network-firewall", "magic-firewall"],
     iconKey: "cloudflare.cloudflare-network-firewall",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "data-localization",
+    displayName: "Data Localization",
+    category: "security",
+    aliases: ["cloudflare.data-localization"],
+    iconKey: "cloudflare.data-localization",
     allowedContainment: ["account"],
   },
 ];
