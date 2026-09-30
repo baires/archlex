@@ -8,6 +8,16 @@ export const WORKERS_ARTWORK_PIN = {
   sha256: "c7f249bbc68c02c2fdaa590c18378c0debde017e80772437ac474a9a508197a8",
 } as const;
 
+export interface ArtworkPin {
+  readonly revision: string;
+  readonly sourcePath: string;
+  readonly sha256: string;
+}
+
+export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
+  workers: WORKERS_ARTWORK_PIN,
+};
+
 export const initialServices: readonly ResourceDefinition[] = [
   {
     id: "workers",
