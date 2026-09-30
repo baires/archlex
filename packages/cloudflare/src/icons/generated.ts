@@ -382,6 +382,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/time-services.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="M24 5.04a19.5 19.5 0 1 0 0 39 19.5 19.5 0 0 0 0-39m0 36a16.5 16.5 0 1 1 0-33 16.5 16.5 0 0 1 0 33"/><path d="M25.5 11.715h-3V25.62l8.1 8.422 2.16-2.077-7.26-7.552z"/></svg>',
     },
+    tunnel: {
+      key: "tunnel",
+      provider: "cloudflare",
+      checksum:
+        "b49992fbfb9394b7cdb38dfec48957b5e0bf49afcc82433187915b218a79ea60",
+      viewBox: "0 0 24 24",
+      svgFragment:
+        '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/tunnel.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="24" height="24" fill="#fff"/><path d="M24 9v14a1 1 0 0 1-2 0V9a7.01 7.01 0 0 0-7-7H9a7.007 7.007 0 0 0-7 7v14a1 1 0 1 1-2 0V9a9.01 9.01 0 0 1 9-9h6a9.01 9.01 0 0 1 9 9m-5 0v9a3 3 0 0 1-2.411 2.941l.306.611a1 1 0 1 1-1.79.896L14.382 21H9.619l-.723 1.448a1 1 0 1 1-1.79-.896l.306-.61A3 3 0 0 1 5 18V9a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3M7 9v6h10V9a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1m4 8v2h2v-2zm-3 2h1v-2H7v1a1 1 0 0 0 1 1m9-1v-1h-2v2h1a1 1 0 0 0 1-1"/></svg>',
+    },
     "version-management": {
       key: "version-management",
       provider: "cloudflare",

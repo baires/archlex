@@ -250,6 +250,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/time-services.svg",
     sha256: "4578e308a94125814aa44d8a26986384de6eed5759f9adbe7c11f94c5b4f6776",
   },
+  tunnel: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/tunnel.svg",
+    sha256: "11b640f1b8f73a10ba22ee59e2a25c1d6884528510e24c5f7ac28672289eeaf0",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -627,6 +632,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.time-services"],
     iconKey: "cloudflare.time-services",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "tunnel",
+    displayName: "Tunnel",
+    category: "networking",
+    aliases: ["cloudflare.tunnel"],
+    iconKey: "cloudflare.tunnel",
     allowedContainment: ["account"],
   },
 ];

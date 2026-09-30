@@ -96,3 +96,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `network-interconnect` | Cloudflare Network Interconnect | networking |
 | `spectrum` | Spectrum | networking |
 | `time-services` | Time Services | networking |
+| `tunnel` | Tunnel | networking |
