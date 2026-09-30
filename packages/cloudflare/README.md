@@ -132,3 +132,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `warp-client` | Cloudflare One Client | security |
 | `agent-memory` | Agent Memory | storage |
 | `artifacts` | Artifacts | storage |
+| `d1` | D1 | storage |
