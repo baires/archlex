@@ -139,6 +139,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg height="200" stroke="currentColor" stroke-width="0" viewBox="0 0 512 512" width="200" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/containers.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="512" height="512" fill="#fff"/><path d="M448 341.37V170.61A32 32 0 0 0 432.11 143l-152-88.46a47.94 47.94 0 0 0-48.24 0L79.89 143A32 32 0 0 0 64 170.61v170.76A32 32 0 0 0 79.89 369l152 88.46a48 48 0 0 0 48.24 0l152-88.46A32 32 0 0 0 448 341.37" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path d="m69 153.99 187 110 187-110m-187 310v-200" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>',
     },
+    dns: {
+      key: "dns",
+      provider: "cloudflare",
+      checksum:
+        "f1d795055240c9841345a6737b97ec28dc92d1cb0af2cdb2e8bec5e247c4b45c",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/dns.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M39 30.98h-2.125v-8.574H25.148v-5.449h2.102l1.25-1.25V9l-1.25-1.25h-6.738L19.262 9v6.707l1.25 1.25h2.136v5.45H11.125v8.573H9l-1.25 1.25V39L9 40.25h6.742l1.25-1.25v-6.77l-1.25-1.25h-2.117v-6.074h9.023v6.074h-2.136l-1.25 1.25V39l1.25 1.25h6.738L28.5 39v-6.77l-1.25-1.25h-2.102v-6.074h9.235v6.074h-2.121l-1.25 1.25V39l1.25 1.25H39L40.25 39v-6.77ZM21.762 10.25H26v4.238h-4.238Zm-7.27 27.5H10.25v-4.27h4.238Zm11.508 0h-4.238v-4.27H26Zm11.75 0h-4.238v-4.27h4.238Z"/></svg>',
+    },
     "dynamic-workers": {
       key: "dynamic-workers",
       provider: "cloudflare",

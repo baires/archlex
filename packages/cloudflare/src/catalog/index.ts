@@ -210,6 +210,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/cloudflare-wan.svg",
     sha256: "8d3340136580835aeb9f018fbda0f98759313ded4287c7c8fa191c92f95e4c86",
   },
+  dns: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/dns.svg",
+    sha256: "a947bd2f5c9737de76f00c03b11576248565beabad2453ddf49840073939eb09",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -523,6 +528,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "networking",
     aliases: ["cloudflare.cloudflare-wan", "magic-wan"],
     iconKey: "cloudflare.cloudflare-wan",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "dns",
+    displayName: "DNS",
+    category: "networking",
+    aliases: ["cloudflare.dns"],
+    iconKey: "cloudflare.dns",
     allowedContainment: ["account"],
   },
 ];
