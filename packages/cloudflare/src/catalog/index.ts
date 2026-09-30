@@ -415,6 +415,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/waiting-room.svg",
     sha256: "67808d3062c2bba0c477e179d97d7201bf846b513c8b86fdef771e110739b7d7",
   },
+  "warp-client": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/warp-client.svg",
+    sha256: "493bb41cd96c9189ac6889b93d9898a2fb617085621c275971a7d33dfb18f711",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1056,6 +1061,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.waiting-room"],
     iconKey: "cloudflare.waiting-room",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "warp-client",
+    displayName: "Cloudflare One Client",
+    category: "security",
+    aliases: ["cloudflare.warp-client", "cloudflare-one-client"],
+    iconKey: "cloudflare.warp-client",
     allowedContainment: ["account"],
   },
 ];

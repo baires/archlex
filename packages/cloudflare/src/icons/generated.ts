@@ -670,6 +670,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/waiting-room.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path clip-rule="evenodd" d="m8.769 5.5 1.5-1.5h26.599l1.5 1.5v12.12h4.268l1.5 1.5v17.39l-1.5 1.5h-5.55v6.794h-3V38.01H13.37v6.794h-3V38.01H4.5L3 36.51V19.12l1.5-1.5h4.269zm0 15.12H6v14.39h35.136V20.62h-2.768v10.12l-1.5 1.5h-26.6l-1.5-1.5zm3-13.62v16.472h23.599V7zm23.599 19.472h-23.6v2.768h23.6z" fill-rule="evenodd"/></svg>',
     },
+    "warp-client": {
+      key: "warp-client",
+      provider: "cloudflare",
+      checksum:
+        "81a022c0f59f1eb03c0c97a3d3b4e9ac29b25f6612add3190cd173e775a371af",
+      viewBox: "0 0 48 49",
+      svgFragment:
+        '<svg viewBox="0 0 48 49" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/warp-client.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="49" fill="#fff"/><path d="M24 5.04a19.5 19.5 0 1 0 19.5 19.5A19.575 19.575 0 0 0 24 5.04m0 3a16.575 16.575 0 0 1 16.5 16.5 16.8 16.8 0 0 1-2.175 8.175c.302-1.125.453-2.285.45-3.45a14.775 14.775 0 0 0-29.55 0 13.2 13.2 0 0 0 .45 3.45A16.8 16.8 0 0 1 7.5 24.54 16.575 16.575 0 0 1 24 8.04m-5.25 30.6a6.974 6.974 0 1 1 10.5 0 5.25 5.25 0 0 0-10.5 0M24 24.015a9.976 9.976 0 0 0-9.975 10.05c-.024.53.026 1.06.15 1.575a11.5 11.5 0 0 1-1.95-6.375 11.775 11.775 0 0 1 23.55 0 11.47 11.47 0 0 1-1.95 6.375 5.6 5.6 0 0 0 .15-1.575A9.974 9.974 0 0 0 24 24.015M21.75 38.79A2.25 2.25 0 1 1 24 41.04a2.174 2.174 0 0 1-2.25-2.25"/></svg>',
+    },
     "web-analytics": {
       key: "web-analytics",
       provider: "cloudflare",

@@ -129,3 +129,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `turnstile` | Turnstile | security |
 | `waf` | WAF | security |
 | `waiting-room` | Waiting Room | security |
+| `warp-client` | Cloudflare One Client | security |
