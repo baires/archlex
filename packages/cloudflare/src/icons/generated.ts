@@ -598,6 +598,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/spectrum.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M24.667 44.843h-1.335l-.54-.27c-.592-.3-14.64-7.5-14.64-22.14V11.828l1.29-1.5L10.5 10.2a20.94 20.94 0 0 0 11.497-5.7l.885-.99h2.25l.878.99a20.87 20.87 0 0 0 11.527 5.7l1.02.143 1.29 1.5v10.59c0 14.654-14.047 21.817-14.64 22.14zm-13.5-31.718v9.308c0 12.255 11.385 18.622 12.848 19.387 1.5-.75 12.847-7.133 12.847-19.387v-9.308A24 24 0 0 1 24 6.75a24 24 0 0 1-12.848 6.375z"/><path d="M25.5 14.265h-3v6.615h3z"/><path d="m29.82 16.055-4.678 4.678 2.12 2.121 4.678-4.677z"/><path d="M33.735 22.5H27.12v3h6.615z"/><path d="m27.27 25.138-2.12 2.121 4.677 4.678 2.121-2.121z"/><path d="M25.5 27.12h-3v6.615h3z"/><path d="m20.737 25.146-4.678 4.677 2.121 2.122 4.678-4.678z"/><path d="M20.88 22.5h-6.615v3h6.615z"/><path d="m18.173 16.056-2.121 2.12 4.677 4.678 2.121-2.12z"/></svg>',
     },
+    ssl: {
+      key: "ssl",
+      provider: "cloudflare",
+      checksum:
+        "d2a6dc4d96f692e6139396fec8cf665e5df227ed6a60005ed3c266b7e4af3d7d",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/ssl.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M23.437 11.88H12.03v3h11.407z"/><path d="M43.5 24.383a9.11 9.11 0 0 0-7.5-8.955V7.32l-1.5-1.5H7.35l-1.5 1.5v32.955l1.5 1.5h19.5V43.5l2.602 1.02 4.898-5.295 4.897 5.295 2.625-1.02V29.543a9.05 9.05 0 0 0 1.628-5.16m-3 0a6.113 6.113 0 1 1-6.113-6.113 6.12 6.12 0 0 1 6.113 6.113M8.85 38.775V8.82H33v6.57A9.1 9.1 0 0 0 27.885 18h-15.81v3H25.92a9.1 9.1 0 0 0-.638 3H12.075v3H25.65c.272.91.684 1.774 1.222 2.558v9.217zM35.467 36l-1.095-1.185L33.277 36l-3.405 3.675v-7.38a9.04 9.04 0 0 0 9 0v7.372z"/></svg>',
+    },
     stream: {
       key: "stream",
       provider: "cloudflare",

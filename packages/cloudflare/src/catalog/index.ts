@@ -395,6 +395,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/security-center.svg",
     sha256: "b4e50cdbc9bb71c1e726abe313077b260f6618424a45d07ae96fae20f8eb26a8",
   },
+  ssl: {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/ssl.svg",
+    sha256: "6d5e8f99515690cdca6b05c7e1bec9345d8b09734c389db690d69f679f2275ce",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -1004,6 +1009,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "security",
     aliases: ["cloudflare.security-center"],
     iconKey: "cloudflare.security-center",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "ssl",
+    displayName: "SSL/TLS",
+    category: "security",
+    aliases: ["cloudflare.ssl", "ssl-tls"],
+    iconKey: "cloudflare.ssl",
     allowedContainment: ["account"],
   },
 ];
