@@ -52,3 +52,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `workers` | Workers | compute |
 | `ai-gateway` | AI Gateway | ai-ml |
 | `ai-search` | AI Search | ai-ml |
+| `workers-ai` | Workers AI | ai-ml |
