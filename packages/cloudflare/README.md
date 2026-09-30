@@ -105,3 +105,4 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `network-error-logging` | Network Error Logging | monitoring |
 | `radar` | Radar | monitoring |
 | `web-analytics` | Web Analytics | monitoring |
+| `access` | Access | security |
