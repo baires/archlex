@@ -184,6 +184,15 @@ export const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> =
       svgFragment:
         '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/rules.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M39 4.5H9L7.5 6v35.85l1.5 1.5h30l1.5-1.5V6zm-1.5 35.85h-27V7.5h27z"/><path d="M23.895 11.033H13.89v3h10.005zm10.133 6.269H13.89v3h20.138zm0 6.271H13.89v3h20.138z"/></svg>',
     },
+    "ruleset-engine": {
+      key: "ruleset-engine",
+      provider: "cloudflare",
+      checksum:
+        "78ea88bac384635918de72ad31bd0debb9533b0b915ea4bb122a206d96bcdfad",
+      viewBox: "0 0 48 48",
+      svgFragment:
+        '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><desc>Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/48f601bf4293fa9032505f858656d0db5b559131/src/icons/ruleset-engine.svg; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.</desc><rect x="0" y="0" width="48" height="48" fill="#fff"/><path d="M29.9 10.1a7.68 7.68 0 0 0-3.61 6.32 7.69 7.69 0 0 0 5.06 7.43l.924 1.32.004 15.1h3.41l.003-15.1.924-1.32a7.76 7.76 0 0 0 3.73-2.9 7.7 7.7 0 0 0-.23-8.98 7.7 7.7 0 0 0-2.05-1.87l-.003 5.99-1.4 1.4h-5.33l-1.4-1.4zm-4.29.176c1.33-1.75 3.18-3.04 5.28-3.69l1.82 1.34.003 6.76h2.52l.004-6.76 1.82-1.34c2.1.646 3.95 1.94 5.28 3.69a10.45 10.45 0 0 1 2.13 6.08c.056 2.2-.58 4.36-1.82 6.18a10.56 10.56 0 0 1-4.16 3.57l-.004 15.6-1.4 1.4h-6.22l-1.4-1.4-.004-15.6a10.53 10.53 0 0 1-4.16-3.57 10.47 10.47 0 0 1-1.82-6.18c.057-2.2.803-4.33 2.13-6.08zm-3.78 18.1H12v-2.81h9.83zm4.21-5.62h-14v-2.81h14zm-1.4-5.62h-12.6v-2.81h12.6zm-18.3-7.73 1.4-1.4h21.1v2.81H9.14v28.1h22.5v2.81H7.74l-1.4-1.4z"/></svg>',
+    },
     sandbox: {
       key: "sandbox",
       provider: "cloudflare",

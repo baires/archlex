@@ -145,6 +145,11 @@ export const CLOUDFLARE_ARTWORK_PINS: Readonly<Record<string, ArtworkPin>> = {
     sourcePath: "src/icons/rules.svg",
     sha256: "0a0d9b208c1b9104781728a644ab1a65a232a2733637d50577319f4751105618",
   },
+  "ruleset-engine": {
+    revision: "48f601bf4293fa9032505f858656d0db5b559131",
+    sourcePath: "src/icons/ruleset-engine.svg",
+    sha256: "9e74aec3285e171eee3e77dad9d5029be9df238961ffcf55e8f0664d643aabdf",
+  },
 };
 
 export const initialServices: readonly ResourceDefinition[] = [
@@ -354,6 +359,14 @@ export const initialServices: readonly ResourceDefinition[] = [
     category: "management",
     aliases: ["cloudflare.rules"],
     iconKey: "cloudflare.rules",
+    allowedContainment: ["account"],
+  },
+  {
+    id: "ruleset-engine",
+    displayName: "Ruleset Engine",
+    category: "management",
+    aliases: ["cloudflare.ruleset-engine"],
+    iconKey: "cloudflare.ruleset-engine",
     allowedContainment: ["account"],
   },
 ];
