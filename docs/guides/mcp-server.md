@@ -1,12 +1,12 @@
 ---
 title: Remote MCP Server
-description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams."
-lastModified: 2026-09-23T08:00:00-03:00
+description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams."
+lastModified: 2026-10-03T13:00:00-03:00
 ---
 
 # Remote MCP Server
 
-Use the ArchLex MCP server to render, validate, inspect, and share AWS, Google
+Use the ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google
 Cloud, and Kubernetes diagrams from an MCP client.
 
 For the 30-second path (skill + one prompt), see
@@ -53,7 +53,7 @@ use Streamable HTTP.
 | `/sse` | `GET` | Legacy event stream |
 | `/messages` | `POST` | Legacy JSON-RPC dispatch |
 
-A healthy server reports `aws`, `gcp`, and `k8s` in its provider list.
+A healthy server reports `aws`, `cloudflare`, `gcp`, and `k8s` in its provider list.
 
 ## Tools
 
@@ -78,18 +78,65 @@ a playground URL.
 ### `validate_diagram`
 
 Validate source without SVG layout. Pass an optional provider value of `aws`,
-`gcp`, or `k8s` when the source does not select one. When the source has parse
+`cloudflare`, `gcp`, or `k8s` when the source does not select one. When the source has parse
 errors, the response includes a `hint` field describing the likely fix (for
 example, free-form edge text belongs in `->|label|`, not inside `-[kind]->`).
 
 ### `get_cloud_catalog`
 
-Query `aws`, `gcp`, `k8s`, or `all`. The response includes current service
+Query `aws`, `cloudflare`, `gcp`, `k8s`, or `all`. The response includes current service
 metadata, aliases, supported directives, known relationship kinds, and these
 scope names: `account`, `region`, `vpc`, `subnet`, `cluster`, and `namespace`.
 
 Query this tool when you need the current catalog instead of relying on a fixed
 service count in prompt text.
+
+### Cloudflare authoring workflow
+
+For an unfamiliar identifier, use a focused lookup:
+
+```json
+{"provider": "cloudflare", "query": "workers", "limit": 5}
+```
+
+The filtered response contains `matches`, including canonical IDs and aliases;
+`workers` is the canonical ID and `cloudflare.workers` is its qualified alias.
+An unfiltered `{"provider": "cloudflare"}` lookup returns the complete provider
+catalog in `providers.cloudflare.services`. A query can match multiple services;
+select the intended canonical ID from the response.
+
+Read `archlex://docs/guides/cloudflare-pack` for the public catalog, scope
+semantics, validation limits, and four verified reference architectures. The
+[Cloudflare provider guide](/guides/cloudflare-pack) covers standalone Workers/R2,
+public AWS origins, GCP/Kubernetes Tunnel connectors, and AWS/GCP origin steering.
+These are guide examples, rather than additional `archlex://examples` resources.
+
+Render the standalone reference directly with `render_diagram`:
+
+```json
+{
+  "source": "provider cloudflare\ndirection LR\naccount cloudflare-production {\n  domain: dns[\"app.example.com\"]\n  entry: workers[\"Application entry\"]\n  protection: waf[\"WAF policy\"]\n  response-cache: cache[\"Response caching\"]\n  objects: r2[\"Application objects\"]\n  domain ->|DNS record selects entry point| entry\n  protection -[protects]-> entry\n  response-cache -[caches]->|Eligible application responses| entry\n  entry -[reads]-> objects\n}",
+  "format": "svg",
+  "validation": "normal"
+}
+```
+
+For validation-only work, pass the same source to `validate_diagram` with
+`validation` set to `normal`, `strict`, or `off`. When source omits its provider
+directive, `{"source": "workers > r2", "provider": "cloudflare", "validation": "strict"}`
+selects Cloudflare explicitly. Rendering uses the source's provider directive;
+`render_diagram` has no provider override argument.
+
+Keep Cloudflare resources at the document root, inside `account`, or in generic
+`group` organization. Explicit native scopes (`region`, `vpc`, `subnet`,
+`cluster`, `namespace`) produce a containment warning in normal mode, an error
+in strict mode, and no semantic diagnostic in off mode. Qualify native resources
+in mixed diagrams, such as `aws.alb`, `gcp.gke`, and `k8s.deployment`.
+
+Validation checks identity and containment. It does not verify deployed DNS,
+origin health, Access policies, Tunnel reachability, or load-balancer behavior.
+Keep connector establishment and request flows distinct, as in the verified
+Tunnel fixture; labels express architecture intent rather than runtime proof.
 
 ### `generate_playground_url`
 
@@ -108,7 +155,7 @@ three example resources:
 - `archlex://examples/gcp-data-pipeline`
 - `archlex://examples/k8s-microservices`
 
-The `architect_cloud_infrastructure` prompt accepts `aws`, `gcp`, or `k8s` and
+The `architect_cloud_infrastructure` prompt accepts `aws`, `cloudflare`, `gcp`, or `k8s` and
 asks the model to return valid ArchLex source.
 
 Modern clients can list the `archlex://docs/{+path}` and
@@ -126,7 +173,7 @@ originating POST response before its final tool result.
 the hosted MCP server does not require an account or API key.
 
 The server only accepts ArchLex source and returns diagrams. It does not
-connect to your AWS, GCP, or Kubernetes accounts, and it does not read your
+connect to your AWS, Cloudflare, GCP, or Kubernetes accounts, and it does not read your
 git remotes.
 
 The public endpoint rate-limits by IP and caps payload and source size. POST
