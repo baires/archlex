@@ -93,3 +93,17 @@ navigate SVG elements. Stationary pointer clicks select SVG elements; drag gestu
 for panning. Fullscreen entry focuses its exit control even when the first
 diagram arrives after entry. Focus survives hydrated SVG replacement. Diagnostic
 counts use live announcements without replaying the full list after each edit.
+
+## Browser verification targets
+
+`pnpm test:browser` builds and tests the local playground, including endpoint
+smoke checks. To test an existing deployment explicitly, set `PLAYGROUND_URL`:
+
+```bash
+PLAYGROUND_URL=https://playground.archlex.dev pnpm test:browser tests/browser/deployed-playground.spec.mjs
+```
+
+Endpoint smoke tests operate the rendered Monaco editor with keyboard paste;
+the hidden native input is not a textarea. Local runs use deterministic icon
+fixtures. Explicit deployment runs retain the deployed endpoint's real artwork
+requests and do not publish or deploy changes.
