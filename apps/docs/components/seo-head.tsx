@@ -5,7 +5,7 @@ import type { ReactElement, ReactNode } from "react";
 const SITE_ORIGIN = "https://docs.archlex.dev";
 const SITE_NAME = "ArchLex Documentation";
 const DEFAULT_DESCRIPTION =
-  "Semantic cloud architecture diagramming library — compile text-based architecture definitions into accessible SVG diagrams for AWS, GCP, and Kubernetes.";
+  "Semantic cloud architecture diagramming library — compile text-based architecture definitions into accessible SVG diagrams for AWS, Cloudflare, GCP, and Kubernetes.";
 const DEFAULT_IMAGE = `${SITE_ORIGIN}/og-image.png`;
 
 const prettySegment = (segment: string): string =>

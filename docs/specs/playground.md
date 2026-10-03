@@ -17,8 +17,10 @@ Desktop screens use a resizable editor and preview split. Narrow screens use
 Editor and Preview tabs. The command bar exposes examples, direction,
 validation, theme, documentation, import, export, and fullscreen controls.
 
-The example selector groups entries by AWS, Google Cloud, and Kubernetes, then
-orders them by use case. Kubernetes examples cover microservices ingress,
+The example selector groups entries by AWS, Cloudflare, Google Cloud, and
+Kubernetes, then orders them by use case. Cloudflare examples cover a Workers
+and R2 application, a public edge to AWS, a Tunnel into Kubernetes on GCP, and
+AWS/GCP origin steering. Kubernetes examples cover microservices ingress,
 stateful storage, scheduled batch work, autoscaling and disruption protection,
 and namespace RBAC.
 
@@ -29,7 +31,7 @@ provider resources.
 
 The editor provides **context-aware completions** backed by the language service:
 
-- **Catalog-driven suggestions**: All 445 resources (194 AWS, 189 GCP, 62 K8s) with relationships and containment rules
+- **Catalog-driven suggestions**: AWS, Cloudflare, Google Cloud, and Kubernetes resources, with relationships and containment rules
 - **Human-readable search**: Type "elastic kubernetes" to find Amazon EKS, or "relational" for RDS and Aurora
 - **Grammar-aware filtering**: Different suggestions after `:` (resource kinds), `[` (relationships), or in directive positions
 - **Symbol visibility**: Declared identifiers appear as relationship targets

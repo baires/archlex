@@ -75,7 +75,9 @@ with allowed sources and targets; a typed edge that violates them produces a
 provider diagnostic (`AWS-RELATIONSHIP-INVALID-ENDPOINT-001`,
 `GCP-RELATIONSHIP-INVALID-ENDPOINT-001`,
 `K8S-RELATIONSHIP-INVALID-ENDPOINT-001`). In `strict` mode these warnings
-become errors; `off` skips them.
+become errors; `off` skips them. Cloudflare does not declare endpoint pairs.
+It reports `CLOUDFLARE-CONTAINMENT-001` when a recognized Cloudflare node is
+nested in a native scope.
 
 For example, AWS declares that `orchestrates` flows from Step Functions to
 Lambda, ECS, Glue, or SageMaker, so `dynamodb -[orchestrates]-> lambda` is
@@ -158,6 +160,39 @@ Kubernetes enforces the declared `routes` (Ingress to Service) and `targets`
 (Service to workload) constraints. Untyped edges are still checked
 topologically: a Service connected to a workload satisfies the target check
 even without a `targets` kind.
+
+### Cloudflare
+
+Cloudflare reuses the core kinds above. It does not add a provider-specific
+kind, and it does not validate typed-edge endpoints. `listRelationships()` is
+empty so catalog discovery does not invent source/target pairs. Put reader
+detail in a display label.
+
+| Intent | Kind | Why |
+| --- | --- | --- |
+| DNS name selects an entry | untyped `->\|DNS record selects entry point\|` | Not an HTTP hop. Do not invent `resolves`. |
+| HTTPS origin request | `proxies` | Request forwarding, including Tunnel request flow. |
+| Tunnel establishment | `connects` | Origin connector to managed Tunnel. Opposite direction from request flow. |
+| WAF or similar control | `protects` | Capability association, not a mandatory hop. |
+| Access policy | `authorizes` | Capability association, not a mandatory hop. |
+| Response cache | `caches` | Eligible responses, not a separate appliance hop. |
+| Worker reads object storage | `reads` | Data dependency, such as Workers to R2. |
+| Origin preference or fallback | `routes` | Steering intent. Do not use `fails-over-to`; the diagram does not prove health. |
+
+```archlex
+provider cloudflare
+
+account production {
+  domain: dns["app.example.com"]
+  entry: workers["Application entry"]
+  protection: waf["WAF policy"]
+  objects: r2["Application objects"]
+
+  domain ->|DNS record selects entry point| entry
+  protection -[protects]-> entry
+  entry -[reads]-> objects
+}
+```
 
 ## Unknown kinds
 

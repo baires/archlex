@@ -48,7 +48,7 @@ export function createValidateCommand(): Command {
     .option("--stdin", "Read input from stdin")
     .option(
       "--catalog",
-      "Validate internal provider service catalogs (AWS, GCP & Kubernetes)",
+      "Validate internal provider service catalogs (AWS, Cloudflare, GCP & Kubernetes)",
     )
     .action(async (input: string | undefined, options: ValidateOptions) => {
       try {

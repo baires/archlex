@@ -1,6 +1,6 @@
 ---
 title: Diagnostic Reference
-description: "Reference for ArchLex diagnostics, including AL-PARSE and AL-STRUCT families, AWS, GCP, and K8S codes, severities, and validation modes."
+description: "Reference for ArchLex diagnostics, including AL-PARSE and AL-STRUCT families, AWS, Cloudflare, GCP, and K8S codes, severities, and validation modes."
 ---
 
 # Diagnostic Reference
@@ -25,6 +25,7 @@ for (const diagnostic of result.diagnostics) {
 | `AWS-*` | AWS semantics | AWS resource names, scopes, containment, and provider relationships |
 | `GCP-*` | Google Cloud semantics | Google Cloud resource names, scopes, containment, and provider relationships |
 | `K8S-*` | Kubernetes semantics | Kubernetes resource names, cluster and namespace placement, and workload relationships |
+| `CLOUDFLARE-*` | Cloudflare semantics | Cloudflare resource placement at root or in a logical account |
 
 Icon warnings report unresolved or rejected icon assets. They do not change the provider semantic rules.
 
@@ -55,6 +56,7 @@ Provider specifications describe the rules that each mode affects:
 - [AWS diagnostics](../specs/aws-semantics.md)
 - [Google Cloud diagnostics](../specs/gcp-semantics.md)
 - [Kubernetes diagnostics](../specs/k8s-semantics.md)
+- [Cloudflare pack](../guides/cloudflare-pack.md)
 
 ## Fix a Diagnostic
 

@@ -105,6 +105,11 @@ cluster production {
 }
 ```
 
+Cloudflare resources belong at the document root or in `account` / `group`.
+Do not place them in `region`, `vpc`, `subnet`, `cluster`, or `namespace`;
+connect them to origin workloads with edges. `CLOUDFLARE-CONTAINMENT-001`
+reports that misplacement.
+
 The parser accepts all six scope kinds. The selected provider decides whether a
 resource belongs in a scope. A closing brace ends the innermost scope.
 
@@ -133,9 +138,9 @@ edge and may produce an informational diagnostic.
 Each known kind belongs to an area (`connectivity`, `data`, `events`,
 `operations`, `processing`, `delivery`, `governance`, `lifecycle`, `dependency`,
 `reliability`), recorded in the language metadata as
-`RelationshipDefinition.area`. Providers declare the
-kinds they understand together with allowed source and target services, and
-warn when a typed edge violates those constraints.
+`RelationshipDefinition.area`. AWS, Google Cloud, and Kubernetes declare the kinds they understand together
+with allowed source and target services, and warn when a typed edge violates
+those constraints. Cloudflare validates placement, not typed-edge endpoints.
 
 Provider-owned vocabulary such as Kubernetes `targets`, `mounts`, `binds`, and
 `scales` is marked `providerSpecific`. Catalog validation requires this marker

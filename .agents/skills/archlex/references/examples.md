@@ -95,3 +95,21 @@ cluster production {
   }
 }
 ```
+
+## Cloudflare Workers and R2
+
+Keep Cloudflare nodes in `account`. Do not wrap them in `region` or `vpc`.
+
+```archlex
+direction LR
+provider cloudflare
+
+account production {
+  domain: dns["app.example.com"]
+  entry: workers["Application entry"]
+  objects: r2["Application objects"]
+
+  domain ->|DNS record selects entry point| entry
+  entry -[reads]-> objects
+}
+```

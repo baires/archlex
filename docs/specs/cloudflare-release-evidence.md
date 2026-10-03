@@ -1,6 +1,6 @@
 ---
 title: Cloudflare Release Acceptance Evidence
-description: "Local CF25 acceptance audit, verified capabilities, and release blockers."
+description: "CF25 acceptance audit for the shipped Cloudflare provider: verified capabilities and retained historical evidence."
 lastModified: 2026-10-03T13:00:00-03:00
 ---
 

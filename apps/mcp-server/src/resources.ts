@@ -71,6 +71,7 @@ vpc dev {
 \`\`\`
 
 Kubernetes diagrams use \`cluster\` and \`namespace\` blocks in the same way.
+Cloudflare resources belong at the document root or inside \`account\` or generic \`group\`. Do not nest them in \`region\`, \`vpc\`, \`subnet\`, \`cluster\`, or \`namespace\`; connect them to origin workloads with edges.
 
 ## Recommended workflow
 1. Call \`get_cloud_catalog\` to discover exact service names (e.g. \`ecs\`,

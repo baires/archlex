@@ -82,6 +82,10 @@ cluster production {
 }
 ```
 
+Cloudflare resources belong at the document root or in `account` / `group`.
+Do not place them in `region`, `vpc`, `subnet`, `cluster`, or `namespace`;
+connect them to origin workloads with edges instead.
+
 The parser accepts all six scope kinds; the selected provider decides whether
 placement is valid.
 

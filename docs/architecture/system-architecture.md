@@ -35,6 +35,7 @@ and renderer.
 | `@archlex/aws` | Defines the AWS catalog, rules, bundled icons, and CDN mapping |
 | `@archlex/gcp` | Defines the Google Cloud catalog, rules, bundled icons, and CDN mapping |
 | `@archlex/k8s` | Defines the Kubernetes catalog, rules, bundled icons, and CDN mapping |
+| `@archlex/cloudflare` | Defines the 92-resource Cloudflare catalog, containment rule, and bundled artwork |
 | `@archlex/icons-core` | Validates providers, fetches icons, sanitizes SVG, and manages shared loading behavior |
 | `@archlex/icons-browser` | Stores sanitized icon records in application memory |
 | `@archlex/icons-node` | Stores sanitized icon records in a TTL-aware filesystem cache |
@@ -68,9 +69,11 @@ The parser recognizes six scope kinds:
 - `account`, `region`, `vpc`, and `subnet` model cloud containment.
 - `cluster` and `namespace` model Kubernetes containment.
 
-Providers decide which resources belong in each scope. AWS, Google Cloud, and
-Kubernetes use the same `CloudProvider` contract for catalog lookup and graph
-validation. A new provider can reuse existing scopes without changing the
+Providers decide which resources belong in each scope. AWS, Cloudflare, Google
+Cloud, and Kubernetes use the same `CloudProvider` contract for catalog lookup
+and graph validation. Cloudflare resources belong at the document root or in
+`account` / `group`; they do not use region, VPC, subnet, cluster, or namespace
+placement. A new provider can reuse existing scopes without changing the
 parser, layout engine, or renderer.
 
 ## Diagnostics and partial results
