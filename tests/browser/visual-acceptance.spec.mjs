@@ -142,7 +142,7 @@ async function waitForReadyWorkspace(page) {
   await expect(status).toContainText("Ready");
   await page.evaluate(() => document.fonts.ready);
   await page.addStyleTag({
-    content: "textarea { caret-color: transparent !important; }",
+    content: ".monaco-editor .cursors-layer { visibility: hidden !important; }",
   });
   await status.locator(".ready").evaluate((node) => {
     node.textContent = "Ready · 0 ms";
@@ -162,7 +162,9 @@ async function prepareWorkspace(
     await page.getByRole("button", { name: "Toggle theme" }).click();
   }
   if (validation === "strict") {
+    await page.getByRole("button", { name: "Diagram settings" }).click();
     await page.getByLabel("Validation mode").selectOption("strict");
+    await page.keyboard.press("Escape");
   }
 
   const status = page.locator(".workspace-status-bar");
