@@ -1,0 +1,19 @@
+provider aws
+direction LR
+account cloudflare-production {
+  domain: cloudflare.dns["app.example.com"]
+  entry: cloudflare.load-balancing["Cloudflare entry point"]
+  protection: cloudflare.waf["WAF policy"]
+  domain ->|DNS record selects entry point| entry
+  protection -[protects]-> entry
+}
+account aws-production {
+  region us-east-1 {
+    vpc application {
+      subnet public {
+        origin: aws.alb["AWS origin"]
+      }
+    }
+  }
+}
+entry -[proxies]->|HTTPS origin request| origin

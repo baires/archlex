@@ -1,0 +1,13 @@
+provider cloudflare
+direction LR
+account cloudflare-production {
+  domain: dns["app.example.com"]
+  entry: workers["Application entry"]
+  protection: waf["WAF policy"]
+  response-cache: cache["Response caching"]
+  objects: r2["Application objects"]
+  domain ->|DNS record selects entry point| entry
+  protection -[protects]-> entry
+  response-cache -[caches]->|Eligible application responses| entry
+  entry -[reads]-> objects
+}
