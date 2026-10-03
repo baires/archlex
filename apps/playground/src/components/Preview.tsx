@@ -53,17 +53,17 @@ export function Preview({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
 
+  const hasNodes =
+    Boolean(svg) &&
+    (svg.includes("data-archlex-id") || svg.includes("archlex-scope"));
+
   useEffect(() => {
-    if (!isFullscreen) return;
+    if (!isFullscreen || !hasNodes) return;
     const frameId = window.requestAnimationFrame(() => {
       fullscreenExitRef.current?.focus();
     });
     return () => window.cancelAnimationFrame(frameId);
-  }, [isFullscreen]);
-
-  const hasNodes =
-    Boolean(svg) &&
-    (svg.includes("data-archlex-id") || svg.includes("archlex-scope"));
+  }, [isFullscreen, hasNodes]);
 
   const updatePan = useCallback((nextPan: { x: number; y: number }) => {
     panRef.current = nextPan;
@@ -131,13 +131,6 @@ export function Preview({
       x: event.clientX,
       y: event.clientY,
     });
-    if (event.currentTarget.setPointerCapture) {
-      try {
-        event.currentTarget.setPointerCapture(event.pointerId);
-      } catch {
-        // Ignore capture errors on unsupported environments
-      }
-    }
 
     const count = activePointersRef.current.size;
     if (count === 1) {
@@ -180,6 +173,19 @@ export function Preview({
     });
 
     const count = activePointersRef.current.size;
+    const drag = singleDragRef.current;
+    const moved =
+      drag &&
+      (Math.abs(event.clientX - drag.startX) > 2 ||
+        Math.abs(event.clientY - drag.startY) > 2);
+    // Capture only a gesture, so a stationary node click retains its SVG target.
+    if (count > 1 || moved) {
+      try {
+        event.currentTarget.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Capture is optional on unsupported environments.
+      }
+    }
 
     if (rafIdRef.current !== null) {
       cancelAnimationFrame(rafIdRef.current);

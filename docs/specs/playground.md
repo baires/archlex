@@ -89,5 +89,7 @@ can choose the format that fits where you are sharing it.
 ## Accessibility
 
 Keyboard users can reach controls, resize panes, switch narrow-screen tabs, and
-navigate SVG elements. Focus survives hydrated SVG replacement. Diagnostic
+navigate SVG elements. Stationary pointer clicks select SVG elements; drag gestures capture the pointer
+for panning. Fullscreen entry focuses its exit control even when the first
+diagram arrives after entry. Focus survives hydrated SVG replacement. Diagnostic
 counts use live announcements without replaying the full list after each edit.
