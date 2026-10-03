@@ -4,7 +4,7 @@ Cloudflare product catalog and official SVG artwork for ArchLex. Register
 `cloudflareProvider()` with `createArchLex` to author Cloudflare-only diagrams or
 use qualified resources such as `cloudflare.workers` alongside AWS, Google Cloud,
 and Kubernetes resources. These resources provide recognition and artwork;
-product-specific networking validation is separate work.
+validation checks explicit containment without inferring runtime networking.
 
 Resources can appear at the root or within an `account` scope. Icons are bundled,
 so rendering and package imports require no network requests. The same original
@@ -147,3 +147,17 @@ ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` 
 | `r2` | R2 | storage |
 | `secrets-store` | Secrets Store | storage |
 | `vectorize` | Vectorize | storage |
+
+## Containment validation
+
+`CLOUDFLARE-CONTAINMENT-001` reports recognized Cloudflare resources inside a
+region, VPC, subnet, cluster or namespace, including ancestors outside a nested
+account. Move the managed resource to document root or a logical account and
+connect it to origin workloads in their native scopes. Presentation groups are
+valid. Normal mode emits a warning, strict an error, and off skips this rule.
+
+For example, `region origin { api: cloudflare.workers }` is invalid placement;
+`account logical { api: cloudflare.workers }` is valid. Catalog recognition does
+not verify connectivity, DNS records, policy effectiveness, selectors, origin
+health or failover. Represent cloudflared using a native origin workload, such
+as a Kubernetes Deployment, rather than placing the managed Tunnel there.

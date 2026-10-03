@@ -20,6 +20,9 @@ export {
   WORKERS_ARTWORK_PIN,
 } from "./catalog/index.js";
 
+import { evaluateCloudflareContainment } from "./rules/containment.js";
+export { CLOUDFLARE_DIAGNOSTIC_CODES } from "./rules/containment.js";
+
 export { CLOUDFLARE_INCLUDED_IDS } from "./catalog/included-ids.js";
 
 export { CLOUDFLARE_ICONS } from "./icons/generated.js";
@@ -51,10 +54,10 @@ export function cloudflareProvider(): CloudProvider {
       return [];
     },
     validateGraph(
-      _graph: CloudGraph,
-      _mode: ValidationMode = "normal",
+      graph: CloudGraph,
+      mode: ValidationMode = "normal",
     ): readonly Diagnostic[] {
-      return [];
+      return evaluateCloudflareContainment(graph, mode);
     },
   };
 }
