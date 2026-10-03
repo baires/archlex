@@ -1,7 +1,6 @@
-import { awsProvider, createArchLex } from "@archlex/core";
 import type { ValidationMode } from "@archlex/model";
 import { describe, expect, it } from "vitest";
-import { cloudflareProvider } from "./index.js";
+import { awsProvider, cloudflareProvider, createArchLex } from "./index.js";
 
 const engine = createArchLex({
   providers: [cloudflareProvider(), awsProvider()],
