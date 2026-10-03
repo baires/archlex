@@ -7,16 +7,35 @@ lastModified: 2026-10-03T13:00:00-03:00
 # Cloudflare release acceptance evidence
 
 Audit date: 2026-10-03 (America/Sao_Paulo). Branch: `codex/cloudflare-pack`.
-Implementation audited through `86fbf8d`. Task: [CF25 #92](https://github.com/baires/archlex/issues/92).
+Initial audit revision: `86fbf8d`. Task: [CF25 #92](https://github.com/baires/archlex/issues/92).
 
-## Verdict
+## Current verdict after browser remediation
 
-**Release acceptance is blocked.** The Cloudflare implementation and package
+**Local release acceptance checks pass after [#102](https://github.com/baires/archlex/issues/102) remediation.**
+Remediation revision: `42f2f36`. The full browser suite now passes all 74 tests without snapshot-update mode,
+including all 10 Cloudflare checks. The local pipeline passes all 50 tasks and
+repository lint; the root suite passes 2,173 tests across 249 files. Catalog,
+92-resource artwork checks and the 18-file package audit also pass. The completed audit results below are retained as historical
+evidence. Publishing, pushing and merging still require their normal workflow;
+this report does not perform or authorize them.
+
+The fixes restore SVG node clicks and delayed fullscreen focus, cancel
+uncaptured gestures released outside the preview, preserve typed completion
+prefixes at lexer token boundaries, and align tests with Monaco, bundled
+artwork, the maintained workspace design and explicit endpoint targets.
+Twenty-two Darwin baselines were reviewed against their originals before
+refreshing them in bounded commits; screenshot thresholds were retained.
+Three endpoint smoke checks pass both locally and against the explicitly
+selected public playground. Default browser acceptance now tests the local app.
+
+## Initial CF25 verdict
+
+**Release acceptance was blocked at the initial audit.** The Cloudflare implementation and package
 checks pass, but the complete browser suite does not. This document records an
 executed audit, not release approval. No publishing, deployment, versioning,
 merge, or push was performed.
 
-## Executed checks
+## Initial executed checks
 
 | Check | Result |
 | --- | --- |
@@ -79,10 +98,10 @@ GitHub issues remain open because the local implementation commits have not
 been pushed or merged. Their open state is not evidence that the code is
 missing; it also must not be reported as remote tracker closure.
 
-## Remaining release gate
+## Initial release gate (resolved by #102)
 
 [Browser regression issue #102](https://github.com/baires/archlex/issues/102)
-remains open. The current failures are:
+recorded the initial failures:
 
 | Existing suite | Failures |
 | --- | ---: |
@@ -94,14 +113,15 @@ remains open. The current failures are:
 The same 37 failures were recorded during CF20; the additional passing test is
 the four-example picker check. Failures include Darwin visual snapshot
 differences, workspace geometry/control/diagnostic expectations, and deployed
-site editor behavior. The deployed tests default to the public playground,
-so their result is not solely a test of this local branch. They must be
-classified and repaired in bounded follow-ups; snapshots must be reviewed
-before updating them. This audit did not skip tests or regenerate baselines.
+site editor behavior. The deployed tests initially defaulted to the public playground, so those
+results were not solely tests of the local branch. Classification, bounded
+repairs and visual review were required. The initial audit did not skip tests
+or regenerate baselines.
 
 After #102 is resolved, rerun the complete acceptance commands on the intended
 release revision and present the updated evidence for a publishing decision.
-The all-checks-pass criterion of CF25 remains unsatisfied until that rerun.
+The complete acceptance commands were rerun after remediation; the browser
+all-checks-pass criterion is now satisfied. No deployment or publishing occurred.
 
 ## Local artifacts
 
@@ -111,3 +131,15 @@ Command logs are under `/tmp/archlex-cf25/` (`check.log`, `root-tests.log`,
 Browser artifacts are in ignored `test-results/`. The packed tarball is
 `/tmp/archlex-cloudflare-pack-review/archlex-cloudflare-0.0.0.tgz`.
 These temporary artifacts are local evidence and are not release deliverables.
+
+## Remediation evidence
+
+Current command logs are under `/tmp/archlex-102/`: `browser-final-2.log`
+(74 passes), `check-final.log` (50 successful tasks and lint), `root-final.log`,
+`acceptance-docs.log`, `evidence-docs.log`, `evidence-mcp.log`,
+`catalog-final.log`, `icons-final.log`, and
+`package-final.log`. The original/current visual comparisons are
+`review-1.png` through `review-6.png`. These are temporary local artifacts.
+
+Supporting issues #106–#117 retain the bounded scopes, root causes and evidence.
+GitHub issue closure still follows integration of the local commits.
