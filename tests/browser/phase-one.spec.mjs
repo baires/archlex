@@ -30,11 +30,6 @@ account production {
   }
 }`;
 
-const CANVAS_FILL = {
-  dark: "#111827",
-  light: "#ffffff",
-};
-
 async function setTheme(page, theme) {
   const shell = page.locator(".app-shell");
   await expect(shell).toHaveAttribute("data-theme", /dark|light/);
@@ -44,9 +39,9 @@ async function setTheme(page, theme) {
   }
 
   await expect(shell).toHaveAttribute("data-theme", theme);
-  await expect(
-    page.locator("svg[data-archlex-version] .archlex-canvas"),
-  ).toHaveAttribute("fill", CANVAS_FILL[theme]);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
+  await expect(page.locator(".archlex-canvas")).toHaveCount(0);
 }
 
 async function expectLegacyEffectsAbsent(svg) {
@@ -137,7 +132,8 @@ for (const theme of ["dark", "light"]) {
     await expect(
       page.getByRole("heading", { name: "ArchLex", exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("textbox")).toBeVisible();
+    await expect(page.locator(".monaco-editor .view-lines")).toBeVisible();
+    await replaceEditorSource(page, CHAIN_SOURCE);
     const sourceLines = await page
       .locator(".monaco-editor .view-line")
       .allTextContents();

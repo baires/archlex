@@ -59,19 +59,19 @@ test("frames the workspace without page-level overflow", async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 700 });
   await page.goto("/");
   expect(await readShellGeometry(page)).toEqual({
-    left: 10,
-    top: 10,
-    right: 10,
-    bottom: 10,
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
     horizontalOverflow: 0,
     verticalOverflow: 0,
   });
 });
 
-test("uses the operations-console visual foundation", async ({ page }) => {
+test("uses the maintained workspace visual foundation", async ({ page }) => {
   await page.goto("/");
   const body = page.locator("body");
-  await expect(body).toHaveCSS("font-family", /IBM Plex Sans/);
+  await expect(body).toHaveCSS("font-family", /Instrument Sans/);
   const commandBar = page.getByRole("banner");
   await expect(commandBar).toHaveCSS("background-image", "none");
   await expect(commandBar).toHaveCSS("backdrop-filter", "none");
@@ -280,10 +280,10 @@ test("uses editor and preview tabs on narrow screens", async ({ page }) => {
   await page.setViewportSize({ width: 720, height: 900 });
   await page.goto("/");
   expect(await readShellGeometry(page)).toEqual({
-    left: 4,
-    top: 4,
-    right: 4,
-    bottom: 4,
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
     horizontalOverflow: 0,
     verticalOverflow: 0,
   });
@@ -523,14 +523,7 @@ test("filters and navigates compact diagnostic rows", async ({ page }) => {
   await row.focus();
   await page.keyboard.press("Space");
   await expect(page.getByRole("textbox")).toBeFocused();
-  await expect
-    .poll(() =>
-      page.getByRole("textbox").evaluate((element) => ({
-        start: element.selectionStart,
-        end: element.selectionEnd,
-      })),
-    )
-    .toEqual({ start: 0, end: 0 });
+  await expect(page.locator(".status-metadata")).toContainText("Ln 1, Col 1");
   await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(1);
   await row.focus();
   await page.keyboard.press("Escape");
@@ -588,7 +581,7 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
   const drawer = page.getByRole("dialog", { name: "Diagnostics" });
   await expect(drawer.getByRole("option")).toHaveCount(1);
   await drawer.getByRole("button", { name: "Info", exact: true }).click();
-  await expect(drawer.getByRole("option")).toHaveCount(5);
+  await expect(drawer.getByRole("option")).toHaveCount(4);
   await expect(
     drawer.getByText(/AL-SEM-UNKNOWN-RESOURCE/).first(),
   ).toBeVisible();
@@ -603,50 +596,29 @@ test("changes diagnostic filters and synchronizes source-only diagnostics", asyn
   await sourceOnlyRow.focus();
   await page.keyboard.press("Space");
   await expect(editor).toBeFocused();
-  await expect
-    .poll(() =>
-      editor.evaluate((element) => ({
-        start: element.selectionStart,
-        end: element.selectionEnd,
-      })),
-    )
-    .toEqual({ start: 0, end: 0 });
+  await expect(page.locator(".status-metadata")).toContainText("Ln 1, Col 1");
   await expect(page.locator("svg [data-archlex-id].selected")).toHaveCount(0);
 });
 
-test("shows a usable diagram while remote icons hydrate", async ({ page }) => {
-  const appRunnerUrl = `${AWS_CDN_PROVIDER.baseUrl}/${AWS_CDN_PROVIDER.mappings["app-runner"]}.svg`;
-  let pendingIconRoute;
-  await page.route(appRunnerUrl, (route) => {
-    pendingIconRoute = route;
+test("renders bundled App Runner artwork without remote hydration", async ({
+  page,
+}) => {
+  const requests = [];
+  await page.route(`${AWS_CDN_PROVIDER.baseUrl}/**`, (route) => {
+    requests.push(route.request().url());
+    return route.abort("blockedbyclient");
   });
-
   await page.goto("/");
   await replaceEditorSource(page, "provider aws\napp: app-runner");
-  await expect.poll(() => pendingIconRoute).toBeTruthy();
-
   const status = page.locator(".workspace-status-bar");
   const appNode = page.locator(
     'svg[data-archlex-version] [data-archlex-id="app"]',
   );
-
-  try {
-    await expect(status).toContainText("Ready");
-    await expect(status).toContainText("Loading icons…");
-    await expect(appNode).toBeVisible();
-    await expect(appNode.locator("[data-archlex-icon]")).toHaveCount(0);
-  } finally {
-    await pendingIconRoute?.fulfill({
-      status: 200,
-      contentType: "image/svg+xml",
-      body: '<svg viewBox="0 0 24 24"><path fill="#123456" d="M0 0h24v24z"/></svg>',
-      headers: { "access-control-allow-origin": "*" },
-    });
-  }
-
+  await expect(appNode).toBeVisible();
   await expect(
     appNode.locator('[data-archlex-icon="aws.app-runner"]'),
   ).toHaveCount(1);
+  await expect(status).toContainText("Ready");
   await expect(status).not.toContainText("Loading icons…");
-  await expect(status).toContainText(/Ready · \d+ ms/);
+  expect(requests).toEqual([]);
 });

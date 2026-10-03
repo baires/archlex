@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { AWS_CDN_PROVIDER } from "@archlex/aws";
 import { GCP_CDN_PROVIDER } from "@archlex/gcp";
 import { K8S_CDN_PROVIDER } from "@archlex/k8s";
+import { expect } from "@playwright/test";
 
 const ICON_FIXTURE = await readFile(
   new URL("../fixtures/icons/runtime-service.svg", import.meta.url),
@@ -85,9 +86,17 @@ export async function installIconFixtureRoutes(page) {
 
 export async function replaceEditorSource(page, source) {
   const editorSurface = page.locator(".monaco-editor .view-lines");
+  await expect(editorSurface).toBeVisible();
   await editorSurface.click({ position: { x: 8, y: 8 } });
   await page.keyboard.press("ControlOrMeta+A");
-  await page.keyboard.insertText(source);
+  // A paste preserves fixture indentation; native EditContext insertText auto-indents newlines.
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.evaluate((text) => navigator.clipboard.writeText(text), source);
+  await page.keyboard.press("ControlOrMeta+V");
+  await expect(page.locator(".editor-pane")).toHaveAttribute(
+    "data-test-source",
+    source,
+  );
 }
 
 export async function focusEditorAtEnd(page) {
