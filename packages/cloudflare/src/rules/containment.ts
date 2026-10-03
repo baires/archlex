@@ -1,9 +1,7 @@
 import type { CloudGraph, Diagnostic, ValidationMode } from "@archlex/model";
 import { resolveCloudflareService } from "../catalog/index.js";
 
-export const CLOUDFLARE_DIAGNOSTIC_CODES = {
-  CONTAINMENT: "CLOUDFLARE-CONTAINMENT-001",
-} as const;
+import { CLOUDFLARE_DIAGNOSTIC_CODES } from "../registry.js";
 
 export function evaluateCloudflareContainment(
   graph: CloudGraph,

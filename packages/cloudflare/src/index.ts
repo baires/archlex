@@ -21,7 +21,7 @@ export {
 } from "./catalog/index.js";
 
 import { evaluateCloudflareContainment } from "./rules/containment.js";
-export { CLOUDFLARE_DIAGNOSTIC_CODES } from "./rules/containment.js";
+export { CLOUDFLARE_DIAGNOSTIC_CODES } from "./registry.js";
 
 export { CLOUDFLARE_INCLUDED_IDS } from "./catalog/included-ids.js";
 
