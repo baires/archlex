@@ -3,6 +3,7 @@ import {
   focusEditorAtEnd,
   installIconFixtureRoutes,
   replaceEditorSource,
+  triggerEditorSuggestions,
 } from "./visual-platform.mjs";
 
 test.beforeEach(async ({ page }) => {
@@ -17,17 +18,19 @@ test("completion provider is registered and responds", async ({ page }) => {
   await focusEditorAtEnd(page);
 
   // Trigger completions manually
-  await page.keyboard.press("ControlOrMeta+Space");
+  await triggerEditorSuggestions(page);
 
-  // Wait for Monaco to process
-  await page.waitForTimeout(1000);
-
-  // Check if the widget appeared at any point
   const widget = page.locator(".monaco-editor .suggest-widget");
-  const widgetCount = await widget.count();
-
-  // The widget should exist (even if not visible)
-  expect(widgetCount).toBeGreaterThan(0);
+  const lambda = widget.getByRole("option", {
+    name: "AWS Lambda, Class",
+    exact: true,
+  });
+  await expect(lambda).toBeVisible();
+  await lambda.click();
+  await expect(page.locator(".editor-pane")).toHaveAttribute(
+    "data-test-source",
+    "provider aws\nservice: lambda",
+  );
 });
 
 test("does not crash on incomplete syntax", async ({ page }) => {
@@ -39,7 +42,7 @@ test("does not crash on incomplete syntax", async ({ page }) => {
   await page.keyboard.press("Enter");
 
   // Trigger completions
-  await page.keyboard.press("ControlOrMeta+Space");
+  await triggerEditorSuggestions(page);
   await page.waitForTimeout(500);
 
   // Editor should still be responsive - no crash
@@ -66,7 +69,7 @@ test("editor remains responsive with large documents", async ({ page }) => {
 
   // Trigger completions several times
   for (let i = 0; i < 5; i++) {
-    await page.keyboard.press("ControlOrMeta+Space");
+    await triggerEditorSuggestions(page);
     await page.waitForTimeout(200);
     await page.keyboard.press("Escape");
     await page.waitForTimeout(100);
@@ -92,7 +95,7 @@ test("captures performance metrics", async ({ page }) => {
 
   // Trigger a few completions
   for (let i = 0; i < 10; i++) {
-    await page.keyboard.press("ControlOrMeta+Space");
+    await triggerEditorSuggestions(page);
     await page.waitForTimeout(200);
     await page.keyboard.press("Escape");
     await page.waitForTimeout(100);

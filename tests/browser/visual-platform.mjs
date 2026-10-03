@@ -108,3 +108,11 @@ export async function focusEditorAtEnd(page) {
 export async function readEditorSource(page) {
   return page.locator(".editor-pane").getAttribute("data-test-source");
 }
+
+export async function triggerEditorSuggestions(page) {
+  await page.keyboard.press("F1");
+  await page
+    .getByRole("textbox", { name: "Type to narrow down results." })
+    .fill(">Trigger Suggest");
+  await page.getByText("Trigger Suggest", { exact: true }).click();
+}
