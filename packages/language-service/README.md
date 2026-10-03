@@ -241,3 +241,11 @@ Fully typed with exported interfaces:
 ## License
 
 MIT
+
+### Resource prefix replacement
+
+When the cursor is immediately after a resource identifier, its typed prefix
+remains part of the completion query, including at the end of the document or
+just before a newline. For `provider aws\napi: lam`, the `lambda` suggestion
+replaces `lam`; it does not append `lambda` after that prefix. A cursor after
+separating whitespace starts a new completion query instead.

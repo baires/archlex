@@ -38,6 +38,42 @@ describe("createCompletionEngine", () => {
       expect(eks?.filterText).toContain("Elastic Kubernetes Service");
     });
 
+    it.each(["", "\nnext: rds"])(
+      "replaces a prefix at the identifier end before %j",
+      (suffix) => {
+        const prefix = "provider aws\napi: lam";
+        const document = analyzeLanguageDocument(prefix + suffix);
+        const results = engine.complete(document, prefix.length);
+        const lambda = results.find(
+          (result) => result.id === "resource:aws:lambda",
+        );
+        expect(lambda?.replacement).toEqual({
+          startOffset: prefix.length - 3,
+          endOffset: prefix.length,
+        });
+        expect(lambda?.insertText).toBe("lambda");
+        expect(results.some((result) => result.id === "resource:aws:rds")).toBe(
+          false,
+        );
+        expect(
+          prefix.slice(0, lambda?.replacement.startOffset) + lambda?.insertText,
+        ).toBe("provider aws\napi: lambda");
+      },
+    );
+
+    it("starts a fresh resource query after separating whitespace", () => {
+      const source = "provider aws\napi: lam ";
+      const results = engine.complete(
+        analyzeLanguageDocument(source),
+        source.length,
+      );
+      const rds = results.find((result) => result.id === "resource:aws:rds");
+      expect(rds?.replacement).toEqual({
+        startOffset: source.length,
+        endOffset: source.length,
+      });
+    });
+
     it("qualifies all providers when no provider directive exists", () => {
       const { source, offset } = unmark("service: kuber|");
       const insertions = engine
