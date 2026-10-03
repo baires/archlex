@@ -370,8 +370,9 @@ ArchLex software remains MIT licensed. Creator/source/license attribution and an
 indication of changes are retained in the generated icon descriptions.
 
 Sanitization removes unsafe SVG content. A white backing provides contrast in
-both themes; original glyph geometry, proportions, viewBox, colors and inherited
-presentation are preserved. Exported SVG embeds the artwork and attribution,
+both themes. Original glyph geometry, proportions, and viewBox are preserved.
+Monochrome ink is recolored to `#f6821f`; white clip-path fills stay white.
+Exported SVG embeds the artwork and attribution,
 with unique internal fragment IDs and accessible resource names. Keep the
 attribution when redistributing exported diagrams; package notices also include
 `LICENSE-ARTWORK` and the software `LICENSE`.

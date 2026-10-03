@@ -14,6 +14,14 @@ import { CLOUDFLARE_INCLUDED_IDS } from "../src/catalog/included-ids.ts";
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const repositoryRoot = resolve(packageRoot, "../..");
 const revision = "48f601bf4293fa9032505f858656d0db5b559131";
+const GLYPH_COLOR = "#f6821f";
+const INK = /^(?:currentcolor|#000(?:000)?|black)$/i;
+
+function paintInk(markup) {
+  return markup.replace(/\b(fill|stroke)="([^"]*)"/gi, (match, name, value) =>
+    INK.test(value) ? `${name}="${GLYPH_COLOR}"` : match,
+  );
+}
 
 export async function generateIcons({
   services,
@@ -74,7 +82,7 @@ export async function generateIcons({
       throw new Error(`Invalid icon viewBox: ${service.id}`);
     }
     const [x, y, width, height] = dimensions;
-    const attribution = `Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/${revision}/${pin.sourcePath}; changes: sanitized SVG, white backing added; original glyph geometry and colors retained. No Cloudflare endorsement.`;
+    const attribution = `Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/${revision}/${pin.sourcePath}; changes: sanitized SVG, white backing added, monochrome ink recolored to ${GLYPH_COLOR}; original glyph geometry retained. No Cloudflare endorsement.`;
     // The renderer extracts SVG children into a symbol. Move inherited
     // presentation onto a group so stripping the outer tag retains it.
     const root = sanitized.svgFragment.match(/^<svg\b([^>]*)>/);
@@ -94,10 +102,14 @@ export async function generateIcons({
         : presentation
       ).push(attribute[0]);
     }
-    const children = sanitized.svgFragment
-      .slice(root[0].length)
-      .replace(/<\/svg>$/, "");
-    const fragment = `<svg ${viewport.join(" ")}><desc>${attribution}</desc><rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff"/><g${presentation.length ? ` ${presentation.join(" ")}` : ""}>${children}</g></svg>`;
+    const children = paintInk(
+      sanitized.svgFragment.slice(root[0].length).replace(/<\/svg>$/, ""),
+    );
+    const painted = presentation.map((attribute) => paintInk(attribute));
+    if (!painted.some((attribute) => /^fill=/i.test(attribute))) {
+      painted.unshift(`fill="${GLYPH_COLOR}"`);
+    }
+    const fragment = `<svg ${viewport.join(" ")}><desc>${attribution}</desc><rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff"/><g${painted.length ? ` ${painted.join(" ")}` : ""}>${children}</g></svg>`;
     icons[service.id] = {
       ...sanitized,
       svgFragment: fragment,

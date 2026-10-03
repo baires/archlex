@@ -14,9 +14,10 @@ License text and disclaimer: LICENSE-ARTWORK.
 License link: https://creativecommons.org/licenses/by/4.0/
 
 Unmodified source SVGs retain their source filenames. Generated diagrams use
-sanitized SVGs with a white backing added for contrast. Original glyph paths,
-coordinates, proportions, and colors are retained. Each generated icon includes
-source and license attribution, including an indication of these changes.
+sanitized SVGs with a white backing added for contrast. Monochrome glyph ink
+is recolored to `#f6821f`. Original glyph paths, coordinates, and proportions
+are retained. Each generated icon includes source and license attribution,
+including an indication of these changes.
 
 ArchLex software remains MIT licensed (LICENSE). Cloudflare names, logos, and
 trademarks remain the property of Cloudflare, Inc.; CC BY 4.0 does not grant

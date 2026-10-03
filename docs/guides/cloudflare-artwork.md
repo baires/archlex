@@ -142,8 +142,7 @@ Follow-up gates:
 
 - [Distribution clearance](https://github.com/baires/archlex/issues/93)
 - [Compound SVG fill-rule preservation](https://github.com/baires/archlex/issues/95)
-- Theme treatment must be reviewed against the established artwork permissions
-  before importer output is accepted.
+- Accepted theme treatment: opaque white backing with monochrome ink `#f6821f`.
 
 
 ## Implementation presentation policy (2026-09-30)
@@ -151,9 +150,10 @@ Follow-up gates:
 Source SVGs remain byte-identical to the pinned upstream assets. The importer
 uses the shared sanitizer, including safe `fill-rule` and `clip-rule` support,
 and retains glyph paths and viewBoxes. It adds an opaque white backing inside
-the same viewBox for both light and dark diagrams; it does not recolor the glyph,
-stretch it, or depend on inherited theme colors. The backing and sanitization are
-identified as changes in per-icon attribution and package notices.
+the same viewBox for both light and dark diagrams, recolors monochrome ink to
+`#f6821f`, and does not stretch the glyph or depend on inherited theme colors.
+The backing, recolor, and sanitization are identified as changes in per-icon
+attribution and package notices.
 
 `packages/cloudflare/NOTICE.md` and `LICENSE-ARTWORK` accompany distributions.
 Source paths and SHA-256 values are product provenance, separate from the local
@@ -173,9 +173,10 @@ the 92-resource product contract. `pnpm validate:catalog` includes that contract
 artwork, aliases, and scopes alongside the other provider catalogs. These checks
 do not require local planning/specification files.
 
-Safe winding rules and stroke miter limits are preserved. Original inherited SVG
+Safe winding rules and stroke miter limits are preserved. Inherited SVG
 presentation is moved onto an inner group so renderer symbol extraction retains
-fill-none and stroke behavior. The white backing stays outside that group.
+fill-none and stroke behavior, with monochrome ink set to `#f6821f`. The white
+backing stays outside that group.
 Native-size light/dark exports of DNS, Tunnel, Workers, R2, and Secrets Store were
 visually inspected, including R2 cutouts and Secrets Store stroke-only details.
 The earlier CF06 sanitizer and contrast observations describe the historical

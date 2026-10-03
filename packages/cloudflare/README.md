@@ -7,9 +7,9 @@ and Kubernetes resources. These resources provide recognition and artwork;
 validation checks explicit containment without inferring runtime networking.
 
 Resources can appear at the root or within an `account` scope. Icons are bundled,
-so rendering and package imports require no network requests. The same original
-glyph is presented on a white backing in both themes, with its original viewBox,
-path geometry, and colors preserved.
+so rendering and package imports require no network requests. Each glyph sits on
+a white backing in both themes, with its original viewBox and path geometry
+retained. Monochrome ink is recolored to `#f6821f`.
 
 ## Commands
 
@@ -39,13 +39,14 @@ pinned to `48f601bf4293fa9032505f858656d0db5b559131`.
 
 Software is MIT licensed (`LICENSE`). Artwork is CC BY 4.0 (`LICENSE-ARTWORK`),
 with attribution, source references, and modifications recorded in `NOTICE.md`
-and in exported icon descriptions. Sanitization and the white backing are
-technical changes. Cloudflare names and trademarks remain with their owners;
-this community provider is not endorsed by Cloudflare.
+and in exported icon descriptions. Sanitization, the white backing, and the
+`#f6821f` ink recolor are technical changes. Cloudflare names and trademarks
+remain with their owners; this community provider is not endorsed by Cloudflare.
 
 
 Inherited SVG presentation settings are carried by an inner group so exported
-symbols preserve source fill and stroke behavior after removing the SVG viewport.
+symbols preserve fill-none and stroke behavior after removing the SVG viewport.
+Monochrome ink on that group is `#f6821f`.
 
 ## Resources
 

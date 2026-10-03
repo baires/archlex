@@ -45,6 +45,7 @@ describe("offline Cloudflare icon importer", () => {
     expect(first).toContain("fill-rule");
     expect(first).toContain("CC BY 4.0");
     expect(first).toContain('fill="#fff"');
+    expect(first).toContain('fill="#f6821f"');
     expect(first).toContain(revision);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
@@ -92,6 +93,20 @@ describe("offline Cloudflare icon importer", () => {
   });
 });
 
+it("recolors monochrome ink and keeps white clip fills", async () => {
+  const options = await fixture(
+    '<svg viewBox="0 0 24 24"><path fill="#000" d="M1 1H2V2H1Z"/><path fill="currentColor" d="M3 3H4V4H3Z"/><clipPath id="c"><path fill="#fff" d="M0 0H24V24H0Z"/></clipPath></svg>',
+  );
+  const generated = await generateIcons(options);
+  expect(generated).toContain('fill="#f6821f"');
+  expect(generated).toContain(
+    '<clipPath id="c"><path d="M0 0H24V24H0Z" fill="#fff"/>',
+  );
+  expect(generated).not.toContain('fill="#000"');
+  expect(generated).not.toContain("currentColor");
+  expect(generated).not.toContain("colors retained");
+});
+
 it("retains inherited presentation when renderer extracts SVG children", async () => {
   const options = await fixture(
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2H22V22H2Z"/></svg>',
@@ -99,9 +114,10 @@ it("retains inherited presentation when renderer extracts SVG children", async (
   await runImporter(options);
   const generated = await readFile(options.outputPath, "utf8");
   expect(generated).toContain(
-    '<g fill="none" stroke="currentColor" stroke-width="2">',
+    '<g fill="none" stroke="#f6821f" stroke-width="2">',
   );
   expect(generated).toContain('fill="#fff"');
+  expect(generated).not.toContain("currentColor");
 });
 
 it("rejects coherent included-resource deletions and unexpected resources", async () => {
