@@ -244,3 +244,33 @@ for (const theme of ["dark", "light"]) {
     expect(childBox.y).toBeGreaterThan(scopeLabelBox.y + scopeLabelBox.height);
   });
 }
+
+test("cancels an uncaptured press that leaves the preview", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
+  await page.getByRole("button", { name: "Fit diagram" }).click();
+  const viewport = await page.locator(".preview-viewport").boundingBox();
+  if (!viewport) throw new Error("Missing preview viewport");
+  const y = viewport.y + 80;
+  await page.mouse.move(viewport.x + viewport.width - 10, y);
+  await page.mouse.down();
+  await page.mouse.move(viewport.x + viewport.width + 20, y);
+  await page.mouse.up();
+  await page.mouse.move(viewport.x + viewport.width - 100, y);
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  await expect(page.locator(".preview-stage")).toHaveAttribute(
+    "data-pan-x",
+    "0",
+  );
+  await expect(page.locator(".preview-stage")).toHaveAttribute(
+    "data-pan-y",
+    "0",
+  );
+});

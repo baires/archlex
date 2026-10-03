@@ -318,6 +318,11 @@ export function Preview({
         ref={viewportRef}
         className={`preview-viewport${isPanning ? " is-panning" : ""}`}
         onPointerDown={handlePointerDown}
+        onPointerLeave={(event) => {
+          if (!event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+            handlePointerUp(event);
+          }
+        }}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
