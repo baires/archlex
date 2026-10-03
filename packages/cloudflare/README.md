@@ -161,3 +161,26 @@ For example, `region origin { api: cloudflare.workers }` is invalid placement;
 not verify connectivity, DNS records, policy effectiveness, selectors, origin
 health or failover. Represent cloudflared using a native origin workload, such
 as a Kubernetes Deployment, rather than placing the managed Tunnel there.
+
+## Distribution audit
+
+Build and inspect the actual package before release:
+
+```bash
+pnpm --filter @archlex/cloudflare build
+pnpm --dir packages/cloudflare pack --pack-destination /tmp/archlex-cloudflare-pack-review
+node packages/cloudflare/scripts/audit-package.mjs /tmp/archlex-cloudflare-pack-review/archlex-cloudflare-0.0.0.tgz
+```
+
+Use the tarball's current version in the final command after versioning. This
+local audit imports the packed ESM export and checks all 92 canonical IDs,
+bundled SVG fragments and per-icon attribution, declaration exports, rewritten
+workspace dependencies, license texts and notices. Test declarations, build
+metadata, development credentials and raw source assets are excluded. Original
+SVG inputs remain in the repository; the npm distribution contains sanitized
+fragments in `dist/index.js`. No runtime artwork download is required.
+
+The package declares `MIT AND CC-BY-4.0`: MIT covers ArchLex software and CC BY
+4.0 covers the included artwork. Retain the notice and artwork attribution when
+redistributing. The recorded distribution basis does not grant trademark rights
+or imply Cloudflare endorsement. Packing and auditing do not publish a release.
