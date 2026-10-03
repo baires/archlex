@@ -363,9 +363,9 @@ steering -[routes]->|Fallback pool endpoint; policy unverified| gcp-origin
 
 All included artwork is bundled from the Cloudflare documentation icon directory
 at revision `48f601bf4293fa9032505f858656d0db5b559131`. The project uses CC BY 4.0
-repository content as its artwork distribution basis, recorded in the
-[artwork provenance guide](/guides/cloudflare-artwork) and the package's
-[NOTICE](https://github.com/baires/archlex/blob/main/packages/cloudflare/NOTICE.md).
+repository content as its artwork distribution basis, recorded in the package
+[NOTICE](https://github.com/baires/archlex/blob/main/packages/cloudflare/NOTICE.md)
+and `LICENSE-ARTWORK`.
 ArchLex software remains MIT licensed. Creator/source/license attribution and an
 indication of changes are retained in the generated icon descriptions.
 
