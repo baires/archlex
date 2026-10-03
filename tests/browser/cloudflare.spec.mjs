@@ -7,6 +7,7 @@ import {
   k8sProvider,
 } from "@archlex/core";
 import { expect, test } from "@playwright/test";
+import { ARCHITECTURE_EXAMPLES } from "../../apps/playground/src/examples.ts";
 import { replaceEditorSource } from "./visual-platform.mjs";
 
 const engine = createArchLex({
@@ -150,3 +151,41 @@ for (const fixture of [
     });
   }
 }
+
+test("selects all four Cloudflare examples from the provider group", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator(".monaco-editor .view-lines")).toBeVisible();
+  const picker = page.getByRole("combobox", { name: "Example", exact: true });
+  const examples = ARCHITECTURE_EXAMPLES.filter(
+    (example) => example.provider === "cloudflare",
+  );
+  expect(examples).toHaveLength(4);
+  await expect(
+    picker.locator('optgroup[label="Cloudflare"] option'),
+  ).toHaveCount(4);
+  for (const example of examples) {
+    await picker.selectOption(example.id);
+    await expect(page.locator(".editor-pane")).toHaveAttribute(
+      "data-test-source",
+      example.source,
+    );
+    await expect(
+      page.getByText("Provider CLOUDFLARE", { exact: true }),
+    ).toBeVisible();
+    const prepared = engine.prepare(example.source);
+    for (const node of prepared.graph.nodes)
+      await expect(
+        page.locator(
+          `svg[data-archlex-version] [data-archlex-id="${node.id}"]`,
+        ),
+      ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /errors?, open diagnostics/ }),
+    ).toHaveCount(0);
+  }
+  await page.screenshot({
+    path: test.info().outputPath("cloudflare-example-picker.png"),
+  });
+});
