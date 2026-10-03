@@ -4,7 +4,7 @@ import type { DiagnosticFilter } from "./DiagnosticsDrawer.js";
 import type { DiagnosticSummary } from "./workspace-state.js";
 
 interface StatusBarProps {
-  provider: "aws" | "gcp" | "k8s" | "unknown";
+  provider: "aws" | "gcp" | "k8s" | "cloudflare" | "unknown";
   cursor: { line: number; column: number };
   summary: DiagnosticSummary;
   activeFilter: DiagnosticFilter;

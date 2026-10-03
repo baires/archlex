@@ -30,11 +30,6 @@ account production {
   }
 }`;
 
-const CANVAS_FILL = {
-  dark: "#111827",
-  light: "#ffffff",
-};
-
 async function setTheme(page, theme) {
   const shell = page.locator(".app-shell");
   await expect(shell).toHaveAttribute("data-theme", /dark|light/);
@@ -44,9 +39,9 @@ async function setTheme(page, theme) {
   }
 
   await expect(shell).toHaveAttribute("data-theme", theme);
-  await expect(
-    page.locator("svg[data-archlex-version] .archlex-canvas"),
-  ).toHaveAttribute("fill", CANVAS_FILL[theme]);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
+  await expect(page.locator(".archlex-canvas")).toHaveCount(0);
 }
 
 async function expectLegacyEffectsAbsent(svg) {
@@ -137,7 +132,8 @@ for (const theme of ["dark", "light"]) {
     await expect(
       page.getByRole("heading", { name: "ArchLex", exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("textbox")).toBeVisible();
+    await expect(page.locator(".monaco-editor .view-lines")).toBeVisible();
+    await replaceEditorSource(page, CHAIN_SOURCE);
     const sourceLines = await page
       .locator(".monaco-editor .view-line")
       .allTextContents();
@@ -248,3 +244,33 @@ for (const theme of ["dark", "light"]) {
     expect(childBox.y).toBeGreaterThan(scopeLabelBox.y + scopeLabelBox.height);
   });
 }
+
+test("cancels an uncaptured press that leaves the preview", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(page.locator("svg[data-archlex-version]")).toBeVisible();
+  await page.getByRole("button", { name: "Fit diagram" }).click();
+  const viewport = await page.locator(".preview-viewport").boundingBox();
+  if (!viewport) throw new Error("Missing preview viewport");
+  const y = viewport.y + 80;
+  await page.mouse.move(viewport.x + viewport.width - 10, y);
+  await page.mouse.down();
+  await page.mouse.move(viewport.x + viewport.width + 20, y);
+  await page.mouse.up();
+  await page.mouse.move(viewport.x + viewport.width - 100, y);
+  await page.evaluate(
+    () =>
+      new Promise((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(resolve)),
+      ),
+  );
+  await expect(page.locator(".preview-stage")).toHaveAttribute(
+    "data-pan-x",
+    "0",
+  );
+  await expect(page.locator(".preview-stage")).toHaveAttribute(
+    "data-pan-y",
+    "0",
+  );
+});

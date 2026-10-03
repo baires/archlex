@@ -1,5 +1,5 @@
 import { awsProvider } from "@archlex/aws";
-import { createArchLex } from "@archlex/core";
+import { cloudflareProvider, createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
 import { k8sProvider } from "@archlex/k8s";
 import { describe, expect, it } from "vitest";
@@ -7,7 +7,12 @@ import { ARCHITECTURE_EXAMPLES } from "../apps/playground/src/examples.js";
 
 describe("Playground examples satisfy declared relationship constraints", () => {
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
   });
 
   it("no curated example triggers a relationship endpoint warning", () => {

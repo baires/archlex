@@ -1,6 +1,7 @@
 import { AWS_CDN_PROVIDER } from "@archlex/aws";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -25,7 +26,12 @@ import {
 } from "./share-link.js";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+    cloudflareProvider(),
+  ],
   defaultProvider: "aws",
   layoutEngine: createInlineLayoutEngine(),
 });

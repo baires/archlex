@@ -14,6 +14,7 @@ describe("Dependency Boundary Rules", () => {
     "renderer-svg": ["@archlex/model"],
     core: [
       "@archlex/aws",
+      "@archlex/cloudflare",
       "@archlex/diagnostics",
       "@archlex/gcp",
       "@archlex/icons-core",

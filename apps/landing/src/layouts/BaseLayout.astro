@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title,
-  description = "Ask your agent to diagram AWS, GCP, or Kubernetes. ArchLex validates semantics and renders official-icon SVG. No API key.",
+  description = "Ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes. ArchLex validates semantics and renders official-icon SVG. No API key.",
   image = "https://archlex.dev/archlex-event-pipeline-dark.png",
 } = Astro.props;
 
@@ -27,7 +27,7 @@ const schemaGraph = {
       url: "https://archlex.dev/",
       name: "ArchLex",
       description:
-        "Semantic cloud architecture diagramming library for AWS, GCP, and Kubernetes.",
+        "Semantic cloud architecture diagramming library for AWS, Cloudflare, GCP, and Kubernetes.",
       publisher: {
         "@id": "https://archlex.dev/#organization",
       },
@@ -51,7 +51,7 @@ const schemaGraph = {
         "Node.js >= 22.0.0 or modern browser with ES modules",
       featureList: [
         "Text-to-architecture diagram compiler",
-        "AWS, GCP, and Kubernetes semantic validation",
+        "AWS, Cloudflare, GCP, and Kubernetes semantic validation",
         "Deterministic, themeable, accessible SVG output",
         "Model Context Protocol (MCP) server for AI coding assistants",
         "Official SKILLS.md definition for agent-driven diagramming",

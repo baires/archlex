@@ -19,14 +19,14 @@ typecheck, test, and lint pipeline.
 
 All provider packages use the same core structure.
 
-| Concern | AWS | Google Cloud | Kubernetes |
-| --- | --- | --- | --- |
-| Package | `packages/aws` | `packages/gcp` | `packages/k8s` |
-| Provider ID | `aws` | `gcp` | `k8s` |
-| Factory | `awsProvider()` | `gcpProvider()` | `k8sProvider()` |
-| Diagnostic prefix | `AWS-` | `GCP-` | `K8S-` |
-| Example resource | `lambda` | `cloud-run` | `deployment` |
-| Main scopes | account, region, VPC, subnet | account, region, VPC, subnet | cluster, namespace |
+| Concern | AWS | Cloudflare | Google Cloud | Kubernetes |
+| --- | --- | --- | --- | --- |
+| Package | `packages/aws` | `packages/cloudflare` | `packages/gcp` | `packages/k8s` |
+| Provider ID | `aws` | `cloudflare` | `gcp` | `k8s` |
+| Factory | `awsProvider()` | `cloudflareProvider()` | `gcpProvider()` | `k8sProvider()` |
+| Diagnostic prefix | `AWS-` | `CLOUDFLARE-` | `GCP-` | `K8S-` |
+| Example resource | `lambda` | `workers` | `cloud-run` | `deployment` |
+| Main scopes | account, region, VPC, subnet | root, account, group | account, region, VPC, subnet | cluster, namespace |
 
 Each provider keeps catalog definitions in `src/catalog/`, rule modules in
 `src/rules/`, diagnostic constants in `src/registry.ts`, and public exports in
@@ -54,6 +54,9 @@ aliases: ["gcp.cloud-run"]
 
 // Kubernetes
 aliases: ["k8s.deployment", "deploy"]
+
+// Cloudflare
+aliases: ["cloudflare.workers"]
 ```
 
 Do not reuse an existing canonical ID or alias within one provider. Keep
@@ -69,6 +72,7 @@ fragments. Do not edit `src/icons/generated.ts` by hand.
 pnpm --filter @archlex/aws icons:generate
 pnpm --filter @archlex/gcp icons:generate
 pnpm --filter @archlex/k8s icons:generate
+pnpm --filter @archlex/cloudflare icons:generate
 ```
 
 Run the matching `icons:check` command before you commit generated artwork.
@@ -78,7 +82,8 @@ loader or start a request during import.
 
 AWS and Google Cloud importers account for their upstream file conventions.
 The Kubernetes importer uses the pinned `kubernetes/community` icon set and
-prefers unlabeled resource artwork.
+prefers unlabeled resource artwork. Cloudflare bundles sanitized official
+artwork and does not register a CDN adapter.
 
 ## Add a semantic rule
 
@@ -97,6 +102,7 @@ Use the provider prefix and a descriptive domain:
 AWS-RDS-PROXY-NETWORK-001
 GCP-DATA-CLOUD-SQL-NETWORK-001
 K8S-NETWORKING-SERVICE-TARGET-001
+CLOUDFLARE-CONTAINMENT-001
 ```
 
 Rules may use only facts present in `CloudGraph`. Do not infer IAM policies,
@@ -130,6 +136,7 @@ pnpm --filter @archlex/core test
 pnpm --filter @archlex/aws test
 pnpm --filter @archlex/gcp test
 pnpm --filter @archlex/k8s test
+pnpm --filter @archlex/cloudflare test
 pnpm validate:catalog
 ```
 

@@ -8,7 +8,7 @@ export const SYSTEM_PROMPTS = {
     arguments: [
       {
         name: "provider",
-        description: "Cloud provider ('aws', 'gcp', or 'k8s')",
+        description: "Cloud provider ('aws', 'cloudflare', 'gcp', or 'k8s')",
         required: true,
       },
       {
@@ -28,7 +28,7 @@ Requirements: ${args.requirements}
 
 Rules:
 1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons in directives).
-2. Group resources logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
+2. Keep Cloudflare resources at the document root or inside \`account\` or generic \`group\` organization; do not nest them in native region/VPC/subnet/cluster/namespace scopes. For native resources, group logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
 3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`. A kind inside \`-[...]->\` is exactly one lowercase word from the known kinds list (${KNOWN_RELATIONSHIPS.join(", ")}). Put any free-form display text in pipes instead: \`api -[writes]->|PostgreSQL over TLS| database\`. Never put spaces or slashes inside \`-[...]\`.
 4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.
 

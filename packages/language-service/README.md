@@ -209,8 +209,8 @@ The engine understands cursor position in the grammar:
 | Context | Example | Completions |
 |---------|---------|-------------|
 | **Directive name** | `prov█` | `provider`, `direction`, `validation` |
-| **Directive value** | `provider █` | `aws`, `gcp`, `k8s` |
-| **Resource kind** | `service: █` | AWS/GCP/K8s services |
+| **Directive value** | `provider █` | `aws`, `cloudflare`, `gcp`, `k8s` |
+| **Resource kind** | `service: █` | AWS, Cloudflare, GCP, and Kubernetes services |
 | **Resource name** | `█: lambda` | Identifier suggestions |
 | **Relationship type** | `a -[█` | `connects`, `writes`, etc. |
 | **Relationship target** | `a -[writes]-> █` | Declared identifiers |
@@ -241,3 +241,11 @@ Fully typed with exported interfaces:
 ## License
 
 MIT
+
+### Resource prefix replacement
+
+When the cursor is immediately after a resource identifier, its typed prefix
+remains part of the completion query, including at the end of the document or
+just before a newline. For `provider aws\napi: lam`, the `lambda` suggestion
+replaces `lam`; it does not append `lambda` after that prefix. A cursor after
+separating whitespace starts a new completion query instead.

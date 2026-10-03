@@ -1,12 +1,17 @@
 import { readFileSync } from "node:fs";
 import { awsProvider } from "@archlex/aws";
-import { createArchLex } from "@archlex/core";
+import { cloudflareProvider, createArchLex } from "@archlex/core";
 import { gcpProvider } from "@archlex/gcp";
 import { k8sProvider } from "@archlex/k8s";
 import { describe, expect, it } from "vitest";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    cloudflareProvider(),
+    gcpProvider(),
+    k8sProvider(),
+  ],
 });
 
 const archlexDocuments = [

@@ -1,0 +1,187 @@
+# @archlex/cloudflare
+
+Cloudflare product catalog and official SVG artwork for ArchLex. Register
+`cloudflareProvider()` with `createArchLex` to author Cloudflare-only diagrams or
+use qualified resources such as `cloudflare.workers` alongside AWS, Google Cloud,
+and Kubernetes resources. These resources provide recognition and artwork;
+validation checks explicit containment without inferring runtime networking.
+
+Resources can appear at the root or within an `account` scope. Icons are bundled,
+so rendering and package imports require no network requests. Each glyph sits on
+a white backing in both themes, with its original viewBox and path geometry
+retained. Monochrome ink is recolored to `#f6821f`.
+
+## Commands
+
+From the repository root:
+
+```bash
+pnpm --filter @archlex/cloudflare build
+pnpm --filter @archlex/cloudflare typecheck
+pnpm --filter @archlex/cloudflare test
+pnpm --filter @archlex/cloudflare icons:generate
+pnpm --filter @archlex/cloudflare icons:check
+pnpm validate:catalog
+```
+
+Generation consumes local revision-pinned SVG inputs. It verifies source hashes,
+rejects unsafe SVG and unmapped assets, and writes deterministic fragments.
+`icons:check` reports drift without rewriting and enforces the complete 92-resource
+contract, rejecting missing or unexpected resources even when their assets and
+pins are removed together. `pnpm validate:catalog` also checks that contract. An upstream revision update is a
+separate reviewed source-sync operation; ordinary generation does not download.
+
+## Artwork and licenses
+
+Source: Cloudflare, Inc. and contributors to the [Cloudflare documentation icon
+repository](https://github.com/cloudflare/cloudflare-docs/tree/48f601bf4293fa9032505f858656d0db5b559131/src/icons),
+pinned to `48f601bf4293fa9032505f858656d0db5b559131`.
+
+Software is MIT licensed (`LICENSE`). Artwork is CC BY 4.0 (`LICENSE-ARTWORK`),
+with attribution, source references, and modifications recorded in `NOTICE.md`
+and in exported icon descriptions. Sanitization, the white backing, and the
+`#f6821f` ink recolor are technical changes. Cloudflare names and trademarks
+remain with their owners; this community provider is not endorsed by Cloudflare.
+
+
+Inherited SVG presentation settings are carried by an inner group so exported
+symbols preserve fill-none and stroke behavior after removing the SVG viewport.
+Monochrome ink on that group is `#f6821f`.
+
+## Resources
+
+Every resource also resolves as `cloudflare.<id>`. Categories reuse the existing
+ArchLex catalog: `ai` maps to `ai-ml`, `delivery` to `networking`, `governance` to
+`management`, and `observability` to `monitoring`.
+
+| ID | Display name | Category |
+| --- | --- | --- |
+| `workers` | Workers | compute |
+| `ai-gateway` | AI Gateway | ai-ml |
+| `ai-search` | AI Search | ai-ml |
+| `workers-ai` | Workers AI | ai-ml |
+| `agents` | Agents | compute |
+| `browser-run` | Browser Run | compute |
+| `containers` | Containers | compute |
+| `dynamic-workers` | Dynamic Workers | compute |
+| `pages` | Pages | compute |
+| `sandbox` | Sandbox | compute |
+| `workflows` | Workflows | compute |
+| `automatic-platform-optimization` | Automatic Platform Optimization | networking |
+| `cache` | Cache | networking |
+| `client-ip-geolocation` | Client Ip Geolocation | networking |
+| `client-side-security` | Client-side Security | networking |
+| `google-tag-gateway` | Google Tag Gateway | networking |
+| `images` | Images | networking |
+| `moq` | Media over QUIC | networking |
+| `realtime-kit` | RealtimeKit | networking |
+| `realtime-sfu` | Realtime SFU | networking |
+| `realtime-turn` | Realtime TURN | networking |
+| `stream` | Stream | networking |
+| `zaraz` | Zaraz | networking |
+| `flagship` | Flagship | management |
+| `registrar` | Registrar | management |
+| `rules` | Rules | management |
+| `ruleset-engine` | Ruleset Engine | management |
+| `version-management` | Version Management | management |
+| `email-routing` | Email Routing | messaging |
+| `email-service` | Email Service | messaging |
+| `pipelines` | Pipelines | messaging |
+| `queues` | Queues | messaging |
+| `resolver-1111` | 1.1.1.1 Resolver | networking |
+| `aegis` | Cloudflare Aegis | networking |
+| `argo-smart-routing` | Argo Smart Routing | networking |
+| `byoip` | Bring Your Own IP | networking |
+| `china-network` | China Network | networking |
+| `cloudflare-mesh` | Cloudflare Mesh | networking |
+| `cloudflare-wan` | Cloudflare WAN | networking |
+| `dns` | DNS | networking |
+| `health-checks` | Health Checks | networking |
+| `load-balancing` | Load Balancing | networking |
+| `magic-transit` | Magic Transit | networking |
+| `multi-cloud-networking` | Multi-Cloud Networking | networking |
+| `network-interconnect` | Cloudflare Network Interconnect | networking |
+| `spectrum` | Spectrum | networking |
+| `time-services` | Time Services | networking |
+| `tunnel` | Tunnel | networking |
+| `workers-vpc` | Workers VPC | networking |
+| `analytics` | Analytics | monitoring |
+| `dex` | Digital Experience Monitoring | monitoring |
+| `log-explorer` | Log Explorer | monitoring |
+| `logs` | Logs | monitoring |
+| `network-error-logging` | Network Error Logging | monitoring |
+| `radar` | Radar | monitoring |
+| `web-analytics` | Web Analytics | monitoring |
+| `access` | Access | security |
+| `ai-crawl-control` | Ai Crawl Control | security |
+| `api-shield` | Api Shield | security |
+| `bots` | Bot Management | security |
+| `browser-isolation` | Browser Isolation | security |
+| `casb` | CASB | security |
+| `cloudflare-challenges` | Cloudflare Challenges | security |
+| `cloudflare-network-firewall` | Cloudflare Network Firewall | security |
+| `data-localization` | Data Localization | security |
+| `data-loss-prevention` | Data Loss Prevention | security |
+| `ddos-protection` | DDoS Protection | security |
+| `dmarc-management` | DMARC Management | security |
+| `email-security` | Email Security | security |
+| `firewall` | Firewall | security |
+| `gateway` | Gateway | security |
+| `key-transparency` | Key Transparency | security |
+| `privacy-gateway` | Privacy Gateway | security |
+| `privacy-pass` | Privacy Pass | security |
+| `privacy-proxy` | Privacy Proxy | security |
+| `security-center` | Security Center | security |
+| `ssl` | SSL/TLS | security |
+| `turnstile` | Turnstile | security |
+| `waf` | WAF | security |
+| `waiting-room` | Waiting Room | security |
+| `warp-client` | Cloudflare One Client | security |
+| `agent-memory` | Agent Memory | storage |
+| `artifacts` | Artifacts | storage |
+| `d1` | D1 | storage |
+| `durable-objects` | Durable Objects | storage |
+| `hyperdrive` | Hyperdrive | storage |
+| `kv` | Workers KV | storage |
+| `r2-data-catalog` | R2 Data Catalog | storage |
+| `r2-sql` | R2 SQL | storage |
+| `r2` | R2 | storage |
+| `secrets-store` | Secrets Store | storage |
+| `vectorize` | Vectorize | storage |
+
+## Containment validation
+
+`CLOUDFLARE-CONTAINMENT-001` reports recognized Cloudflare resources inside a
+region, VPC, subnet, cluster or namespace, including ancestors outside a nested
+account. Move the managed resource to document root or a logical account and
+connect it to origin workloads in their native scopes. Presentation groups are
+valid. Normal mode emits a warning, strict an error, and off skips this rule.
+
+For example, `region origin { api: cloudflare.workers }` is invalid placement;
+`account logical { api: cloudflare.workers }` is valid. Catalog recognition does
+not verify connectivity, DNS records, policy effectiveness, selectors, origin
+health or failover. Represent cloudflared using a native origin workload, such
+as a Kubernetes Deployment, rather than placing the managed Tunnel there.
+
+## Distribution audit
+
+Build and inspect the actual package before release:
+
+```bash
+pnpm --filter @archlex/cloudflare build
+pnpm --dir packages/cloudflare pack --pack-destination /tmp/archlex-cloudflare-pack-review
+node packages/cloudflare/scripts/audit-package.mjs /tmp/archlex-cloudflare-pack-review/archlex-cloudflare-0.0.0.tgz
+```
+
+Use the tarball's current version in the final command after versioning. This
+local audit imports the packed ESM export and checks all 92 canonical IDs,
+bundled SVG fragments and per-icon attribution, declaration exports, rewritten
+workspace dependencies, license texts and notices. Test declarations, build
+metadata, development credentials and raw source assets are excluded. Original
+SVG inputs remain in the repository; the npm distribution contains sanitized
+fragments in `dist/index.js`. No runtime artwork download is required.
+
+The package declares `MIT AND CC-BY-4.0`: MIT covers ArchLex software and CC BY
+4.0 covers the included artwork. Retain the notice and artwork attribution when
+redistributing. The recorded distribution basis does not grant trademark rights
+or imply Cloudflare endorsement. Packing and auditing do not publish a release.

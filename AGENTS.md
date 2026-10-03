@@ -6,7 +6,7 @@ Welcome! This file provides essential context, setup instructions, development w
 
 ## 📌 Project Overview
 
-**ArchLex** (`arch-lex-monorepo`) is a semantic cloud architecture diagramming library for browser and Node.js environments. It compiles text-based architecture definitions into accessible, themeable SVG diagrams with automatic ELK graph layout and semantic validation against AWS, GCP, and Kubernetes catalogs.
+**ArchLex** (`arch-lex-monorepo`) is a semantic cloud architecture diagramming library for browser and Node.js environments. It compiles text-based architecture definitions into accessible, themeable SVG diagrams with automatic ELK graph layout and semantic validation against AWS, Cloudflare, GCP, and Kubernetes catalogs.
 
 ### Tech Stack & Engine Requirements
 - **Language**: TypeScript (Strict Mode)
@@ -109,6 +109,7 @@ cloud-mer/
 │   ├── aws/            # AWS provider definitions, catalog, icons, and semantic rules
 │   ├── gcp/            # GCP provider definitions, catalog, icons, and semantic rules
 │   ├── k8s/            # Kubernetes definitions, catalog, icons, and semantic rules
+│   ├── cloudflare/     # Cloudflare catalog, bundled artwork, and containment rules
 │   ├── cli/            # Command-line interface tool
 │   ├── design/         # Shared design tokens and styling assets
 │   └── icons*/         # Icon loader runtimes (icons-core, icons-node, icons-browser)
@@ -143,7 +144,7 @@ cloud-mer/
 
 ## 🛠️ Contribution Workflows for Agents
 
-### 1. Adding a New AWS / GCP / Kubernetes Resource
+### 1. Adding a New AWS / Cloudflare / GCP / Kubernetes Resource
 1. Define the service catalog entry in `packages/<provider>/src/catalog/`.
 2. Map or generate official SVG icons in `packages/<provider>/assets/official/`.
 3. Add service unit tests under `packages/<provider>/src/__tests__/`.

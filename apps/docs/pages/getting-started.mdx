@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: "Add ArchLex to Claude, Cursor, or Codex, or embed the TypeScript API to render AWS, Google Cloud, and Kubernetes architecture diagrams."
+description: "Add ArchLex to Claude, Cursor, or Codex, or embed the TypeScript API to render AWS, Google Cloud, Kubernetes, and Cloudflare architecture diagrams."
 ---
 
 # Getting Started
@@ -25,34 +25,36 @@ yourself.
 
 ## Install the library
 
-Install the core package and the three supported provider packages:
+Install the core package and the four supported provider packages:
 
 ```bash
-npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
+npm install @archlex/core @archlex/aws @archlex/cloudflare @archlex/gcp @archlex/k8s
 ```
 
 With pnpm:
 
 ```bash
-pnpm add @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
+pnpm add @archlex/core @archlex/aws @archlex/cloudflare @archlex/gcp @archlex/k8s
 ```
 
 ArchLex requires Node.js 22 or later for Node.js applications. Browser applications need ES2022 support.
 
 ## Create One Shared Setup
 
-Register AWS, Google Cloud, and Kubernetes once. Your diagram source selects one registered provider.
+Register AWS, Cloudflare, Google Cloud, and Kubernetes once. Your diagram source
+selects a default provider; qualified kinds can combine registered providers.
 
 ```typescript
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [awsProvider(), cloudflareProvider(), gcpProvider(), k8sProvider()],
 });
 ```
 
@@ -60,7 +62,9 @@ Keep this setup when you switch examples or accept diagram source from a user.
 
 ## Write Provider-Neutral Source
 
-Every source can set its layout direction, provider, and validation mode. Resource IDs and semantic rules come from the selected provider.
+Every source can set its layout direction, provider, and validation mode.
+Resource IDs and semantic rules come from each resource's registered provider.
+The directive selects the default for unqualified kinds.
 
 ```archlex
 direction LR
@@ -103,6 +107,25 @@ cluster production {
 }
 ```
 
+The same setup renders Cloudflare source with bundled product artwork:
+
+```archlex
+direction LR
+provider cloudflare
+validation normal
+
+api: workers["Application entry"]
+objects: r2["Application objects"]
+api -[reads]-> objects
+```
+
+Cloudflare includes 92 resources. Place managed resources at root or within a
+logical `account`. Validation checks explicit containment; it does not verify
+runtime connectivity, security-policy effectiveness or failover health. Use
+qualified kinds such as `cloudflare.workers` alongside native origin resources.
+The [Cloudflare pack guide](/guides/cloudflare-pack) covers aliases, connectors,
+flow labels and four complete examples.
+
 Use the [Language Specification](/specs/language) for declaration forms, six supported scopes, relationship chains, and labels.
 
 ## Render and Inspect Diagnostics
@@ -133,6 +156,7 @@ Query registered resources and scopes without duplicating provider catalogs in y
 const catalog = archlex.getCatalog();
 
 console.log(catalog.providers.k8s.services);
+console.log(catalog.providers.cloudflare.services);
 console.log(catalog.containmentScopes);
 console.log(catalog.relationshipKinds);
 ```
@@ -142,6 +166,7 @@ console.log(catalog.relationshipKinds);
 - [AWS Semantics](/specs/aws-semantics): AWS resources, scopes, icons, and diagnostics
 - [Google Cloud Semantics](/specs/gcp-semantics): Google Cloud resources, scopes, icons, and diagnostics
 - [Kubernetes Semantics](/specs/k8s-semantics): Kubernetes resources, cluster and namespace containment, and diagnostics
+- [Cloudflare Pack](/guides/cloudflare-pack): 92 resources, root/account containment, bundled artwork and mixed-provider examples
 - [Public API](/specs/public-api): parse, analyze, prepare, render, and catalog methods
 - [Dynamic Icons](/guides/dynamic-cdn-icons): browser and Node.js icon-loading workflows
 - [Use with AI agents](/guides/agents): skill install, MCP setup, and a first prompt

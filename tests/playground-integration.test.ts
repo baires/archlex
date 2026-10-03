@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -93,7 +95,12 @@ function expectCompactVpcGeometry(
 
 describe("Phase 5: Playground Architecture Examples & Render Integration", () => {
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
   });
 
   it("renders all built-in architecture examples without structural errors", async () => {
@@ -119,9 +126,9 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
       expect(example.title).toBeDefined();
       expect(EXAMPLE_PROVIDERS).toContain(example.provider);
       expect(EXAMPLE_USE_CASES).toContain(example.useCase);
-      expect(example.source.match(/^provider (aws|gcp|k8s)$/m)?.[1]).toBe(
-        example.provider,
-      );
+      expect(
+        example.source.match(/^provider (aws|gcp|k8s|cloudflare)$/m)?.[1],
+      ).toBe(example.provider);
     }
 
     const providerBlocks = ARCHITECTURE_EXAMPLES.map(
@@ -228,4 +235,49 @@ describe("Phase 5: Playground Architecture Examples & Render Integration", () =>
       res.graph.edges.some((edge) => edge.source === loadBalancer.id),
     ).toBe(true);
   });
+});
+
+describe("Cloudflare picker examples", () => {
+  const engine = createArchLex({
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
+  });
+  for (const validation of ["normal", "strict", "off"] as const) {
+    it(`reuses the four verified architectures and renders in ${validation}`, async () => {
+      const fixtures = [
+        "standalone",
+        "aws-public-edge",
+        "gcp-k8s-tunnel",
+        "aws-gcp-failover",
+      ];
+      const examples = ARCHITECTURE_EXAMPLES.filter(
+        (example) => example.provider === "cloudflare",
+      );
+      expect(examples.map((example) => example.id)).toEqual(
+        fixtures.map((name) => `cloudflare-${name}`),
+      );
+      for (const [index, example] of examples.entries()) {
+        const fixture = readFileSync(
+          new URL(
+            `./fixtures/cloudflare/${fixtures[index]}.archlex`,
+            import.meta.url,
+          ),
+          "utf8",
+        );
+        expect(example.source.trim()).toBe(
+          fixture.replace(/^provider (aws|k8s)/, "provider cloudflare").trim(),
+        );
+        const rendered = await engine.render(example.source, { validation });
+        expect(rendered.diagnostics).toEqual([]);
+        expect(
+          rendered.graph.nodes.some((node) => node.provider === "cloudflare"),
+        ).toBe(true);
+        expect(rendered.svg).toContain("<svg");
+      }
+    });
+  }
 });

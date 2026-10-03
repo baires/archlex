@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@archlex/aws": "workspace:^",
+    "@archlex/cloudflare": "workspace:^",
     "@archlex/diagnostics": "workspace:^",
     "@archlex/gcp": "workspace:^",
     "@archlex/icons-core": "workspace:^",

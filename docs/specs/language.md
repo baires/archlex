@@ -13,7 +13,7 @@ comments.
 
 Identifiers begin with an ASCII letter or `_` and may contain letters, digits,
 `_`, or `-`. Provider-qualified resource names use `provider.resource`, such as
-`aws.rds`, `gcp.cloud-run`, or `k8s.deployment`.
+`aws.rds`, `cloudflare.workers`, `gcp.cloud-run`, or `k8s.deployment`.
 
 Reserved words are `provider`, `direction`, `validation`, `theme`, `account`,
 `region`, `vpc`, `subnet`, `cluster`, and `namespace`.
@@ -105,6 +105,11 @@ cluster production {
 }
 ```
 
+Cloudflare resources belong at the document root or in `account` / `group`.
+Do not place them in `region`, `vpc`, `subnet`, `cluster`, or `namespace`;
+connect them to origin workloads with edges. `CLOUDFLARE-CONTAINMENT-001`
+reports that misplacement.
+
 The parser accepts all six scope kinds. The selected provider decides whether a
 resource belongs in a scope. A closing brace ends the innermost scope.
 
@@ -133,9 +138,9 @@ edge and may produce an informational diagnostic.
 Each known kind belongs to an area (`connectivity`, `data`, `events`,
 `operations`, `processing`, `delivery`, `governance`, `lifecycle`, `dependency`,
 `reliability`), recorded in the language metadata as
-`RelationshipDefinition.area`. Providers declare the
-kinds they understand together with allowed source and target services, and
-warn when a typed edge violates those constraints.
+`RelationshipDefinition.area`. AWS, Google Cloud, and Kubernetes declare the kinds they understand together
+with allowed source and target services, and warn when a typed edge violates
+those constraints. Cloudflare validates placement, not typed-edge endpoints.
 
 Provider-owned vocabulary such as Kubernetes `targets`, `mounts`, `binds`, and
 `scales` is marked `providerSpecific`. Catalog validation requires this marker
@@ -156,7 +161,7 @@ errors return diagnostics instead of throwing.
 The language service provides context-aware completions for ArchLex source:
 
 - **Resource kinds**: After `:` in a resource declaration, suggests provider-specific services filtered by current scope
-- **Directive values**: After directive names, suggests valid options (`aws`, `gcp`, `k8s` for `provider`)
+- **Directive values**: After directive names, suggests valid options (`aws`, `cloudflare`, `gcp`, `k8s` for `provider`)
 - **Relationship types**: After `-[` in a relationship, suggests valid relationship kinds for the source and target resources
 - **Relationship targets**: After `->` in a relationship, suggests declared resource identifiers
 - **Scope keywords**: Suggests `account`, `region`, `vpc`, `subnet`, `cluster`, `namespace` at statement positions

@@ -1,16 +1,23 @@
 import { expect, test } from "@playwright/test";
+import {
+  installIconFixtureRoutes,
+  replaceEditorSource,
+} from "./visual-platform.mjs";
 
-const PLAYGROUND_URL =
-  process.env.PLAYGROUND_URL || "https://playground.archlex.dev";
+test.beforeEach(async ({ page }) => {
+  if (!process.env.PLAYGROUND_URL) await installIconFixtureRoutes(page);
+});
 
-test("deployed playground loads and renders a diagram", async ({ page }) => {
+const PLAYGROUND_URL = process.env.PLAYGROUND_URL || "/";
+
+test("playground endpoint loads and renders a diagram", async ({ page }) => {
   await page.goto(PLAYGROUND_URL);
 
-  // Check the page loaded with the correct title
+  // Check the configured endpoint loaded with the correct title
   await expect(page).toHaveTitle(/ArchLex Playground/);
 
   // Wait for the editor to be visible
-  const editor = page.getByRole("textbox");
+  const editor = page.locator(".monaco-editor .view-lines");
   await expect(editor).toBeVisible({ timeout: 10000 });
 
   // Wait for initial diagram to render
@@ -45,20 +52,20 @@ test("deployed playground loads and renders a diagram", async ({ page }) => {
   expect(criticalErrors).toHaveLength(0);
 });
 
-test("deployed playground can render a custom diagram", async ({ page }) => {
+test("playground endpoint can render a custom diagram", async ({ page }) => {
   await page.goto(PLAYGROUND_URL);
 
-  const editor = page.getByRole("textbox");
+  const editor = page.locator(".monaco-editor .view-lines");
   await expect(editor).toBeVisible({ timeout: 10000 });
 
-  // Clear editor and type new source
-  await editor.focus();
-  await page.keyboard.press("Control+A");
-  await editor.fill(`provider aws
+  await replaceEditorSource(
+    page,
+    `provider aws
 api: lambda
 db: dynamodb
 
-api -> db`);
+api -> db`,
+  );
 
   // Wait for diagram to render
   const svg = page.locator("svg[data-archlex-version]");
@@ -69,7 +76,7 @@ api -> db`);
   await expect(page.locator('[data-archlex-id="db"]')).toBeVisible();
 });
 
-test("deployed playground is responsive and accessible", async ({ page }) => {
+test("playground endpoint is responsive and accessible", async ({ page }) => {
   await page.goto(PLAYGROUND_URL);
 
   // Check viewport responsiveness

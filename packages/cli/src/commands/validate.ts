@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { AWS_SERVICE_CATALOG } from "@archlex/aws";
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -47,7 +48,7 @@ export function createValidateCommand(): Command {
     .option("--stdin", "Read input from stdin")
     .option(
       "--catalog",
-      "Validate internal provider service catalogs (AWS, GCP & Kubernetes)",
+      "Validate internal provider service catalogs (AWS, Cloudflare, GCP & Kubernetes)",
     )
     .action(async (input: string | undefined, options: ValidateOptions) => {
       try {
@@ -158,7 +159,12 @@ async function validateCommand(
   spinner.start("Validating diagram");
 
   const archlex = createArchLex({
-    providers: [awsProvider(), gcpProvider(), k8sProvider()],
+    providers: [
+      awsProvider(),
+      gcpProvider(),
+      k8sProvider(),
+      cloudflareProvider(),
+    ],
   });
 
   let result: Awaited<ReturnType<typeof archlex.render>>;

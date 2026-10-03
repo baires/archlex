@@ -18,7 +18,13 @@ export function getCursorContext(
   // Find the token at or immediately before the cursor
   let tokenIndex = -1;
   for (let i = document.tokens.length - 1; i >= 0; i--) {
-    if (document.tokens[i].startOffset <= offset) {
+    if (
+      document.tokens[i].startOffset <= offset &&
+      !(
+        document.tokens[i].kind === "Newline" &&
+        document.tokens[i].startOffset === offset
+      )
+    ) {
       tokenIndex = i;
       break;
     }
@@ -30,7 +36,11 @@ export function getCursorContext(
 
   // Extract partial token text if cursor is inside a token
   let partialToken: string | undefined;
-  if (token && offset >= token.startOffset && offset <= token.endOffset) {
+  // Lexer endOffset is inclusive; an editor cursor can sit just after an identifier.
+  const tokenBoundary = token
+    ? token.endOffset + (token.kind === "Identifier" ? 1 : 0)
+    : -1;
+  if (token && offset >= token.startOffset && offset <= tokenBoundary) {
     partialToken = token.image.substring(0, offset - token.startOffset);
   }
 

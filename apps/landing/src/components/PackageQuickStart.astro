@@ -2,7 +2,7 @@
 import CodeBlock from "./CodeBlock.astro";
 
 const installCode =
-  "npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s";
+  "npm install @archlex/core @archlex/aws @archlex/cloudflare @archlex/gcp @archlex/k8s";
 const usageCode = `import { render } from "@archlex/core";
 import { awsProvider } from "@archlex/aws";
 
@@ -22,7 +22,7 @@ document.querySelector("#diagram").innerHTML = result.svg;`;
     </span>
     <span class="runtime-badge">
       <span class="runtime-badge__icon" aria-hidden="true">☁</span>
-      <span>AWS · GCP · Kubernetes</span>
+      <span>AWS · Cloudflare · GCP · Kubernetes</span>
     </span>
     <span class="runtime-badge">
       <span class="runtime-badge__icon" aria-hidden="true">✓</span>

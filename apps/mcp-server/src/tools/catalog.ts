@@ -1,5 +1,6 @@
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
@@ -7,12 +8,17 @@ import {
 import type { CatalogResourceMetadata } from "@archlex/model";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+    cloudflareProvider(),
+  ],
   defaultProvider: "aws",
 });
 
 export interface GetCatalogArgs {
-  provider?: "aws" | "gcp" | "k8s" | "all";
+  provider?: "aws" | "gcp" | "k8s" | "cloudflare" | "all";
   query?: string;
   category?: string;
   limit?: number;

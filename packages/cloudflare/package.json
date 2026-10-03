@@ -1,0 +1,51 @@
+{
+  "name": "@archlex/cloudflare",
+  "version": "0.0.0",
+  "description": "Cloudflare provider for ArchLex architecture diagrams",
+  "keywords": ["architecture", "diagrams", "cloudflare", "cloud", "icons"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baires/archlex.git",
+    "directory": "packages/cloudflare"
+  },
+  "license": "MIT AND CC-BY-4.0",
+  "author": "Alexis Sgarbossa",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.tsbuildinfo",
+    "README.md",
+    "LICENSE",
+    "NOTICE.md",
+    "LICENSE-ARTWORK"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "icons:generate": "tsx scripts/import-official-icons.mjs",
+    "icons:check": "tsx scripts/import-official-icons.mjs --check"
+  },
+  "dependencies": {
+    "@archlex/icons-core": "workspace:*",
+    "@archlex/model": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "vitest": "^4.1.11"
+  }
+}

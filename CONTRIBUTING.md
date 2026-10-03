@@ -140,6 +140,8 @@ Same process as AWS, but in the `packages/gcp/` directory.
 
 Kubernetes resources follow the same process in `packages/k8s/`; use
 `pnpm --filter @archlex/k8s icons:generate` for bundled icon changes.
+Cloudflare resources follow the same process in `packages/cloudflare/`; use
+`pnpm --filter @archlex/cloudflare icons:generate` for bundled artwork.
 
 ### 4. Adding a New Cloud Provider
 

@@ -1,8 +1,8 @@
 ---
 name: archlex
-description: Use when creating AWS, GCP, or Kubernetes architecture diagrams; when a user asks to diagram cloud infrastructure, draw a system architecture or topology, or produce a shareable architecture diagram; or when writing or debugging ArchLex DSL source.
+description: Use when creating AWS, Cloudflare, GCP, or Kubernetes architecture diagrams; when a user asks to diagram cloud infrastructure, draw a system architecture or topology, or produce a shareable architecture diagram; or when writing or debugging ArchLex DSL source.
 metadata:
-  trigger: Cloud architecture diagrams, AWS GCP Kubernetes topology, system architecture, draw infrastructure, ArchLex DSL, diagram generation
+  trigger: Cloud architecture diagrams, AWS Cloudflare GCP Kubernetes topology, system architecture, draw infrastructure, ArchLex DSL, diagram generation
   author: ArchLex (https://github.com/baires/archlex)
 ---
 
@@ -10,7 +10,7 @@ metadata:
 
 ArchLex compiles a concise text DSL into accessible, themeable cloud
 architecture diagrams (SVG/PNG) with automatic ELK layout and semantic
-validation against AWS, GCP, and Kubernetes catalogs.
+validation against AWS, Cloudflare, GCP, and Kubernetes catalogs.
 
 ## Workflow
 
@@ -90,15 +90,17 @@ vpc production {
 }
 ```
 
-- **Directives** (top of file): `provider aws|gcp|k8s`, `direction LR|RL|TB|BT`,
-  `validation normal|strict|off`, `theme light|dark`.
+- **Directives** (top of file): `provider aws|cloudflare|gcp|k8s`,
+  `direction LR|RL|TB|BT`, `validation normal|strict|off`, `theme light|dark`.
 - **Resources**: `rds` (implicit), `primary: rds` (named instance),
   `primary: rds["Primary DB"]` (display label), `aws.rds` (provider-qualified).
 - **Edges**: `a > b` shorthand, `a -> b`, `a <- b`, `a <-> b`, `a -- b`,
   `a -.-> b` (dotted). Chains: `a > b > c`.
-- **Scopes**: `account`, `region`, `vpc`, `subnet` (cloud);
-  `cluster`, `namespace` (Kubernetes). The same implicit name in another scope
-  is a separate instance.
+- **Scopes**: `account`, `region`, `vpc`, `subnet` (AWS/GCP);
+  `cluster`, `namespace` (Kubernetes). Cloudflare resources belong at the
+  document root or in `account`/`group`, not inside `region`, `vpc`, `subnet`,
+  `cluster`, or `namespace`. The same implicit name in another scope is a
+  separate instance.
 
 ## Critical rules
 
@@ -124,14 +126,23 @@ vpc production {
 <!-- END GENERATED RELATIONSHIP KINDS -->
 5. **Providers validate typed edges.** AWS, GCP, and Kubernetes declare
    allowed sources/targets per kind; violating pairs warn
-   (`*-RELATIONSHIP-INVALID-ENDPOINT-001`). Check `get_cloud_catalog` for the
-   current declarations before wiring unfamiliar services.
+   (`*-RELATIONSHIP-INVALID-ENDPOINT-001`). Cloudflare does not declare
+   endpoint pairs; it warns when a recognized Cloudflare node is nested in a
+   native scope (`CLOUDFLARE-CONTAINMENT-001`). Check `get_cloud_catalog` for
+   the current declarations before wiring unfamiliar services.
+6. **Keep Cloudflare resources at root or in `account`.** Connect them to
+   origin workloads with edges. Reuse core kinds (`proxies`, `connects`,
+   `protects`, `authorizes`, `caches`, `reads`, `routes`). DNS selection is an
+   untyped labeled edge, not a new kind such as `resolves`. Do not use
+   `fails-over-to` for origin steering. `cloudflare.tunnel` is the managed
+   tunnel; represent `cloudflared` as a native origin workload, such as
+   `k8s.deployment["cloudflared"]`, not as a Cloudflare node inside the cluster.
 
 ## References
 
 - [references/dsl.md](references/dsl.md) — full DSL reference: identity,
   labels, containment, arrows, comments, recovery behavior
-- [references/providers.md](references/providers.md) — AWS/GCP/Kubernetes
-  scopes, validation modes, and notable semantic rules
+- [references/providers.md](references/providers.md) — AWS, Cloudflare, GCP,
+  and Kubernetes scopes, validation modes, and notable semantic rules
 - [references/examples.md](references/examples.md) — complete diagrams for
-  AWS, GCP, and Kubernetes to use as starting points
+  AWS, Cloudflare, GCP, and Kubernetes to use as starting points

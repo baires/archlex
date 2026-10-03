@@ -1,7 +1,7 @@
 ---
 title: Use with AI agents
-description: "Add ArchLex to Claude, Cursor, Codex, or any MCP client and ask your agent to diagram AWS, GCP, or Kubernetes."
-lastModified: 2026-08-28T12:00:00-03:00
+description: "Add ArchLex to Claude, Cursor, Codex, or any MCP client and ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes."
+lastModified: 2026-10-03T13:00:00-03:00
 ---
 
 # Use with AI agents
@@ -82,6 +82,8 @@ api-gateway -[invokes]-> lambda -[writes]-> dynamodb
 
 Try next:
 
+> Diagram a Cloudflare Workers app that reads R2, with DNS selecting the Worker.
+
 > Design a resilient AWS event ingestion system, validate it, and open the
 > result in ArchLex Playground.
 
@@ -91,7 +93,7 @@ Try next:
 | --- | --- |
 | `render_diagram` | Parse, validate, layout, and render |
 | `validate_diagram` | Syntax and semantic checks without layout |
-| `get_cloud_catalog` | AWS, GCP, and Kubernetes resource lookup |
+| `get_cloud_catalog` | AWS, Cloudflare, GCP, and Kubernetes resource lookup |
 | `generate_playground_url` | Deep link to the playground |
 
 The skill teaches the DSL, relationship kinds, and how to repair diagnostics.

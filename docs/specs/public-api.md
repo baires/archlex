@@ -8,18 +8,20 @@ description: "ArchLex public API reference for createArchLex(), parse, analyze, 
 ## Create an instance
 
 `@archlex/core` publishes ESM for Node.js and browsers. Register at least one
-provider:
+provider. The factories `awsProvider()`, `cloudflareProvider()`, `gcpProvider()`
+and `k8sProvider()` are re-exported from core:
 
 ```ts
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [awsProvider(), cloudflareProvider(), gcpProvider(), k8sProvider()],
 });
 ```
 
@@ -114,7 +116,19 @@ Expected source errors produce partial results. Cancellation throws
 
 `getCatalog()` returns registered provider metadata, services, aliases, allowed
 containment, directives, six scope kinds, and known relationship kinds. Pass
-`aws`, `gcp`, `k8s`, or `all` to filter provider data.
+`aws`, `cloudflare`, `gcp`, `k8s`, or `all` to filter provider data.
+
+```ts
+const cloudflareCatalog = archlex.getCatalog("cloudflare");
+console.log(cloudflareCatalog.providers.cloudflare.services);
+```
+
+Cloudflare provides 92 catalog resources with bundled artwork and no required
+CDN adapter. Its root/account containment rule warns in normal mode, errors in
+strict mode and is skipped in off mode; it does not infer runtime networking.
+Use qualified kinds such as `cloudflare.workers` in mixed-provider source. See the
+[Cloudflare pack guide](/guides/cloudflare-pack) for IDs, aliases, validation depth
+and connector examples.
 
 Relationship entries carry an `area` grouping, and each provider's
 `relationships` list declares the kinds it validates with optional
@@ -144,7 +158,7 @@ const completions = engine.complete(document, source.length);
 
 ### Features
 
-- **Catalog-driven**: All 445 services (194 AWS, 189 GCP, 62 K8s) with relationships
+- **Catalog-driven**: Registered AWS, Cloudflare, Google Cloud and Kubernetes catalogs with their declared relationships
 - **Human-readable search**: Fuzzy matching against display names and descriptions
 - **Context-aware**: Filters by provider, scope hierarchy, grammar position, and symbol visibility
 - **Semantic ranking**: Orders by prefix match, search relevance, and relationship compatibility
@@ -155,7 +169,7 @@ const completions = engine.complete(document, source.length);
 The completion engine detects cursor position in the grammar:
 
 - **Directive name**: `prov█` → `provider`, `direction`, `validation`
-- **Directive value**: `provider █` → `aws`, `gcp`, `k8s`
+- **Directive value**: `provider █` → `aws`, `cloudflare`, `gcp`, `k8s`
 - **Resource kind**: `service: █` → provider-specific services
 - **Relationship type**: `a -[█` → valid relationships for declared resources
 - **Relationship target**: `a -[writes]-> █` → declared identifiers
