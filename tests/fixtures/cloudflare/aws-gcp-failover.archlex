@@ -1,0 +1,9 @@
+provider cloudflare
+direction LR
+domain: dns["app.example.com"]
+steering: load-balancing["Origin steering"]
+aws-origin: aws.alb["AWS preferred endpoint"]
+gcp-origin: gcp.cloud-run["GCP fallback endpoint"]
+domain ->|DNS record selects entry point| steering
+steering -[routes]->|Preferred pool endpoint; health unverified| aws-origin
+steering -[routes]->|Fallback pool endpoint; policy unverified| gcp-origin
