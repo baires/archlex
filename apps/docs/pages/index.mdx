@@ -1,12 +1,12 @@
 ---
 title: Documentation
-description: "Ask an AI agent to diagram AWS, Google Cloud, or Kubernetes, or embed ArchLex to render validated SVG from a concise text language."
+description: "Ask an AI agent to diagram AWS, Google Cloud, Kubernetes, or Cloudflare, or embed ArchLex to render validated SVG from a concise text language."
 ---
 
 # ArchLex Documentation
 
 ArchLex turns text architecture definitions into accessible SVG diagrams. One
-language covers AWS, Google Cloud, and Kubernetes. Agents write it. Humans can
+language covers AWS, Google Cloud, Kubernetes, and Cloudflare. Agents write it. Humans can
 still read it.
 
 ## Start here
@@ -20,29 +20,36 @@ still read it.
 | Provider | Directive | Package | Example resources |
 | --- | --- | --- | --- |
 | AWS | `provider aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
+| Cloudflare | `provider cloudflare` | `@archlex/cloudflare` | Workers, R2, DNS, Tunnel |
 | Google Cloud | `provider gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
 | Kubernetes | `provider k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
+
+Cloudflare includes 92 resources with bundled artwork and root/account containment
+validation. See the [Cloudflare pack guide](/guides/cloudflare-pack) for aliases,
+connectors and mixed-provider examples. Validation does not establish runtime
+connectivity, security-policy effectiveness or failover health.
 
 ## First Render
 
 Install the core and provider packages:
 
 ```bash
-npm install @archlex/core @archlex/aws @archlex/gcp @archlex/k8s
+npm install @archlex/core @archlex/aws @archlex/cloudflare @archlex/gcp @archlex/k8s
 ```
 
-Register one shared provider set. Each source selects its provider with the `provider` directive.
+Register one shared provider set. Each source selects a default with the `provider` directive; qualified kinds can combine registered providers.
 
 ```typescript
 import {
   awsProvider,
+  cloudflareProvider,
   createArchLex,
   gcpProvider,
   k8sProvider,
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [awsProvider(), cloudflareProvider(), gcpProvider(), k8sProvider()],
 });
 
 const result = await archlex.render(`
@@ -64,6 +71,7 @@ console.log(result.svg);
 - [Language Specification](/specs/language) defines directives, scopes, resources, containment, and relationships.
 - [Public API](/specs/public-api) covers parsing, analysis, icon preparation, rendering, and catalog access.
 - [AWS](/specs/aws-semantics), [Google Cloud](/specs/gcp-semantics), and [Kubernetes](/specs/k8s-semantics) pages list provider contracts and rules.
+- [Cloudflare Pack](/guides/cloudflare-pack) covers Cloudflare usage, aliases, containment, artwork and four complete examples.
 - [Error Reference](/errors) explains diagnostic families, severity, validation modes, and remediation.
 
 Use the [interactive playground](https://playground.archlex.dev) when you want to edit an example and inspect the SVG beside its diagnostics.
