@@ -1,0 +1,20 @@
+provider k8s
+direction LR
+domain: cloudflare.dns["internal.example.com"]
+access-policy: cloudflare.access["Employee access policy"]
+tunnel: cloudflare.tunnel["Application tunnel"]
+gke-host: gcp.gke["GCP hosting context"]
+cluster production {
+  namespace web {
+    connector: k8s.deployment["cloudflared"]
+    backend: k8s.service["Application Service"]
+    application: k8s.deployment["Application"]
+    connector -[proxies]->|HTTP to Service| backend
+    backend -[targets]-> application
+  }
+}
+domain ->|DNS record selects entry point| tunnel
+access-policy -[authorizes]-> tunnel
+connector -[connects]->|Outbound tunnel establishment| tunnel
+tunnel -[proxies]->|Requests over established tunnel| connector
+gke-host ->|Hosts connector workload; conceptual association| connector

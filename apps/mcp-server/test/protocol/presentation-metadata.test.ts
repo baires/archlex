@@ -71,7 +71,7 @@ describe("optional presentation metadata", () => {
         (resource) => resource.uri === "archlex://docs/guides/mcp-server",
       )?.description,
     ).toBe(
-      "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Google Cloud, and Kubernetes diagrams.",
+      "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams.",
     );
     expect(
       resources.find(

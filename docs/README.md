@@ -1,6 +1,6 @@
 # ArchLex Documentation
 
-ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, and Kubernetes resources with one language. Agents write it. Humans can still read it.
+ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, Kubernetes, and Cloudflare resources with one language. Agents write it. Humans can still read it.
 
 ## Start Here
 
@@ -11,7 +11,13 @@ ArchLex compiles text architecture definitions into accessible SVG diagrams. You
     - [AWS](specs/aws-semantics.md)
     - [Google Cloud](specs/gcp-semantics.md)
     - [Kubernetes](specs/k8s-semantics.md)
+    - [Cloudflare Pack](guides/cloudflare-pack.md)
 5. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
+
+The Cloudflare pack recognizes 92 resources with bundled artwork. Its validation
+checks explicit root/account placement, not runtime connectivity, policy
+effectiveness or failover health. The guide includes all aliases and four
+Cloudflare-only and mixed-provider examples.
 
 ## Build With ArchLex
 

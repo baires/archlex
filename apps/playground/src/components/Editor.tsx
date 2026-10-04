@@ -52,12 +52,6 @@ export function Editor({
     // Register themes
     registerArchLexThemes(monaco);
 
-    // Register completion provider with catalog
-    completionDisposableRef.current = registerCompletionProvider(
-      monaco,
-      catalog,
-    );
-
     // Register hover provider with diagnostics
     hoverDisposableRef.current = registerHoverProvider(monaco, diagnostics);
 
@@ -128,11 +122,18 @@ export function Editor({
       if (codeActionsDisposableRef.current) {
         codeActionsDisposableRef.current.dispose();
       }
-      if (completionDisposableRef.current) {
-        completionDisposableRef.current.dispose();
-      }
     };
   }, [diagnostics]);
+
+  // Completion registration lives as long as the editor, independently of diagnostics.
+  useEffect(() => {
+    const monaco = monacoRef.current;
+    if (!monaco || !isReady) return;
+    completionDisposableRef.current?.dispose();
+    const completion = registerCompletionProvider(monaco, catalog);
+    completionDisposableRef.current = completion;
+    return () => completion.dispose();
+  }, [catalog, isReady]);
 
   // Handle selection changes from diagnostics
   useEffect(() => {

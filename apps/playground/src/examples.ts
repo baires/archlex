@@ -1,4 +1,4 @@
-export const EXAMPLE_PROVIDERS = ["aws", "gcp", "k8s"] as const;
+export const EXAMPLE_PROVIDERS = ["aws", "gcp", "k8s", "cloudflare"] as const;
 
 export type ExampleProvider = (typeof EXAMPLE_PROVIDERS)[number];
 
@@ -6,6 +6,7 @@ export const EXAMPLE_PROVIDER_LABELS: Record<ExampleProvider, string> = {
   aws: "AWS",
   gcp: "Google Cloud",
   k8s: "Kubernetes",
+  cloudflare: "Cloudflare",
 };
 
 export const EXAMPLE_USE_CASES = [
@@ -739,5 +740,99 @@ cluster production {
     access_grant -[authorizes]->|grants to| app_identity
   }
 }`,
+  },
+  // Cloudflare
+  {
+    id: "cloudflare-standalone",
+    title: "Cloudflare Workers & R2 Application",
+    provider: "cloudflare",
+    useCase: "Serverless",
+    description:
+      "Worker entry point with DNS, WAF and response-cache capabilities, backed by R2",
+    source: `provider cloudflare
+direction LR
+account cloudflare-production {
+  domain: dns["app.example.com"]
+  entry: workers["Application entry"]
+  protection: waf["WAF policy"]
+  response-cache: cache["Response caching"]
+  objects: r2["Application objects"]
+  domain ->|DNS record selects entry point| entry
+  protection -[protects]-> entry
+  response-cache -[caches]->|Eligible application responses| entry
+  entry -[reads]-> objects
+}`,
+  },
+  {
+    id: "cloudflare-aws-public-edge",
+    title: "Cloudflare Public Edge to AWS",
+    provider: "cloudflare",
+    useCase: "Networking",
+    description:
+      "Cloudflare DNS, load balancing and WAF capabilities forwarding HTTPS requests to an AWS ALB",
+    source: `provider cloudflare
+direction LR
+account cloudflare-production {
+  domain: cloudflare.dns["app.example.com"]
+  entry: cloudflare.load-balancing["Cloudflare entry point"]
+  protection: cloudflare.waf["WAF policy"]
+  domain ->|DNS record selects entry point| entry
+  protection -[protects]-> entry
+}
+account aws-production {
+  region us-east-1 {
+    vpc application {
+      subnet public {
+        origin: aws.alb["AWS origin"]
+      }
+    }
+  }
+}
+entry -[proxies]->|HTTPS origin request| origin`,
+  },
+  {
+    id: "cloudflare-gcp-k8s-tunnel",
+    title: "Cloudflare Tunnel into GCP Kubernetes",
+    provider: "cloudflare",
+    useCase: "Security & Access",
+    description:
+      "Access and a managed Tunnel connected to an origin-side cloudflared Deployment, with separate establishment and request flows",
+    source: `provider cloudflare
+direction LR
+domain: cloudflare.dns["internal.example.com"]
+access-policy: cloudflare.access["Employee access policy"]
+tunnel: cloudflare.tunnel["Application tunnel"]
+gke-host: gcp.gke["GCP hosting context"]
+cluster production {
+  namespace web {
+    connector: k8s.deployment["cloudflared"]
+    backend: k8s.service["Application Service"]
+    application: k8s.deployment["Application"]
+    connector -[proxies]->|HTTP to Service| backend
+    backend -[targets]-> application
+  }
+}
+domain ->|DNS record selects entry point| tunnel
+access-policy -[authorizes]-> tunnel
+connector -[connects]->|Outbound tunnel establishment| tunnel
+tunnel -[proxies]->|Requests over established tunnel| connector
+gke-host ->|Hosts connector workload; conceptual association| connector`,
+  },
+  {
+    id: "cloudflare-aws-gcp-failover",
+    title: "Cloudflare AWS/GCP Origin Steering",
+    provider: "cloudflare",
+    useCase: "Reliability & Scaling",
+    description:
+      "Preferred AWS and fallback GCP origin intent, without asserting verified health or steering policy",
+    source: `provider cloudflare
+direction LR
+domain: dns["app.example.com"]
+steering: load-balancing["Origin steering"]
+aws-origin: aws.alb["AWS preferred endpoint"]
+gcp-origin: gcp.cloud-run["GCP fallback endpoint"]
+domain ->|DNS record selects entry point| steering
+steering -[routes]->|Preferred pool endpoint; health unverified| aws-origin
+steering -[routes]->|Fallback pool endpoint; policy unverified| gcp-origin`,
   },
 ];

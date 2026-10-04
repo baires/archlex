@@ -16,6 +16,7 @@ export default defineConfig({
         "@archlex/model",
         "@archlex/parser",
         "@archlex/aws",
+        "@archlex/cloudflare",
         "@archlex/gcp",
         "@archlex/icons",
         "@archlex/k8s",

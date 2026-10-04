@@ -5,7 +5,7 @@ Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Wo
 ## Live Endpoints
 
 - `POST /mcp` – Stateless modern Streamable HTTP transport (recommended; GET and DELETE return HTTP 405 Method Not Allowed).
-- `GET /health` – Server health, supported cloud providers (`aws`, `gcp`, `k8s`), and auth status.
+- `GET /health` – Server health, supported cloud providers (`aws`, `cloudflare`, `gcp`, `k8s`), and auth status.
 - `GET /info` – Server metadata, endpoint URLs, and tool listing.
 - `GET /sse` – **Deprecated** legacy Server-Sent Events stream initialization (isolated backward compatibility route; slated for removal in a future major release).
 - `POST /messages` – **Deprecated** legacy JSON-RPC message handler for session-based clients.
@@ -95,7 +95,7 @@ Use `https://mcp.archlex.dev/mcp` in any client that supports the remote Streama
 
 - `render_diagram({ source, theme, direction, validation, format })` – Hydrates provider icons, renders a diagram, returns the final ArchLex source, and provides a playground URL. Check `share_status`: `created` means `playground_url` is a short, revocable share and `svg_url`/`png_url` are available; `unavailable` means it is a source-encoded playground fallback, not a short share. `format` is `"png"` (default, base64 image block) or `"svg"` (raw SVG text, skips rasterization — use this from text-only/CLI clients and save the SVG to a file).
 - `validate_diagram({ source, provider, validation })` – Fast syntax & semantic validation. Responses include a `hint` field when parse errors are detected.
-- `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
+- `get_cloud_catalog({ provider, query, category, limit })` – Service catalog (AWS, Cloudflare, GCP, Kubernetes) and containment rules. Supply `query` or `category` for a focused, compact lookup; an unfiltered call returns the full catalog.
 - `generate_playground_url({ source })` – Creates a share and returns a playground URL. Check `share_status` to distinguish a short share from a source-encoded fallback.
 
 Share creation returns a one-time `revoke_token` in `structuredContent` only;
@@ -270,3 +270,16 @@ pnpm typecheck
 # Deploy to Cloudflare Workers
 pnpm deploy
 ```
+
+### Cloudflare authoring documentation
+
+Use `get_cloud_catalog({ provider: "cloudflare", query: "workers", limit: 5 })`
+for focused identifier discovery. Render source beginning with `provider cloudflare`
+using `render_diagram`; `validate_diagram` also accepts `provider: "cloudflare"`
+when source omits that directive. Mixed origins use qualified native IDs.
+
+Read `archlex://docs/guides/cloudflare-pack` for public semantics and the four
+verified architectures, and `archlex://docs/guides/mcp-server` for tool examples.
+These guides are embedded by `pnpm sync:docs` before build, test, and typecheck.
+The [MCP guide](../../docs/guides/mcp-server.md) documents the complete workflow.
+Cloudflare containment validation does not prove deployed configuration or health.

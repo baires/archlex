@@ -30,7 +30,8 @@ render can reuse the base geometry.
 Providers supply bundled sanitized artwork for common resources. `prepare()`
 collects requests for missing artwork. Browser and Node icon loaders fetch from
 pinned AWS, Google Cloud, and Kubernetes definitions, sanitize the response, and
-return an `IconRegistry`.
+return an `IconRegistry`. Cloudflare artwork is bundled and does not use this
+CDN path.
 
 `renderPrepared()` resolves icons in this order:
 

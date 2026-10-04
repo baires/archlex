@@ -1,0 +1,174 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { basename, dirname, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { sanitizeSvg } from "@archlex/icons-core";
+import {
+  CLOUDFLARE_ARTWORK_PINS,
+  initialServices,
+} from "../src/catalog/index.ts";
+
+import { CLOUDFLARE_INCLUDED_IDS } from "../src/catalog/included-ids.ts";
+
+const packageRoot = fileURLToPath(new URL("..", import.meta.url));
+const repositoryRoot = resolve(packageRoot, "../..");
+const revision = "48f601bf4293fa9032505f858656d0db5b559131";
+const GLYPH_COLOR = "#f6821f";
+const INK = /^(?:currentcolor|#000(?:000)?|black)$/i;
+
+function paintInk(markup) {
+  return markup.replace(/\b(fill|stroke)="([^"]*)"/gi, (match, name, value) =>
+    INK.test(value) ? `${name}="${GLYPH_COLOR}"` : match,
+  );
+}
+
+export async function generateIcons({
+  services,
+  pins,
+  sourceDirectory,
+  requiredIds,
+}) {
+  if (requiredIds) {
+    const actual = new Set(services.map((service) => service.id));
+    const expected = new Set(requiredIds);
+    for (const id of expected) {
+      if (!actual.has(id)) throw new Error(`Missing included resource: ${id}`);
+    }
+    for (const id of actual) {
+      if (!expected.has(id))
+        throw new Error(`Excluded or unknown resource: ${id}`);
+    }
+  }
+  const icons = {};
+  const mappedFiles = new Set();
+  const ids = new Set();
+  for (const service of [...services].sort((a, b) =>
+    a.id.localeCompare(b.id),
+  )) {
+    if (ids.has(service.id))
+      throw new Error(`Duplicate catalog resource: ${service.id}`);
+    ids.add(service.id);
+    const pin = pins[service.id];
+    if (!pin) throw new Error(`Missing artwork pin: ${service.id}`);
+    if (
+      !/^[a-z0-9-]+$/.test(service.id) ||
+      service.iconKey !== `cloudflare.${service.id}` ||
+      pin.revision !== revision ||
+      !/^src\/icons\/[a-z0-9.-]+\.svg$/.test(pin.sourcePath) ||
+      !/^[a-f0-9]{64}$/.test(pin.sha256)
+    )
+      throw new Error(`Invalid pinned provenance: ${service.id}`);
+    const filename = basename(pin.sourcePath);
+    if (mappedFiles.has(filename))
+      throw new Error(`Duplicate source mapping: ${filename}`);
+    mappedFiles.add(filename);
+    const raw = await readFile(resolve(sourceDirectory, filename));
+    if (createHash("sha256").update(raw).digest("hex") !== pin.sha256) {
+      throw new Error(`Source checksum mismatch: ${service.id}`);
+    }
+    const sanitized = await sanitizeSvg(
+      "cloudflare",
+      service.id,
+      raw.toString("utf8"),
+    );
+    const dimensions = sanitized.viewBox.split(/\s+/).map(Number);
+    if (
+      dimensions.length !== 4 ||
+      !dimensions.every(Number.isFinite) ||
+      dimensions[2] <= 0 ||
+      dimensions[3] <= 0
+    ) {
+      throw new Error(`Invalid icon viewBox: ${service.id}`);
+    }
+    const [x, y, width, height] = dimensions;
+    const attribution = `Cloudflare, Inc. and contributors; CC BY 4.0; https://creativecommons.org/licenses/by/4.0/; source: https://github.com/cloudflare/cloudflare-docs/blob/${revision}/${pin.sourcePath}; changes: sanitized SVG, white backing added, monochrome ink recolored to ${GLYPH_COLOR}; original glyph geometry retained. No Cloudflare endorsement.`;
+    // The renderer extracts SVG children into a symbol. Move inherited
+    // presentation onto a group so stripping the outer tag retains it.
+    const root = sanitized.svgFragment.match(/^<svg\b([^>]*)>/);
+    if (!root) throw new Error(`Missing sanitized SVG root: ${service.id}`);
+    const viewportAttributes = new Set([
+      "xmlns",
+      "viewbox",
+      "width",
+      "height",
+      "version",
+    ]);
+    const viewport = [];
+    const presentation = [];
+    for (const attribute of root[1].matchAll(/([^\s=]+)="([^"]*)"/g)) {
+      (viewportAttributes.has(attribute[1].toLowerCase())
+        ? viewport
+        : presentation
+      ).push(attribute[0]);
+    }
+    const children = paintInk(
+      sanitized.svgFragment.slice(root[0].length).replace(/<\/svg>$/, ""),
+    );
+    const painted = presentation.map((attribute) => paintInk(attribute));
+    if (!painted.some((attribute) => /^fill=/i.test(attribute))) {
+      painted.unshift(`fill="${GLYPH_COLOR}"`);
+    }
+    const fragment = `<svg ${viewport.join(" ")}><desc>${attribution}</desc><rect x="${x}" y="${y}" width="${width}" height="${height}" fill="#fff"/><g${painted.length ? ` ${painted.join(" ")}` : ""}>${children}</g></svg>`;
+    icons[service.id] = {
+      ...sanitized,
+      svgFragment: fragment,
+      checksum: createHash("sha256").update(fragment).digest("hex"),
+    };
+  }
+  for (const filename of await readdir(sourceDirectory)) {
+    if (filename.endsWith(".svg") && !mappedFiles.has(filename))
+      throw new Error(`Unmapped source artwork: ${filename}`);
+  }
+  for (const id of Object.keys(pins)) {
+    if (!ids.has(id)) throw new Error(`Orphan artwork pin: ${id}`);
+  }
+  const module = `// Generated by scripts/import-official-icons.mjs. Do not edit.\n// Artwork: Cloudflare, Inc. and contributors, CC BY 4.0. See NOTICE.md.\nimport type { SanitizedIcon } from "@archlex/icons-core";\n\nexport const CLOUDFLARE_ICONS: Readonly<Record<string, SanitizedIcon>> = Object.freeze(${JSON.stringify(icons, null, 2)});\n`;
+  return execFileSync(
+    "pnpm",
+    [
+      "exec",
+      "biome",
+      "format",
+      "--stdin-file-path=packages/cloudflare/src/icons/generated.ts",
+    ],
+    { cwd: repositoryRoot, input: module, encoding: "utf8" },
+  );
+}
+
+export async function runImporter({ outputPath, check = false, ...inputs }) {
+  const expected = await generateIcons(inputs);
+  if (check) {
+    let actual;
+    try {
+      actual = await readFile(outputPath, "utf8");
+    } catch {
+      throw new Error(`Generated artwork drift: missing ${outputPath}`);
+    }
+    if (actual !== expected)
+      throw new Error(`Generated artwork drift: ${outputPath}`);
+  } else {
+    await mkdir(dirname(outputPath), { recursive: true });
+    await writeFile(outputPath, expected);
+  }
+}
+
+if (
+  process.argv[1] &&
+  pathToFileURL(resolve(process.argv[1])).href === import.meta.url
+) {
+  const args = process.argv.slice(2);
+  if (args.some((argument) => argument !== "--check"))
+    throw new Error("Supported argument: --check");
+  await runImporter({
+    services: initialServices,
+    requiredIds: CLOUDFLARE_INCLUDED_IDS,
+    pins: CLOUDFLARE_ARTWORK_PINS,
+    sourceDirectory: resolve(packageRoot, "assets/official"),
+    outputPath: resolve(packageRoot, "src/icons/generated.ts"),
+    check: args.includes("--check"),
+  });
+  console.log(
+    `Cloudflare artwork ${args.includes("--check") ? "check" : "generation"} passed (${initialServices.length} resources).`,
+  );
+}

@@ -73,6 +73,49 @@ Kubernetes rule checks focus on graph connections, not authored kind names: a
 Service connected to a workload satisfies the target check even with a custom
 descriptive kind.
 
+## Cloudflare
+
+- Provider ID: `cloudflare`
+- Package: `@archlex/cloudflare` (`cloudflareProvider()`)
+- Catalog: 92 curated resources with bundled artwork. No CDN adapter.
+- Placement: document root, `account`, or generic `group`. Do not nest
+  recognized Cloudflare nodes in `region`, `vpc`, `subnet`, `cluster`, or
+  `namespace`.
+
+Reuse core relationship kinds. Do not invent `resolves` or `fails-over-to`.
+
+| Intent | Kind |
+| --- | --- |
+| DNS name selects an entry | untyped `->\|label\|`, not a kind |
+| Origin or Tunnel request | `proxies` |
+| Tunnel establishment | `connects` (connector to Tunnel) |
+| WAF | `protects` |
+| Access | `authorizes` |
+| Cache | `caches` |
+| Worker to R2 | `reads` |
+| Origin preference or fallback | `routes` |
+
+```archlex
+provider cloudflare
+
+account production {
+  domain: dns["app.example.com"]
+  entry: workers["Application entry"]
+  objects: r2["Application objects"]
+
+  domain ->|DNS record selects entry point| entry
+  entry -[reads]-> objects
+}
+```
+
+`CLOUDFLARE-CONTAINMENT-001` is a warning in `normal`, an error in `strict`,
+and absent in `off`. Recognition does not verify DNS, Tunnel reachability,
+Access policy, or failover health. In mixed diagrams, qualify kinds
+(`cloudflare.workers`, `aws.alb`, `k8s.deployment`). Represent `cloudflared` as
+a native origin workload, not as a Cloudflare node inside the origin scope.
+Short aliases such as `cdn` → `cache` apply only when Cloudflare is the
+selected provider; prefer `cloudflare.workers` in mixed documents.
+
 ## Catalog discovery
 
 Use familiar canonical identifiers directly. When a resource identifier,
@@ -81,7 +124,7 @@ containment rule, or relationship kind is uncertain, call
 Use an unfiltered catalog request only when the user explicitly wants to
 browse the catalog.
 
-- `provider: "aws" | "gcp" | "k8s" | "all"`
+- `provider: "aws" | "cloudflare" | "gcp" | "k8s" | "all"`
 - Returns services (canonical IDs and aliases), containment scopes, known
   relationship kinds, and supported directives.
 

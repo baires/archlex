@@ -217,7 +217,7 @@ export default {
           status: "ok",
           service: SERVER_NAME,
           version: SERVER_VERSION,
-          providers: ["aws", "gcp", "k8s"],
+          providers: ["aws", "cloudflare", "gcp", "k8s"],
           auth_enabled: Boolean(env?.MCP_AUTH_TOKEN),
         },
         200,

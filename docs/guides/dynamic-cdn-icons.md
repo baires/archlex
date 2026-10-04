@@ -8,7 +8,9 @@ description: "Load missing AWS, Google Cloud, and Kubernetes diagram icons from 
 ## When icon loading runs
 
 AWS, Google Cloud, and Kubernetes packages bundle sanitized artwork for common
-resources. A prepared graph lists only the missing provider icons.
+resources and can load the rest from a pinned CDN. Cloudflare bundles artwork
+for all 92 resources and does not register a CDN adapter. A prepared graph
+lists only the missing provider icons.
 
 The renderer never starts a request. Your application chooses a browser or Node
 loader, loads the requests, then passes the sanitized registry to core.
