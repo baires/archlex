@@ -1,0 +1,117 @@
+# @archlex/cloudflare
+
+## 0.1.0
+
+### Minor Changes
+
+- 5768500: Bundle attributed official Workers artwork with a contrast-preserving white backing. Expose source provenance and generated icon metadata for catalog maintenance.
+- 5c2beae: Export `cloudflareProvider` from core. Workers resolves in Cloudflare documents
+  and as `cloudflare.workers` in mixed documents. Official CC BY 4.0 artwork is bundled for offline rendering, with attribution and technical changes recorded in the provider notices and exported fragments.
+- 361eecb: Add Access (`access`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 07c436b: Add Cloudflare Aegis (`aegis`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- c761fab: Add Agent Memory (`agent-memory`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 17398a3: Add Agents (`agents`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 79bb35a: Add Ai Crawl Control (`ai-crawl-control`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- befe253: Add AI Gateway (`ai-gateway`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d109bd2: Add AI Search (`ai-search`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 168d3d5: Add Analytics (`analytics`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 6742dd3: Add Api Shield (`api-shield`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d5a6eec: Add Argo Smart Routing (`argo-smart-routing`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 4aa1584: Add Artifacts (`artifacts`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 4eaf3da: Add Automatic Platform Optimization (`automatic-platform-optimization`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 6e02ad2: Add Bot Management (`bots`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 50b98e6: Add Browser Isolation (`browser-isolation`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 61fd4cc: Add Browser Run (`browser-run`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- ccfd60b: Add Bring Your Own IP (`byoip`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 172a9b7: Add Cache (`cache`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 7f1c415: Add CASB (`casb`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- a8a4236: Add China Network (`china-network`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 65ada8e: Add Client Ip Geolocation (`client-ip-geolocation`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 55c0552: Add Client-side Security (`client-side-security`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 8350f69: Add Cloudflare Challenges (`cloudflare-challenges`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- cac04f5: Add Cloudflare Mesh (`cloudflare-mesh`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- dee60e0: Add Cloudflare Network Firewall (`cloudflare-network-firewall`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- fcdefe3: Add Cloudflare WAN (`cloudflare-wan`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 75b9ba5: Add Containers (`containers`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 0a2c71f: Add D1 (`d1`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 222b277: Add Data Localization (`data-localization`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 4b8394e: Add Data Loss Prevention (`data-loss-prevention`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- e84a3b7: Add DDoS Protection (`ddos-protection`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d78e9d8: Add Digital Experience Monitoring (`dex`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 23f9e02: Add DMARC Management (`dmarc-management`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 99747f9: Add DNS (`dns`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 35e9439: Add Durable Objects (`durable-objects`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- bdd1bed: Add Dynamic Workers (`dynamic-workers`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 6c20b5b: Add Email Routing (`email-routing`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 1556db0: Add Email Security (`email-security`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 08444f3: Add Email Service (`email-service`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 14e3bcb: Add Firewall (`firewall`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 6827912: Add Flagship (`flagship`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 26c4035: Add Gateway (`gateway`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 93690df: Add Google Tag Gateway (`google-tag-gateway`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 322f339: Add Health Checks (`health-checks`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 302cc6d: Add Hyperdrive (`hyperdrive`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 63bb802: Add Images (`images`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- c1fc4c0: Add Key Transparency (`key-transparency`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 346094a: Add Workers KV (`kv`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d094e14: Add Load Balancing (`load-balancing`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 10aee84: Add Log Explorer (`log-explorer`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d5f86d0: Add Logs (`logs`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 2fd4486: Add Magic Transit (`magic-transit`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 51967bf: Add Media over QUIC (`moq`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- b910f65: Add Multi-Cloud Networking (`multi-cloud-networking`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 8ee0978: Add Network Error Logging (`network-error-logging`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 361f13b: Add Cloudflare Network Interconnect (`network-interconnect`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 9ead4bc: Add Pages (`pages`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 1f1ae6e: Add Pipelines (`pipelines`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d33ddaa: Add Privacy Gateway (`privacy-gateway`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- f7c5a60: Add Privacy Pass (`privacy-pass`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- e6010c6: Add Privacy Proxy (`privacy-proxy`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 59fb7ce: Add Queues (`queues`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 68228c0: Add R2 Data Catalog (`r2-data-catalog`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 1ed9a52: Add R2 SQL (`r2-sql`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- d671a94: Add R2 (`r2`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- c5eb69b: Add Radar (`radar`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- a2e4108: Add RealtimeKit (`realtime-kit`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 6434e11: Add Realtime SFU (`realtime-sfu`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 006fe34: Add Realtime TURN (`realtime-turn`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 12690c1: Add Registrar (`registrar`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- f0c74ae: Add 1.1.1.1 Resolver (`resolver-1111`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- eb67b50: Add Rules (`rules`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 9e71ff7: Add Ruleset Engine (`ruleset-engine`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 66cbf46: Add Sandbox (`sandbox`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- aed2fef: Add Secrets Store (`secrets-store`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 8fe9c1f: Add Security Center (`security-center`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 779b0c1: Add Spectrum (`spectrum`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- bef25b0: Add SSL/TLS (`ssl`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- a6d61ec: Add Stream (`stream`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- c9a17e6: Add Time Services (`time-services`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 61f6b87: Add Tunnel (`tunnel`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 8a87363: Add Turnstile (`turnstile`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 5088a37: Add Vectorize (`vectorize`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 4460cf4: Add Version Management (`version-management`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- b2b082a: Add WAF (`waf`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- ee592ce: Add Waiting Room (`waiting-room`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 64e5384: Add Cloudflare One Client (`warp-client`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 1e22929: Add Web Analytics (`web-analytics`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 311e0f4: Add Workers AI (`workers-ai`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 28dbc6c: Add Workers VPC (`workers-vpc`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 2dcae5c: Add Workflows (`workflows`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 89629fa: Add Zaraz (`zaraz`) to the Cloudflare catalog with qualified aliases, pinned official SVG artwork, attribution, and root/account containment.
+- 4ea92fe: Add the Cloudflare package scaffold and recognize Workers. Official artwork is
+  not bundled yet.
+
+### Patch Changes
+
+- 6fbd7d5: Add CC BY 4.0 artwork license and attribution notices, retain the separate MIT software license, and document the white-backing presentation policy.
+- 306e445: Enforce the pinned 92-resource catalog contract during offline artwork generation and checks, including coherent resource, pin, and asset deletions.
+- 6a128bc: Validate represented Cloudflare containment with normal, strict and off modes, without inferring runtime connectivity.
+- 2160726: Recolor bundled Cloudflare glyphs to `#f6821f` on a white backing, and record that color change in icon attribution.
+- b39dfe7: Preserve inherited SVG presentation settings when official artwork is extracted into diagram symbols, including fill-none stroke-only shapes.
+- f827ff1: Add a deterministic offline SVG importer that checks pinned provenance and source hashes, rejects unsafe or unmapped artwork, preserves glyph geometry, and includes attribution with a white backing for contrast.
+- 86fbf8d: Exclude test declarations and TypeScript build metadata from the published tarball. Retain bundled official artwork with per-icon attribution, MIT software license, CC BY 4.0 artwork license and distribution notices.
+- ef4e1e6: Expose Cloudflare diagnostic codes from the provider registry convention.
+- 434442d: Record the revision-pinned Workers source artwork and typed provenance for deterministic offline import.
+- Updated dependencies [0a5d622]
+- Updated dependencies [b30c670]
+  - @archlex/icons-core@0.2.5

@@ -1,5 +1,12 @@
 # @archlex/icons-core
 
+## 0.2.5
+
+### Patch Changes
+
+- 0a5d622: Preserve safe SVG stroke miter limits to retain official artwork geometry.
+- b30c670: Preserve safe SVG fill and clip winding rules during sanitization so compound icons retain their interior detail. Reject invalid rule values.
+
 ## 0.2.4
 
 ### Patch Changes

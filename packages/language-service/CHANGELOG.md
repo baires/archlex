@@ -1,5 +1,11 @@
 # @archlex/language-service
 
+## 0.2.2
+
+### Patch Changes
+
+- cac895d: Preserve typed resource prefixes at inclusive lexer token boundaries so completions replace the prefix instead of appending at document end or before a newline.
+
 ## 0.2.1
 
 ### Patch Changes

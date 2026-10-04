@@ -1,5 +1,17 @@
 # @archlex/cli
 
+## 0.4.0
+
+### Minor Changes
+
+- f197c6a: Enable Cloudflare Workers resources in CLI rendering and validation.
+
+### Patch Changes
+
+- Updated dependencies [5c2beae]
+- Updated dependencies [7aa0fc0]
+  - @archlex/core@0.6.0
+
 ## 0.3.6
 
 ### Patch Changes

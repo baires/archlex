@@ -1,5 +1,19 @@
 # @archlex/playground
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [5c2beae]
+- Updated dependencies [cac895d]
+- Updated dependencies [7aa0fc0]
+- Updated dependencies [0a5d622]
+- Updated dependencies [b30c670]
+  - @archlex/core@0.6.0
+  - @archlex/language-service@0.2.2
+  - @archlex/icons-core@0.2.5
+  - @archlex/icons-browser@0.2.5
+
 ## 0.1.7
 
 ### Patch Changes
