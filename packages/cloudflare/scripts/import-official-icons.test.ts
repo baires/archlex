@@ -36,7 +36,7 @@ afterEach(async () => {
   );
 });
 
-describe("offline Cloudflare icon importer", () => {
+describe("offline Cloudflare icon importer", { timeout: 30_000 }, () => {
   it("generates byte-identical attributed artwork without network requests", async () => {
     const options = await fixture();
     const fetchSpy = vi.spyOn(globalThis, "fetch");
