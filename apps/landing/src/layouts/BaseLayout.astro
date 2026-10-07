@@ -6,12 +6,14 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = "Ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes. ArchLex validates semantics and renders official-icon SVG. No API key.",
   image = "https://archlex.dev/archlex-event-pipeline-dark.png",
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = `https://archlex.dev${
@@ -91,7 +93,7 @@ const schemaGraph = {
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow"} />
     <meta name="theme-color" content="#f8f8f4" />
 
     <!-- Open Graph / Facebook -->
