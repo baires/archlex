@@ -1,11 +1,7 @@
 import type { ValidationMode } from "@archlex/model";
-import {
-  type ArchitectureExample,
-  EXAMPLE_PROVIDERS,
-  EXAMPLE_PROVIDER_LABELS,
-  EXAMPLE_USE_CASES,
-} from "../examples.js";
+import type { ArchitectureExample } from "../examples.js";
 import { DiagramSettings } from "./DiagramSettings.js";
+import { ExampleBrowser } from "./ExampleBrowser.js";
 import { ExportMenu } from "./ExportMenu.js";
 import { Icon } from "./Icon.js";
 import { ImportMenu } from "./ImportMenu.js";
@@ -76,53 +72,12 @@ export function CommandBar({
         <h1 className="visually-hidden">ArchLex</h1>
       </div>
 
-      <div className="command-bar-context">
-        <div className="control-group">
-          <label className="example-label" htmlFor="example-select">
-            Example
-          </label>
-          <select
-            id="example-select"
-            defaultValue=""
-            onChange={(event) => {
-              const example = examples.find(
-                (candidate) => candidate.id === event.target.value,
-              );
-              if (example) onSelectExample(example);
-            }}
-          >
-            <option value="" disabled>
-              Select example…
-            </option>
-            {EXAMPLE_PROVIDERS.map((provider) => {
-              const providerExamples = examples
-                .filter((example) => example.provider === provider)
-                .sort(
-                  (left, right) =>
-                    EXAMPLE_USE_CASES.indexOf(left.useCase) -
-                    EXAMPLE_USE_CASES.indexOf(right.useCase),
-                );
-
-              if (providerExamples.length === 0) return null;
-
-              return (
-                <optgroup
-                  key={provider}
-                  label={EXAMPLE_PROVIDER_LABELS[provider]}
-                >
-                  {providerExamples.map((example) => (
-                    <option key={example.id} value={example.id}>
-                      {example.useCase} · {example.title}
-                    </option>
-                  ))}
-                </optgroup>
-              );
-            })}
-          </select>
-        </div>
-      </div>
-
       <div className="command-bar-actions">
+        <ExampleBrowser
+          examples={examples}
+          theme={theme}
+          onSelectExample={onSelectExample}
+        />
         <a
           href={docsUrl}
           target="_blank"

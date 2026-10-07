@@ -17,8 +17,13 @@ Desktop screens use a resizable editor and preview split. Narrow screens use
 Editor and Preview tabs. The command bar exposes examples, direction,
 validation, theme, documentation, import, export, and fullscreen controls.
 
-The example selector groups entries by AWS, Cloudflare, Google Cloud, and
-Kubernetes, then orders them by use case. Cloudflare examples cover a Workers
+“Explore examples” opens a searchable architecture library. Filter by provider
+(AWS, Cloudflare, Google Cloud, or Kubernetes) and use case, or search titles,
+descriptions, and services. Selecting an entry renders a diagram preview without
+changing the editor; **Load example** replaces the current editor contents.
+The dialog fits its content with a bounded scrolling results area.
+Desktop shows the preview beside results only after selecting an example. On mobile, select a result to
+open its preview and use **Back to examples** to return. Escape closes the dialog. Cloudflare examples cover a Workers
 and R2 application, a public edge to AWS, a Tunnel into Kubernetes on GCP, and
 AWS/GCP origin steering. Kubernetes examples cover microservices ingress,
 stateful storage, scheduled batch work, autoscaling and disruption protection,
