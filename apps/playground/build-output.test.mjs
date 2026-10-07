@@ -22,6 +22,21 @@ assert.match(
   /<link[^>]+rel="preload"[^>]+href="\/assets\/instrument-sans-latin-wght-normal-[^"]+\.woff2"[^>]+as="font"[^>]+crossorigin/,
 );
 
+assert.match(index, /<meta name="description" content="[^"]{50,}"/);
+assert.match(
+  index,
+  /<link rel="canonical" href="https:\/\/playground\.archlex\.dev\/"/,
+);
+assert.match(index, /<h1>ArchLex Playground<\/h1>/);
+
+const robots = await readFile(new URL("robots.txt", dist), "utf8");
+assert.match(
+  robots,
+  /^Sitemap: https:\/\/playground\.archlex\.dev\/sitemap\.xml$/m,
+);
+const sitemap = await readFile(new URL("sitemap.xml", dist), "utf8");
+assert.match(sitemap, /<loc>https:\/\/playground\.archlex\.dev\/<\/loc>/);
+
 const assetNames = await readdir(assets);
 assert.equal(
   assetNames.some((name) => name.endsWith(".woff")),

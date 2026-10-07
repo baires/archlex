@@ -12,10 +12,56 @@
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1" />
-    <title>ArchLex Playground</title>
+    <title>ArchLex Playground: Cloud Architecture Diagrams as Code</title>
+    <meta name="description" content="Free online editor for architecture diagrams as code. Write ArchLex for AWS, GCP, Cloudflare, or Kubernetes and get a validated SVG with official cloud icons in your browser." />
+    <link rel="canonical" href="https://playground.archlex.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://playground.archlex.dev/" />
+    <meta property="og:site_name" content="ArchLex" />
+    <meta property="og:title" content="ArchLex Playground: Cloud Architecture Diagrams as Code" />
+    <meta property="og:description" content="Free online editor for architecture diagrams as code. Write ArchLex for AWS, GCP, Cloudflare, or Kubernetes and get a validated SVG with official cloud icons in your browser." />
+    <meta property="og:image" content="https://archlex.dev/archlex-event-pipeline-dark.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ArchLex Playground: Cloud Architecture Diagrams as Code" />
+    <meta name="twitter:description" content="Free online editor for architecture diagrams as code. Write ArchLex for AWS, GCP, Cloudflare, or Kubernetes and get a validated SVG with official cloud icons in your browser." />
+    <meta name="twitter:image" content="https://archlex.dev/archlex-event-pipeline-dark.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ArchLex Playground",
+        "url": "https://playground.archlex.dev/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires JavaScript",
+        "description": "Free online editor for architecture diagrams as code. Write ArchLex for AWS, GCP, Cloudflare, or Kubernetes and get a validated SVG with official cloud icons in your browser.",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "isPartOf": { "@type": "WebSite", "name": "ArchLex", "url": "https://archlex.dev/" }
+      }
+    </script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <main>
+        <h1>ArchLex Playground</h1>
+        <p>
+          Write cloud architecture diagrams as code and render them in your browser. ArchLex
+          validates resources and relationships for AWS, Google Cloud, Cloudflare, and Kubernetes,
+          then draws an SVG with official provider icons.
+        </p>
+        <ul>
+          <li>Live editor with autocomplete and error diagnostics</li>
+          <li>Automatic layout for services, networks, and data flows</li>
+          <li>Export to SVG or PNG and share a link to your diagram</li>
+        </ul>
+        <p>
+          <a href="https://docs.archlex.dev/getting-started/">Getting started</a> ·
+          <a href="https://docs.archlex.dev/specs/language">Language reference</a> ·
+          <a href="https://docs.archlex.dev/guides/mcp-server">Use ArchLex from Claude, Cursor, or Codex</a> ·
+          <a href="https://archlex.dev/">ArchLex home</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
