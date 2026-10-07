@@ -23,6 +23,8 @@ describe("landing static assets", () => {
       "diagrams/serverless-api-dark.svg",
       "diagrams/serverless-api-light.svg",
       "favicon.svg",
+      "robots.txt",
+      "sitemap.xml",
     ]);
   });
 
@@ -37,6 +39,14 @@ describe("landing static assets", () => {
       expect(svg).toContain('role="graphics-document"');
       expect(svg).toContain("aria-label=");
     }
+  });
+
+  it("ships robots.txt and a sitemap so crawlers get real files", () => {
+    const robots = readFileSync(`${landingPublicDir}/robots.txt`, "utf8");
+    const sitemap = readFileSync(`${landingPublicDir}/sitemap.xml`, "utf8");
+
+    expect(robots).toContain("Sitemap: https://archlex.dev/sitemap.xml");
+    expect(sitemap).toContain("<loc>https://archlex.dev/</loc>");
   });
 
   it("uses woff2-only local font sources to avoid emitting duplicate legacy font files", () => {
