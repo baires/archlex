@@ -346,6 +346,15 @@ h1 {
   font-feature-settings: "ss01" 1, "ss02" 1;
 }
 
+.hero__tagline {
+  margin: var(--space-4) auto 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
 .hero__lede {
   max-width: 36rem;
   margin: var(--space-5) auto 0;
@@ -1464,4 +1473,58 @@ h1 {
     scroll-behavior: auto !important;
     transition-duration: 0s !important;
   }
+}
+
+/* Topic pages */
+.topic-hero h1 {
+  max-width: 18ch;
+  font-size: clamp(2.25rem, 5.5vw, 4.25rem);
+  line-height: 1;
+}
+
+.topic-section {
+  margin-block: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.topic-stack {
+  display: grid;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.topic-section .section-heading {
+  margin-bottom: var(--space-5);
+}
+
+.topic-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.topic-list li + li {
+  margin-top: var(--space-3);
+}
+
+.topic-list strong {
+  color: var(--text-primary);
+}
+
+.faq-list {
+  margin: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.faq-item dt {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.faq-item dd {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  line-height: 1.65;
 }
