@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1051.2 468.0" role="graphics-document" aria-label="ArchLex Architecture Diagram" data-archlex-version="0.1.0" class="archlex-svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 3 L 0 6 Z" fill="#667085"/>
+    </marker>
+    <marker id="arrowhead-start" markerWidth="6" markerHeight="6" refX="2" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M 6 0 L 0 3 L 6 6 Z" fill="#667085"/>
+    </marker>
+    <marker id="arrowhead-write" markerWidth="7" markerHeight="7" refX="4.5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 7 3.5 L 0 7 Z" fill="#667085" stroke="#667085" stroke-width="0.5"/>
+    </marker>
+    <marker id="arrowhead-stream" markerWidth="6" markerHeight="8" refX="4" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 6 4 L 0 8" fill="none" stroke="#667085" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrowhead-read" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
+      <circle cx="3" cy="3" r="2" fill="none" stroke="#667085" stroke-width="1.5"/>
+    </marker>
+    <symbol id="archlex-icon-6177732e616c62-24d8e936" viewBox="0 0 64 64">
+      <g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653631366336322d3234643865393336-49636f6e2d4172636869746563747572652f34382f417263685f456c61737469632d4c6f61642d42616c616e63696e675f3438" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653631366336322d3234643865393336-49636f6e2d4172636869746563747572652d42472f34382f4e6574776f726b696e672d436f6e74656e742d44656c6976657279" fill="#8C4FFF"><rect id="archlex-icon-617263686c65782d69636f6e2d36313737373332653631366336322d3234643865393336-52656374616e676c65" x="0" y="0" width="64" height="64"/></g><path id="archlex-icon-617263686c65782d69636f6e2d36313737373332653631366336322d3234643865393336-456c61737469632d4c6f61642d42616c616e63696e675f49636f6e5f34385f5371756964" fill="#FFFFFF" d="M23.5,42 C17.71,42 13,37.29 13,31.5 C13,25.71 17.71,21 23.5,21 C29.29,21 34,25.71 34,31.5 C34,37.29 29.29,42 23.5,42 M48,48 C48,49.654 46.654,51 45,51 C43.346,51 42,49.654 42,48 C42,46.346 43.346,45 45,45 C46.654,45 48,46.346 48,48 M45,13 C46.654,13 48,14.346 48,16 C48,17.654 46.654,19 45,19 C43.346,19 42,17.654 42,16 C42,14.346 43.346,13 45,13 M48,29 C49.654,29 51,30.346 51,32 C51,33.654 49.654,35 48,35 C46.346,35 45,33.654 45,32 C45,30.346 46.346,29 48,29 M35.901,33 L43.102,33 C43.565,35.279 45.586,37 48,37 C50.757,37 53,34.757 53,32 C53,29.243 50.757,27 48,27 C45.586,27 43.565,28.721 43.102,31 L35.975,31 C35.916,29.541 35.614,28.146 35.096,26.856 L42.799,20.467 C43.466,20.797 44.206,21 45,21 C47.757,21 50,18.757 50,16 C50,13.243 47.757,11 45,11 C42.243,11 40,13.243 40,16 C40,17.224 40.459,18.331 41.191,19.201 L34.172,25.024 C31.977,21.42 28.021,19 23.5,19 C16.607,19 11,24.607 11,31.5 C11,38.393 16.607,44 23.5,44 C27.743,44 31.493,41.871 33.754,38.629 L41.191,44.799 C40.459,45.669 40,46.776 40,48 C40,50.757 42.243,53 45,53 C47.757,53 50,50.757 50,48 C50,45.243 47.757,43 45,43 C44.206,43 43.466,43.203 42.799,43.533 L34.77,36.873 C35.344,35.673 35.736,34.373 35.901,33"/></g>
+    </symbol>
+    <symbol id="archlex-icon-6177732e656332-4bfa9584" viewBox="0 0 64 64">
+      <g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653635363333322d3462666139353834-49636f6e2d4172636869746563747572652f34382f417263685f416d617a6f6e2d4543325f3438" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653635363333322d3462666139353834-49636f6e2d4172636869746563747572652d42472f34382f436f6d70757465" fill="#ED7100"><rect id="archlex-icon-617263686c65782d69636f6e2d36313737373332653635363333322d3462666139353834-52656374616e676c65" x="0" y="0" width="64" height="64"/></g><path id="archlex-icon-617263686c65782d69636f6e2d36313737373332653635363333322d3462666139353834-416d617a6f6e2d4543325f49636f6e5f34385f5371756964" fill="#FFFFFF" d="M22,41 L41,41 L41,23 L22,23 L22,41 Z M43,23 L46,23 L46,25 L43,25 L43,27 L46,27 L46,29 L43,29 L43,31 L46,31 L46,33 L43,33 L43,36 L46,36 L46,38 L43,38 L43,40 L46,40 L46,42 L42.863,42 C42.608,42.587 42.023,43 41.344,43 L41,43 L41,46 L39,46 L39,43 L37,43 L37,46 L35,46 L35,43 L33,43 L33,46 L31,46 L31,43 L29,43 L29,46 L27,46 L27,43 L24,43 L24,46 L22,46 L22,43 L21.656,43 C20.977,43 20.392,42.587 20.137,42 L18,42 L18,40 L20,40 L20,38 L18,38 L18,36 L20,36 L20,33 L18,33 L18,31 L20,31 L20,29 L18,29 L18,27 L20,27 L20,25 L18,25 L18,23 L20,23 L20,22.656 C20,21.743 20.743,21 21.656,21 L22,21 L22,18 L24,18 L24,21 L27,21 L27,18 L29,18 L29,21 L31,21 L31,18 L33,18 L33,21 L35,21 L35,18 L37,18 L37,21 L39,21 L39,18 L41,18 L41,21 L41.344,21 C42.257,21 43,21.743 43,22.656 L43,23 Z M32,52 L12,52 L12,32 L16,32 L16,30 L11.843,30 C10.826,30 10,30.827 10,31.843 L10,52.157 C10,53.173 10.826,54 11.843,54 L32.157,54 C33.174,54 34,53.173 34,52.157 L34,48 L32,48 L32,52 Z M54,11.843 L54,32.157 C54,33.173 53.174,34 52.157,34 L48,34 L48,32 L52,32 L52,12 L32,12 L32,16 L30,16 L30,11.843 C30,10.827 30.826,10 31.843,10 L52.157,10 C53.174,10 54,10.827 54,11.843 L54,11.843 Z"/></g>
+    </symbol>
+    <symbol id="archlex-icon-6177732e726473-101a21dd" viewBox="0 0 64 64">
+      <g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653732363437332d3130316132316464-49636f6e2d4172636869746563747572652f34382f417263685f416d617a6f6e2d5244535f3438" fill="none" fill-rule="evenodd" stroke="none" stroke-width="1"><g id="archlex-icon-617263686c65782d69636f6e2d36313737373332653732363437332d3130316132316464-49636f6e2d4172636869746563747572652d42472f34382f4461746162617365" fill="#C925D1"><rect id="archlex-icon-617263686c65782d69636f6e2d36313737373332653732363437332d3130316132316464-52656374616e676c65" x="0" y="0" width="64" height="64"/></g><path id="archlex-icon-617263686c65782d69636f6e2d36313737373332653732363437332d3130316132316464-416d617a6f6e2d5244535f49636f6e5f34385f5371756964" fill="#FFFFFF" d="M54,11 L54,19 L52,19 L52,13.414 L45.707,19.707 L44.293,18.293 L50.586,12 L45.125,12 L45.125,10 L53,10 C53.553,10 54,10.448 54,11 L54,11 Z M12,18.875 L10,18.875 L10,11 C10,10.448 10.447,10 11,10 L19,10 L19,12 L13.414,12 L19.707,18.293 L18.293,19.707 L12,13.414 L12,18.875 Z M19.707,45.707 L13.414,52 L18.875,52 L18.875,54 L11,54 C10.447,54 10,53.552 10,53 L10,45 L12,45 L12,50.586 L18.293,44.293 L19.707,45.707 Z M51.5,31.781 C51.5,29.352 48.634,26.932 43.833,25.307 L44.474,23.413 C50.21,25.354 53.5,28.404 53.5,31.781 C53.5,35.158 50.21,38.208 44.474,40.15 L43.833,38.255 C48.634,36.631 51.5,34.21 51.5,31.781 L51.5,31.781 Z M12.543,31.781 C12.543,34.105 15.224,36.46 19.715,38.081 L19.035,39.961 C13.639,38.014 10.543,35.033 10.543,31.781 C10.543,28.53 13.639,25.548 19.035,23.601 L19.715,25.482 C15.224,27.103 12.543,29.458 12.543,31.781 L12.543,31.781 Z M52,45.125 L54,45.125 L54,53 C54,53.552 53.553,54 53,54 L45,54 L45,52 L50.586,52 L44.293,45.707 L45.707,44.293 L52,50.586 L52,45.125 Z M32.022,31.402 C26.999,31.402 24.126,30.059 24,29.483 L24,26.257 C26.159,27.266 29.609,27.593 32,27.593 C34.391,27.593 37.841,27.266 40,26.257 L40,29.483 C39.894,30.057 37.051,31.402 32.022,31.402 L32.022,31.402 Z M32.022,37.13 C26.999,37.13 24.126,35.786 24,35.21 L24,31.956 C25.953,32.937 29.055,33.402 32.022,33.402 C34.973,33.402 38.055,32.938 40,31.96 L40,35.21 C39.894,35.785 37.052,37.13 32.022,37.13 L32.022,37.13 Z M32,42.268 C26.95,42.268 24.104,40.917 24,40.346 L24,37.683 C25.953,38.665 29.055,39.13 32.022,39.13 C34.973,39.13 38.055,38.666 40,37.687 L40,40.342 C39.896,40.917 37.05,42.268 32,42.268 L32,42.268 Z M32,22.193 C36.971,22.193 39.642,23.37 39.982,23.894 C39.642,24.417 36.971,25.593 32,25.593 C26.909,25.593 24.233,24.361 24,23.949 L24,23.93 C24.233,23.426 26.909,22.193 32,22.193 L32,22.193 Z M32,20.193 C28.286,20.193 22,20.973 22,23.894 L22,40.346 C22,43.041 27.184,44.268 32,44.268 C36.816,44.268 42,43.041 42,40.346 L42,23.894 C42,20.973 35.714,20.193 32,20.193 L32,20.193 Z"/></g>
+    </symbol>
+    <style>
+      g.archlex-node:focus-visible > rect.archlex-node-surface { stroke: #475467; stroke-width: 2; }
+    </style>
+  </defs>
+  <g id="scopes">
+    <g id="scope-account:prod" class="archlex-scope" data-archlex-id="account:prod" data-archlex-scope-kind="account" transform="translate(12.0, 12.0)">
+      <rect width="1027.2" height="444.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 1019.2" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">ACCOUNT</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">prod</tspan>
+      </text>
+    </g>
+    <g id="scope-account:prod/region:us-east-1" class="archlex-scope" data-archlex-id="account:prod/region:us-east-1" data-archlex-scope-kind="region" transform="translate(32.0, 48.0)">
+      <rect width="987.2" height="388.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 979.2" stroke="#2563eb" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">REGION</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">us-east-1</tspan>
+      </text>
+    </g>
+    <g id="scope-account:prod/region:us-east-1/vpc:main" class="archlex-scope" data-archlex-id="account:prod/region:us-east-1/vpc:main" data-archlex-scope-kind="vpc" transform="translate(52.0, 84.0)">
+      <rect width="947.2" height="332.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 939.2" stroke="#0891b2" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">VPC</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">main</tspan>
+      </text>
+    </g>
+    <g id="scope-account:prod/region:us-east-1/vpc:main/subnet:private-app" class="archlex-scope" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app" data-archlex-scope-kind="subnet" transform="translate(441.6, 120.0)">
+      <rect width="168.0" height="276.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 160.0" stroke="#059669" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">SUBNET</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">private-app</tspan>
+      </text>
+    </g>
+    <g id="scope-account:prod/region:us-east-1/vpc:main/subnet:private-db" class="archlex-scope" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-db" data-archlex-scope-kind="subnet" transform="translate(811.2, 151.9)">
+      <rect width="168.0" height="148.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 160.0" stroke="#059669" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">SUBNET</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">private-db</tspan>
+      </text>
+    </g>
+    <g id="scope-account:prod/region:us-east-1/vpc:main/subnet:public" class="archlex-scope" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public" data-archlex-scope-kind="subnet" transform="translate(72.0, 135.3)">
+      <rect width="168.0" height="148.0" rx="8" ry="8" fill="#f7f8fa" stroke="#84909f" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <path class="archlex-scope-accent" d="M 8 1.5 H 160.0" stroke="#059669" stroke-width="3" stroke-linecap="round" aria-hidden="true"/>
+      <text class="archlex-scope-label" x="12" y="20" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+        <tspan fill="#667085" font-size="9" font-weight="700" letter-spacing="0.5">SUBNET</tspan>
+        <tspan dx="6" fill="#344054" font-size="11" font-weight="600">public</tspan>
+      </text>
+    </g>
+  </g>
+  <g id="edges">
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562312d2d5b72656164735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web1--[reads]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[reads]-&gt;" d="M 589.6 186.7 L 683.7 186.7" stroke="#667085" stroke-width="1.5" stroke-dasharray="2 2" fill="none" marker-start="none" marker-end="none" aria-label="reads" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562312d2d5b72656164735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web1--[reads]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[reads]-&gt;" d="M 756.7 186.7 L 758.5 186.7 Q 760.2 186.7 760.2 188.4 L 760.2 198.3 Q 760.2 206.3 768.2 206.3 L 825.2 206.3" stroke="#667085" stroke-width="1.5" stroke-dasharray="2 2" fill="none" marker-start="none" marker-end="url(#arrowhead-read)"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562312d2d5b7772697465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web1--[writes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[writes]-&gt;" d="M 589.6 217.3 L 620.9 217.3 Q 624.6 217.3 624.6 221.0 L 624.6 221.0 Q 624.6 224.7 628.3 224.7 L 666.9 224.7" stroke="#667085" stroke-width="2" fill="none" marker-start="none" marker-end="none" aria-label="writes" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562312d2d5b7772697465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web1--[writes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[writes]-&gt;" d="M 746.5 224.7 L 825.2 224.7" stroke="#667085" stroke-width="2" fill="none" marker-start="none" marker-end="url(#arrowhead-write)"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562322d2d5b72656164735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web2--[reads]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[reads]-&gt;" d="M 589.6 345.3 L 620.9 345.3 Q 624.6 345.3 624.6 349.0 L 624.6 349.0 Q 624.6 352.7 628.3 352.7 L 681.8 352.7" stroke="#667085" stroke-width="1.5" stroke-dasharray="2 2" fill="none" marker-start="none" marker-end="none" aria-label="reads" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562322d2d5b72656164735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web2--[reads]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[reads]-&gt;" d="M 754.8 352.7 L 762.5 352.7 Q 770.2 352.7 770.2 345.0 L 770.2 269.5 Q 770.2 261.5 778.2 261.5 L 825.2 261.5" stroke="#667085" stroke-width="1.5" stroke-dasharray="2 2" fill="none" marker-start="none" marker-end="url(#arrowhead-read)"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562322d2d5b7772697465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web2--[writes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[writes]-&gt;" d="M 589.6 314.7 L 675.1 314.7" stroke="#667085" stroke-width="2" fill="none" marker-start="none" marker-end="none" aria-label="writes" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f776562322d2d5b7772697465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d64622f6462-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web2--[writes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" data-archlex-arrow="-[writes]-&gt;" d="M 754.7 314.7 L 757.4 314.7 Q 760.2 314.7 760.2 311.9 L 760.2 251.1 Q 760.2 243.1 768.2 243.1 L 825.2 243.1" stroke="#667085" stroke-width="2" fill="none" marker-start="none" marker-end="url(#arrowhead-write)"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a7075626c69632f616c622d2d5b726f757465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f77656231" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public/alb--[routes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-app/web1" data-archlex-arrow="-[routes]-&gt;" d="M 220.0 202.0 L 301.0 202.0" stroke="#667085" stroke-width="1.5" fill="none" marker-start="none" marker-end="none" aria-label="routes" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a7075626c69632f616c622d2d5b726f757465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f77656231-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public/alb--[routes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-app/web1" data-archlex-arrow="-[routes]-&gt;" d="M 380.6 202.0 L 455.6 202.0" stroke="#667085" stroke-width="1.5" fill="none" marker-start="none" marker-end="url(#arrowhead)"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a7075626c69632f616c622d2d5b726f757465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f77656232" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public/alb--[routes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-app/web2" data-archlex-arrow="-[routes]-&gt;" d="M 220.0 232.7 L 384.2 232.7 Q 390.6 232.7 390.6 239.0 L 390.6 245.4" stroke="#667085" stroke-width="1.5" fill="none" marker-start="none" marker-end="none" aria-label="routes" role="graphics-object"/>
+  <path id="archlex-edge-6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a7075626c69632f616c622d2d5b726f757465735d2d3e2d6163636f756e743a70726f642f726567696f6e3a75732d656173742d312f7670633a6d61696e2f7375626e65743a707269766174652d6170702f77656232-tail" class="archlex-edge" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public/alb--[routes]-&gt;-account:prod/region:us-east-1/vpc:main/subnet:private-app/web2" data-archlex-arrow="-[routes]-&gt;" d="M 390.6 285.4 L 390.6 322.0 Q 390.6 330.0 398.6 330.0 L 455.6 330.0" stroke="#667085" stroke-width="1.5" fill="none" marker-start="none" marker-end="url(#arrowhead)"/>
+  </g>
+  <g id="nodes">
+  <g id="node-account:prod/region:us-east-1/vpc:main/subnet:private-app/web1" class="archlex-node" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web1" transform="translate(461.6, 156.0)" tabindex="0" role="graphics-symbol" aria-label="Web Server 1 (Amazon EC2)">
+    <rect class="archlex-node-surface" width="128.0" height="92.0" rx="6" ry="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <use href="#archlex-icon-6177732e656332-4bfa9584" x="40.0" y="10.0" width="48" height="48" data-archlex-icon="aws.ec2" aria-hidden="true" focusable="false"/>
+    <text class="archlex-node-label" x="64.0" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">
+      <tspan x="64.0" y="82.0">Web Server 1</tspan>
+    </text>
+  </g>
+  <g id="node-account:prod/region:us-east-1/vpc:main/subnet:private-app/web2" class="archlex-node" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-app/web2" transform="translate(461.6, 284.0)" tabindex="0" role="graphics-symbol" aria-label="Web Server 2 (Amazon EC2)">
+    <rect class="archlex-node-surface" width="128.0" height="92.0" rx="6" ry="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <use href="#archlex-icon-6177732e656332-4bfa9584" x="40.0" y="10.0" width="48" height="48" data-archlex-icon="aws.ec2" aria-hidden="true" focusable="false"/>
+    <text class="archlex-node-label" x="64.0" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">
+      <tspan x="64.0" y="82.0">Web Server 2</tspan>
+    </text>
+  </g>
+  <g id="node-account:prod/region:us-east-1/vpc:main/subnet:private-db/db" class="archlex-node" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:private-db/db" transform="translate(831.2, 187.9)" tabindex="0" role="graphics-symbol" aria-label="PostgreSQL Database (Amazon RDS)">
+    <rect class="archlex-node-surface" width="128.0" height="92.0" rx="6" ry="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <use href="#archlex-icon-6177732e726473-101a21dd" x="40.0" y="10.0" width="48" height="48" data-archlex-icon="aws.rds" aria-hidden="true" focusable="false"/>
+    <text class="archlex-node-label" x="64.0" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">
+      <tspan x="64.0" y="72.0">PostgreSQL</tspan>
+      <tspan x="64.0" dy="15">Database</tspan>
+    </text>
+  </g>
+  <g id="node-account:prod/region:us-east-1/vpc:main/subnet:public/alb" class="archlex-node" data-archlex-id="account:prod/region:us-east-1/vpc:main/subnet:public/alb" transform="translate(92.0, 171.3)" tabindex="0" role="graphics-symbol" aria-label="Web Load Balancer (Application Load Balancer)">
+    <rect class="archlex-node-surface" width="128.0" height="92.0" rx="6" ry="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <use href="#archlex-icon-6177732e616c62-24d8e936" x="40.0" y="10.0" width="48" height="48" data-archlex-icon="aws.alb" aria-hidden="true" focusable="false"/>
+    <text class="archlex-node-label" x="64.0" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" text-anchor="middle" aria-hidden="true">
+      <tspan x="64.0" y="72.0">Web Load</tspan>
+      <tspan x="64.0" dy="15">Balancer</tspan>
+    </text>
+  </g>
+  </g>
+  <g id="edge-labels">
+  <g class="archlex-edge-label" transform="translate(720.2, 186.7)" aria-hidden="true">
+    <rect x="-28.5" y="-12.0" width="57.0" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">reads</text>
+  </g>
+  <g class="archlex-edge-label" transform="translate(706.7, 224.7)" aria-hidden="true">
+    <rect x="-31.8" y="-12.0" width="63.6" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">writes</text>
+  </g>
+  <g class="archlex-edge-label" transform="translate(718.3, 352.7)" aria-hidden="true">
+    <rect x="-28.5" y="-12.0" width="57.0" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">reads</text>
+  </g>
+  <g class="archlex-edge-label" transform="translate(714.9, 314.7)" aria-hidden="true">
+    <rect x="-31.8" y="-12.0" width="63.6" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">writes</text>
+  </g>
+  <g class="archlex-edge-label" transform="translate(340.8, 202.0)" aria-hidden="true">
+    <rect x="-31.8" y="-12.0" width="63.6" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">routes</text>
+  </g>
+  <g class="archlex-edge-label" transform="translate(390.6, 265.4)" aria-hidden="true">
+    <rect x="-31.8" y="-12.0" width="63.6" height="24" rx="6" fill="#ffffff" stroke="#84909f" stroke-width="1"/>
+    <text y="4.5" fill="#101828" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" text-anchor="middle">routes</text>
+  </g>
+  </g>
+</svg>

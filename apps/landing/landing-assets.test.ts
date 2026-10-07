@@ -18,6 +18,8 @@ describe("landing static assets", () => {
       "apple-touch-icon-precomposed.png",
       "apple-touch-icon.png",
       "archlex-event-pipeline-dark.png",
+      "diagrams/aws-3-tier-dark.svg",
+      "diagrams/aws-3-tier-light.svg",
       "diagrams/hero-dark.svg",
       "diagrams/hero-light.svg",
       "diagrams/serverless-api-dark.svg",
@@ -47,6 +49,9 @@ describe("landing static assets", () => {
 
     expect(robots).toContain("Sitemap: https://archlex.dev/sitemap.xml");
     expect(sitemap).toContain("<loc>https://archlex.dev/</loc>");
+    expect(sitemap).toContain(
+      "<loc>https://archlex.dev/aws-architecture-diagrams/</loc>",
+    );
   });
 
   it("uses woff2-only local font sources to avoid emitting duplicate legacy font files", () => {

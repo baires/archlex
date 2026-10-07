@@ -16,9 +16,8 @@ const {
   noindex = false,
 } = Astro.props;
 
-const canonicalURL = `https://archlex.dev${
-  Astro.url.pathname === "/" ? "/" : Astro.url.pathname.replace(/\/$/, "")
-}`;
+// Pages build as directories (/page/index.html), so the served URL ends in "/".
+const canonicalURL = `https://archlex.dev${Astro.url.pathname.replace(/\/?$/, "/")}`;
 
 const schemaGraph = {
   "@context": "https://schema.org",
