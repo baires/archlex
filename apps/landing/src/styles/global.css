@@ -1509,3 +1509,22 @@ h1 {
 .topic-list strong {
   color: var(--text-primary);
 }
+
+.faq-list {
+  margin: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.faq-item dt {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.faq-item dd {
+  margin: var(--space-2) 0 0;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}

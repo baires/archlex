@@ -19,6 +19,39 @@ api -[invokes]-> worker
 worker -[writes]-> data`;
 
 const skillInstallCmd = "npx skills add baires/archlex";
+
+const faqs = [
+  {
+    q: "What is ArchLex?",
+    a: "ArchLex is an open source language and renderer for cloud architecture diagrams as code. You describe AWS, Cloudflare, GCP, or Kubernetes architecture in plain text, ArchLex validates it, and it renders an SVG with official cloud icons.",
+  },
+  {
+    q: "How do I get Claude, Cursor, or Codex to draw an architecture diagram?",
+    a: "Install the agent skill with npx skills add baires/archlex, or connect the ArchLex MCP server at https://mcp.archlex.dev/mcp. Then ask your agent to diagram your AWS, Cloudflare, GCP, or Kubernetes setup. The agent writes ArchLex source, ArchLex validates it, and you get back an SVG.",
+  },
+  {
+    q: "Which clouds does ArchLex support?",
+    a: "AWS (194 services), GCP (185 services), Cloudflare (92 services), and Kubernetes (62 resources). You can mix providers in one diagram.",
+  },
+  {
+    q: "Do I need an account or API key?",
+    a: "No. ArchLex is MIT licensed and runs locally through the CLI and npm packages, in the browser playground, or through the hosted MCP server, with no account or API key.",
+  },
+  {
+    q: "Can I render diagrams without an AI agent?",
+    a: "Yes. Write ArchLex in the playground at playground.archlex.dev, render it with the CLI, or call @archlex/core from Node.js or the browser.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map(({ q, a }) => ({
+    "@type": "Question",
+    name: q,
+    acceptedAnswer: { "@type": "Answer", text: a },
+  })),
+};
 ---
 
 <BaseLayout
@@ -154,6 +187,22 @@ const skillInstallCmd = "npx skills add baires/archlex";
         <p class="section-lead">Lightweight, modular packages for browser and Node.js. Zero native binary dependencies.</p>
       </div>
       <PackageQuickStart />
+    </section>
+
+    <!-- FAQ -->
+    <section class="topic-section shell shell--reading" id="faq" aria-labelledby="faq-title">
+      <div class="section-heading">
+        <h2 id="faq-title">Questions.</h2>
+      </div>
+      <dl class="faq-list">
+        {faqs.map(({ q, a }) => (
+          <div class="faq-item">
+            <dt>{q}</dt>
+            <dd>{a}</dd>
+          </div>
+        ))}
+      </dl>
+      <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
     </section>
 
     <!-- Feature Family 5: Final CTA -->
