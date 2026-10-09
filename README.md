@@ -21,7 +21,7 @@ Then ask:
 You get a validated diagram, the exact ArchLex source, and a
 [playground](https://playground.archlex.dev) link. No API key.
 
-More clients: [Use with AI agents](https://docs.archlex.dev/guides/agents).
+More clients: [Use with AI agents](https://docs.archlex.dev/guides/agents/).
 
 ## Visual output
 
@@ -142,7 +142,7 @@ ecs -[writes]-> rds
 console.log(result.svg);
 ```
 
-[Getting started](https://docs.archlex.dev/getting-started) ·
+[Getting started](https://docs.archlex.dev/getting-started/) ·
 [Public API](docs/specs/public-api.md)
 
 The same setup also renders Cloudflare source:
@@ -174,7 +174,7 @@ for aliases, connectors, flow labels and mixed-provider examples.
 
 ## Documentation
 
-- [Use with AI agents](https://docs.archlex.dev/guides/agents)
+- [Use with AI agents](https://docs.archlex.dev/guides/agents/)
 - [Language specification](docs/specs/language.md)
 - [MCP server](docs/guides/mcp-server.md)
 - [AWS](docs/specs/aws-semantics.md) · [GCP](docs/specs/gcp-semantics.md) ·

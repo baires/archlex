@@ -101,7 +101,7 @@ export function DiagramSettings({
               for cloud architecture validation.
             </p>
             <a
-              href="https://docs.archlex.dev/guides/mcp-server"
+              href="https://docs.archlex.dev/guides/mcp-server/"
               target="_blank"
               rel="noopener noreferrer"
               className="settings-link"
