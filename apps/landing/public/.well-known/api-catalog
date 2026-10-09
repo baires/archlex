@@ -1,0 +1,19 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://mcp.archlex.dev/mcp",
+      "service-desc": [
+        {
+          "href": "https://archlex.dev/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://docs.archlex.dev/guides/mcp-server/",
+          "type": "text/html"
+        }
+      ]
+    }
+  ]
+}

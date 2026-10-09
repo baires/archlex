@@ -1,0 +1,27 @@
+{
+  "serverInfo": {
+    "name": "archlex",
+    "title": "ArchLex Remote MCP Server",
+    "version": "0.2.4"
+  },
+  "description": "Render, validate, and share AWS, Cloudflare, GCP, and Kubernetes architecture diagrams as code.",
+  "documentationUrl": "https://docs.archlex.dev/guides/mcp-server/",
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://mcp.archlex.dev/mcp"
+  },
+  "authentication": {
+    "required": false
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  },
+  "tools": [
+    "render_diagram",
+    "validate_diagram",
+    "get_cloud_catalog",
+    "generate_playground_url"
+  ]
+}

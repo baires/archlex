@@ -1,0 +1,11 @@
+/
+  Link: </.well-known/api-catalog>; rel="api-catalog", </.well-known/mcp/server-card.json>; rel="service-desc"; type="application/json", <https://docs.archlex.dev/>; rel="service-doc", </llms.txt>; rel="describedby"; type="text/plain"
+
+/.well-known/api-catalog
+  Content-Type: application/linkset+json
+
+/.well-known/agent-skills/*
+  Access-Control-Allow-Origin: *
+
+/.well-known/mcp/*
+  Access-Control-Allow-Origin: *
