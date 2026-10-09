@@ -34,6 +34,12 @@ assert.match(
   robots,
   /^Sitemap: https:\/\/playground\.archlex\.dev\/sitemap\.xml$/m,
 );
+assert.match(
+  robots,
+  /^Content-Signal: ai-train=yes, search=yes, ai-input=yes$/m,
+);
+const notFound = await readFile(new URL("404.html", dist), "utf8");
+assert.match(notFound, /<meta name="robots" content="noindex"/);
 const sitemap = await readFile(new URL("sitemap.xml", dist), "utf8");
 assert.match(sitemap, /<loc>https:\/\/playground\.archlex\.dev\/<\/loc>/);
 

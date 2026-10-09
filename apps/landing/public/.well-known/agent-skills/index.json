@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "archlex",
+      "type": "skill-md",
+      "description": "Create, validate, and render AWS, Cloudflare, GCP, and Kubernetes architecture diagrams as code with ArchLex.",
+      "url": "/.well-known/agent-skills/archlex/SKILL.md",
+      "digest": "sha256:8174cede8b1489872200bb7a481b8762c3fed1106cfb57b895e87a228eb435a3"
+    }
+  ]
+}

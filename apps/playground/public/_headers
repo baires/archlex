@@ -1,2 +1,5 @@
+/
+  Link: <https://archlex.dev/llms.txt>; rel="describedby"; type="text/plain", <https://archlex.dev/.well-known/api-catalog>; rel="api-catalog", <https://docs.archlex.dev/>; rel="service-doc"
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
