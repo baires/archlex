@@ -68,11 +68,13 @@ describe("Render token security", () => {
 
   it("rejects tampered tokens", async () => {
     const token = await createRenderToken(SAMPLE_PAYLOAD, SECRET);
-    // Flip one character in the middle
+    // Flip one character in the middle (always to a different character)
+    const mid = Math.floor(token.length / 2);
     const tampered =
-      token.substring(0, token.length / 2) +
-      (token[token.length / 2] === "A" ? "B" : "A") +
-      token.substring(token.length / 2 + 1);
+      token.substring(0, mid) +
+      (token[mid] === "A" ? "B" : "A") +
+      token.substring(mid + 1);
+    expect(tampered).not.toBe(token);
     await expect(readRenderToken(tampered, SECRET, NOW)).rejects.toThrow(
       InvalidRenderTokenError,
     );
