@@ -1,5 +1,11 @@
 # @archlex/icons-core
 
+## 0.2.6
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+
 ## 0.2.5
 
 ### Patch Changes

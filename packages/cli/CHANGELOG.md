@@ -1,5 +1,18 @@
 # @archlex/cli
 
+## 0.4.1
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/core@0.6.1
+  - @archlex/diagnostics@0.3.2
+  - @archlex/gcp@0.4.2
+  - @archlex/k8s@0.4.1
+  - @archlex/model@0.6.1
+
 ## 0.4.0
 
 ### Minor Changes

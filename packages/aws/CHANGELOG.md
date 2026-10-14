@@ -1,5 +1,14 @@
 # @archlex/aws
 
+## 0.4.2
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/icons-core@0.2.6
+  - @archlex/model@0.6.1
+
 ## 0.4.1
 
 ### Patch Changes
