@@ -1,5 +1,14 @@
 # @archlex/parser
 
+## 0.6.2
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/diagnostics@0.3.2
+  - @archlex/model@0.6.1
+
 ## 0.6.1
 
 ### Patch Changes

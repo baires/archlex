@@ -1,5 +1,17 @@
 # @archlex/share
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/core@0.6.1
+  - @archlex/gcp@0.4.2
+  - @archlex/icons-core@0.2.6
+  - @archlex/k8s@0.4.1
+  - @archlex/layout-elk@0.2.8
+
 ## 0.0.1
 
 ### Patch Changes

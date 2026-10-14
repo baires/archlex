@@ -1,5 +1,11 @@
 # @archlex/model
 
+## 0.6.1
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+
 ## 0.6.0
 
 ### Minor Changes

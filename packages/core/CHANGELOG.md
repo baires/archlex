@@ -1,5 +1,22 @@
 # @archlex/core
 
+## 0.6.1
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/cloudflare@0.1.1
+  - @archlex/diagnostics@0.3.2
+  - @archlex/gcp@0.4.2
+  - @archlex/icons-core@0.2.6
+  - @archlex/k8s@0.4.1
+  - @archlex/layout-elk@0.2.8
+  - @archlex/model@0.6.1
+  - @archlex/parser@0.6.2
+  - @archlex/renderer-svg@0.2.7
+
 ## 0.6.0
 
 ### Minor Changes
