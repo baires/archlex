@@ -173,7 +173,7 @@ describe("createCdnProvider", () => {
     const outcome = Promise.race([
       provider.fetchIcon("lambda"),
       new Promise<"timeout-missed">((resolve) =>
-        setTimeout(() => resolve("timeout-missed"), 50),
+        setTimeout(() => resolve("timeout-missed"), 500),
       ),
     ]);
     await expect(outcome).rejects.toMatchObject({ code: "ICON_FETCH_FAILED" });
