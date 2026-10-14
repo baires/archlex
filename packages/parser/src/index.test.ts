@@ -165,18 +165,26 @@ cluster prod {
       expect(result).toBeDefined();
       return performance.now() - startTime;
     };
-    // Min of several samples keeps GC pauses and CI runner jitter out of the measurement.
-    const sample = (repeats: number): number =>
-      Math.min(measure(repeats), measure(repeats), measure(repeats));
+    const median = (samples: readonly number[]): number => {
+      const sorted = [...samples].sort((left, right) => left - right);
+      return sorted[Math.floor(sorted.length / 2)] ?? 0;
+    };
 
-    measure(1000); // warm up the JIT before sampling
-    const small = sample(2500);
-    const large = sample(10000); // 4x the input
+    // Warm both sizes so the first JIT compile and GC cycle stay unscored.
+    measure(2500);
+    measure(10000);
 
-    // Linear parsing scales ~4x; polynomial backtracking would blow past 8x.
-    // A scaling ratio stays stable on slow CI runners where a fixed
-    // wall-clock budget flakes.
-    expect(large).toBeLessThan(small * 8);
+    const ratios = [0, 1, 2].map(() => {
+      const small = median([measure(2500), measure(2500), measure(2500)]);
+      const large = median([measure(10000), measure(10000), measure(10000)]);
+      return large / small;
+    });
+
+    // 4x input is about 4x time when lexing is linear. A busy CI runner has
+    // stretched one trial to about 10x. Catastrophic backtracking stays far
+    // above 12x on every trial, and quadratic scaling of this 4x input is
+    // about 16x, so the best trial must stay under 12x.
+    expect(Math.min(...ratios)).toBeLessThan(12);
   });
 
   it("recovers a missing closing brace at end of input", () => {

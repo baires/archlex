@@ -36,7 +36,7 @@ describe("MCP 2026-07-28 official contract", () => {
       "2.0.0",
     );
     expect(packageJson.dependencies["@modelcontextprotocol/sdk"]).toBe(
-      "1.30.0",
+      "1.31.0",
     );
   });
 
