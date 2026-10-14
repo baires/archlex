@@ -43,6 +43,13 @@ codex mcp add archlex --url https://mcp.archlex.dev/mcp
 The server keeps legacy `/sse` and `/messages` routes for clients that cannot
 use Streamable HTTP.
 
+Streamable HTTP clients that use `initialize` are also supported on `/mcp`.
+They send the negotiated `MCP-Protocol-Version` header on subsequent requests;
+they do not need the modern per-request `_meta` fields. The SDK adapter supports
+`2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`, and `2024-10-07`.
+Clients using the modern `2026-07-28` protocol instead use `server/discover`
+and include the required per-request metadata and mirrored HTTP headers.
+
 ## Endpoints
 
 | Endpoint | Methods | Purpose |

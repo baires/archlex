@@ -1,3 +1,5 @@
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import {
   CLIENT_CAPABILITIES_META_KEY,
   PROTOCOL_VERSION_META_KEY,
@@ -87,6 +89,100 @@ describe("protocol era classification", () => {
 });
 
 describe("dual-era /mcp routing", () => {
+  test("supports SDK initialization, tool discovery, and a tool call", async () => {
+    const client = new Client({ name: "compatibility-test", version: "1.0.0" });
+    const transport = new StreamableHTTPClientTransport(
+      new URL("https://mcp.archlex.dev/mcp"),
+      {
+        fetch: async (input, init) => worker.fetch(new Request(input, init)),
+      },
+    );
+
+    try {
+      await client.connect(transport);
+      const { tools } = await client.listTools();
+      expect(tools.map((tool) => tool.name)).toEqual([
+        "render_diagram",
+        "validate_diagram",
+        "get_cloud_catalog",
+        "generate_playground_url",
+      ]);
+      const result = await client.callTool({
+        name: "validate_diagram",
+        arguments: { source: "provider cloudflare\nworkers > r2" },
+      });
+      expect(result.isError).not.toBe(true);
+      const content = result.content as Array<{ type: string; text?: string }>;
+      expect(JSON.parse(content[0]?.text ?? "{}")).toMatchObject({
+        valid: true,
+        nodes_count: 2,
+        edges_count: 1,
+      });
+    } finally {
+      await client.close();
+    }
+  });
+
+  test.each([
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05",
+    "2024-10-07",
+  ])(
+    "routes subsequent requests for negotiated SDK version %s",
+    async (version) => {
+      const initialize = await worker.fetch(
+        new Request("https://mcp.archlex.dev/mcp", {
+          method: "POST",
+          headers: {
+            Accept: "application/json, text/event-stream",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "initialize",
+            method: "initialize",
+            params: {
+              protocolVersion: version,
+              capabilities: {},
+              clientInfo: { name: "legacy-client", version: "1.0.0" },
+            },
+          }),
+        }),
+      );
+      expect(initialize.status).toBe(200);
+      const body = (await initialize.json()) as {
+        result: { protocolVersion: string };
+      };
+      expect(body.result.protocolVersion).toBe(version);
+
+      const response = await worker.fetch(
+        new Request("https://mcp.archlex.dev/mcp", {
+          method: "POST",
+          headers: {
+            Accept: "application/json, text/event-stream",
+            "Content-Type": "application/json",
+            "MCP-Protocol-Version": body.result.protocolVersion,
+          },
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: "list",
+            method: "tools/list",
+          }),
+        }),
+      );
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        result: {
+          tools: expect.arrayContaining([
+            expect.objectContaining({ name: "validate_diagram" }),
+          ]),
+        },
+      });
+    },
+  );
+
   test("routes a modern request statelessly and never echoes sessions", async () => {
     const response = await worker.fetch(modernRequest("tools/list"));
     expect(response.status).toBe(200);

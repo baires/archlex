@@ -36,7 +36,13 @@ Every modern JSON-RPC request MUST supply the following in `params._meta`:
 - List endpoints support deterministic ordering and pagination using opaque stable `cursor` tokens.
 
 ### Migration Guidance from Legacy Clients
-Legacy clients that send `initialize` without per-request metadata continue to work through the isolated legacy adapter (`2025-03-26`). To migrate:
+Clients that use `initialize` without modern per-request metadata continue to work
+through the isolated SDK adapter. Routing supports every revision that adapter
+can negotiate: `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`, and
+`2024-10-07`. Subsequent requests use the negotiated `MCP-Protocol-Version`
+header and do not require modern metadata or mirrored method/name headers.
+The routing list comes from the same SDK as initialization, so negotiation and
+request handling stay aligned when the SDK changes. To migrate to the modern protocol:
 1. Send JSON-RPC requests directly to `POST /mcp` without calling `initialize`.
 2. Include `MCP-Protocol-Version: 2026-07-28`, `Mcp-Method`, and applicable `Mcp-Name` headers.
 3. Include `_meta["io.modelcontextprotocol/protocolVersion"] = "2026-07-28"` and `_meta["io.modelcontextprotocol/clientCapabilities"]` in `params`.

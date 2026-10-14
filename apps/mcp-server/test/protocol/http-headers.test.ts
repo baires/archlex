@@ -98,6 +98,7 @@ describe("standard MCP request headers", () => {
 
   test.each([
     ["MCP-Protocol-Version", "2025-03-26"],
+    ["MCP-Protocol-Version", "2025-11-25"],
     ["Mcp-Method", "TOOLS/CALL"],
     ["Mcp-Name", "other_tool"],
   ])("rejects mismatched %s", async (header, value) => {

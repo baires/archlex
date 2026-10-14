@@ -1,3 +1,5 @@
+import { SUPPORTED_PROTOCOL_VERSIONS as SDK_SUPPORTED_PROTOCOL_VERSIONS } from "@modelcontextprotocol/sdk/types.js";
+
 /**
  * MCP 2026-07-28 Protocol Constants
  *
@@ -17,7 +19,9 @@ export const MODERN_PROTOCOL_VERSION = "2026-07-28" as const;
  */
 export const SUPPORTED_PROTOCOL_VERSIONS = [MODERN_PROTOCOL_VERSION] as const;
 
-export const LEGACY_PROTOCOL_VERSIONS = ["2025-03-26"] as const;
+/** Keep routing aligned with every revision the legacy SDK can negotiate. */
+export const LEGACY_PROTOCOL_VERSIONS: readonly string[] =
+  SDK_SUPPORTED_PROTOCOL_VERSIONS;
 
 /**
  * Server identity constants
