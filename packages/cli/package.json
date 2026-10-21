@@ -40,7 +40,7 @@
     "@archlex/model": "workspace:^",
     "chalk": "^5.3.0",
     "commander": "^12.1.0",
-    "ora": "^8.1.1",
+    "ora": "^9.4.1",
     "playwright": "^1.63.0"
   },
   "devDependencies": {
