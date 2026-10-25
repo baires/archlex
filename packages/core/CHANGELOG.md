@@ -1,5 +1,21 @@
 # @archlex/core
 
+## 0.6.2
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+- Updated dependencies [106cf5e]
+  - @archlex/aws@0.4.3
+  - @archlex/cloudflare@0.1.3
+  - @archlex/diagnostics@0.3.3
+  - @archlex/gcp@0.4.3
+  - @archlex/icons-core@0.2.7
+  - @archlex/k8s@0.4.2
+  - @archlex/layout-elk@0.2.9
+  - @archlex/parser@0.6.3
+  - @archlex/renderer-svg@0.2.8
+
 ## 0.6.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@archlex/language-service",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Editor-neutral language intelligence for ArchLex source",
   "keywords": ["architecture", "diagrams", "language-service", "lsp"],
   "repository": {

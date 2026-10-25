@@ -1,5 +1,19 @@
 # @archlex/playground
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [106cf5e]
+  - @archlex/aws@0.4.3
+  - @archlex/core@0.6.2
+  - @archlex/diagnostics@0.3.3
+  - @archlex/gcp@0.4.3
+  - @archlex/icons-core@0.2.7
+  - @archlex/k8s@0.4.2
+  - @archlex/language-service@0.2.4
+  - @archlex/icons-browser@0.2.7
+
 ## 0.1.9
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @archlex/language-service
 
+## 0.2.4
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+- Updated dependencies [106cf5e]
+  - @archlex/parser@0.6.3
+
 ## 0.2.3
 
 ### Patch Changes
