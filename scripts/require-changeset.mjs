@@ -1,11 +1,21 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+
+const PACKAGE_DIR_NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+
 /**
  * Determines if a changeset is required based on changed file paths.
+ * Private workspace packages are exempt only when `privatePackageDirs` is
+ * provided. Those packages are not published.
  * @param {string[]} changedPaths - Array of changed file paths
+ * @param {{ privatePackageDirs?: ReadonlySet<string> }} [options]
  * @returns {boolean} - True if a changeset is required
  */
-export function requiresChangeset(changedPaths) {
+export function requiresChangeset(changedPaths, options = {}) {
+  const privatePackageDirs = options.privatePackageDirs ?? new Set();
   // Patterns that require a changeset
   const requiresChangesetPatterns = [
     // Any source file in packages/ (except tests)
@@ -36,6 +46,11 @@ export function requiresChangeset(changedPaths) {
   ];
 
   for (const path of changedPaths) {
+    const packageDir = /^packages\/([^/]+)\//.exec(path)?.[1];
+    if (packageDir && privatePackageDirs.has(packageDir)) {
+      continue;
+    }
+
     // Check exempt patterns first
     const isExempt = exemptPatterns.some((pattern) => pattern.test(path));
     if (isExempt) {
@@ -54,9 +69,41 @@ export function requiresChangeset(changedPaths) {
   return false;
 }
 
+/**
+ * Package directories under `packages/` whose package.json sets `"private": true`.
+ * @param {string} [root]
+ * @returns {Set<string>}
+ */
+export function loadPrivatePackageDirs(root = process.cwd()) {
+  const packagesDir = join(root, "packages");
+  const dirs = new Set();
+  if (!existsSync(packagesDir)) return dirs;
+
+  for (const entry of readdirSync(packagesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || !PACKAGE_DIR_NAME.test(entry.name)) continue;
+    const manifestPath = join(packagesDir, entry.name, "package.json");
+    if (!existsSync(manifestPath)) continue;
+    const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    if (manifest?.private === true) dirs.add(entry.name);
+  }
+
+  return dirs;
+}
+
+/**
+ * Repo-aware changeset check used by CI. Private workspace packages are exempt.
+ * @param {string[]} changedPaths
+ * @param {string} [root]
+ * @returns {boolean}
+ */
+export function requiresChangesetForRepo(changedPaths, root = process.cwd()) {
+  return requiresChangeset(changedPaths, {
+    privatePackageDirs: loadPrivatePackageDirs(root),
+  });
+}
+
 // CLI entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const { execSync } = await import("node:child_process");
   const { stdin } = await import("node:process");
 
   // Check for no-changeset-required label override
@@ -72,34 +119,40 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   }
 
   let changedPaths = [];
+  const baseSha = process.env.BASE_SHA;
+  const headSha = process.env.HEAD_SHA || "HEAD";
 
-  // Check if we're reading from stdin (for tests)
-  if (!stdin.isTTY) {
-    const { readFileSync } = await import("node:fs");
-    const input = readFileSync(0, "utf-8");
-    changedPaths = input.trim().split("\n").filter(Boolean);
-  } else {
-    // In CI: get changed files from git diff
-    const baseSha = process.env.BASE_SHA;
-    const headSha = process.env.HEAD_SHA || "HEAD";
-
-    if (!baseSha) {
-      console.error("✗ BASE_SHA environment variable is required");
+  // GitHub Actions steps do not have a TTY, so `stdin.isTTY` is unset even
+  // when the caller did not pipe a path list. That used to take the stdin
+  // branch, read EOF, and report "No files changed". Use the git diff
+  // whenever CI provides BASE_SHA. Stdin remains the local/test path.
+  if (baseSha) {
+    if (
+      !/^(HEAD|[0-9a-f]{7,64})$/i.test(baseSha) ||
+      !/^(HEAD|[0-9a-f]{7,64})$/i.test(headSha)
+    ) {
+      console.error("✗ BASE_SHA and HEAD_SHA must be commit SHAs");
       process.exit(1);
     }
 
     try {
-      const output = execSync(
-        `git diff --name-only "${baseSha}" "${headSha}"`,
-        {
-          encoding: "utf-8",
-        },
+      const output = execFileSync(
+        "git",
+        ["diff", "--name-only", baseSha, headSha],
+        { encoding: "utf8" },
       );
       changedPaths = output.trim().split("\n").filter(Boolean);
     } catch (error) {
-      console.error("✗ Failed to get changed files:", error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("✗ Failed to get changed files:", message);
       process.exit(1);
     }
+  } else if (!stdin.isTTY) {
+    const input = readFileSync(0, "utf8");
+    changedPaths = input.trim().split("\n").filter(Boolean);
+  } else {
+    console.error("✗ BASE_SHA environment variable is required");
+    process.exit(1);
   }
 
   if (changedPaths.length === 0) {
@@ -107,7 +160,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(0);
   }
 
-  const needsChangeset = requiresChangeset(changedPaths);
+  const needsChangeset = requiresChangesetForRepo(changedPaths);
 
   if (needsChangeset) {
     console.log("Changed files requiring a changeset:");
@@ -117,7 +170,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     console.log("");
 
     // Check if changeset exists
-    const { readdirSync, existsSync } = await import("node:fs");
     const changesetDir = ".changeset";
 
     if (!existsSync(changesetDir)) {
@@ -142,7 +194,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   console.log("✓ No changeset required for these changes");
   console.log(
-    "Reason: All changes are to exempt paths (apps, docs, tests, CI, markdown)",
+    "Reason: All changes are to exempt paths (apps, docs, tests, CI, markdown, private packages)",
   );
   process.exit(0);
 }
