@@ -1,0 +1,83 @@
+# Commits a patch changeset onto Dependabot pull requests that change a
+# published package under packages/. "Require changeset" stays enabled; this
+# job supplies the file `pnpm changeset` would have created.
+#
+# The job checks out the PR head branch, runs scripts/dependabot-changeset.mjs,
+# and pushes `.changeset/dependabot-pr-<number>.md` when the package list
+# changed. A later run on the same PR updates that file instead of adding
+# another one. Private packages are omitted. If no published package needs a
+# release, the script exits 0.
+#
+# Token:
+# Dependabot `pull_request` runs cannot read Actions secrets, and the default
+# GITHUB_TOKEN is read-only unless `permissions` widens it. A push made with
+# GITHUB_TOKEN also does not start new workflow runs, so "Require changeset"
+# would never re-run on the commit that adds the changeset.
+# Store the same PAT already used as PAT_TOKEN (see auto-approve-changesets.yml)
+# as a Dependabot secret named PAT_TOKEN:
+#   Settings → Secrets and variables → Dependabot → Repository secrets.
+# The token needs contents read/write on this repository (a fine-grained PAT
+# with Contents: Read and write, or a classic PAT with the repo scope) and the
+# owner must be allowed to push to Dependabot branches. This workflow then
+# checks out and pushes with `secrets.PAT_TOKEN || secrets.GITHUB_TOKEN`.
+#
+# pull_request_target is intentionally not used. The job does not install
+# dependencies or execute package code; it only reads package names and writes
+# a changeset. After this workflow is on the default branch, Dependabot PRs
+# (which do not modify this file) run that trusted workflow.
+
+name: Dependabot changeset
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dependabot-changeset-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changeset:
+    name: Add patch changeset
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Note when PAT_TOKEN is unavailable
+        env:
+          HAS_PAT: ${{ secrets.PAT_TOKEN != '' }}
+        run: |
+          if [ "$HAS_PAT" != "true" ]; then
+            echo "::warning::PAT_TOKEN is empty for this run. Dependabot-triggered workflows only receive Dependabot secrets, not Actions secrets. Add PAT_TOKEN under Settings → Secrets and variables → Dependabot so this push re-triggers CI. Falling back to GITHUB_TOKEN, which does not start a new Require changeset run."
+          fi
+
+      - name: Checkout pull request head
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch base branch
+        run: git fetch origin "${{ github.event.pull_request.base.ref }}"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Add Dependabot changeset
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HUSKY: "0"
+        run: node scripts/dependabot-changeset.mjs
