@@ -1,0 +1,79 @@
+diff --git a/dist/server/schemas.js b/dist/server/schemas.js
+index e248a04bed4933051f6d81ab8b878d1b646f6b25..0b4f1c09afd046b4e7e02f96a2444c315f38f70f 100644
+--- a/dist/server/schemas.js
++++ b/dist/server/schemas.js
+@@ -11,6 +11,30 @@ const reactNode = [
+   isReactNode,
+   { message: "Must be React.ReactNode or React.FC" }
+ ];
++// Zod 4 removed ZodObject.deepPartial(). Nextra 3 builds its config schemas
++// with that helper; recreate it so the docs app can run on the patched Zod.
++function deepPartial(schema) {
++  if (schema?.type === "object") {
++    const shape = {};
++    for (const key of Object.keys(schema.shape)) {
++      shape[key] = deepPartial(schema.shape[key]).optional();
++    }
++    return schema.def?.catchall?.type === "never" ? z.strictObject(shape) : z.object(shape);
++  }
++  if (schema?.type === "union") {
++    return z.union(schema.options.map((option) => deepPartial(option)));
++  }
++  if (schema?.type === "array") {
++    return z.array(deepPartial(schema.element));
++  }
++  if (schema?.type === "optional") {
++    return deepPartial(schema.unwrap()).optional();
++  }
++  if (schema?.type === "nullable") {
++    return deepPartial(schema.unwrap()).nullable();
++  }
++  return schema;
++}
+ const searchSchema = z.boolean().or(
+   z.strictObject({
+     /**
+@@ -27,7 +51,7 @@ const searchSchema = z.boolean().or(
+     indexKey: z.custom().optional()
+   })
+ );
+-const mathJaxOptionsSchema = z.strictObject({
++const mathJaxOptionsSchema = deepPartial(z.strictObject({
+   /**
+    * URL for MathJax. Defaults to `https://cdnjs.cloudflare.com`
+    */
+@@ -36,8 +60,8 @@ const mathJaxOptionsSchema = z.strictObject({
+    * MathJax config. See https://docs.mathjax.org/en/latest/options/index.html
+    */
+   config: z.custom()
+-}).deepPartial().optional();
+-const nextraConfigSchema = z.strictObject({
++})).optional();
++const nextraConfigSchema = deepPartial(z.strictObject({
+   themeConfig: z.string(),
+   defaultShowCopyCode: z.boolean(),
+   search: searchSchema,
+@@ -73,7 +97,7 @@ const nextraConfigSchema = z.strictObject({
+     rehypePrettyCodeOptions: z.custom()
+   }),
+   autoImportThemeStyle: z.boolean()
+-}).deepPartial().extend({ theme: z.string() });
++})).extend({ theme: z.string() });
+ const pageThemeSchema = z.strictObject({
+   breadcrumb: z.boolean(),
+   collapsed: z.boolean(),
+@@ -105,12 +129,12 @@ const separatorItemSchema = z.strictObject({
+   title: titleSchema.optional(),
+   type: z.literal("separator")
+ });
+-const itemSchema = linkItemSchema.extend({
++const itemSchema = deepPartial(linkItemSchema.extend({
+   display: displaySchema,
+   theme: pageThemeSchema,
+   title: titleSchema,
+   type: z.enum(["page", "doc"])
+-}).deepPartial();
++}));
+ const metaSchema = z.string().or(menuItemSchema).or(separatorItemSchema).or(itemSchema);
+ export {
+   displaySchema,
