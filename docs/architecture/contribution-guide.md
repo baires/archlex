@@ -149,7 +149,14 @@ public CDN.
 
 Run `pnpm changeset` when you modify a published package under `packages/`.
 Describe the reader-visible effect and choose the release level that matches the
-public contract.
+public contract. Private packages are not published, so changes that only touch
+them do not require a changeset.
+
+Dependabot pull requests are handled by
+`.github/workflows/dependabot-changeset.yml`. That workflow commits one patch
+changeset listing each published package whose manifest or source changed.
+`PAT_TOKEN` must be saved as a Dependabot secret, not only as an Actions
+secret, so the workflow can push to the Dependabot branch and CI can re-run.
 
 ## Keep documentation current
 
