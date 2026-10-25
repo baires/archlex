@@ -102,8 +102,208 @@ export function requiresChangesetForRepo(changedPaths, root = process.cwd()) {
   });
 }
 
+const RUNTIME_DEPENDENCY_FIELDS = ["dependencies", "peerDependencies"];
+
+/**
+ * @param {string} left
+ * @param {string} right
+ * @returns {number}
+ */
+function compareStrings(left, right) {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+/**
+ * JSON with object keys sorted so key order is not a change.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function stableJson(value) {
+  if (value === undefined) return "null";
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value) ?? "null";
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJson(item)).join(",")}]`;
+  }
+  const keys = Object.keys(value).sort(compareStrings);
+  return `{${keys
+    .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
+    .join(",")}}`;
+}
+
+/**
+ * @param {unknown} manifest
+ * @param {string} field
+ * @returns {unknown}
+ */
+function dependencySection(manifest, field) {
+  if (
+    manifest == null ||
+    typeof manifest !== "object" ||
+    Array.isArray(manifest)
+  ) {
+    return {};
+  }
+  const value = manifest[field];
+  if (value == null) return {};
+  return value;
+}
+
+/**
+ * True when `dependencies` or `peerDependencies` differ.
+ * Missing manifests and missing fields compare as empty. Key order is ignored.
+ * @param {unknown} before
+ * @param {unknown} after
+ * @returns {boolean}
+ */
+export function runtimeDependenciesChanged(before, after) {
+  return RUNTIME_DEPENDENCY_FIELDS.some(
+    (field) =>
+      stableJson(dependencySection(before, field)) !==
+      stableJson(dependencySection(after, field)),
+  );
+}
+
+/**
+ * @param {unknown} manifest
+ * @returns {unknown}
+ */
+function omitDevDependencies(manifest) {
+  if (
+    manifest == null ||
+    typeof manifest !== "object" ||
+    Array.isArray(manifest)
+  ) {
+    return manifest;
+  }
+  const rest = {};
+  for (const key of Object.keys(manifest)) {
+    if (key === "devDependencies") continue;
+    rest[key] = manifest[key];
+  }
+  return rest;
+}
+
+/**
+ * True when a package.json edit can affect a published package.
+ * `devDependencies`-only edits do not. `undefined` means unparseable and
+ * still requires a changeset. Null means the file is absent.
+ * @param {unknown} before
+ * @param {unknown} after
+ * @returns {boolean}
+ */
+export function publishedManifestChanged(before, after) {
+  if (before === undefined || after === undefined) return true;
+  const left = omitDevDependencies(before);
+  const right = omitDevDependencies(after);
+  if (left == null && right == null) return false;
+  if (left == null || right == null) return true;
+  return stableJson(left) !== stableJson(right);
+}
+
+/**
+ * Path rules, with package.json narrowed to published-manifest edits.
+ * Dev-dependency-only manifest diffs do not require a changeset.
+ * @param {string[]} changedPaths
+ * @param {(path: string) => { before?: unknown, after?: unknown } | null | undefined} readPair
+ * @param {{ privatePackageDirs?: ReadonlySet<string> }} [options]
+ * @returns {boolean}
+ */
+export function requiresChangesetForManifestDiff(
+  changedPaths,
+  readPair,
+  options = {},
+) {
+  const privatePackageDirs = options.privatePackageDirs ?? new Set();
+  for (const path of changedPaths) {
+    if (!requiresChangeset([path], { privatePackageDirs })) continue;
+    if (!/^packages\/[^/]+\/package\.json$/.test(path)) return true;
+    const pair = readPair(path);
+    const before = pair ? pair.before : undefined;
+    const after = pair ? pair.after : undefined;
+    if (publishedManifestChanged(before, after)) return true;
+  }
+  return false;
+}
+
+/**
+ * Changesets release PRs already carry the version bump. They must not be
+ * blocked on another changeset file.
+ * @param {string} login
+ * @param {string} title
+ * @returns {boolean}
+ */
+export function isReleasePullRequest(login, title) {
+  if (login !== "github-actions[bot]") return false;
+  if (typeof title !== "string") return false;
+  return (
+    title.includes("Version Packages") ||
+    title.includes("chore: release packages")
+  );
+}
+
+/**
+ * @param {string} rev
+ * @param {string} filePath
+ * @returns {string | null}
+ */
+function gitShow(rev, filePath) {
+  try {
+    return execFileSync("git", ["show", `${rev}:${filePath}`], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch (error) {
+    const stderr =
+      error && typeof error === "object" && "stderr" in error && error.stderr
+        ? String(error.stderr)
+        : "";
+    const message = error instanceof Error ? error.message : String(error);
+    const combined = `${stderr}\n${message}`;
+    if (
+      combined.includes("does not exist in") ||
+      combined.includes("exists on disk, but not in")
+    ) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Parsed manifest at `rev`, null when missing, undefined when unparseable.
+ * @param {string} rev
+ * @param {string} filePath
+ * @returns {unknown}
+ */
+function readManifestRevision(rev, filePath) {
+  const text = gitShow(rev, filePath);
+  if (text == null) return null;
+  try {
+    const value = JSON.parse(text);
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+      return undefined;
+    }
+    return value;
+  } catch {
+    return undefined;
+  }
+}
+
 // CLI entry point
 if (import.meta.url === `file://${process.argv[1]}`) {
+  if (process.argv.includes("--release-pr-check")) {
+    const skip = isReleasePullRequest(
+      process.env.PR_LOGIN ?? "",
+      process.env.PR_TITLE ?? "",
+    );
+    console.log(`is_version_pr=${skip ? "true" : "false"}`);
+    process.exit(0);
+  }
+
   const { stdin } = await import("node:process");
 
   // Check for no-changeset-required label override
@@ -160,7 +360,16 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(0);
   }
 
-  const needsChangeset = requiresChangesetForRepo(changedPaths);
+  const needsChangeset = baseSha
+    ? requiresChangesetForManifestDiff(
+        changedPaths,
+        (path) => ({
+          before: readManifestRevision(baseSha, path),
+          after: readManifestRevision(headSha, path),
+        }),
+        { privatePackageDirs: loadPrivatePackageDirs() },
+      )
+    : requiresChangesetForRepo(changedPaths);
 
   if (needsChangeset) {
     console.log("Changed files requiring a changeset:");
@@ -194,7 +403,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   console.log("✓ No changeset required for these changes");
   console.log(
-    "Reason: All changes are to exempt paths (apps, docs, tests, CI, markdown, private packages)",
+    "Reason: Changes are limited to devDependencies, apps, docs, tests, CI, markdown, or private packages",
   );
   process.exit(0);
 }

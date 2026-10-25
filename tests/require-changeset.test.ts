@@ -4,9 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  isReleasePullRequest,
   loadPrivatePackageDirs,
+  publishedManifestChanged,
   requiresChangeset,
+  requiresChangesetForManifestDiff,
   requiresChangesetForRepo,
+  runtimeDependenciesChanged,
 } from "../scripts/require-changeset.mjs";
 
 describe("requiresChangeset", () => {
@@ -250,6 +254,17 @@ describe("requiresChangeset", () => {
         expect(run({ base, head: withChangeset })).toContain(
           "Found 1 changeset",
         );
+
+        git(["checkout", "-b", "devdeps-only", base]);
+        writeFileSync(
+          join(root, "packages/core/package.json"),
+          '{"name":"@archlex/core","devDependencies":{"vite":"^8.3.4"}}\n',
+        );
+        git(["add", "."]);
+        git(["commit", "-m", "devdeps"]);
+        const devHead = git(["rev-parse", "HEAD"]).trim();
+        expect(run({ base, head: devHead })).toContain("No changeset required");
+        git(["checkout", original]);
       } finally {
         rmSync(root, { recursive: true, force: true });
       }
@@ -297,5 +312,75 @@ describe("requiresChangeset", () => {
         true,
       );
     });
+  });
+});
+
+describe("published manifest diffs", () => {
+  it("ignores devDependency-only edits and dependency key order", () => {
+    const before = {
+      name: "@archlex/core",
+      dependencies: { b: "1", a: "2" },
+      devDependencies: { vite: "^6.4.3" },
+    };
+    const after = {
+      name: "@archlex/core",
+      dependencies: { a: "2", b: "1" },
+      devDependencies: { vite: "^8.3.4" },
+    };
+    expect(publishedManifestChanged(before, after)).toBe(false);
+    expect(runtimeDependenciesChanged(before, after)).toBe(false);
+    expect(
+      requiresChangesetForManifestDiff(
+        ["packages/core/package.json", "pnpm-lock.yaml", "package.json"],
+        () => ({ before, after }),
+      ),
+    ).toBe(false);
+  });
+
+  it("still requires a changeset when dependencies or other fields change", () => {
+    const before = { name: "@archlex/core", dependencies: { zod: "1.0.0" } };
+    const after = { name: "@archlex/core", dependencies: { zod: "1.0.1" } };
+    expect(publishedManifestChanged(before, after)).toBe(true);
+    expect(runtimeDependenciesChanged(before, after)).toBe(true);
+    expect(
+      requiresChangesetForManifestDiff(["packages/core/package.json"], () => ({
+        before,
+        after,
+      })),
+    ).toBe(true);
+    expect(
+      requiresChangesetForManifestDiff(["packages/core/src/index.ts"], () => ({
+        before,
+        after,
+      })),
+    ).toBe(true);
+    expect(publishedManifestChanged(before, undefined)).toBe(true);
+  });
+});
+
+describe("isReleasePullRequest", () => {
+  it("skips changesets release PRs opened by github-actions", () => {
+    expect(
+      isReleasePullRequest("github-actions[bot]", "chore: release packages"),
+    ).toBe(true);
+    expect(
+      isReleasePullRequest("github-actions[bot]", "Version Packages"),
+    ).toBe(true);
+    expect(
+      isReleasePullRequest(
+        "github-actions[bot]",
+        "chore: Version Packages (#12)",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not skip other authors or titles", () => {
+    expect(
+      isReleasePullRequest("dependabot[bot]", "chore: release packages"),
+    ).toBe(false);
+    expect(
+      isReleasePullRequest("github-actions[bot]", "chore: bump vite"),
+    ).toBe(false);
+    expect(isReleasePullRequest("octocat", "Version Packages")).toBe(false);
   });
 });

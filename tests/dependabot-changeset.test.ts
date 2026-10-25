@@ -14,58 +14,117 @@ import {
   applyDependabotChangeset,
   classifyChangedPackages,
   newDependabotChangesetPath,
-  packageDirsRequiringChangeset,
+  packageDirFromManifestPath,
   planDependabotChangeset,
   renderChangeset,
 } from "../scripts/dependabot-changeset.mjs";
+import { runtimeDependenciesChanged } from "../scripts/require-changeset.mjs";
 
-const manifests: Record<string, { name: string; private?: boolean }> = {
-  core: { name: "@archlex/core" },
-  aws: { name: "@archlex/aws" },
-  design: { name: "@archlex/design", private: true },
+type Manifest = {
+  name: string;
+  private?: boolean;
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+};
+
+const headManifests: Record<string, Manifest> = {
+  core: {
+    name: "@archlex/core",
+    dependencies: { zod: "^4.6.6" },
+    devDependencies: { vite: "^8.3.4" },
+  },
+  aws: {
+    name: "@archlex/aws",
+    dependencies: { zod: "^4.6.6" },
+    devDependencies: { vite: "^8.3.4" },
+  },
+  design: {
+    name: "@archlex/design",
+    private: true,
+    dependencies: { zod: "^4.6.6" },
+  },
+  ".": {
+    name: "arch-lex-monorepo",
+    private: true,
+    devDependencies: { vite: "^8.3.4" },
+  },
+};
+
+const baseManifests: Record<string, Manifest> = {
+  core: {
+    name: "@archlex/core",
+    dependencies: { zod: "^4.6.5" },
+    devDependencies: { vite: "^6.4.3" },
+  },
+  aws: {
+    name: "@archlex/aws",
+    dependencies: { zod: "^4.6.5" },
+    devDependencies: { vite: "^6.4.3" },
+  },
+  design: {
+    name: "@archlex/design",
+    private: true,
+    dependencies: { zod: "^4.6.5" },
+  },
+  ".": {
+    name: "arch-lex-monorepo",
+    private: true,
+    devDependencies: { vite: "^6.4.3" },
+  },
 };
 
 function readManifest(dir: string) {
-  const manifest = manifests[dir];
+  const manifest = headManifests[dir];
   if (!manifest) {
     throw new Error(`Missing package.json for packages/${dir}`);
   }
   return manifest;
 }
 
-describe("packageDirsRequiringChangeset", () => {
-  it("collects published package manifests and source", () => {
-    expect(
-      packageDirsRequiringChangeset([
-        "packages/core/package.json",
-        "packages/aws/src/registry.ts",
-        "packages/aws/vite.config.ts",
-        "packages/core/tsconfig.json",
-        "pnpm-lock.yaml",
-        "package.json",
-        "apps/playground/package.json",
-      ]),
-    ).toEqual(["aws", "core"]);
+function readBaseManifest(dir: string) {
+  return baseManifests[dir] ?? null;
+}
+
+function planChangeset(
+  input: Parameters<typeof planDependabotChangeset>[0],
+): ReturnType<typeof planDependabotChangeset> {
+  return planDependabotChangeset({
+    readManifest,
+    readBaseManifest,
+    ...input,
+  });
+}
+
+describe("runtime dependency selection", () => {
+  it("reads package manifests and the root manifest", () => {
+    expect(packageDirFromManifestPath("packages/core/package.json")).toBe(
+      "core",
+    );
+    expect(packageDirFromManifestPath("package.json")).toBe(".");
+    expect(packageDirFromManifestPath("packages/aws/src/index.ts")).toBeNull();
+    expect(packageDirFromManifestPath("pnpm-lock.yaml")).toBeNull();
   });
 
-  it("ignores tests, docs, workflows, and root config", () => {
+  it("ignores devDependencies and dependency key order", () => {
     expect(
-      packageDirsRequiringChangeset([
-        "packages/core/src/index.test.ts",
-        "packages/core/src/index.test.tsx",
-        "packages/core/README.md",
-        "README.md",
-        ".github/workflows/ci.yml",
-        "scripts/dependabot-changeset.mjs",
-        "biome.json",
-      ]),
-    ).toEqual([]);
-  });
-
-  it("does not invent a package for shared artifact scripts", () => {
+      runtimeDependenciesChanged(
+        {
+          dependencies: { b: "1", a: "2" },
+          devDependencies: { vite: "^6.4.3" },
+        },
+        {
+          dependencies: { a: "2", b: "1" },
+          devDependencies: { vite: "^8.3.4" },
+        },
+      ),
+    ).toBe(false);
     expect(
-      packageDirsRequiringChangeset(["scripts/validate-catalog.mjs"]),
-    ).toEqual([]);
+      runtimeDependenciesChanged(
+        { peerDependencies: { react: "^18" } },
+        { peerDependencies: { react: "^19" } },
+      ),
+    ).toBe(true);
   });
 });
 
@@ -76,9 +135,10 @@ describe("classifyChangedPackages", () => {
         [
           "packages/design/package.json",
           "packages/core/package.json",
-          "packages/aws/src/index.ts",
+          "packages/aws/package.json",
         ],
         readManifest,
+        readBaseManifest,
       ),
     ).toEqual({
       published: ["@archlex/aws", "@archlex/core"],
@@ -88,11 +148,57 @@ describe("classifyChangedPackages", () => {
 
   it("returns no published packages when only private packages changed", () => {
     expect(
-      classifyChangedPackages(["packages/design/package.json"], readManifest),
+      classifyChangedPackages(
+        ["packages/design/package.json"],
+        readManifest,
+        readBaseManifest,
+      ),
     ).toEqual({
       published: [],
       skippedPrivate: ["@archlex/design"],
     });
+  });
+
+  it("ignores devDependency-only, source, and lockfile edits", () => {
+    const sameRuntime = {
+      name: "@archlex/core",
+      dependencies: { zod: "^4.6.5" },
+      devDependencies: { vite: "^6.4.3" },
+    };
+    expect(
+      classifyChangedPackages(
+        [
+          "packages/core/package.json",
+          "packages/aws/src/index.ts",
+          "packages/core/vite.config.ts",
+          "pnpm-lock.yaml",
+          "package.json",
+        ],
+        (dir) =>
+          dir === "."
+            ? headManifests["."]
+            : { ...sameRuntime, devDependencies: { vite: "^8.3.4" } },
+        (dir) => (dir === "." ? baseManifests["."] : sameRuntime),
+      ),
+    ).toEqual({ published: [], skippedPrivate: [] });
+  });
+
+  it("selects a package when only peerDependencies change", () => {
+    expect(
+      classifyChangedPackages(
+        ["packages/core/package.json"],
+        () => ({
+          name: "@archlex/core",
+          dependencies: { zod: "^4.6.5" },
+          peerDependencies: { react: "^19" },
+        }),
+        () => ({
+          name: "@archlex/core",
+          dependencies: { zod: "^4.6.5" },
+          peerDependencies: { react: "^18" },
+        }),
+      ),
+    ).toEqual({ published: ["@archlex/core"], skippedPrivate: [] });
   });
 
   it("rejects unsafe package directories", () => {
@@ -104,7 +210,7 @@ describe("classifyChangedPackages", () => {
 
 describe("planDependabotChangeset", () => {
   it("does nothing when no published package changed", () => {
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: [
         "pnpm-lock.yaml",
         "package.json",
@@ -120,7 +226,7 @@ describe("planDependabotChangeset", () => {
   });
 
   it("writes one patch changeset for each published package", () => {
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: ["packages/core/package.json", "packages/aws/package.json"],
       prNumber: "42",
       readManifest,
@@ -141,7 +247,7 @@ describe("planDependabotChangeset", () => {
 
   it("skips when the existing Dependabot changeset lists the same packages", () => {
     const path = ".changeset/dependabot-pr-42.md";
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: ["packages/core/package.json", path],
       prNumber: 42,
       readManifest,
@@ -156,7 +262,7 @@ describe("planDependabotChangeset", () => {
 
   it("updates the existing Dependabot changeset in place", () => {
     const path = ".changeset/dependabot-old.md";
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: [
         "packages/core/package.json",
         "packages/aws/package.json",
@@ -179,7 +285,7 @@ describe("planDependabotChangeset", () => {
   it("keeps the PR changeset and deletes duplicates when packages change", () => {
     const preferred = ".changeset/dependabot-pr-7.md";
     const extra = ".changeset/dependabot-extra.md";
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: [
         "packages/aws/package.json",
         "packages/core/package.json",
@@ -204,7 +310,7 @@ describe("planDependabotChangeset", () => {
 
   it("refreshes a file in place when the preferred name already exists", () => {
     const path = ".changeset/dependabot-pr-7.md";
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: [
         "packages/core/package.json",
         "packages/aws/package.json",
@@ -221,7 +327,7 @@ describe("planDependabotChangeset", () => {
   });
 
   it("drops a stale Dependabot changeset when published packages no longer changed", () => {
-    const plan = planDependabotChangeset({
+    const plan = planChangeset({
       changedPaths: ["pnpm-lock.yaml", ".changeset/dependabot-pr-7.md"],
       prNumber: 7,
       readManifest,
@@ -230,6 +336,57 @@ describe("planDependabotChangeset", () => {
     expect(plan.action).toBe("write");
     expect(plan.contents).toBeNull();
     expect(plan.remove).toEqual([".changeset/dependabot-pr-7.md"]);
+    expect(plan.reason).toBe(
+      "remove Dependabot changeset; no runtime dependency changes",
+    );
+  });
+
+  it("drops a changeset when the bump only touches devDependencies", () => {
+    const runtime = { dependencies: { zod: "^4.6.5" } };
+    const planResult = planChangeset({
+      changedPaths: [
+        "package.json",
+        "packages/core/package.json",
+        "packages/aws/package.json",
+        ".changeset/dependabot-pr-143.md",
+      ],
+      prNumber: 143,
+      readManifest: (dir) => ({
+        name: dir === "." ? "arch-lex-monorepo" : `@archlex/${dir}`,
+        private: dir === ".",
+        ...runtime,
+        devDependencies: { vite: "^8.3.4" },
+      }),
+      readBaseManifest: (dir) => ({
+        name: dir === "." ? "arch-lex-monorepo" : `@archlex/${dir}`,
+        private: dir === ".",
+        ...runtime,
+        devDependencies: { vite: "^6.4.3" },
+      }),
+    });
+
+    expect(planResult.action).toBe("write");
+    expect(planResult.contents).toBeNull();
+    expect(planResult.packageNames).toEqual([]);
+    expect(planResult.remove).toEqual([".changeset/dependabot-pr-143.md"]);
+  });
+
+  it("includes a published root package when its dependencies change", () => {
+    const planResult = planChangeset({
+      changedPaths: ["package.json"],
+      prNumber: 3,
+      readManifest: () => ({
+        name: "arch-lex-monorepo",
+        dependencies: { zod: "^4.6.6" },
+      }),
+      readBaseManifest: () => ({
+        name: "arch-lex-monorepo",
+        dependencies: { zod: "^4.6.5" },
+      }),
+    });
+
+    expect(planResult.packageNames).toEqual(["arch-lex-monorepo"]);
+    expect(planResult.action).toBe("write");
   });
 
   it("uses a stable hash filename when the PR number is absent", () => {
@@ -245,7 +402,7 @@ describe("applyDependabotChangeset", () => {
     const root = mkdtempSync(join(tmpdir(), "dependabot-changeset-"));
     try {
       const changed = ["packages/core/package.json"];
-      const created = planDependabotChangeset({
+      const created = planChangeset({
         changedPaths: changed,
         prNumber: 9,
         readManifest,
@@ -257,7 +414,7 @@ describe("applyDependabotChangeset", () => {
         `---\n"@archlex/core": patch\n---\n\n${DEPENDABOT_CHANGESET_SUMMARY}\n`,
       );
 
-      const again = planDependabotChangeset({
+      const again = planChangeset({
         changedPaths: [...changed, ".changeset/dependabot-pr-9.md"],
         prNumber: 9,
         readManifest,
@@ -283,7 +440,7 @@ describe("applyDependabotChangeset", () => {
         renderChangeset(["@archlex/core"]),
       );
 
-      const plan = planDependabotChangeset({
+      const plan = planChangeset({
         changedPaths: [
           "packages/core/package.json",
           ".changeset/dependabot-extra.md",

@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Adds one patch changeset for published packages changed by a Dependabot PR.
+ * Adds one patch changeset for published packages whose runtime dependencies
+ * a Dependabot PR changed.
  *
- * The Require changeset job fails when `packages/*` manifests or source change
- * and `.changeset/` has no markdown entry. This script writes
+ * Only `dependencies` and `peerDependencies` count, in package manifests under
+ * `packages/` or at the repo root. Dev-dependency bumps (Vite, Biome,
+ * TypeScript, Vitest) do not get a changeset. The script writes
  * `.changeset/dependabot-pr-<number>.md` (or refreshes the Dependabot changeset
  * already on the branch) and, when `PR_HEAD_REF` is set, commits and pushes it.
  * Private packages are omitted. When no published package needs a release, the
@@ -22,7 +24,7 @@ import {
 } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { requiresChangeset } from "./require-changeset.mjs";
+import { runtimeDependenciesChanged } from "./require-changeset.mjs";
 
 export const DEPENDABOT_CHANGESET_SUMMARY = "Bump dependencies (Dependabot).";
 
@@ -51,52 +53,34 @@ function sortedUnique(names) {
 }
 
 /**
- * Package directory when `path` requires a changeset, otherwise null.
- * Shared artifact scripts require a changeset but are not a package.
+ * Package directory for a manifest path. Root `package.json` is `"."`.
  * @param {string} path
  * @returns {string | null}
  */
-export function packageDirRequiringChangeset(path) {
-  if (!requiresChangeset([path])) return null;
-  const match = /^packages\/([^/]+)\//.exec(path);
+export function packageDirFromManifestPath(path) {
+  if (path === "package.json") return ".";
+  const match = /^packages\/([^/]+)\/package\.json$/.exec(path);
   return match ? match[1] : null;
 }
 
 /**
- * @param {string[]} changedPaths
- * @returns {string[]}
+ * @param {string} packageDir
  */
-export function packageDirsRequiringChangeset(changedPaths) {
-  const dirs = [];
-  for (const path of changedPaths) {
-    const dir = packageDirRequiringChangeset(path);
-    if (dir) dirs.push(dir);
+function assertPackageDir(packageDir) {
+  if (packageDir === ".") return;
+  if (!PACKAGE_DIR_NAME.test(packageDir)) {
+    throw new Error(`Refusing package directory "${packageDir}"`);
   }
-  return sortedUnique(dirs);
 }
 
 /**
  * @param {string} packageDir
- * @param {string} [root]
- * @returns {Record<string, unknown>}
+ * @returns {string}
  */
-export function readManifestFile(packageDir, root = process.cwd()) {
-  if (!PACKAGE_DIR_NAME.test(packageDir)) {
-    throw new Error(`Refusing package directory "${packageDir}"`);
-  }
-  const manifestPath = join(root, "packages", packageDir, "package.json");
-  if (!existsSync(manifestPath)) {
-    throw new Error(`Missing package.json for packages/${packageDir}`);
-  }
-  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  if (
-    manifest === null ||
-    typeof manifest !== "object" ||
-    Array.isArray(manifest)
-  ) {
-    throw new Error(`Invalid package.json for packages/${packageDir}`);
-  }
-  return manifest;
+function manifestLabel(packageDir) {
+  return packageDir === "."
+    ? "package.json"
+    : `packages/${packageDir}/package.json`;
 }
 
 /**
@@ -106,7 +90,7 @@ export function readManifestFile(packageDir, root = process.cwd()) {
  */
 function releaseName(name, packageDir) {
   if (typeof name !== "string" || name.length === 0) {
-    throw new Error(`packages/${packageDir}/package.json is missing a name`);
+    throw new Error(`${manifestLabel(packageDir)} is missing a name`);
   }
   if (/["\r\n]/.test(name)) {
     throw new Error(`Package name cannot be written to a changeset: ${name}`);
@@ -115,32 +99,45 @@ function releaseName(name, packageDir) {
 }
 
 /**
- * Published package names that need a patch changeset.
+ * Published package names whose dependencies or peerDependencies changed.
+ * Dev-dependency edits, source edits, and lockfile edits are ignored.
  * @param {string[]} changedPaths
- * @param {(dir: string) => { name?: unknown, private?: unknown } | null | undefined} readManifest
+ * @param {(dir: string) => Record<string, unknown> | null | undefined} readManifest
+ * @param {(dir: string) => Record<string, unknown> | null | undefined} [readBaseManifest]
  * @returns {{ published: string[], skippedPrivate: string[] }}
  */
-export function classifyChangedPackages(changedPaths, readManifest) {
+export function classifyChangedPackages(
+  changedPaths,
+  readManifest,
+  readBaseManifest,
+) {
   const published = [];
   const skippedPrivate = [];
 
-  for (const dir of packageDirsRequiringChangeset(changedPaths)) {
-    if (!PACKAGE_DIR_NAME.test(dir)) {
-      throw new Error(`Refusing package directory "${dir}"`);
+  for (const path of changedPaths) {
+    const dir = packageDirFromManifestPath(path);
+    if (!dir) continue;
+    assertPackageDir(dir);
+
+    const head = readManifest(dir);
+    if (head == null) continue;
+    if (typeof head !== "object" || Array.isArray(head)) {
+      throw new Error(`Invalid package.json for ${manifestLabel(dir)}`);
     }
-    const manifest = readManifest(dir);
-    if (!manifest || typeof manifest !== "object") {
-      throw new Error(`Missing package.json for packages/${dir}`);
+
+    const base = readBaseManifest ? readBaseManifest(dir) : head;
+    if (base != null && (typeof base !== "object" || Array.isArray(base))) {
+      throw new Error(`Invalid package.json for ${manifestLabel(dir)}`);
     }
-    if (manifest.private === true) {
+    if (!runtimeDependenciesChanged(base, head)) continue;
+
+    if (head.private === true) {
       skippedPrivate.push(
-        typeof manifest.name === "string" && manifest.name.length > 0
-          ? manifest.name
-          : dir,
+        typeof head.name === "string" && head.name.length > 0 ? head.name : dir,
       );
       continue;
     }
-    published.push(releaseName(manifest.name, dir));
+    published.push(releaseName(head.name, dir));
   }
 
   return {
@@ -231,6 +228,7 @@ function assertChangesetPath(filePath) {
  * @param {{
  *   changedPaths: string[],
  *   readManifest: (dir: string) => { name?: unknown, private?: unknown } | null | undefined,
+ *   readBaseManifest?: (dir: string) => { name?: unknown, private?: unknown } | null | undefined,
  *   readExisting?: (filePath: string) => string,
  *   prNumber?: string | number | null,
  * }} input
@@ -249,6 +247,7 @@ export function planDependabotChangeset(input) {
   const { published, skippedPrivate } = classifyChangedPackages(
     input.changedPaths,
     input.readManifest,
+    input.readBaseManifest,
   );
   const existing = existingDependabotChangesets(input.changedPaths).sort(
     compareStrings,
@@ -273,7 +272,7 @@ export function planDependabotChangeset(input) {
       remove: existing,
       packageNames: [],
       skippedPrivate,
-      reason: "remove Dependabot changeset; no published packages changed",
+      reason: "remove Dependabot changeset; no runtime dependency changes",
     };
   }
 
@@ -455,6 +454,57 @@ function commitAndPush(paths, branch) {
   console.log(`✓ Pushed Dependabot changeset to ${branch}`);
 }
 
+/**
+ * @param {unknown} error
+ * @returns {boolean}
+ */
+function isMissingGitPath(error) {
+  const stderr =
+    error && typeof error === "object" && "stderr" in error && error.stderr
+      ? String(error.stderr)
+      : "";
+  const message = error instanceof Error ? error.message : String(error);
+  const combined = `${stderr}\n${message}`;
+  return (
+    combined.includes("does not exist in") ||
+    combined.includes("exists on disk, but not in")
+  );
+}
+
+/**
+ * Manifest object at `rev`, or null when that file is absent.
+ * @param {string} rev
+ * @param {string} packageDir
+ * @returns {Record<string, unknown> | null}
+ */
+function readGitManifest(rev, packageDir) {
+  assertPackageDir(packageDir);
+  assertCommitSha(rev, "revision");
+  const rel = manifestLabel(packageDir);
+  let text;
+  try {
+    text = git(["show", `${rev}:${rel}`], { capture: true });
+  } catch (error) {
+    if (isMissingGitPath(error)) return null;
+    throw error;
+  }
+
+  let manifest;
+  try {
+    manifest = JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid JSON in ${rev}:${rel}`);
+  }
+  if (
+    manifest === null ||
+    typeof manifest !== "object" ||
+    Array.isArray(manifest)
+  ) {
+    throw new Error(`Invalid package.json for ${rel}`);
+  }
+  return manifest;
+}
+
 function main() {
   const base = process.env.BASE_SHA;
   if (!base) {
@@ -475,7 +525,8 @@ function main() {
   const plan = planDependabotChangeset({
     changedPaths,
     prNumber: process.env.PR_NUMBER,
-    readManifest: (dir) => readManifestFile(dir),
+    readManifest: (dir) => readGitManifest(head, dir),
+    readBaseManifest: (dir) => readGitManifest(base, dir),
     readExisting: (file) => readFileSync(file, "utf8"),
   });
 
