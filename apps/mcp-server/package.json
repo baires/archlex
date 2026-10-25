@@ -26,8 +26,8 @@
     "@archlex/model": "workspace:*",
     "@cf-wasm/resvg": "0.4.0",
     "@modelcontextprotocol/core": "2.0.0",
-    "@modelcontextprotocol/sdk": "1.32.0",
-    "@modelcontextprotocol/server": "2.3.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@modelcontextprotocol/server": "2.4.0",
     "inter-font": "3.19.0",
     "zod": "^4.6.6"
   },
