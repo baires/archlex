@@ -41,7 +41,7 @@
     "@archlex/gcp": "workspace:*",
     "@archlex/icons": "workspace:*",
     "@archlex/k8s": "workspace:*",
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.6.2",
     "@changesets/cli": "^2.27.12",
     "@playwright/test": "1.62.1",
     "@types/node": "^26.6.5",
