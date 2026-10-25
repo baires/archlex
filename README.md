@@ -103,11 +103,11 @@ vpc production {
 
 Remote server: `https://mcp.archlex.dev/mcp`
 
-| Client | Setup |
-| --- | --- |
-| Claude Code | `claude mcp add --transport http archlex https://mcp.archlex.dev/mcp` |
-| Codex | `codex mcp add archlex --url https://mcp.archlex.dev/mcp` |
-| Cursor | `{ "mcpServers": { "archlex": { "url": "https://mcp.archlex.dev/mcp" } } }` |
+| Client      | Setup                                                                       |
+| ----------- | --------------------------------------------------------------------------- |
+| Claude Code | `claude mcp add --transport http archlex https://mcp.archlex.dev/mcp`       |
+| Codex       | `codex mcp add archlex --url https://mcp.archlex.dev/mcp`                   |
+| Cursor      | `{ "mcpServers": { "archlex": { "url": "https://mcp.archlex.dev/mcp" } } }` |
 
 Tools: `render_diagram`, `validate_diagram`, `get_cloud_catalog`,
 `generate_playground_url`.
@@ -128,7 +128,12 @@ import {
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), cloudflareProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    cloudflareProvider(),
+    gcpProvider(),
+    k8sProvider(),
+  ],
 });
 
 const result = await archlex.render(`
@@ -165,12 +170,12 @@ for aliases, connectors, flow labels and mixed-provider examples.
 
 ## Providers
 
-| Provider | ID | Package | Example resources |
-| --- | --- | --- | --- |
-| AWS | `aws` | `@archlex/aws` | Lambda, ECS, RDS, S3 |
-| Cloudflare | `cloudflare` | `@archlex/cloudflare` | Workers, R2, DNS, Tunnel |
-| Google Cloud | `gcp` | `@archlex/gcp` | Cloud Run, GKE, Cloud SQL, BigQuery |
-| Kubernetes | `k8s` | `@archlex/k8s` | Deployment, Service, Ingress, StatefulSet |
+| Provider     | ID           | Package               | Example resources                         |
+| ------------ | ------------ | --------------------- | ----------------------------------------- |
+| AWS          | `aws`        | `@archlex/aws`        | Lambda, ECS, RDS, S3                      |
+| Cloudflare   | `cloudflare` | `@archlex/cloudflare` | Workers, R2, DNS, Tunnel                  |
+| Google Cloud | `gcp`        | `@archlex/gcp`        | Cloud Run, GKE, Cloud SQL, BigQuery       |
+| Kubernetes   | `k8s`        | `@archlex/k8s`        | Deployment, Service, Ingress, StatefulSet |
 
 ## Documentation
 

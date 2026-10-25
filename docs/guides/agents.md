@@ -1,4 +1,5 @@
 ---
+
 title: Use with AI agents
 description: "Add ArchLex to Claude, Cursor, Codex, or any MCP client and ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes."
 lastModified: 2026-10-03T13:00:00-03:00
@@ -89,12 +90,12 @@ Try next:
 
 ## What the agent uses
 
-| Tool | Purpose |
-| --- | --- |
-| `render_diagram` | Parse, validate, layout, and render |
-| `validate_diagram` | Syntax and semantic checks without layout |
-| `get_cloud_catalog` | AWS, Cloudflare, GCP, and Kubernetes resource lookup |
-| `generate_playground_url` | Deep link to the playground |
+| Tool                      | Purpose                                              |
+| ------------------------- | ---------------------------------------------------- |
+| `render_diagram`          | Parse, validate, layout, and render                  |
+| `validate_diagram`        | Syntax and semantic checks without layout            |
+| `get_cloud_catalog`       | AWS, Cloudflare, GCP, and Kubernetes resource lookup |
+| `generate_playground_url` | Deep link to the playground                          |
 
 The skill teaches the DSL, relationship kinds, and how to repair diagnostics.
 The MCP server enforces the catalog so agents cannot invent resource names.

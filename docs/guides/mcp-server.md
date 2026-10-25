@@ -1,4 +1,5 @@
 ---
+
 title: Remote MCP Server
 description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams."
 lastModified: 2026-10-03T13:00:00-03:00
@@ -52,13 +53,13 @@ and include the required per-request metadata and mirrored HTTP headers.
 
 ## Endpoints
 
-| Endpoint | Methods | Purpose |
-| --- | --- | --- |
-| `/mcp` | `POST` | Modern Streamable HTTP transport; GET and DELETE return 405 |
-| `/health` | `GET` | Health, providers, and auth status |
-| `/info` | `GET` | Server metadata, capabilities, and URLs |
-| `/sse` | `GET` | Legacy event stream |
-| `/messages` | `POST` | Legacy JSON-RPC dispatch |
+| Endpoint    | Methods | Purpose                                                     |
+| ----------- | ------- | ----------------------------------------------------------- |
+| `/mcp`      | `POST`  | Modern Streamable HTTP transport; GET and DELETE return 405 |
+| `/health`   | `GET`   | Health, providers, and auth status                          |
+| `/info`     | `GET`   | Server metadata, capabilities, and URLs                     |
+| `/sse`      | `GET`   | Legacy event stream                                         |
+| `/messages` | `POST`  | Legacy JSON-RPC dispatch                                    |
 
 A healthy server reports `aws`, `cloudflare`, `gcp`, and `k8s` in its provider list.
 
@@ -103,7 +104,7 @@ service count in prompt text.
 For an unfamiliar identifier, use a focused lookup:
 
 ```json
-{"provider": "cloudflare", "query": "workers", "limit": 5}
+{ "provider": "cloudflare", "query": "workers", "limit": 5 }
 ```
 
 The filtered response contains `matches`, including canonical IDs and aliases;
@@ -157,7 +158,6 @@ to users.
 
 The server publishes a DSL reference, generated documentation resources, and
 three example resources:
-
 - `archlex://examples/aws-microservices`
 - `archlex://examples/gcp-data-pipeline`
 - `archlex://examples/k8s-microservices`

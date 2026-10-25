@@ -146,7 +146,6 @@
 ### Minor Changes
 
 - 5ad0f4a: Expand the core relationship vocabulary and add relationship areas.
-
   - Add `area` to `RelationshipDefinition` (`connectivity`, `data`, `events`,
     `operations`, `processing`, `delivery`, `governance`, `lifecycle`,
     `dependency`, `reliability`) so the documentation grouping is code-driven.
@@ -183,7 +182,6 @@
 - f53538f: Add editor-neutral ArchLex language intelligence, catalog search nomenclature, structured grammar metadata, provider relationship semantics, and canonical Monaco completion.
 
   **Language Service Package:**
-
   - Context-aware completion engine with catalog-driven suggestions
   - Human-readable search with fuzzy matching (e.g., "elastic kubernetes" → `eks`)
   - Grammar-aware filtering (directive values, resource kinds, relationships, scope keywords)
@@ -191,20 +189,17 @@
   - DOM-neutral design compatible with Monaco, VSCode, CodeMirror, and other editors
 
   **Catalog Enhancements:**
-
   - Search terms extracted from service names and descriptions for all 441 resources
   - Structured metadata for 194 AWS, 185 GCP, and 62 Kubernetes services
   - Relationship compatibility validation (source/target kind pairs)
   - Containment rules for scope-aware suggestions
 
   **Parser Integration:**
-
   - Document analysis extracting provider, scope hierarchy, and symbol declarations
   - Cursor context detection identifying grammar position for completions
   - Symbol visibility tracking for relationship target suggestions
 
   **Playground Integration:**
-
   - Monaco completion provider backed by language service
   - Browser-tested performance (<50ms p95 on 100+ declaration documents)
   - WeakMap-based document caching for incremental updates
@@ -307,7 +302,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -321,7 +315,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export
@@ -337,7 +330,6 @@
   ## Services Added
 
   ### AWS (39 services)
-
   - **Networking** (13): VPC Endpoints (Interface/Gateway), NAT Gateway, Internet Gateway, Transit Gateway, PrivateLink, Direct Connect, VPN Gateway, Customer Gateway, VPN Connection, Elastic IP, Network Firewall, Global Accelerator
   - **Compute** (3): App Runner, Batch, Fargate
   - **Storage** (6): EFS, FSx (Windows/Lustre), EBS, Glacier, Storage Gateway
@@ -346,7 +338,6 @@
   - **Monitoring** (6): CloudWatch (Logs/Metrics/Alarms), X-Ray, CloudTrail, Systems Manager
 
   ### GCP (37 services)
-
   - **Networking** (10): Cloud NAT, Cloud VPN, Cloud Interconnect, Private Service Connect, Cloud Router, VPC Service Controls, Firewall, Cloud Armor, Network Endpoint Groups, Cloud Domains
   - **Compute** (4): Cloud Workstations, Batch, App Engine, Cloud Shell
   - **Storage** (5): Persistent Disk, Filestore, Archive Storage, Transfer Service, Transfer Appliance
@@ -355,7 +346,6 @@
   - **Monitoring** (7): Cloud Monitoring, Cloud Logging, Cloud Trace, Cloud Profiler, Error Reporting, Cloud Debugger, Operations
 
   ## Relationship Types Added (8)
-
   - `encrypts` / `decrypts` - Encryption services
   - `monitors` / `logs` / `traces` / `alerts` - Observability
   - `caches` - CDN and caching
@@ -364,19 +354,16 @@
   ## Validation Rules Added (6)
 
   ### AWS (3)
-
   - NAT Gateway placement validation (warning)
   - Internet Gateway attachment validation (info)
   - Transit Gateway routes validation (info)
 
   ### GCP (3)
-
   - Cloud NAT VPC placement validation (warning)
   - Filestore VPC placement validation (warning)
   - AlloyDB Private Service Connect validation (info)
 
   ## Coverage Progress
-
   - AWS: 24 → 63 services (13.6% → 35.6%)
   - GCP: 24 → 61 services (14.0% → 36.3%)
   - Combined: 48 → 124 services (13.9% → 35.9%)
@@ -391,7 +378,6 @@
   ## Services Added
 
   ### AWS (48 services)
-
   - **Application Integration** (5): Step Functions, AppFlow, AppSync, Amazon MQ, MSK
   - **Analytics** (10): Kinesis Data Streams/Firehose/Analytics, EMR, Glue, Athena, Redshift, QuickSight, OpenSearch, Data Pipeline
   - **AI/ML** (10): SageMaker, Bedrock, Rekognition, Comprehend, Translate, Polly, Transcribe, Lex, Kendra, Forecast
@@ -401,7 +387,6 @@
   - **Messaging** (5): Pinpoint, SES, SNS Mobile, EventBridge Pipes, EventBridge API Destinations
 
   ### GCP (47 services)
-
   - **Application Integration** (5): Cloud Scheduler, Workflows, Eventarc, Cloud Composer, Apigee
   - **Analytics** (8): Dataproc, Dataform, Looker, Data Fusion, Dataplex, Datastream, Pub/Sub Lite, Analytics Hub
   - **AI/ML** (12): AI Platform, AutoML, Recommendations AI, Vision AI, Natural Language AI, Speech-to-Text, Text-to-Speech, Translation AI, Document AI, Video Intelligence, Dialogflow, Contact Center AI
@@ -411,7 +396,6 @@
   - **Identity & Access** (6): Cloud Identity, IAP, Access Context Manager, Managed AD, Cloud Identity Engine, Workforce Identity Federation
 
   ## Relationship Types Added (9)
-
   - `processes` - Data processing pipelines
   - `transforms` - Data transformation
   - `orchestrates` - Workflow orchestration
@@ -425,7 +409,6 @@
   ## Validation Rules Added (10)
 
   ### AWS (6)
-
   - Step Functions orchestration targets (info)
   - EventBridge rule targets (info)
   - Kinesis Firehose destination validation (warning)
@@ -434,7 +417,6 @@
   - CodePipeline stage validation (info)
 
   ### GCP (6)
-
   - Workflows orchestration targets (info)
   - Eventarc trigger targets (info)
   - Dataproc VPC placement (warning)
@@ -443,7 +425,6 @@
   - GKE Autopilot VPC placement (info)
 
   ## Coverage Progress
-
   - AWS: 63 → 111 services (35.6% → 62.7%)
   - GCP: 61 → 108 services (36.3% → 64.3%)
   - Combined: 124 → 219 services (35.9% → 63.5%)

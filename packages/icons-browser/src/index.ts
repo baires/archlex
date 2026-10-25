@@ -1,8 +1,8 @@
 import {
   type CdnProviderDefinition,
+  createIconLoader,
   type FetchIcon,
   type IconLoader,
-  createIconLoader,
 } from "@archlex/icons-core";
 import { MemoryIconCache } from "./memory-cache.js";
 

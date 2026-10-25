@@ -10,9 +10,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  DEPENDABOT_CHANGESET_SUMMARY,
   applyDependabotChangeset,
   classifyChangedPackages,
+  DEPENDABOT_CHANGESET_SUMMARY,
   newDependabotChangesetPath,
   packageDirFromManifestPath,
   planDependabotChangeset,

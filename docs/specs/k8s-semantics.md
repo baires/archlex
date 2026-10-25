@@ -1,4 +1,5 @@
 ---
+
 title: Kubernetes Semantics
 description: "Kubernetes semantics in ArchLex, covering the 62-resource catalog, cluster and namespace containment, workload placement, and K8S diagnostic codes."
 ---
@@ -65,7 +66,6 @@ subject to The Linux Foundation policy.
 ## Semantic rules
 
 Kubernetes currently reports:
-
 - `K8S-NAMESPACE-WORKLOAD-CONTAINMENT-001` for workloads outside namespaces
 - `K8S-NAMESPACE-CLUSTER-CONTAINMENT-001` for namespaces outside clusters
 - `K8S-WORKLOAD-POD-MANAGED-001` for bare Pods

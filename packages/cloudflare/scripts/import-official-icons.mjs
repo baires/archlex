@@ -1,14 +1,13 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sanitizeSvg } from "@archlex/icons-core";
+import { CLOUDFLARE_INCLUDED_IDS } from "../src/catalog/included-ids.ts";
 import {
   CLOUDFLARE_ARTWORK_PINS,
   initialServices,
 } from "../src/catalog/index.ts";
-
-import { CLOUDFLARE_INCLUDED_IDS } from "../src/catalog/included-ids.ts";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const revision = "48f601bf4293fa9032505f858656d0db5b559131";

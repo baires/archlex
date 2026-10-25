@@ -1,8 +1,8 @@
-import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import type {
   Element as XMLDOMElement,
   Node as XMLDOMNode,
 } from "@xmldom/xmldom";
+import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import type { SanitizedIcon } from "./types.js";
 
 const DEFAULT_MAX_BYTES = 1_000_000;

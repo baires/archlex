@@ -1,4 +1,4 @@
-import { SERVER_INSTRUCTIONS, registryCapabilities } from "../registry.js";
+import { registryCapabilities, SERVER_INSTRUCTIONS } from "../registry.js";
 import {
   JSONRPC_ERROR_CODES,
   SUPPORTED_PROTOCOL_VERSIONS,

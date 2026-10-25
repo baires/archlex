@@ -8,11 +8,11 @@ import {
 } from "react";
 import { Icon } from "./Icon.js";
 import {
-  type PinchState,
   calculateCenteredZoom,
   calculateFitScale,
   calculatePinchTransform,
   calculateWheelZoomFactor,
+  type PinchState,
 } from "./preview-transform.js";
 
 interface PreviewProps {
@@ -335,65 +335,69 @@ export function Preview({
             </span>
           ) : null}
           {hasNodes ? (
-            <div
-              className="preview-controls"
-              aria-label={
-                isFullscreen
-                  ? "Fullscreen diagram view controls"
-                  : "Diagram view controls"
-              }
-            >
-              <button
-                type="button"
-                onClick={() => zoomBy(1 / 1.1)}
-                aria-label="Zoom out"
-                title="Zoom out"
+            <>
+              {/* biome-ignore lint/a11y/useSemanticElements: labeled control group, not a form fieldset */}
+              <div
+                className="preview-controls"
+                role="group"
+                aria-label={
+                  isFullscreen
+                    ? "Fullscreen diagram view controls"
+                    : "Diagram view controls"
+                }
               >
-                <Icon name="zoom-out" />
-              </button>
-              <output aria-label="Zoom level">
-                {Math.round(scale * 100)}%
-              </output>
-              <button
-                type="button"
-                onClick={() => zoomBy(1.1)}
-                aria-label="Zoom in"
-                title="Zoom in"
-              >
-                <Icon name="zoom-in" />
-              </button>
-              <button
-                type="button"
-                onClick={fitDiagram}
-                aria-label="Fit diagram"
-                title="Fit diagram to viewport"
-              >
-                <Icon name="fit" />
-              </button>
-              {isFullscreen ? (
-                <button
-                  ref={fullscreenExitRef}
-                  type="button"
-                  onClick={onExitFullscreen}
-                  aria-label="Exit fullscreen preview"
-                  title="Exit fullscreen preview"
-                >
-                  <Icon name="exit-fullscreen" />
-                </button>
-              ) : (
                 <button
                   type="button"
-                  onClick={() => {
-                    updateScale(1);
-                    updatePan({ x: 0, y: 0 });
-                  }}
-                  aria-label="Actual size"
-                  title="Reset to 100%"
+                  onClick={() => zoomBy(1 / 1.1)}
+                  aria-label="Zoom out"
+                  title="Zoom out"
                 >
-                  100%
+                  <Icon name="zoom-out" />
                 </button>
-              )}
-            </div>
+                <output aria-label="Zoom level">
+                  {Math.round(scale * 100)}%
+                </output>
+                <button
+                  type="button"
+                  onClick={() => zoomBy(1.1)}
+                  aria-label="Zoom in"
+                  title="Zoom in"
+                >
+                  <Icon name="zoom-in" />
+                </button>
+                <button
+                  type="button"
+                  onClick={fitDiagram}
+                  aria-label="Fit diagram"
+                  title="Fit diagram to viewport"
+                >
+                  <Icon name="fit" />
+                </button>
+                {isFullscreen ? (
+                  <button
+                    ref={fullscreenExitRef}
+                    type="button"
+                    onClick={onExitFullscreen}
+                    aria-label="Exit fullscreen preview"
+                    title="Exit fullscreen preview"
+                  >
+                    <Icon name="exit-fullscreen" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateScale(1);
+                      updatePan({ x: 0, y: 0 });
+                    }}
+                    aria-label="Actual size"
+                    title="Reset to 100%"
+                  >
+                    100%
+                  </button>
+                )}
+              </div>
+            </>
           ) : null}
         </div>
         {!hasNodes && !isRendering ? (

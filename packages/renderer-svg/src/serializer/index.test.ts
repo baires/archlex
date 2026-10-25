@@ -268,7 +268,7 @@ describe("Mermaid-aligned rendering", () => {
       expect(id).toMatch(/^archlex-icon-[a-f0-9]+(?:-[a-f0-9]+)+$/);
     }
 
-    const urlReferences = [...first.matchAll(/url\(#([^\)]+)\)/g)].map(
+    const urlReferences = [...first.matchAll(/url\(#([^)]+)\)/g)].map(
       (match) => match[1],
     );
     const hrefReferences = [...first.matchAll(/\shref="#([^"]+)"/g)].map(

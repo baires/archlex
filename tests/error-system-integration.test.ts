@@ -1,10 +1,10 @@
 import { awsProvider } from "@archlex/aws";
 import { createArchLex } from "@archlex/core";
+import type { DiagnosticCode } from "@archlex/diagnostics";
 import {
   getAllDiagnostics,
   getDiagnosticDefinition,
 } from "@archlex/diagnostics";
-import type { DiagnosticCode } from "@archlex/diagnostics";
 import { describe, expect, test } from "vitest";
 
 describe("Error System Integration", () => {

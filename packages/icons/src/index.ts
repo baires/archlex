@@ -1,11 +1,11 @@
 export * from "@archlex/icons-core";
 export * from "@archlex/icons-node";
 export {
-  IconLoader,
-  sanitizeSvg,
   type CdnProviderConfig,
+  IconLoader,
   type IconStats,
   type ProviderAttributionReport,
+  sanitizeSvg,
 } from "./compat.js";
 export {
   BaseCdnProvider,

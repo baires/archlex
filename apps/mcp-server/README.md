@@ -15,6 +15,7 @@ Remote Model Context Protocol (MCP) server for ArchLex deployed on Cloudflare Wo
 The server implements the mandatory base protocol and advertised capabilities under revision `2026-07-28`:
 
 ### Stateless Streamable HTTP Transport (`/mcp`)
+
 - Modern requests do not use sessions, session cookies, or `Mcp-Session-Id`. Every request is standalone and independently authenticated and routed.
 - Every modern JSON-RPC request POST validates mirrored HTTP headers matching body metadata:
   - `MCP-Protocol-Version`: Exactly `2026-07-28`
@@ -24,6 +25,7 @@ The server implements the mandatory base protocol and advertised capabilities un
 - Responses are delivered as a single JSON object or as a request-scoped SSE stream (for progress notifications or subscriptions). Accepted notifications return HTTP 202 with an empty body.
 
 ### Request Metadata (`_meta`)
+
 Every modern JSON-RPC request MUST supply the following in `params._meta`:
 - `io.modelcontextprotocol/protocolVersion`: `"2026-07-28"`
 - `io.modelcontextprotocol/clientCapabilities`: Declared client capability object (e.g. `{}`)
@@ -31,11 +33,13 @@ Every modern JSON-RPC request MUST supply the following in `params._meta`:
 - `progressToken` (optional): Token to enable request-scoped progress streaming
 
 ### Result Envelopes, Caching & Pagination
+
 - All successful modern responses include `resultType: "complete"` or `resultType: "input_required"` and server identity in `_meta["io.modelcontextprotocol/serverInfo"]`.
 - Cacheable operations (`server/discover`, `tools/list`, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`) publish explicit cache hints (`ttlMs: 3600000`, `cacheScope: "public"`).
 - List endpoints support deterministic ordering and pagination using opaque stable `cursor` tokens.
 
 ### Migration Guidance from Legacy Clients
+
 Clients that use `initialize` without modern per-request metadata continue to work
 through the isolated SDK adapter. Routing supports every revision that adapter
 can negotiate: `2025-11-25`, `2025-06-18`, `2025-03-26`, `2024-11-05`, and
@@ -125,7 +129,6 @@ The `render_diagram` tool supports two rendering paths:
 ### Direct Rendering Path (Default)
 
 **Current implementation** — works with MCP clients that support base64 PNG images.
-
 - Returns a base64-encoded PNG image in `content[0]`
 - Returns a text summary and the exact final ArchLex source in `content[1]`
 - Provides metadata in `structuredContent` for programmatic access (diagnostics, playground URL, node/edge counts)
@@ -140,7 +143,6 @@ The `render_diagram` tool supports two rendering paths:
 ### URL Delivery (Optional)
 
 When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL in addition to the embedded base64 PNG image:
-
 - The existing `content[0]` image block remains the primary MCP image
 - The tool result includes `image_delivery: "url"` in `structuredContent` when a URL was generated
 - The URL is a stateless encrypted token encoding the diagram source and expires after `RENDER_URL_TTL_SECONDS` (default `600`)
@@ -152,7 +154,6 @@ When `RENDER_URL_SECRET` is configured, the server adds a short-lived HTTPS URL 
 - Failed renders (diagnostics with errors) never generate URLs and set top-level `isError: true`
 
 **URL delivery configuration:**
-
 - `RENDER_URL_SECRET`: high-entropy secret for AES-256-GCM encryption. Set with `wrangler secret put RENDER_URL_SECRET`. Never put the secret in `wrangler.json`.
 - `RENDER_URL_TTL_SECONDS` (optional): token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): maximum complete URL length. Defaults to `7500`.
@@ -169,14 +170,12 @@ it omits the caller key and the share Worker uses the shared `service:anonymous`
 public per-caller limits.
 
 **When to use URL delivery:**
-
 - Clients that render Markdown images from `https://` URLs
 - Clients that support MCP resource links
 - Reducing message payload size for large diagrams
 - Enabling diagram persistence beyond the conversation context
 
 **When embedded delivery is preferred:**
-
 - Clients without Markdown or resource link support
 - Use cases requiring guaranteed inline rendering
 - Diagrams that must persist indefinitely in the conversation history
@@ -184,7 +183,6 @@ public per-caller limits.
 ### Interactive Rendering Path (Opt-in)
 
 **Future-ready** — requires MCP Apps (SEP-1865) support in the client.
-
 - Always declares `_meta.ui.resourceUri: "ui://archlex/diagram-viewer"` in the tool definition for forward compatibility
 - Clients supporting MCP Apps can load the interactive viewer iframe
 - Provides interactive diagram exploration (pan, zoom, node inspection)
@@ -195,7 +193,6 @@ Enable this mode via the `ENABLE_MCP_APPS` environment variable when your MCP cl
 ### Migration Path
 
 When MCP Apps support arrives in your client:
-
 1. Set `ENABLE_MCP_APPS=true` in your Worker environment variables
 2. Redeploy the Worker
 3. The tool will include SVG in `structuredContent` for the interactive viewer
@@ -203,13 +200,13 @@ When MCP Apps support arrives in your client:
 
 ## Client Compatibility
 
-| Client | Base64 PNG Images | MCP Resource Links | Markdown URLs | MCP Apps |
-|--------|-------------------|--------------------|--------------|----|
-| Claude Desktop | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
-| Claude Code | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
-| Codex | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
-| Cursor | ✅ | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon |
-| Generic MCP clients | ✅ Depends on client | ⏳ Depends on client | ⏳ Depends on client | ⏳ Depends on client |
+| Client              | Base64 PNG Images    | MCP Resource Links    | Markdown URLs         | MCP Apps             |
+| ------------------- | -------------------- | --------------------- | --------------------- | -------------------- |
+| Claude Desktop      | ✅                   | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon       |
+| Claude Code         | ✅                   | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon       |
+| Codex               | ✅                   | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon       |
+| Cursor              | ✅                   | ⏳ Depends on version | ⏳ Depends on version | ⏳ Coming soon       |
+| Generic MCP clients | ✅ Depends on client | ⏳ Depends on client  | ⏳ Depends on client  | ⏳ Depends on client |
 
 **Base64 PNG Images**: Widely supported across MCP clients. The primary delivery method for embedded diagrams.
 
@@ -222,7 +219,6 @@ When MCP Apps support arrives in your client:
 ## Security & Environment Variables
 
 Open access by default. Configure Worker environment variables for private deployments:
-
 - `MCP_AUTH_TOKEN` (optional): High-entropy secret required via `Authorization: Bearer <token>` only (maximum 8192 characters). Query-string credentials are rejected. Verification uses constant-time comparison of fixed-size SHA-256 digests.
 - `ALLOWED_ORIGINS` (optional): Comma-separated allowed origins list. Defaults to unrestricted access; configure explicitly for private or local deployments. Requests without an Origin header remain supported.
 - `RATE_LIMIT_MAX_REQUESTS` (optional): Fallback limiter requests per window per IP (default: `60`, maximum `1000`).

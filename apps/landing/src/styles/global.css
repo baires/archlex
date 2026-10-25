@@ -20,7 +20,8 @@ html::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(
+  background-image:
+    radial-gradient(
       circle at 20% 30%,
       color-mix(in srgb, var(--signal) 4%, transparent) 0%,
       transparent 50%
@@ -343,7 +344,9 @@ h1 {
   text-wrap: balance;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  font-feature-settings: "ss01" 1, "ss02" 1;
+  font-feature-settings:
+    "ss01" 1,
+    "ss02" 1;
 }
 
 .hero__tagline {
@@ -517,8 +520,9 @@ h1 {
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-5);
-  transition: border-color var(--duration-base) var(--ease-standard), box-shadow
-    var(--duration-base) var(--ease-standard);
+  transition:
+    border-color var(--duration-base) var(--ease-standard),
+    box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .proof-card:hover {
@@ -743,8 +747,9 @@ h1 {
   flex-direction: column;
   gap: var(--space-3);
   box-shadow: var(--shadow-sm);
-  transition: border-color var(--duration-base) var(--ease-standard), transform
-    var(--duration-base) var(--ease-standard);
+  transition:
+    border-color var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
 }
 
 .skill-card:hover {
@@ -950,13 +955,15 @@ h1 {
   min-width: 0;
   position: relative;
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--signal) 8%, transparent) inset,
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--signal) 8%, transparent) inset,
     0 8px 24px rgb(0 0 0 / 4%);
   transition: box-shadow var(--duration-base) var(--ease-standard);
 }
 
 .mcp-setup:hover {
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--signal) 12%, transparent) inset,
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--signal) 12%, transparent) inset,
     0 12px 32px rgb(0 0 0 / 6%);
 }
 

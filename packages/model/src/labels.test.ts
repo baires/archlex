@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  NODE_WIDTH_TIERS,
   charsPerLineForWidth,
   layoutNodeLabel,
+  NODE_WIDTH_TIERS,
   nodeWidthForLabel,
 } from "./labels.js";
 

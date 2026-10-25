@@ -1,7 +1,7 @@
 import type { CatalogManifest, SanitizedIcon } from "@archlex/model";
 import {
-  K8S_GENERATED_ICONS,
   K8S_GENERATED_ICON_MANIFEST_CHECKSUM,
+  K8S_GENERATED_ICONS,
 } from "./generated.js";
 
 const generatedIcons = Object.values(K8S_GENERATED_ICONS);

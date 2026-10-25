@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import worker from "../src/index.js";
-import { createRenderToken } from "../src/render-links.js";
 import type { RenderLinkPayload } from "../src/render-links.js";
+import { createRenderToken } from "../src/render-links.js";
 
 const SECRET = "test-secret-key-min-32-chars-long-for-aes-256";
 const NOW = Date.now();

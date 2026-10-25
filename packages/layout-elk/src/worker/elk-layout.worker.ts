@@ -7,11 +7,11 @@ import type { CloudGraph, LayoutOptions, LayoutResult } from "@archlex/model";
 import { ArchLexInternalError } from "@archlex/model";
 import ELK from "elkjs/lib/elk-worker.min.js";
 import {
-  type ElkLayoutResult,
   buildElkGraph,
   convertElkResultToLayoutGraph,
+  type ElkLayoutResult,
 } from "../adapter/index.js";
-import { LayoutCache, computeGeometryFingerprint } from "../cache/index.js";
+import { computeGeometryFingerprint, LayoutCache } from "../cache/index.js";
 import {
   PROTOCOL_VERSION,
   type WorkerLayoutRequest,

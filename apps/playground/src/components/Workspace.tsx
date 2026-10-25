@@ -6,9 +6,9 @@ import type {
 } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  clampSplitRatio,
   MAX_SPLIT_RATIO,
   MIN_SPLIT_RATIO,
-  clampSplitRatio,
 } from "./workspace-state.js";
 
 export type WorkspaceTab = "editor" | "preview";
@@ -252,9 +252,9 @@ export function Workspace({
         {editor}
       </section>
 
+      {/* biome-ignore lint/a11y/useSemanticElements: interactive vertical splitter, not a thematic break */}
       <div
         className={`workspace-splitter${isDragging ? " is-dragging" : ""}`}
-        // biome-ignore lint/a11y/useSemanticElements: interactive vertical splitter widget
         role="separator"
         aria-label="Resize editor and preview"
         aria-orientation="vertical"

@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
-import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import type {
   Element as XMLDOMElement,
   Node as XMLDOMNode,
 } from "@xmldom/xmldom";
+import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
 import type { SanitizedIcon } from "./types.js";
 
 // Security allowlists
