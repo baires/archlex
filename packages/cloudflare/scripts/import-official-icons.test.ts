@@ -6,6 +6,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { generateIcons, runImporter } from "./import-official-icons.mjs";
 
 const directories: string[] = [];
+
+/** JSON serialization escapes quotes; assertions check the SVG text. */
+function sourceText(moduleSource: string): string {
+  return moduleSource.replaceAll(String.raw`\"`, '"');
+}
 const source =
   '<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2 2H22V22H2ZM7 7H17V17H7Z"/></svg>';
 const service = { id: "sample", iconKey: "cloudflare.sample" };
@@ -42,11 +47,12 @@ describe("offline Cloudflare icon importer", { timeout: 30_000 }, () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch");
     const first = await generateIcons(options);
     expect(await generateIcons(options)).toBe(first);
-    expect(first).toContain("fill-rule");
-    expect(first).toContain("CC BY 4.0");
-    expect(first).toContain('fill="#fff"');
-    expect(first).toContain('fill="#f6821f"');
-    expect(first).toContain(revision);
+    const text = sourceText(first);
+    expect(text).toContain("fill-rule");
+    expect(text).toContain("CC BY 4.0");
+    expect(text).toContain('fill="#fff"');
+    expect(text).toContain('fill="#f6821f"');
+    expect(text).toContain(revision);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
   it("checks drift without rewriting", async () => {
@@ -97,7 +103,7 @@ it("recolors monochrome ink and keeps white clip fills", async () => {
   const options = await fixture(
     '<svg viewBox="0 0 24 24"><path fill="#000" d="M1 1H2V2H1Z"/><path fill="currentColor" d="M3 3H4V4H3Z"/><clipPath id="c"><path fill="#fff" d="M0 0H24V24H0Z"/></clipPath></svg>',
   );
-  const generated = await generateIcons(options);
+  const generated = sourceText(await generateIcons(options));
   expect(generated).toContain('fill="#f6821f"');
   expect(generated).toContain(
     '<clipPath id="c"><path d="M0 0H24V24H0Z" fill="#fff"/>',
@@ -112,7 +118,7 @@ it("retains inherited presentation when renderer extracts SVG children", async (
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 2H22V22H2Z"/></svg>',
   );
   await runImporter(options);
-  const generated = await readFile(options.outputPath, "utf8");
+  const generated = sourceText(await readFile(options.outputPath, "utf8"));
   expect(generated).toContain(
     '<g fill="none" stroke="#f6821f" stroke-width="2">',
   );
