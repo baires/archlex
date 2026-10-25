@@ -1,5 +1,11 @@
 # @archlex/cloudflare
 
+## 0.1.2
+
+### Patch Changes
+
+- c85cf9b: Serialize bundled icon modules directly instead of formatting them with the Biome CLI. Artwork bytes are unchanged.
+
 ## 0.1.1
 
 ### Patch Changes
