@@ -1,5 +1,11 @@
 # @archlex/diagnostics
 
+## 0.3.3
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+
 ## 0.3.2
 
 ### Patch Changes

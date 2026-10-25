@@ -1,5 +1,11 @@
 # @archlex/icons-core
 
+## 0.2.7
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+
 ## 0.2.6
 
 ### Patch Changes

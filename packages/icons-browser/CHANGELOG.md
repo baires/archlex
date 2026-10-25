@@ -1,5 +1,12 @@
 # @archlex/icons-browser
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies [106cf5e]
+  - @archlex/icons-core@0.2.7
+
 ## 0.2.6
 
 ### Patch Changes

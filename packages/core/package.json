@@ -1,6 +1,6 @@
 {
   "name": "@archlex/core",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Core architecture diagramming engine for cloud infrastructure",
   "keywords": [
     "architecture",
