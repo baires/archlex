@@ -1,6 +1,8 @@
-# Commits a patch changeset onto Dependabot pull requests that change a
-# published package under packages/. "Require changeset" stays enabled; this
-# job supplies the file `pnpm changeset` would have created.
+# Commits a patch changeset onto Dependabot pull requests that change
+# `dependencies` or `peerDependencies` of a published package under packages/
+# (or the root package, when that package is published). Dev-dependency-only
+# bumps do not get a changeset. "Require changeset" stays enabled; this job
+# supplies the file `pnpm changeset` would have created.
 #
 # The job checks out the PR head branch, runs scripts/dependabot-changeset.mjs,
 # and pushes `.changeset/dependabot-pr-<number>.md` when the package list

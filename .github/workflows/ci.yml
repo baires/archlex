@@ -61,12 +61,10 @@ jobs:
 
       - name: Check if PR is from Changesets
         id: changeset-pr
-        run: |
-          if [[ "${{ github.event.pull_request.user.login }}" == "github-actions[bot]" ]] && [[ "${{ github.event.pull_request.title }}" == *"Version Packages"* ]]; then
-            echo "is_version_pr=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_version_pr=false" >> $GITHUB_OUTPUT
-          fi
+        env:
+          PR_LOGIN: ${{ github.event.pull_request.user.login }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/require-changeset.mjs --release-pr-check >> "$GITHUB_OUTPUT"
 
       - name: Get changed files
         if: steps.changeset-pr.outputs.is_version_pr != 'true'

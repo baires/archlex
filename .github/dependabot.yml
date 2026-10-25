@@ -5,9 +5,9 @@
 
 version: 2
 updates:
-  # Published package updates need a patch changeset. The Dependabot changeset
-  # workflow adds one so "Require changeset" can pass. PAT_TOKEN must also be
-  # stored as a Dependabot secret; see dependabot-changeset.yml.
+  # Published packages get a patch changeset only when dependencies or
+  # peerDependencies change. Dev-dependency bumps do not. PAT_TOKEN must also
+  # be stored as a Dependabot secret; see dependabot-changeset.yml.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
