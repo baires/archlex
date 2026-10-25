@@ -6,10 +6,10 @@ import { modernCorsHeaders } from "./protocol/http-headers.js";
 import { handleMcpPost } from "./protocol/router.js";
 import { listTools } from "./registry.js";
 import { handleStatelessRenderRequest } from "./render-endpoint.js";
-import { PayloadTooLargeError, boundedRequest } from "./request-body.js";
+import { boundedRequest, PayloadTooLargeError } from "./request-body.js";
 import {
-  type Env,
   checkRateLimit,
+  type Env,
   logTelemetry,
   validateAuthentication,
   validateOrigin,

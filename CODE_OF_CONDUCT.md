@@ -9,7 +9,6 @@ We pledge to act and interact in ways that contribute to an open, welcoming, div
 ## Our Standards
 
 Examples of behavior that contributes to a positive environment:
-
 - **Being respectful** of differing opinions, viewpoints, and experiences
 - **Giving and accepting** constructive feedback gracefully
 - **Focusing on what is best** for the community and the project
@@ -17,7 +16,6 @@ Examples of behavior that contributes to a positive environment:
 - **Being patient** with newcomers and those learning
 
 Examples of unacceptable behavior:
-
 - Trolling, insulting or derogatory comments, and personal or political attacks
 - Public or private harassment
 - Publishing others' private information without explicit permission

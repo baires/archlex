@@ -68,7 +68,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -82,7 +81,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export

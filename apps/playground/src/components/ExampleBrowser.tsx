@@ -5,8 +5,8 @@ import { k8sProvider } from "@archlex/k8s";
 import { useEffect, useRef, useState } from "react";
 import {
   type ArchitectureExample,
-  EXAMPLE_PROVIDERS,
   EXAMPLE_PROVIDER_LABELS,
+  EXAMPLE_PROVIDERS,
   EXAMPLE_USE_CASES,
 } from "../examples.js";
 import { iconLoader } from "../icon-loader.js";
@@ -206,7 +206,12 @@ export function ExampleBrowser({
         <div
           className={`example-browser__body${selected ? " has-selection" : ""}`}
         >
-          <div className="example-browser__results" aria-label="Examples">
+          {/* biome-ignore lint/a11y/useSemanticElements: labeled result group, not a form fieldset */}
+          <div
+            className="example-browser__results"
+            role="group"
+            aria-label="Examples"
+          >
             {results.length === 0 ? (
               <div className="example-browser__empty">
                 <h3>No matching examples</h3>

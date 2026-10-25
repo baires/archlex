@@ -22,7 +22,6 @@
 ### Minor Changes
 
 - 5ad0f4a: Declare GCP relationship semantics and enforce them with kind-aware validation.
-
   - Populate `GCP_RELATIONSHIPS` with 19 relationship definitions
     (`orchestrates`, `invokes`, `triggers`, `publishes`, `subscribes`, `reads`,
     `writes`, `streams`, `caches`, `encrypts`, `decrypts`, `proxies`,
@@ -49,7 +48,6 @@
 - f53538f: Add editor-neutral ArchLex language intelligence, catalog search nomenclature, structured grammar metadata, provider relationship semantics, and canonical Monaco completion.
 
   **Language Service Package:**
-
   - Context-aware completion engine with catalog-driven suggestions
   - Human-readable search with fuzzy matching (e.g., "elastic kubernetes" → `eks`)
   - Grammar-aware filtering (directive values, resource kinds, relationships, scope keywords)
@@ -57,20 +55,17 @@
   - DOM-neutral design compatible with Monaco, VSCode, CodeMirror, and other editors
 
   **Catalog Enhancements:**
-
   - Search terms extracted from service names and descriptions for all 441 resources
   - Structured metadata for 194 AWS, 185 GCP, and 62 Kubernetes services
   - Relationship compatibility validation (source/target kind pairs)
   - Containment rules for scope-aware suggestions
 
   **Parser Integration:**
-
   - Document analysis extracting provider, scope hierarchy, and symbol declarations
   - Cursor context detection identifying grammar position for completions
   - Symbol visibility tracking for relationship target suggestions
 
   **Playground Integration:**
-
   - Monaco completion provider backed by language service
   - Browser-tested performance (<50ms p95 on 100+ declaration documents)
   - WeakMap-based document caching for incremental updates
@@ -94,7 +89,6 @@
 ### Patch Changes
 
 - 8eb714b: Fix SVG sanitizer stripping inline presentation styles and bundle GCP Private Service Connect icon
-
   - Inline presentation attributes (`fill`, `stroke`, etc.) are now extracted from element `style="..."` attributes during SVG sanitization before non-allowed attributes are removed. This prevents CDN and external icons with inline styles from rendering as solid black shapes.
   - Added official artwork for `gcp.private-service-connect` (`private-service-connect.svg`) to `@archlex/gcp` bundled icons catalog.
 
@@ -129,7 +123,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -143,7 +136,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export
@@ -158,7 +150,6 @@
   ## Services Added
 
   ### AWS (39 services)
-
   - **Networking** (13): VPC Endpoints (Interface/Gateway), NAT Gateway, Internet Gateway, Transit Gateway, PrivateLink, Direct Connect, VPN Gateway, Customer Gateway, VPN Connection, Elastic IP, Network Firewall, Global Accelerator
   - **Compute** (3): App Runner, Batch, Fargate
   - **Storage** (6): EFS, FSx (Windows/Lustre), EBS, Glacier, Storage Gateway
@@ -167,7 +158,6 @@
   - **Monitoring** (6): CloudWatch (Logs/Metrics/Alarms), X-Ray, CloudTrail, Systems Manager
 
   ### GCP (37 services)
-
   - **Networking** (10): Cloud NAT, Cloud VPN, Cloud Interconnect, Private Service Connect, Cloud Router, VPC Service Controls, Firewall, Cloud Armor, Network Endpoint Groups, Cloud Domains
   - **Compute** (4): Cloud Workstations, Batch, App Engine, Cloud Shell
   - **Storage** (5): Persistent Disk, Filestore, Archive Storage, Transfer Service, Transfer Appliance
@@ -176,7 +166,6 @@
   - **Monitoring** (7): Cloud Monitoring, Cloud Logging, Cloud Trace, Cloud Profiler, Error Reporting, Cloud Debugger, Operations
 
   ## Relationship Types Added (8)
-
   - `encrypts` / `decrypts` - Encryption services
   - `monitors` / `logs` / `traces` / `alerts` - Observability
   - `caches` - CDN and caching
@@ -185,19 +174,16 @@
   ## Validation Rules Added (6)
 
   ### AWS (3)
-
   - NAT Gateway placement validation (warning)
   - Internet Gateway attachment validation (info)
   - Transit Gateway routes validation (info)
 
   ### GCP (3)
-
   - Cloud NAT VPC placement validation (warning)
   - Filestore VPC placement validation (warning)
   - AlloyDB Private Service Connect validation (info)
 
   ## Coverage Progress
-
   - AWS: 24 → 63 services (13.6% → 35.6%)
   - GCP: 24 → 61 services (14.0% → 36.3%)
   - Combined: 48 → 124 services (13.9% → 35.9%)
@@ -212,7 +198,6 @@
   ## Services Added
 
   ### AWS (48 services)
-
   - **Application Integration** (5): Step Functions, AppFlow, AppSync, Amazon MQ, MSK
   - **Analytics** (10): Kinesis Data Streams/Firehose/Analytics, EMR, Glue, Athena, Redshift, QuickSight, OpenSearch, Data Pipeline
   - **AI/ML** (10): SageMaker, Bedrock, Rekognition, Comprehend, Translate, Polly, Transcribe, Lex, Kendra, Forecast
@@ -222,7 +207,6 @@
   - **Messaging** (5): Pinpoint, SES, SNS Mobile, EventBridge Pipes, EventBridge API Destinations
 
   ### GCP (47 services)
-
   - **Application Integration** (5): Cloud Scheduler, Workflows, Eventarc, Cloud Composer, Apigee
   - **Analytics** (8): Dataproc, Dataform, Looker, Data Fusion, Dataplex, Datastream, Pub/Sub Lite, Analytics Hub
   - **AI/ML** (12): AI Platform, AutoML, Recommendations AI, Vision AI, Natural Language AI, Speech-to-Text, Text-to-Speech, Translation AI, Document AI, Video Intelligence, Dialogflow, Contact Center AI
@@ -232,7 +216,6 @@
   - **Identity & Access** (6): Cloud Identity, IAP, Access Context Manager, Managed AD, Cloud Identity Engine, Workforce Identity Federation
 
   ## Relationship Types Added (9)
-
   - `processes` - Data processing pipelines
   - `transforms` - Data transformation
   - `orchestrates` - Workflow orchestration
@@ -246,7 +229,6 @@
   ## Validation Rules Added (10)
 
   ### AWS (6)
-
   - Step Functions orchestration targets (info)
   - EventBridge rule targets (info)
   - Kinesis Firehose destination validation (warning)
@@ -255,7 +237,6 @@
   - CodePipeline stage validation (info)
 
   ### GCP (6)
-
   - Workflows orchestration targets (info)
   - Eventarc trigger targets (info)
   - Dataproc VPC placement (warning)
@@ -264,7 +245,6 @@
   - GKE Autopilot VPC placement (info)
 
   ## Coverage Progress
-
   - AWS: 63 → 111 services (35.6% → 62.7%)
   - GCP: 61 → 108 services (36.3% → 64.3%)
   - Combined: 124 → 219 services (35.9% → 63.5%)
@@ -281,112 +261,87 @@
   ## AWS Tier 3 Services (55 services)
 
   ### IoT Services (8 services)
-
   - AWS IoT Core, IoT Analytics, IoT Events, IoT Greengrass, IoT SiteWise
   - AWS IoT TwinMaker, Amazon Monitron, AWS Panorama
 
   ### Media Services (8 services)
-
   - AWS Elemental MediaLive, MediaConvert, MediaPackage, MediaConnect, MediaTailor
   - Amazon Interactive Video Service (IVS), Kinesis Video Streams, MediaStore
 
   ### Gaming (2 services)
-
   - Amazon GameLift, GameSparks
 
   ### End User Computing (5 services)
-
   - Amazon WorkSpaces, AppStream 2.0, WorkDocs, WorkLink, WorkMail
 
   ### Contact Center (3 services)
-
   - Amazon Connect, Connect Customer Profiles, Connect Voice ID
 
   ### Business Applications (4 services)
-
   - Amazon Chime, Honeycode, WorkSpaces Web, AWS Wickr
 
   ### Blockchain & Ledger (2 services)
-
   - Amazon Managed Blockchain, Amazon QLDB
 
   ### Robotics & AR/VR (3 services)
-
   - AWS RoboMaker, Amazon Sumerian, AWS IoT RoboRunner
 
   ### Migration Services (10 services)
-
   - AWS Database Migration Service (DMS), Server Migration Service (SMS)
   - AWS DataSync, Transfer Family, Migration Hub
   - Application Discovery Service, Application Migration Service
   - Migration Evaluator, CloudEndure Migration, Mainframe Modernization
 
   ### Supply Chain & Industrial (2 services)
-
   - AWS Supply Chain, AWS Private 5G
 
   ### Additional Compute (4 services)
-
   - AWS Elastic Beanstalk, Amazon Lightsail, AWS SimSpace Weaver, AWS Compute Optimizer
 
   ## GCP Tier 3 Services (52 services)
 
   ### IoT (1 service)
-
   - Cloud IoT Core (legacy, kept for backward compatibility)
 
   ### Media Services (4 services)
-
   - Transcoder API, Video Intelligence API, Live Stream API, Media CDN
 
   ### Gaming (2 services)
-
   - Game Servers (Agones-based), Google Play Games Services
 
   ### Business Applications (4 services)
-
   - Chrome Enterprise, Cloud Search, Google Workspace APIs, AppSheet
 
   ### Specialized Compute (5 services)
-
   - Bare Metal Solution, VMware Engine
   - Anthos on VMware, Anthos on AWS, Anthos on Azure
 
   ### Migration Services (6 services)
-
   - Database Migration Service, Migrate for Compute Engine, Migrate for Anthos
   - BigQuery Data Transfer Service, Cloud Data Transfer, Rapid Migration Assessment
 
   ### API Management Extended (3 services)
-
   - Cloud Endpoints Service Management, Service Control, Service Infrastructure
 
   ### Identity Extended (4 services)
-
   - Cloud Identity Premium, Context-Aware Access, BeyondCorp Enterprise, Assured Workloads
 
   ### Healthcare & Life Sciences (3 services)
-
   - Cloud Healthcare API, Cloud Life Sciences, Medical Imaging Suite
 
   ### Retail & Commerce (2 services)
-
   - Retail API, Discovery AI for Retail
 
   ### Security Extended (4 services)
-
   - Chronicle Security Operations, Cloud Asset Inventory, Policy Intelligence, Risk Manager
 
   ### Networking Extended (4 services)
-
   - Network Intelligence Center, Network Connectivity Center, Traffic Director, Service Directory
 
   ### Management Tools (5 services)
-
   - Cloud Deployment Manager, Config Connector, Cloud Billing API, Recommender, Active Assist
 
   ### Data Governance (3 services)
-
   - Data Catalog, Cloud Data Loss Prevention, Sensitive Data Protection
 
   ## Breaking Changes
@@ -394,7 +349,6 @@
   None. All additions are backward compatible.
 
   ## Notes
-
   - Catalog version updated to `2026-07-31-tier3` for both providers
   - Many Tier 3 services are specialized and may not have official icons in vendor icon libraries
   - Services without official icons use category-based fallback icons
@@ -409,72 +363,56 @@
   ## AWS Tier 4 Services (35 services)
 
   ### Edge/Hybrid (8 services)
-
   - AWS Outposts (Rack/Server), Snow Family (Snowball/Snowmobile/Snowcone)
   - AWS Wavelength, AWS Local Zones
 
   ### Satellite (1 service)
-
   - AWS Ground Station
 
   ### Quantum Computing (1 service)
-
   - Amazon Braket
 
   ### Legacy Services (4 services)
-
   - Amazon SimpleDB, AWS OpsWorks (Stacks/Chef Automate)
 
   ### Monitoring & Management (7 services)
-
   - Amazon Managed Grafana, Amazon Managed Prometheus
   - AWS CloudFormation, Service Catalog, Config, Control Tower, Organizations
 
   ### Networking (3 services)
-
   - AWS Cloud Map, Route 53 Resolver, Amazon VPC Lattice
 
   ### Security & Compliance (4 services)
-
   - AWS Audit Manager, AWS Artifact, Amazon Detective, Amazon Inspector
 
   ### Cost Management (4 services)
-
   - AWS Cost Explorer, AWS Budgets, Cost and Usage Report, AWS Savings Plans
 
   ## GCP Tier 4 Services (30 services)
 
   ### Edge/Hybrid (4 services)
-
   - Google Distributed Cloud (Edge/Hosted/Virtual), Edge TPU
 
   ### Maps & Location (5 services)
-
   - Google Maps Platform, Places API, Routes API, Geocoding API, Street View API
 
   ### Content & Media (1 service)
-
   - YouTube Data API
 
   ### AI/ML Extended (3 services)
-
   - Dialogflow CX, Contact Center AI Platform, Cloud Talent Solution
 
   ### Security Extended (1 service)
-
   - Chronicle SOAR
 
   ### Management & Governance (6 services)
-
   - Cloud Foundation Toolkit, Cloud Resource Manager, Cloud Billing Budget
   - Cloud Quotas, Infrastructure Manager, Policy Simulator
 
   ### Collaboration & Productivity (4 services)
-
   - Google Workspace, Gmail API, Calendar API, Drive API
 
   ### Testing & QA (2 services)
-
   - Firebase Test Lab, Cloud Testing
 
   ## Coverage Summary
@@ -489,7 +427,6 @@
   None. All additions are backward compatible.
 
   ## Notes
-
   - Catalog version updated to `2026-07-31-tier4` for both providers
   - Tier 4 services are edge cases, legacy, regional, or niche offerings
   - Many Tier 4 services lack official vendor icons - category-based fallbacks are used
@@ -502,7 +439,6 @@
   ## Expansion Complete
 
   With Tier 4, the ArchLex ecosystem expansion is complete:
-
   - **Tier 0 (MVP)**: 24 services per provider (foundation)
   - **Tier 1**: +39 AWS, +37 GCP (core infrastructure)
   - **Tier 2**: +48 AWS, +53 GCP (application services)

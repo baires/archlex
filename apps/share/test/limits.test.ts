@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { ShareD1 } from "../src/d1.js";
 import {
   BYTES_PER_IP_PER_DAY,
-  SERVICE_BYTES_PER_DAY,
-  SERVICE_POSTS_PER_DAY,
   consumeDailyPostBudget,
   consumePostLimit,
   deleteExpiredPostLimits,
   deleteExpiredShares,
+  SERVICE_BYTES_PER_DAY,
+  SERVICE_POSTS_PER_DAY,
 } from "../src/d1.js";
 import worker from "../src/index.js";
 import { createAllowingRateLimit, createFakeD1 } from "./fake-d1.js";

@@ -11,21 +11,21 @@ npm install @archlex/icons
 ## Usage
 
 ```typescript
-import { IconLoader, loadIconsFromDirectory } from '@archlex/icons';
+import { IconLoader, loadIconsFromDirectory } from "@archlex/icons";
 
 // Load icons from a directory
-const icons = await loadIconsFromDirectory('./icons');
+const icons = await loadIconsFromDirectory("./icons");
 
 // Create an icon loader
 const loader = new IconLoader({
-  searchPaths: ['./icons', './custom-icons']
+  searchPaths: ["./icons", "./custom-icons"],
 });
 
 // Load a specific icon
-const icon = await loader.load('aws/ec2');
+const icon = await loader.load("aws/ec2");
 
 // Batch load icons
-const awsIcons = await loader.loadMany(['aws/ec2', 'aws/s3', 'aws/lambda']);
+const awsIcons = await loader.loadMany(["aws/ec2", "aws/s3", "aws/lambda"]);
 ```
 
 ## Features
@@ -41,16 +41,16 @@ const awsIcons = await loader.loadMany(['aws/ec2', 'aws/s3', 'aws/lambda']);
 
 ```typescript
 const loader = new IconLoader({
-  searchPaths: ['./icons'],
+  searchPaths: ["./icons"],
   cache: true,
-  validate: true
+  validate: true,
 });
 
 // Load with options
-const icon = await loader.load('my-icon', {
+const icon = await loader.load("my-icon", {
   optimize: true,
   width: 64,
-  height: 64
+  height: 64,
 });
 ```
 
@@ -74,12 +74,12 @@ icons/
 ## Icon Discovery
 
 ```typescript
-import { discoverIcons } from '@archlex/icons';
+import { discoverIcons } from "@archlex/icons";
 
 // Discover all icons in a directory
-const discovered = await discoverIcons('./icons', {
+const discovered = await discoverIcons("./icons", {
   recursive: true,
-  filter: (path) => path.endsWith('.svg')
+  filter: (path) => path.endsWith(".svg"),
 });
 
 console.log(`Found ${discovered.length} icons`);
@@ -90,14 +90,14 @@ console.log(`Found ${discovered.length} icons`);
 ```typescript
 const loader = new IconLoader({
   cache: true,
-  cacheDir: './.icon-cache'
+  cacheDir: "./.icon-cache",
 });
 
 // First load: reads from disk
-const icon1 = await loader.load('aws/ec2');
+const icon1 = await loader.load("aws/ec2");
 
 // Second load: reads from cache
-const icon2 = await loader.load('aws/ec2');
+const icon2 = await loader.load("aws/ec2");
 ```
 
 ## Environment

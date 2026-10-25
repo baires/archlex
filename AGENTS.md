@@ -9,11 +9,12 @@ Welcome! This file provides essential context, setup instructions, development w
 **ArchLex** (`arch-lex-monorepo`) is a semantic cloud architecture diagramming library for browser and Node.js environments. It compiles text-based architecture definitions into accessible, themeable SVG diagrams with automatic ELK graph layout and semantic validation against AWS, Cloudflare, GCP, and Kubernetes catalogs.
 
 ### Tech Stack & Engine Requirements
+
 - **Language**: TypeScript (Strict Mode)
 - **Runtime**: Node.js `>=22.0.0`
 - **Package Manager**: pnpm `>=9.0.0` (Monorepo Workspaces)
 - **Build & Task Runner**: Turborepo
-- **Linter & Formatter**: Biome (`^1.9.4`)
+- **Linter & Formatter**: Biome (`^2.6.2`)
 - **Test Frameworks**: Vitest (Unit/Integration) & Playwright (E2E/Browser)
 
 ---
@@ -21,6 +22,7 @@ Welcome! This file provides essential context, setup instructions, development w
 ## 🚀 Setup & Execution Commands
 
 ### Workspace Installation & Build
+
 ```bash
 # Install all dependencies across the monorepo
 pnpm install
@@ -30,6 +32,7 @@ pnpm build
 ```
 
 ### Dev Servers
+
 ```bash
 # Start Interactive Diagram Playground (React + Vite @ http://localhost:5173)
 pnpm dev:playground
@@ -48,6 +51,7 @@ pnpm dev:share
 ```
 
 ### Package-Targeted Builds
+
 ```bash
 # Build specific applications
 pnpm build:playground
@@ -64,6 +68,7 @@ pnpm build:docs
 AI agents MUST run verification checks before completing tasks or creating PRs.
 
 ### Commands
+
 ```bash
 # Run unit tests across all workspace packages
 pnpm test
@@ -127,17 +132,20 @@ cloud-mer/
 ## 📝 Code Style & Conventions
 
 ### TypeScript Guidelines
+
 - Enable strict type checking everywhere. **Never use `any`**.
 - Export explicit return types on public API signatures.
 - Prefer functional, immutable patterns where applicable.
 - Core package (`@archlex/core`) must remain DOM-neutral and browser/Node transparent.
 
 ### Biome Code Formatting
+
 - Indentation: 2 spaces.
 - Organize imports is enabled (`biome check .` validates import order).
 - Run `pnpm format` to auto-fix formatting issues.
 
 ### Workspace Dependencies
+
 - Cross-package internal dependencies use `workspace:*` (e.g. `"@archlex/core": "workspace:*"`).
 
 ---
@@ -145,30 +153,36 @@ cloud-mer/
 ## 🛠️ Contribution Workflows for Agents
 
 ### 1. Adding a New AWS / Cloudflare / GCP / Kubernetes Resource
+
 1. Define the service catalog entry in `packages/<provider>/src/catalog/`.
 2. Map or generate official SVG icons in `packages/<provider>/assets/official/`.
 3. Add service unit tests under `packages/<provider>/src/__tests__/`.
 4. Run catalog validation:
+
    ```bash
    pnpm validate:catalog
    ```
 
 ### 2. Adding a Semantic Validation Rule
+
 1. Register a new diagnostic code in `packages/<provider>/src/registry.ts`.
 2. Implement the rule logic in `packages/<provider>/src/rules/`.
 3. Write test cases covering all 3 validation modes: `normal`, `strict`, and `off`.
 4. Regenerate error documentation:
+
    ```bash
    pnpm generate-docs
    ```
 
 ### 3. Changesets & Versioning
+
 When modifying published packages (`packages/*`), generate a changeset entry:
 ```bash
 pnpm changeset
 ```
 
 ### 4. Keep Documentation Current
+
 Update documentation in the same change when you modify public APIs, language
 syntax, scopes, providers, catalogs, icons, diagnostics, playground behavior,
 MCP tools or resources, commands, environment variables, or deployment

@@ -11,21 +11,21 @@ npm install @archlex/icons-core
 ## Usage
 
 ```typescript
-import { IconRegistry, parseIconSvg, optimizeIcon } from '@archlex/icons-core';
+import { IconRegistry, parseIconSvg, optimizeIcon } from "@archlex/icons-core";
 
 // Create an icon registry
 const registry = new IconRegistry();
 
 // Register an icon
-registry.register('my-service', {
-  id: 'my-service',
-  name: 'My Service',
-  svg: '<svg>...</svg>',
-  category: 'custom'
+registry.register("my-service", {
+  id: "my-service",
+  name: "My Service",
+  svg: "<svg>...</svg>",
+  category: "custom",
 });
 
 // Get an icon
-const icon = registry.get('my-service');
+const icon = registry.get("my-service");
 
 // Parse and optimize SVG
 const parsed = parseIconSvg('<svg width="100" height="100">...</svg>');
@@ -60,26 +60,26 @@ const registry = new IconRegistry();
 
 // Register multiple icons
 registry.registerMany([
-  { id: 'icon1', name: 'Icon 1', svg: '...' },
-  { id: 'icon2', name: 'Icon 2', svg: '...' }
+  { id: "icon1", name: "Icon 1", svg: "..." },
+  { id: "icon2", name: "Icon 2", svg: "..." },
 ]);
 
 // Check if icon exists
-if (registry.has('icon1')) {
-  const icon = registry.get('icon1');
+if (registry.has("icon1")) {
+  const icon = registry.get("icon1");
 }
 
 // List all icons
 const allIcons = registry.list();
 
 // Search icons
-const computeIcons = registry.search('compute');
+const computeIcons = registry.search("compute");
 ```
 
 ## SVG Utilities
 
 ```typescript
-import { parseIconSvg, optimizeIcon, embedIcon } from '@archlex/icons-core';
+import { parseIconSvg, optimizeIcon, embedIcon } from "@archlex/icons-core";
 
 // Parse SVG string
 const parsed = parseIconSvg(svgString);

@@ -1,4 +1,5 @@
 ---
+
 title: Language Specification
 description: "ArchLex DSL language specification, defining document structure, directives, resources, scopes, containment, and relationship syntax for cloud diagrams."
 ---
@@ -29,12 +30,12 @@ validation normal
 theme dark
 ```
 
-| Directive | Values | Default |
-| --- | --- | --- |
-| `provider` | A registered provider ID | Sole registered provider, otherwise required |
-| `direction` | `LR`, `RL`, `TB`, `BT` | `LR` |
-| `validation` | `normal`, `strict`, `off` | `normal` |
-| `theme` | `light`, `dark` | `dark` |
+| Directive    | Values                    | Default                                      |
+| ------------ | ------------------------- | -------------------------------------------- |
+| `provider`   | A registered provider ID  | Sole registered provider, otherwise required |
+| `direction`  | `LR`, `RL`, `TB`, `BT`    | `LR`                                         |
+| `validation` | `normal`, `strict`, `off` | `normal`                                     |
+| `theme`      | `light`, `dark`           | `dark`                                       |
 
 A colon may follow a directive name. Duplicate or late directives emit a
 structural diagnostic. The first valid value wins.
@@ -159,7 +160,6 @@ errors return diagnostics instead of throwing.
 ## Editor completions
 
 The language service provides context-aware completions for ArchLex source:
-
 - **Resource kinds**: After `:` in a resource declaration, suggests provider-specific services filtered by current scope
 - **Directive values**: After directive names, suggests valid options (`aws`, `cloudflare`, `gcp`, `k8s` for `provider`)
 - **Relationship types**: After `-[` in a relationship, suggests valid relationship kinds for the source and target resources

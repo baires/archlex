@@ -11,8 +11,8 @@ npm install @archlex/k8s
 ## Usage
 
 ```typescript
-import { createArchLex } from '@archlex/core';
-import { k8sProvider } from '@archlex/k8s';
+import { createArchLex } from "@archlex/core";
+import { k8sProvider } from "@archlex/k8s";
 
 const archlex = createArchLex({ providers: [k8sProvider()] });
 

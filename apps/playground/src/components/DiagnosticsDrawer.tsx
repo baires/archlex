@@ -114,7 +114,12 @@ export function DiagnosticsDrawer({
     >
       <header className="diagnostics-drawer-header">
         <h2>Diagnostics</h2>
-        <div className="diagnostic-filters" aria-label="Diagnostic filters">
+        {/* biome-ignore lint/a11y/useSemanticElements: labeled control group, not a form fieldset */}
+        <div
+          className="diagnostic-filters"
+          role="group"
+          aria-label="Diagnostic filters"
+        >
           {filters.map((candidate) => (
             <button
               key={candidate}
@@ -186,6 +191,7 @@ export function DiagnosticsDrawer({
               >
                 <span
                   className={`diagnostic-severity-marker ${diagnostic.severity}`}
+                  role="img"
                   aria-label={diagnostic.severity}
                 />
                 <span className="diagnostic-message">{diagnostic.message}</span>

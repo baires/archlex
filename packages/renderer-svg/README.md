@@ -11,17 +11,15 @@ npm install @archlex/renderer-svg @archlex/model
 ## Usage
 
 ```typescript
-import { SvgRenderer } from '@archlex/renderer-svg';
-import type { Diagram } from '@archlex/model';
+import { SvgRenderer } from "@archlex/renderer-svg";
+import type { Diagram } from "@archlex/model";
 
 const diagram: Diagram = {
   nodes: [
-    { id: 'web', type: 'ec2', provider: 'aws', position: { x: 0, y: 0 } },
-    { id: 'db', type: 'rds', provider: 'aws', position: { x: 200, y: 0 } }
+    { id: "web", type: "ec2", provider: "aws", position: { x: 0, y: 0 } },
+    { id: "db", type: "rds", provider: "aws", position: { x: 200, y: 0 } },
   ],
-  edges: [
-    { source: 'web', target: 'db', label: 'queries' }
-  ]
+  edges: [{ source: "web", target: "db", label: "queries" }],
 };
 
 const renderer = new SvgRenderer();
@@ -44,24 +42,23 @@ console.log(svg);
 
 ```typescript
 const renderer = new SvgRenderer({
-  theme: 'dark', // 'light' or 'dark'
+  theme: "dark", // 'light' or 'dark'
   fontSize: 14,
   padding: 20,
   nodeSpacing: 100,
-  edgeStyle: 'curved' // 'straight' or 'curved'
+  edgeStyle: "curved", // 'straight' or 'curved'
 });
 
 const svg = renderer.render(diagram, {
   width: 800,
   height: 600,
-  backgroundColor: 'transparent'
+  backgroundColor: "transparent",
 });
 ```
 
 ## Styling
 
 The renderer supports CSS styling through class names:
-
 - `.archlex-node` - Service nodes
 - `.archlex-edge` - Connections
 - `.archlex-label` - Text labels

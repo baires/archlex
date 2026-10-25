@@ -7,7 +7,7 @@ import {
   k8sProvider,
 } from "@archlex/core";
 import { GCP_CDN_PROVIDER } from "@archlex/gcp";
-import { type IconLoader, createIconLoader } from "@archlex/icons-core";
+import { createIconLoader, type IconLoader } from "@archlex/icons-core";
 import { K8S_CDN_PROVIDER } from "@archlex/k8s";
 import { createInlineLayoutEngine } from "@archlex/layout-elk";
 import { Resvg } from "@cf-wasm/resvg";
@@ -15,9 +15,9 @@ import type { Progress } from "@modelcontextprotocol/server";
 import interRegular from "inter-font/ttf/Inter-Regular.ttf";
 import interSemiBold from "inter-font/ttf/Inter-SemiBold.ttf";
 import {
+  createRenderUrl,
   type RenderLinkConfig,
   type RenderUrlResult,
-  createRenderUrl,
 } from "../render-links.js";
 import {
   type ShareLinks,

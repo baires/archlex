@@ -156,7 +156,9 @@ export function SeoHead(): ReactElement {
  */
 export function MainWithSeo({
   children,
-}: { children: ReactNode }): ReactElement {
+}: {
+  children: ReactNode;
+}): ReactElement {
   return (
     <>
       <SeoHead />

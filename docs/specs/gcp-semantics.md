@@ -1,4 +1,5 @@
 ---
+
 title: Google Cloud Semantics
 description: "Google Cloud semantics in ArchLex, covering the 189-service GCP catalog, containment scopes, relationship rules, and GCP diagnostic codes."
 ---
@@ -67,7 +68,6 @@ guidance, analytics placement, AI placement, IAP backends, and GKE Autopilot
 configuration.
 
 Examples include:
-
 - `GCP-NETWORKING-SUBNET-CONTAINMENT-001`
 - `GCP-DATA-CLOUD-SQL-NETWORK-001`
 - `GCP-INTEGRATION-WORKFLOWS-TARGETS-001`

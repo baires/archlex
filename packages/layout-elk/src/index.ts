@@ -6,11 +6,11 @@ import type {
 } from "@archlex/model";
 import { ArchLexAbortError, ArchLexInternalError } from "@archlex/model";
 import {
-  type ElkLayoutResult,
   buildElkGraph,
   convertElkResultToLayoutGraph,
+  type ElkLayoutResult,
 } from "./adapter/index.js";
-import { LayoutCache, computeGeometryFingerprint } from "./cache/index.js";
+import { computeGeometryFingerprint, LayoutCache } from "./cache/index.js";
 import { loadElk, preloadElk } from "./elk-loader.js";
 import { createWorkerRequest, isStaleResponse } from "./worker/index.js";
 

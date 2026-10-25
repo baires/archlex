@@ -2,13 +2,13 @@
 
 This file maps the five canonical triage roles to the label strings used in this repository's issue tracker.
 
-| Role | Label |
-|------|-------|
-| Needs triage | `needs-triage` |
-| Needs info | `needs-info` |
+| Role            | Label             |
+| --------------- | ----------------- |
+| Needs triage    | `needs-triage`    |
+| Needs info      | `needs-info`      |
 | Ready for agent | `ready-for-agent` |
 | Ready for human | `ready-for-human` |
-| Won't fix | `wontfix` |
+| Won't fix       | `wontfix`         |
 
 ## Usage
 

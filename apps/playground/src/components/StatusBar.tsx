@@ -50,7 +50,12 @@ export function StatusBar({
 
   return (
     <footer className="render-metadata workspace-status-bar">
-      <div className="status-diagnostics" aria-label="Diagnostic counts">
+      {/* biome-ignore lint/a11y/useSemanticElements: labeled status group, not a form fieldset */}
+      <div
+        className="status-diagnostics"
+        role="group"
+        aria-label="Diagnostic counts"
+      >
         {severities.map((severity) => {
           const count = summary[severity];
           if (count === 0) return null;

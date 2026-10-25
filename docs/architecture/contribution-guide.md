@@ -1,4 +1,5 @@
 ---
+
 title: Contribution Guide
 description: "How to contribute to ArchLex, from provider package layout and catalog resources to semantic rules, tests, changesets, and documentation workflows."
 ---
@@ -19,14 +20,14 @@ typecheck, test, and lint pipeline.
 
 All provider packages use the same core structure.
 
-| Concern | AWS | Cloudflare | Google Cloud | Kubernetes |
-| --- | --- | --- | --- | --- |
-| Package | `packages/aws` | `packages/cloudflare` | `packages/gcp` | `packages/k8s` |
-| Provider ID | `aws` | `cloudflare` | `gcp` | `k8s` |
-| Factory | `awsProvider()` | `cloudflareProvider()` | `gcpProvider()` | `k8sProvider()` |
-| Diagnostic prefix | `AWS-` | `CLOUDFLARE-` | `GCP-` | `K8S-` |
-| Example resource | `lambda` | `workers` | `cloud-run` | `deployment` |
-| Main scopes | account, region, VPC, subnet | root, account, group | account, region, VPC, subnet | cluster, namespace |
+| Concern           | AWS                          | Cloudflare             | Google Cloud                 | Kubernetes         |
+| ----------------- | ---------------------------- | ---------------------- | ---------------------------- | ------------------ |
+| Package           | `packages/aws`               | `packages/cloudflare`  | `packages/gcp`               | `packages/k8s`     |
+| Provider ID       | `aws`                        | `cloudflare`           | `gcp`                        | `k8s`              |
+| Factory           | `awsProvider()`              | `cloudflareProvider()` | `gcpProvider()`              | `k8sProvider()`    |
+| Diagnostic prefix | `AWS-`                       | `CLOUDFLARE-`          | `GCP-`                       | `K8S-`             |
+| Example resource  | `lambda`                     | `workers`              | `cloud-run`                  | `deployment`       |
+| Main scopes       | account, region, VPC, subnet | root, account, group   | account, region, VPC, subnet | cluster, namespace |
 
 Each provider keeps catalog definitions in `src/catalog/`, rule modules in
 `src/rules/`, diagnostic constants in `src/registry.ts`, and public exports in
@@ -47,16 +48,16 @@ Use provider-qualified aliases consistently:
 
 ```ts
 // AWS
-aliases: ["aws.lambda", "function"]
+aliases: ["aws.lambda", "function"];
 
 // Google Cloud
-aliases: ["gcp.cloud-run"]
+aliases: ["gcp.cloud-run"];
 
 // Kubernetes
-aliases: ["k8s.deployment", "deploy"]
+aliases: ["k8s.deployment", "deploy"];
 
 // Cloudflare
-aliases: ["cloudflare.workers"]
+aliases: ["cloudflare.workers"];
 ```
 
 Do not reuse an existing canonical ID or alias within one provider. Keep

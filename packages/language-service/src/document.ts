@@ -6,8 +6,7 @@ import type {
   ScopeAst,
   StatementAst,
 } from "@archlex/model";
-import { ArchLexLexer } from "@archlex/parser";
-import { parse } from "@archlex/parser";
+import { ArchLexLexer, parse } from "@archlex/parser";
 import type {
   DocumentSymbol,
   LanguageDocument,

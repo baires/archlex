@@ -11,7 +11,7 @@ npm install @archlex/parser @archlex/model
 ## Usage
 
 ```typescript
-import { parse } from '@archlex/parser';
+import { parse } from "@archlex/parser";
 
 const source = `
 aws {
@@ -51,16 +51,16 @@ console.log(ast);
 ## Error Handling
 
 ```typescript
-import { parse } from '@archlex/parser';
+import { parse } from "@archlex/parser";
 
 try {
   const ast = parse(invalidSource);
 } catch (error) {
   if (error.diagnostics) {
     // Syntax errors with location info
-    error.diagnostics.forEach(diagnostic => {
+    error.diagnostics.forEach((diagnostic) => {
       console.error(
-        `${diagnostic.severity} at line ${diagnostic.location.start.line}: ${diagnostic.message}`
+        `${diagnostic.severity} at line ${diagnostic.location.start.line}: ${diagnostic.message}`,
       );
     });
   }
@@ -70,7 +70,6 @@ try {
 ## AST Structure
 
 The parser produces an abstract syntax tree with the following node types:
-
 - `Program` - Root node
 - `ProviderBlock` - Cloud provider declaration
 - `ServiceGroup` - Service group (compute, database, etc.)

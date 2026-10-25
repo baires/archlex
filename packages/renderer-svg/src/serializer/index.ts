@@ -6,11 +6,11 @@ import type {
   SvgResult,
 } from "@archlex/model";
 import {
-  EDGE_LABEL_HEIGHT,
   charsPerLineForWidth,
+  EDGE_LABEL_HEIGHT,
   edgeLabelBoxWidth,
 } from "@archlex/model";
-import { type ThemeTokens, darkTheme, lightTheme } from "../theme/index.js";
+import { darkTheme, lightTheme, type ThemeTokens } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
 
 const NODE_ICON_SIZE = 48;

@@ -8,10 +8,10 @@ ArchLex compiles text architecture definitions into accessible SVG diagrams. You
 2. Follow the [Getting Started guide](../apps/docs/pages/getting-started.mdx) to embed the TypeScript API.
 3. Use the [Language Specification](specs/language.md) when you write directives, resources, scopes, and relationships.
 4. Check the provider specification for the resources and semantic rules that ArchLex applies:
-    - [AWS](specs/aws-semantics.md)
-    - [Google Cloud](specs/gcp-semantics.md)
-    - [Kubernetes](specs/k8s-semantics.md)
-    - [Cloudflare Pack](guides/cloudflare-pack.md)
+   - [AWS](specs/aws-semantics.md)
+     - [Google Cloud](specs/gcp-semantics.md)
+       - [Kubernetes](specs/k8s-semantics.md)
+         - [Cloudflare Pack](guides/cloudflare-pack.md)
 5. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
 
 The Cloudflare pack recognizes 92 resources with bundled artwork. Its validation

@@ -11,7 +11,7 @@ npm install @archlex/core @archlex/aws @archlex/gcp
 ## Usage
 
 ```typescript
-import { parse, compile, render } from '@archlex/core';
+import { parse, compile, render } from "@archlex/core";
 
 const source = `
 aws {

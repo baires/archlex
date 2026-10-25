@@ -1,4 +1,5 @@
 ---
+
 title: System Architecture
 description: "ArchLex system architecture, covering the parser-to-SVG runtime pipeline, package boundaries, and the responsibilities of each workspace package."
 ---
@@ -27,22 +28,22 @@ and renderer.
 
 ## Package boundaries
 
-| Package | Responsibility |
-| --- | --- |
-| `@archlex/model` | Publishes AST, graph, provider, layout, render, and diagnostic types |
-| `@archlex/parser` | Parses ArchLex source with Chevrotain and recovers partial ASTs |
-| `@archlex/diagnostics` | Defines shared diagnostics and documentation metadata |
-| `@archlex/aws` | Defines the AWS catalog, rules, bundled icons, and CDN mapping |
-| `@archlex/gcp` | Defines the Google Cloud catalog, rules, bundled icons, and CDN mapping |
-| `@archlex/k8s` | Defines the Kubernetes catalog, rules, bundled icons, and CDN mapping |
-| `@archlex/cloudflare` | Defines the 92-resource Cloudflare catalog, containment rule, and bundled artwork |
-| `@archlex/icons-core` | Validates providers, fetches icons, sanitizes SVG, and manages shared loading behavior |
-| `@archlex/icons-browser` | Stores sanitized icon records in application memory |
-| `@archlex/icons-node` | Stores sanitized icon records in a TTL-aware filesystem cache |
-| `@archlex/layout-elk` | Converts graphs to ELK, calculates geometry, and caches layouts |
-| `@archlex/renderer-svg` | Serializes deterministic, accessible SVG without DOM APIs |
-| `@archlex/core` | Coordinates parsing, analysis, providers, layout, and rendering |
-| `@archlex/cli` | Exposes render, validate, examples, and diagnostic-reference commands in Node.js |
+| Package                  | Responsibility                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------- |
+| `@archlex/model`         | Publishes AST, graph, provider, layout, render, and diagnostic types                   |
+| `@archlex/parser`        | Parses ArchLex source with Chevrotain and recovers partial ASTs                        |
+| `@archlex/diagnostics`   | Defines shared diagnostics and documentation metadata                                  |
+| `@archlex/aws`           | Defines the AWS catalog, rules, bundled icons, and CDN mapping                         |
+| `@archlex/gcp`           | Defines the Google Cloud catalog, rules, bundled icons, and CDN mapping                |
+| `@archlex/k8s`           | Defines the Kubernetes catalog, rules, bundled icons, and CDN mapping                  |
+| `@archlex/cloudflare`    | Defines the 92-resource Cloudflare catalog, containment rule, and bundled artwork      |
+| `@archlex/icons-core`    | Validates providers, fetches icons, sanitizes SVG, and manages shared loading behavior |
+| `@archlex/icons-browser` | Stores sanitized icon records in application memory                                    |
+| `@archlex/icons-node`    | Stores sanitized icon records in a TTL-aware filesystem cache                          |
+| `@archlex/layout-elk`    | Converts graphs to ELK, calculates geometry, and caches layouts                        |
+| `@archlex/renderer-svg`  | Serializes deterministic, accessible SVG without DOM APIs                              |
+| `@archlex/core`          | Coordinates parsing, analysis, providers, layout, and rendering                        |
+| `@archlex/cli`           | Exposes render, validate, examples, and diagnostic-reference commands in Node.js       |
 
 The parser does not import provider packages. Provider packages do not import
 the parser, layout engine, renderer, or runtime icon adapters. Layout and
@@ -51,12 +52,12 @@ rules.
 
 ## Applications
 
-| Application | Uses |
-| --- | --- |
-| Playground | React, Monaco, core, browser icon loading, SVG export |
-| Docs | Nextra pages sourced from `docs/` through symlinks |
-| Landing | Astro components and generated diagram assets |
-| MCP server | Cloudflare Worker tools, prompts, examples, and embedded docs resources |
+| Application | Uses                                                                    |
+| ----------- | ----------------------------------------------------------------------- |
+| Playground  | React, Monaco, core, browser icon loading, SVG export                   |
+| Docs        | Nextra pages sourced from `docs/` through symlinks                      |
+| Landing     | Astro components and generated diagram assets                           |
+| MCP server  | Cloudflare Worker tools, prompts, examples, and embedded docs resources |
 
 The MCP build copies hand-written `docs/` Markdown into generated TypeScript
 resources. The docs app reads the same Markdown through `apps/docs/pages`
@@ -65,7 +66,6 @@ symlinks. One source edit can update both consumers.
 ## Scopes and providers
 
 The parser recognizes six scope kinds:
-
 - `account`, `region`, `vpc`, and `subnet` model cloud containment.
 - `cluster` and `namespace` model Kubernetes containment.
 

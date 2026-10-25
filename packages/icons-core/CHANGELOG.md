@@ -32,7 +32,6 @@
 ### Patch Changes
 
 - 8eb714b: Fix SVG sanitizer stripping inline presentation styles and bundle GCP Private Service Connect icon
-
   - Inline presentation attributes (`fill`, `stroke`, etc.) are now extracted from element `style="..."` attributes during SVG sanitization before non-allowed attributes are removed. This prevents CDN and external icons with inline styles from rendering as solid black shapes.
   - Added official artwork for `gcp.private-service-connect` (`private-service-connect.svg`) to `@archlex/gcp` bundled icons catalog.
 
@@ -58,7 +57,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -72,7 +70,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export

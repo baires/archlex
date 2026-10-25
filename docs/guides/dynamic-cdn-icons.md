@@ -1,4 +1,5 @@
 ---
+
 title: Dynamic Icon Guide
 description: "Load missing AWS, Google Cloud, and Kubernetes diagram icons from the CDN with ArchLex prepare(), browser and Node icon loaders, and sanitized registries."
 ---
@@ -76,7 +77,6 @@ After TTL expiry, the loader requests fresh artwork. It can use an expired
 sanitized entry when refresh fails.
 
 Node supports these environment variables:
-
 - `ARCHLEX_ICON_CACHE_DIR`
 - `ARCHLEX_ICON_CACHE_TTL`
 - `ARCHLEX_DISABLE_CDN_ICONS=true`
@@ -115,4 +115,3 @@ The shared sanitizer rejects entity declarations, processing instructions,
 scripts, event handlers, external references, unsafe CSS, active animation,
 unsupported elements, and invalid namespaces. It calculates a stable SHA-256
 checksum before an icon enters a registry or cache.
-
