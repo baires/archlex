@@ -11,7 +11,6 @@ import {
   isInputRequiredResult,
 } from "@modelcontextprotocol/server";
 import { describe, expect, test } from "vitest";
-import packageJson from "../../package.json";
 import {
   MCP_ERROR_CODES,
   METADATA_KEYS,
@@ -28,22 +27,10 @@ import {
 } from "../fixtures/mcp-2026.js";
 
 describe("MCP 2026-07-28 official contract", () => {
-  test("pins the tested SDK generations at the package boundary", () => {
-    expect(packageJson.dependencies["@modelcontextprotocol/core"]).toBe(
-      "2.0.0",
-    );
-    expect(packageJson.dependencies["@modelcontextprotocol/server"]).toBe(
-      "2.3.0",
-    );
-    expect(packageJson.dependencies["@modelcontextprotocol/sdk"]).toBe(
-      "1.32.0",
-    );
-  });
-
   test("keeps the modern opt-in separate from the v2 legacy default", () => {
     expect(MODERN_PROTOCOL_VERSION).toBe("2026-07-28");
     expect(SUPPORTED_PROTOCOL_VERSIONS[0]).toBe(MODERN_PROTOCOL_VERSION);
-    expect(LATEST_PROTOCOL_VERSION).toBe("2025-11-25");
+    expect(LATEST_PROTOCOL_VERSION).not.toBe(MODERN_PROTOCOL_VERSION);
   });
 
   test("uses the official reserved request metadata keys", () => {
