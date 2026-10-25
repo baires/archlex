@@ -82,7 +82,9 @@ describe("included Cloudflare resource integration", () => {
       new URL("../README.md", import.meta.url),
       "utf8",
     );
-    const rows = [...readme.matchAll(/^\| `([^`]+)` \| (.+) \| ([^|]+) \|$/gm)];
+    const rows = [
+      ...readme.matchAll(/^\| `([^`]+)`\s+\|\s+(.+?)\s+\|\s+(.+?)\s+\|$/gm),
+    ];
     expect(rows).toHaveLength(92);
     for (const service of services) {
       expect(
