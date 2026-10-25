@@ -1,5 +1,14 @@
 # @archlex/language-service
 
+## 0.2.4
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+- Updated dependencies [4b347c7]
+  - @archlex/model@0.6.2
+  - @archlex/parser@0.6.3
+
 ## 0.2.3
 
 ### Patch Changes

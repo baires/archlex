@@ -1,5 +1,18 @@
 # @archlex/cli
 
+## 0.4.2
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+- Updated dependencies [4b347c7]
+  - @archlex/aws@0.4.3
+  - @archlex/core@0.6.2
+  - @archlex/diagnostics@0.3.3
+  - @archlex/gcp@0.4.3
+  - @archlex/k8s@0.4.2
+  - @archlex/model@0.6.2
+
 ## 0.4.1
 
 ### Patch Changes

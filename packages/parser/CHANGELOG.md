@@ -1,5 +1,14 @@
 # @archlex/parser
 
+## 0.6.3
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+- Updated dependencies [4b347c7]
+  - @archlex/diagnostics@0.3.3
+  - @archlex/model@0.6.2
+
 ## 0.6.2
 
 ### Patch Changes

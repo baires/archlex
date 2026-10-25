@@ -1,5 +1,13 @@
 # @archlex/renderer-svg
 
+## 0.2.8
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+- Updated dependencies [4b347c7]
+  - @archlex/model@0.6.2
+
 ## 0.2.7
 
 ### Patch Changes

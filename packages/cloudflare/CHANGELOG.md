@@ -1,5 +1,14 @@
 # @archlex/cloudflare
 
+## 0.1.2
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+- Updated dependencies [4b347c7]
+  - @archlex/icons-core@0.2.7
+  - @archlex/model@0.6.2
+
 ## 0.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @archlex/model
 
+## 0.6.2
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+
 ## 0.6.1
 
 ### Patch Changes

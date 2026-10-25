@@ -1,5 +1,11 @@
 # @archlex/icons-core
 
+## 0.2.7
+
+### Patch Changes
+
+- 4b347c7: Bump dependencies (Dependabot).
+
 ## 0.2.6
 
 ### Patch Changes
