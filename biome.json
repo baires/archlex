@@ -60,6 +60,12 @@
       "formatter": {
         "enabled": false
       }
+    },
+    {
+      "includes": [".changeset/*.md"],
+      "formatter": {
+        "enabled": false
+      }
     }
   ]
 }
