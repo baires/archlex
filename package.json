@@ -46,7 +46,7 @@
     "@playwright/test": "1.62.1",
     "@types/node": "^26.6.5",
     "@xmldom/xmldom": "0.9.12",
-    "fast-check": "^4.0.0",
+    "fast-check": "^4.10.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "playwright": "1.62.1",
