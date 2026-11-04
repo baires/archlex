@@ -1,5 +1,12 @@
 # @archlex/mcp-server
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies [21bd92e]
+  - @archlex/layout-elk@0.2.10
+
 ## 0.2.6
 
 ### Patch Changes
