@@ -1,5 +1,12 @@
 # @archlex/share
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [21bd92e]
+  - @archlex/layout-elk@0.2.10
+
 ## 0.0.3
 
 ### Patch Changes

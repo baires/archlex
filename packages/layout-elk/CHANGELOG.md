@@ -1,5 +1,11 @@
 # @archlex/layout-elk
 
+## 0.2.10
+
+### Patch Changes
+
+- 21bd92e: Bump dependencies (Dependabot).
+
 ## 0.2.9
 
 ### Patch Changes
