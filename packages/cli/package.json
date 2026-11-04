@@ -38,7 +38,7 @@
     "@archlex/gcp": "workspace:*",
     "@archlex/k8s": "workspace:*",
     "@archlex/model": "workspace:^",
-    "chalk": "^5.3.0",
+    "chalk": "^6.0.1",
     "commander": "^12.1.0",
     "ora": "^9.4.1",
     "playwright": "^1.64.1"
