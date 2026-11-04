@@ -83,7 +83,7 @@
       "katex": "^0.18.2"
     },
     "patchedDependencies": {
-      "nextra@3.3.1": "patches/nextra@3.3.1.patch"
+      "nextra-theme-docs@4.6.1": "patches/nextra-theme-docs@4.6.1.patch"
     }
   },
   "engines": {

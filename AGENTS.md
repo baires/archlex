@@ -189,7 +189,7 @@ MCP tools or resources, commands, environment variables, or deployment
 requirements.
 
 Treat `docs/` Markdown as product source. The docs app publishes these files
-through `apps/docs/pages` symlinks, and the MCP build embeds them as
+through `apps/docs/content` symlinks, and the MCP build embeds them as
 documentation resources. Keep `README.md`, the docs landing page, and the
 getting-started page aligned when onboarding changes.
 

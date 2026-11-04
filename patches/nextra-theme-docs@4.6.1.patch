@@ -1,0 +1,15 @@
+diff --git a/dist/schemas.js b/dist/schemas.js
+index 060d0b98b76515e4f0a1cd9edb3c3f5d31597540..2a25a21310257eb7d8a2f53761f8fbfdf91bad88 100644
+--- a/dist/schemas.js
++++ b/dist/schemas.js
+@@ -65,7 +65,9 @@ const LayoutPropsSchema = z.strictObject({
+   banner: reactNode.optional().meta({
+     description: "Rendered [`<Banner>` component](/docs/built-ins/banner). E.g. `<Banner {...bannerProps} />`"
+   }),
+-  children: reactNode,
++  // Layout parses theme props after stripping `children`. Zod 4.4+ rejects a
++  // missing required key before `reactNode`'s null check, so this stays optional.
++  children: reactNode.optional(),
+   copyPageButton: z.boolean().default(true).meta({
+     description: "Hide/show copy page content button."
+   }),

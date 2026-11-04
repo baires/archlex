@@ -22,7 +22,7 @@ const archlexDocuments = [
 
 const markdownDocuments = [
   "README.md",
-  "apps/docs/pages/getting-started.mdx",
+  "apps/docs/content/getting-started.mdx",
   ".agents/skills/archlex/references/examples.md",
 ];
 
