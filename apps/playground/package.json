@@ -22,7 +22,7 @@
     "@archlex/language-service": "workspace:^",
     "@archlex/model": "workspace:^",
     "@monaco-editor/react": "^4.7.0",
-    "monaco-editor": "^0.56.0",
+    "monaco-editor": "^0.57.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
   },
