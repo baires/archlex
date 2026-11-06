@@ -1,0 +1,24 @@
+---
+import {
+  EXAMPLE_PROVIDER_LABELS,
+  type PublishedExample,
+} from "../data/examples";
+
+interface Props {
+  examples: PublishedExample[];
+}
+
+const { examples } = Astro.props;
+---
+
+<ul class="example-cards">
+  {examples.map((example) => (
+    <li>
+      <a href={example.path}>
+        <span class="example-cards__meta">{EXAMPLE_PROVIDER_LABELS[example.provider]} · {example.useCase}</span>
+        <strong>{example.title}</strong>
+        <span class="example-cards__desc">{example.description}</span>
+      </a>
+    </li>
+  ))}
+</ul>

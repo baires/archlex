@@ -1,0 +1,59 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import Button from "../../components/Button.astro";
+import ExampleCards from "../../components/ExampleCards.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import { SITE_ROUTES } from "../../config";
+import { examplesFor, publishedExamples } from "../../data/examples";
+import { providerPages, providerPath } from "../../data/providers";
+import { breadcrumbJsonLd, SITE_ORIGIN } from "../../data/seo";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const crumbs = [
+  { name: "ArchLex", path: "/" },
+  { name: "Examples", path: "/examples/" },
+];
+const itemList = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: "ArchLex architecture diagram examples",
+  itemListElement: publishedExamples.map((example, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: example.title,
+    url: `${SITE_ORIGIN}${example.path}`,
+  })),
+};
+---
+
+<BaseLayout
+  title="Cloud Architecture Diagram Examples (AWS, GCP, Cloudflare, Kubernetes) | ArchLex"
+  description={`${publishedExamples.length} cloud architecture diagram examples as code: serverless, event-driven, data pipelines, VPC networking and Kubernetes. Each one is validated and opens in the ArchLex playground.`}
+  jsonLd={[breadcrumbJsonLd(crumbs), itemList]}
+>
+  <SiteHeader />
+  <main id="main-content" tabindex="-1">
+    <Breadcrumbs crumbs={crumbs} />
+    <section class="hero topic-hero shell shell--reading" aria-labelledby="examples-title">
+      <div class="hero__copy">
+        <p class="eyebrow">Gallery · {publishedExamples.length} examples</p>
+        <h1 id="examples-title">Cloud architecture diagram examples.</h1>
+        <p class="hero__lede">Real ArchLex source for common AWS, Google Cloud, Cloudflare and Kubernetes architectures. Every example passes provider checks. Copy the source, or open it in the playground and change it.</p>
+        <div class="hero__actions">
+          <Button href={SITE_ROUTES.playground}>Open playground</Button>
+        </div>
+      </div>
+    </section>
+    {providerPages.map((page) => (
+      <section class="topic-section shell shell--wide" aria-labelledby={`examples-${page.slug}`}>
+        <div class="section-heading">
+          <h2 id={`examples-${page.slug}`}>{page.name} examples.</h2>
+          <p class="section-lead"><a class="text-link" href={providerPath(page)}>{page.name} architecture diagrams as code <span aria-hidden="true">→</span></a></p>
+        </div>
+        <ExampleCards examples={examplesFor(page.provider)} />
+      </section>
+    ))}
+  </main>
+  <SiteFooter />
+</BaseLayout>

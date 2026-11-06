@@ -7,6 +7,8 @@ interface Props {
   description?: string;
   image?: string;
   noindex?: boolean;
+  /** Extra page-level JSON-LD objects (FAQPage, BreadcrumbList, ...). */
+  jsonLd?: Record<string, unknown>[];
 }
 
 const {
@@ -14,6 +16,7 @@ const {
   description = "Multicloud diagrams for LLMs and MCP. Use the free hosted MCP and playground with no API keys or account. Supports AWS, Cloudflare, GCP and Kubernetes.",
   image = "https://archlex.dev/og-multicloud.png",
   noindex = false,
+  jsonLd = [],
 } = Astro.props;
 
 // Pages build as directories (/page/index.html), so the served URL ends in "/".
@@ -120,6 +123,7 @@ const schemaGraph = {
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaGraph)} />
+    {jsonLd.map((item) => <script type="application/ld+json" set:html={JSON.stringify(item)} />)}
 
     <!-- Theme Detection -->
     <script is:inline>

@@ -383,3 +383,36 @@ test("opens and selects the setup prompt when clipboard access is blocked", asyn
     await page.evaluate(() => window.getSelection()?.toString()),
   ).toContain("Set up the ArchLex MCP server");
 });
+
+for (const path of [
+  "/gcp-architecture-diagrams/",
+  "/cloudflare-architecture-diagrams/",
+  "/kubernetes-architecture-diagrams/",
+  "/examples/",
+  "/examples/k8s-microservices/",
+]) {
+  test(`renders ${path} with a diagram and no overflow at 320px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 900 });
+    const response = await page.goto(path);
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(
+      page.locator('script[type="application/ld+json"]'),
+    ).not.toHaveCount(0);
+    if (path !== "/examples/") {
+      const loaded = await page
+        .locator("img.diagram-img--light")
+        .evaluate((img) => img.complete && img.naturalWidth > 0);
+      expect(loaded).toBe(true);
+    }
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(0);
+  });
+}
