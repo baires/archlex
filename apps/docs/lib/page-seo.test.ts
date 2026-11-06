@@ -19,4 +19,27 @@ describe("buildPageSeo", () => {
       absolute: "Use with AI agents – ArchLex Documentation",
     });
   });
+
+  test("leaves folder crumbs without a page out of the breadcrumb", () => {
+    const seo = buildPageSeo(
+      { title: "AWS Semantics" },
+      ["specs", "aws-semantics"],
+      new Set(["/", "/specs/aws-semantics/"]),
+    );
+    const breadcrumb = seo.jsonLd.find(
+      (item) => item["@type"] === "BreadcrumbList",
+    ) as { itemListElement: { name: string; item: string }[] };
+
+    expect(breadcrumb.itemListElement).toEqual([
+      expect.objectContaining({
+        position: 1,
+        item: "https://docs.archlex.dev/",
+      }),
+      expect.objectContaining({
+        position: 2,
+        name: "AWS Semantics",
+        item: "https://docs.archlex.dev/specs/aws-semantics/",
+      }),
+    ]);
+  });
 });

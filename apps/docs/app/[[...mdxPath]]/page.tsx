@@ -1,10 +1,23 @@
 import type { Metadata } from "next";
 import { generateStaticParamsFor, importPage } from "nextra/pages";
 import type { ReactElement } from "react";
-import { buildPageSeo } from "../../lib/page-seo";
+import { buildPageSeo, routeFromSegments } from "../../lib/page-seo";
 import { useMDXComponents as getMDXComponents } from "../../mdx-components";
 
 export const generateStaticParams = generateStaticParamsFor("mdxPath");
+
+let publishedRoutes: Promise<Set<string>> | undefined;
+const getPublishedRoutes = (): Promise<Set<string>> => {
+  publishedRoutes ??= Promise.resolve(generateStaticParams()).then(
+    (params) =>
+      new Set(
+        (params as { mdxPath?: string[] }[]).map((param) =>
+          routeFromSegments(param.mdxPath),
+        ),
+      ),
+  );
+  return publishedRoutes;
+};
 
 type PageProps = {
   params: Promise<{ mdxPath?: string[] }>;
@@ -26,7 +39,11 @@ export default async function Page(props: PageProps): Promise<ReactElement> {
     metadata,
     sourceCode,
   } = await importPage(params.mdxPath);
-  const seo = buildPageSeo(metadata, params.mdxPath);
+  const seo = buildPageSeo(
+    metadata,
+    params.mdxPath,
+    await getPublishedRoutes(),
+  );
   const content = <MDXContent {...props} params={params} />;
 
   return (

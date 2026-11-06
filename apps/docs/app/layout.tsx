@@ -27,13 +27,33 @@ const navbar = (
   />
 );
 
+const DIAGRAM_PAGES = [
+  ["AWS", "https://archlex.dev/aws-architecture-diagrams/"],
+  ["Google Cloud", "https://archlex.dev/gcp-architecture-diagrams/"],
+  ["Cloudflare", "https://archlex.dev/cloudflare-architecture-diagrams/"],
+  ["Kubernetes", "https://archlex.dev/kubernetes-architecture-diagrams/"],
+  ["Examples", "https://archlex.dev/examples/"],
+] as const;
+
 const footer = (
   <Footer>
-    {new Date().getFullYear()} ©{" "}
-    <a href="https://archlex.dev" target="_blank" rel="noopener noreferrer">
-      ArchLex
-    </a>
-    .
+    <div>
+      <nav aria-label="Architecture diagrams">
+        {DIAGRAM_PAGES.map(([label, href], index) => (
+          <span key={href}>
+            {index > 0 && " · "}
+            <a href={href}>
+              {label === "Examples"
+                ? "Architecture diagram examples"
+                : `${label} diagrams`}
+            </a>
+          </span>
+        ))}
+      </nav>
+      <p>
+        {new Date().getFullYear()} © <a href="https://archlex.dev">ArchLex</a>.
+      </p>
+    </div>
   </Footer>
 );
 
