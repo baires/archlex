@@ -30,6 +30,16 @@ worker -[writes]-> data
 - [Google Cloud architecture diagrams as code](https://archlex.dev/gcp-architecture-diagrams/)
 - [Cloudflare architecture diagrams as code](https://archlex.dev/cloudflare-architecture-diagrams/)
 - [Kubernetes architecture diagrams as code](https://archlex.dev/kubernetes-architecture-diagrams/)
+- [AWS Lambda architecture diagram](https://archlex.dev/aws/lambda-architecture-diagram/)
+- [AWS API Gateway architecture diagram](https://archlex.dev/aws/api-gateway-architecture-diagram/)
+- [AWS ECS / Fargate architecture diagram](https://archlex.dev/aws/ecs-architecture-diagram/)
+- [AWS EKS architecture diagram](https://archlex.dev/aws/eks-architecture-diagram/)
+- [S3 + CloudFront architecture diagram](https://archlex.dev/aws/s3-cloudfront-architecture-diagram/)
+- [AWS DynamoDB architecture diagram](https://archlex.dev/aws/dynamodb-architecture-diagram/)
+- [GCP Cloud Run architecture diagram](https://archlex.dev/gcp/cloud-run-architecture-diagram/)
+- [BigQuery architecture diagram](https://archlex.dev/gcp/bigquery-architecture-diagram/)
+- [Cloudflare Workers architecture diagram](https://archlex.dev/cloudflare/workers-architecture-diagram/)
+- [Kubernetes Ingress architecture diagram](https://archlex.dev/kubernetes/ingress-architecture-diagram/)
 - [Architecture diagram examples](https://archlex.dev/examples/): validated AWS, GCP, Cloudflare and Kubernetes examples with source
 - [Playground](https://playground.archlex.dev/): write ArchLex in the browser and see the SVG live
 - [Getting started](https://docs.archlex.dev/getting-started/)

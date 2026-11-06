@@ -1,0 +1,33 @@
+---
+import ServicePage from "../../components/ServicePage.astro";
+import { providerPages } from "../../data/providers";
+import {
+  type ServicePage as ServicePageData,
+  servicePages,
+  servicePath,
+} from "../../data/services";
+
+export function getStaticPaths() {
+  return servicePages.map((page) => {
+    const providerSlug = providerPages.find(
+      (item) => item.provider === page.provider,
+    )!.slug;
+    return {
+      params: {
+        provider: providerSlug,
+        slug: `${page.slug}-architecture-diagram`,
+      },
+      props: { page },
+    };
+  });
+}
+
+const { page } = Astro.props as { page: ServicePageData };
+const expected = servicePath(page);
+const actual = `/${Astro.params.provider}/${Astro.params.slug}/`;
+if (expected !== actual) {
+  throw new Error(`Service path mismatch: expected ${expected}, got ${actual}`);
+}
+---
+
+<ServicePage page={page} />

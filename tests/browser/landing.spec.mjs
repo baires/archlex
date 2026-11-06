@@ -390,6 +390,8 @@ for (const path of [
   "/kubernetes-architecture-diagrams/",
   "/examples/",
   "/examples/k8s-microservices/",
+  "/aws/lambda-architecture-diagram/",
+  "/cloudflare/workers-architecture-diagram/",
 ]) {
   test(`renders ${path} with a diagram and no overflow at 320px`, async ({
     page,
@@ -404,6 +406,7 @@ for (const path of [
     if (path !== "/examples/") {
       const loaded = await page
         .locator("img.diagram-img--light")
+        .first()
         .evaluate((img) => img.complete && img.naturalWidth > 0);
       expect(loaded).toBe(true);
     }

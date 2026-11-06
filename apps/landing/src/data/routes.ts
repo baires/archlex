@@ -1,12 +1,14 @@
 import { publishedExamples } from "./examples";
 import { providerPages, providerPath } from "./providers";
 import { SITE_ORIGIN } from "./seo";
+import { servicePages, servicePath } from "./services";
 
 /** Every indexable landing route, used to generate sitemap.xml. */
 export function indexablePaths(): string[] {
   return [
     "/",
     ...providerPages.map(providerPath),
+    ...servicePages.map(servicePath),
     "/examples/",
     ...publishedExamples.map((example) => example.path),
   ];
