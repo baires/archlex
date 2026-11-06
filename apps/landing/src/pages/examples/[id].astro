@@ -1,0 +1,151 @@
+---
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import Button from "../../components/Button.astro";
+import CodeBlock from "../../components/CodeBlock.astro";
+import ExampleCards from "../../components/ExampleCards.astro";
+import SiteFooter from "../../components/SiteFooter.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import {
+  diagramUrl,
+  EXAMPLE_PROVIDER_LABELS,
+  type PublishedExample,
+  publishedExamples,
+  relatedExamples,
+  renderExample,
+} from "../../data/examples";
+import { providerPage, providerPath } from "../../data/providers";
+import { breadcrumbJsonLd, SITE_ORIGIN } from "../../data/seo";
+import { exampleUrl } from "../../data/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return publishedExamples.map((example) => ({
+    params: { id: example.id },
+    props: { example },
+  }));
+}
+
+const { example } = Astro.props as { example: PublishedExample };
+const provider = providerPage(example.provider);
+const providerName = EXAMPLE_PROVIDER_LABELS[example.provider];
+const { width, height } = await renderExample(example.source, "light");
+const alt = `${example.title}: ${example.description}`;
+const related = relatedExamples(example);
+const { resources, relationships, scopes } = example.details;
+const crumbs = [
+  { name: "ArchLex", path: "/" },
+  { name: "Examples", path: "/examples/" },
+  { name: example.title, path: example.path },
+];
+const shortName = {
+  aws: "AWS",
+  gcp: "GCP",
+  k8s: "Kubernetes",
+  cloudflare: "Cloudflare",
+}[example.provider];
+const named = /\b(AWS|GCP|Google Cloud|Kubernetes|Cloudflare)\b/.test(
+  example.title,
+)
+  ? example.title
+  : `${shortName} ${example.title}`;
+const heading = /Architecture$/.test(named)
+  ? `${named} Diagram`
+  : `${named} Architecture Diagram`;
+const title = heading.length > 55 ? heading : `${heading} | ArchLex`;
+const description = `${example.description}. ${providerName} diagram as code: copy the ArchLex source or edit it in the playground.`;
+const imageObject = {
+  "@context": "https://schema.org",
+  "@type": "ImageObject",
+  name: example.title,
+  description: example.description,
+  contentUrl: `${SITE_ORIGIN}${diagramUrl(example.id, "light")}`,
+  encodingFormat: "image/svg+xml",
+};
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  jsonLd={[breadcrumbJsonLd(crumbs), imageObject]}
+>
+  <SiteHeader />
+  <main id="main-content" tabindex="-1">
+    <Breadcrumbs crumbs={crumbs} />
+    <section class="hero topic-hero shell shell--reading" aria-labelledby="example-title">
+      <div class="hero__copy">
+        <p class="eyebrow">{providerName} · {example.useCase}</p>
+        <h1 id="example-title">{example.title}</h1>
+        <p class="hero__lede">{example.description}. This diagram is written in ArchLex and passes {providerName} provider checks.</p>
+        <div class="hero__actions">
+          <Button href={exampleUrl(example.source)}>Edit in the playground</Button>
+          <Button href={providerPath(provider)} variant="text">{provider.name} diagrams as code <span aria-hidden="true">→</span></Button>
+        </div>
+      </div>
+    </section>
+
+    <section class="topic-section shell shell--wide" aria-labelledby="example-diagram-title">
+      <h2 id="example-diagram-title" class="visually-hidden">Diagram and source</h2>
+      <div class="topic-stack">
+        <article class="proof-card proof-card--visual">
+          <figure class="semantic-proof">
+            <img class="diagram-img diagram-img--dark" src={diagramUrl(example.id, "dark")} alt={alt} width={width} height={height} decoding="async" />
+            <img class="diagram-img diagram-img--light" src={diagramUrl(example.id, "light")} alt={alt} width={width} height={height} decoding="async" />
+          </figure>
+        </article>
+        <article class="proof-card proof-card--diff">
+          <div class="source-proof">
+            <div class="source-proof__chrome" aria-hidden="true">
+              <span class="source-proof__tag">{example.id}.arch</span>
+            </div>
+            <CodeBlock code={example.source} lang="archlex" />
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="topic-section shell shell--reading" aria-labelledby="example-parts-title">
+      <div class="section-heading">
+        <h2 id="example-parts-title">What is in this diagram.</h2>
+      </div>
+      <h3>Resources</h3>
+      <ul class="topic-list">
+        {resources.map((item) => <li><strong>{item.label}</strong> {item.service}</li>)}
+      </ul>
+      {relationships.length > 0 && (
+        <>
+          <h3>Relationships</h3>
+          <ul class="topic-list">
+            {relationships.map((item) => <li>{item.from} <strong>{item.kind}</strong> {item.to}</li>)}
+          </ul>
+        </>
+      )}
+      {scopes.length > 0 && (
+        <>
+          <h3>Boundaries</h3>
+          <ul class="topic-list">
+            {scopes.map((item) => <li><strong>{item.kind}</strong> {item.name}</li>)}
+          </ul>
+        </>
+      )}
+    </section>
+
+    <section class="topic-section shell shell--reading" aria-labelledby="example-render-title">
+      <div class="section-heading">
+        <h2 id="example-render-title">Render it yourself.</h2>
+        <p class="section-lead">Save the source as <code>{example.id}.arch</code> and render it with the CLI, or ask your agent to adapt it through the ArchLex MCP server.</p>
+      </div>
+      <CodeBlock code={`npx @archlex/cli render ${example.id}.arch --output ${example.id}.svg`} lang="bash" />
+    </section>
+
+    {related.length > 0 && (
+      <section class="topic-section shell shell--wide" aria-labelledby="example-related-title">
+        <div class="section-heading">
+          <h2 id="example-related-title">Related examples.</h2>
+          <p class="section-lead"><a class="text-link" href="/examples/">All examples</a></p>
+        </div>
+        <ExampleCards examples={related} />
+      </section>
+    )}
+  </main>
+  <SiteFooter />
+</BaseLayout>

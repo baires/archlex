@@ -34,7 +34,6 @@ describe("landing static assets", () => {
       "llms.txt",
       "og-multicloud.png",
       "robots.txt",
-      "sitemap.xml",
     ]);
   });
 
@@ -51,15 +50,10 @@ describe("landing static assets", () => {
     }
   });
 
-  it("ships robots.txt and a sitemap so crawlers get real files", () => {
+  it("ships robots.txt pointing at the generated sitemap", () => {
     const robots = readFileSync(`${landingPublicDir}/robots.txt`, "utf8");
-    const sitemap = readFileSync(`${landingPublicDir}/sitemap.xml`, "utf8");
 
     expect(robots).toContain("Sitemap: https://archlex.dev/sitemap.xml");
-    expect(sitemap).toContain("<loc>https://archlex.dev/</loc>");
-    expect(sitemap).toContain(
-      "<loc>https://archlex.dev/aws-architecture-diagrams/</loc>",
-    );
   });
 
   it("ships llms.txt describing ArchLex for AI assistants", () => {

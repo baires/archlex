@@ -74,7 +74,7 @@ export const providers = [
     detail: "Edge services, accounts and origin connections.",
     source:
       "provider cloudflare\ndirection LR\nedge: workers\nstore: d1\nedge -[writes]-> store",
-    docs: "https://docs.archlex.dev/specs/cloudflare-semantics/",
+    docs: "/cloudflare-architecture-diagrams/",
   },
   {
     name: "GCP",
@@ -82,7 +82,7 @@ export const providers = [
     detail: "Google Cloud resources and typed relationships.",
     source:
       "provider gcp\ndirection LR\nservice: cloud-run\nstore: firestore\nservice -[writes]-> store",
-    docs: "https://docs.archlex.dev/specs/gcp-semantics/",
+    docs: "/gcp-architecture-diagrams/",
   },
   {
     name: "Kubernetes",
@@ -90,7 +90,7 @@ export const providers = [
     detail: "Clusters, namespaces and workload relationships.",
     source:
       "provider k8s\ndirection LR\ncluster production {\n  namespace app {\n    service: service\n    app: deployment\n    service -[targets]-> app\n  }\n}",
-    docs: "https://docs.archlex.dev/specs/k8s-semantics/",
+    docs: "/kubernetes-architecture-diagrams/",
   },
 ] as const;
 
