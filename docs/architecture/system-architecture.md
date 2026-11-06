@@ -60,7 +60,7 @@ rules.
 | MCP server  | Cloudflare Worker tools, prompts, examples, and embedded docs resources |
 
 The MCP build copies hand-written `docs/` Markdown into generated TypeScript
-resources. The docs app reads the same Markdown through `apps/docs/pages`
+resources. The docs app reads the same Markdown through `apps/docs/content`
 symlinks. One source edit can update both consumers.
 
 ## Scopes and providers
