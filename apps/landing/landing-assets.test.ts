@@ -32,6 +32,7 @@ describe("landing static assets", () => {
       "diagrams/serverless-api-light.svg",
       "favicon.svg",
       "llms.txt",
+      "og-multicloud.png",
       "robots.txt",
       "sitemap.xml",
     ]);

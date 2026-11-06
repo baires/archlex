@@ -12,6 +12,8 @@ Cloud, and Kubernetes diagrams from an MCP client.
 For the 30-second path (skill + one prompt), see
 [Use with AI agents](/guides/agents).
 
+The hosted endpoint is free to use. No API keys or account are required. Alongside diagram tools, MCP clients can discover prompts, examples, catalogs and documentation. Render results include source and a playground URL for further editing.
+
 ## Connect
 
 The server uses Streamable HTTP at `https://mcp.archlex.dev/mcp`.

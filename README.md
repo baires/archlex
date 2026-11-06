@@ -1,10 +1,8 @@
 # ArchLex
 
-Ask Claude, Cursor, or Codex to diagram your cloud. ArchLex validates AWS,
-GCP, Kubernetes, and Cloudflare — then renders official-icon SVG you can read, diff, and
-share.
+Ask your LLM to draw AWS, Cloudflare, GCP and Kubernetes in one diagram. ArchLex ships a free hosted MCP server, an agent skill and a browser playground. Your agent gets catalog lookups, semantic validation and rendering; you get editable source and SVG.
 
-## 10 seconds
+## Connect your agent
 
 ```bash
 npx skills add baires/archlex
@@ -19,7 +17,7 @@ Then ask:
 > Diagram a serverless API on AWS with API Gateway, Lambda, and DynamoDB.
 
 You get a validated diagram, the exact ArchLex source, and a
-[playground](https://playground.archlex.dev) link. No API key.
+[playground](https://playground.archlex.dev) link. The hosted MCP and playground are free, with no API keys or account required.
 
 More clients: [Use with AI agents](https://docs.archlex.dev/guides/agents/).
 

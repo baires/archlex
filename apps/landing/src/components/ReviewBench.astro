@@ -1,0 +1,67 @@
+---
+import { buildReview } from "../data/review";
+import { exampleUrl, reviewSources } from "../data/site";
+
+const states = await buildReview();
+const warning = states.find((item) => item.state === "warning")?.diagnostic;
+if (!warning) throw new Error("Expected a real relationship diagnostic.");
+---
+
+<div class="review-bench" data-review-bench data-state="valid" data-connection="store">
+  <div class="review-bench__bar">
+    <span class="review-bench__file">orders.archlex</span>
+    <span class="review-bench__status" data-review-status>✓ Checks passed</span>
+  </div>
+  <div class="review-drawing">
+    <div class="review-drawing__meta"><span>AWS / Serverless API</span><span>3 resources · 2 connections</span></div>
+    {states.map(({ state, variants }) => (
+      <div class="review-variant" data-review-variant={state} hidden={state !== "valid"}>
+        {variants.map(({ theme, direction, svg }) => (
+          <div class:list={["review-svg", "review-svg--" + theme, "review-svg--" + direction]} set:html={svg} />
+        ))}
+      </div>
+    ))}
+    <div class="connection-picker" aria-label="Inspect a connection">
+      <span>Inspect</span>
+      <button type="button" data-connection-choice="invoke" aria-pressed="false" disabled>API → handler</button>
+      <button type="button" data-connection-choice="store" aria-pressed="true" disabled>Handler → database</button>
+    </div>
+  </div>
+  <div class="review-source">
+    <div class="review-source__heading"><span>Source</span><span>Plain text. Real relationships.</span></div>
+    <pre aria-label="ArchLex example source" tabindex="0"><code><span class="source-resource"><span class="source-keyword">provider</span> aws</span>
+<span class="source-resource">direction LR</span>
+<span class="source-resource">api: api-gateway["API Gateway"]</span>
+<span class="source-resource">worker: lambda["Order handler"]</span>
+<span class="source-resource">data: dynamodb["Orders"]</span>
+<span class="source-connection" data-source-connection="invoke">api -[<span class="source-keyword">invokes</span>]-&gt; worker</span>
+<span class="source-connection is-selected" data-source-connection="store">worker -[<span class="source-keyword" data-source-relationship>writes</span>]-&gt; data</span></code></pre>
+  </div>
+  <div class="review-inspector">
+    <div class="review-inspector__message" aria-live="polite" aria-atomic="true">
+      <strong data-review-title>A function writes to a database.</strong>
+      <p data-review-description>Lambda → DynamoDB is a supported “writes” relationship.</p>
+    </div>
+    <button class="review-test" type="button" data-review-toggle aria-pressed="false" disabled>
+      <span data-review-toggle-label>Introduce a mistake</span><span aria-hidden="true">↗</span>
+    </button>
+  </div>
+  <div class="review-diagnostic" data-review-diagnostic hidden>
+    <details>
+      <summary>View provider diagnostic</summary>
+      <code>{warning.code}</code>
+      <p>{warning.message}</p>
+      <p>{warning.remediation}</p>
+    </details>
+  </div>
+  <div class="review-bench__footer">
+    <span>Checked against AWS diagram rules</span>
+    <a data-review-playground href={exampleUrl(reviewSources.valid)}>Edit in playground <span aria-hidden="true">↗</span></a>
+  </div>
+  <noscript><p class="review-noscript">This is a checked example. Open it in the playground to inspect and edit it.</p></noscript>
+</div>
+
+<script>
+  import { initReviewBench } from "../scripts/review-bench";
+  initReviewBench();
+</script>

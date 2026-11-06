@@ -1,0 +1,72 @@
+---
+import { SITE_ROUTES } from "../config";
+import { mcpSetupPrompt, setupPaths } from "../data/site";
+---
+<section class="get-started shell" id="get-started" aria-labelledby="start-title">
+  <div class="section-intro">
+    <h2 id="start-title">Made for your agent.<br /> Ready for you.</h2>
+    <p>Connect the free MCP server or install the skill. Let your LLM draw, then inspect and refine the same source in the playground.</p>
+  </div>
+  <div class="setup" data-setup data-copy-scope>
+    <div class="setup__tabs" role="tablist" aria-label="Choose how to start">
+      {setupPaths.map((path, index) => (
+        <button type="button" role="tab" id={"setup-tab-" + path.id} aria-controls={"setup-panel-" + path.id} aria-selected={index === 0 ? "true" : "false"} tabindex={index === 0 ? 0 : -1} data-setup-tab={path.id}><span>{path.label}</span></button>
+      ))}
+    </div>
+    {setupPaths.map((path, index) => (
+      <div class="setup__panel" role="tabpanel" id={"setup-panel-" + path.id} aria-labelledby={"setup-tab-" + path.id} tabindex="0" hidden={index !== 0} data-setup-panel={path.id}>
+        <div class="setup__copy"><h3>{path.title}</h3><p>{path.description}</p><a class="text-link" href={path.link}>{path.linkLabel} <span aria-hidden="true">↗</span></a></div>
+        <div class="setup__tools">
+        <div class="setup__command" data-copy-container>
+          <div class="setup__command-bar"><span>{path.format}</span><button class="copy-button" type="button" data-copy={path.code}><span>{path.copyLabel}</span><span aria-hidden="true">⧉</span></button></div>
+          <pre tabindex="0" aria-label={path.copyLabel.replace("Copy", "").trim()}><code data-copy-text>{path.code}</code></pre>
+          {path.id === "mcp" && <p class="setup__auth">Free to use. No API keys or account required.</p>}
+        </div>
+        {path.id === "mcp" && (
+          <div class="setup__agent-prompt" data-copy-container>
+            <div class="setup__prompt-bar"><span>Agent setup</span><button class="copy-button" type="button" data-copy={mcpSetupPrompt}><span>Copy setup prompt</span><span aria-hidden="true">⧉</span></button></div>
+            <details><summary>Read the prompt</summary><p data-copy-text>{mcpSetupPrompt}</p></details>
+          </div>
+        )}
+        </div>
+      </div>
+    ))}
+    <p class="setup__feedback" role="status" aria-live="polite" data-copy-status></p>
+  </div>
+  <p class="setup__alternative">An LLM workflow, with a human workspace. <a href={SITE_ROUTES.playground}>Explore the playground</a></p>
+  <noscript><p>All paths are available in the <a href={SITE_ROUTES.docs}>documentation</a> and <a href={SITE_ROUTES.playground}>playground</a>.</p></noscript>
+</section>
+
+<script>
+  import { initCopyControls } from "../scripts/clipboard";
+  initCopyControls();
+  const setup = document.querySelector<HTMLElement>("[data-setup]");
+  if (setup) {
+    const tabs = [...setup.querySelectorAll<HTMLButtonElement>("[data-setup-tab]")];
+    const panels = [...setup.querySelectorAll<HTMLElement>("[data-setup-panel]")];
+    const feedback = setup.querySelector<HTMLElement>("[data-copy-status]");
+    function selectTab(tab: HTMLButtonElement): void {
+      for (const item of tabs) {
+        const selected = item === tab;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      }
+      for (const panel of panels) panel.hidden = panel.dataset.setupPanel !== tab.dataset.setupTab;
+      if (feedback) feedback.textContent = "";
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => selectTab(tab));
+      tab.addEventListener("keydown", (event) => {
+        let next = index;
+        if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+        else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+        else if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = tabs.length - 1;
+        else return;
+        event.preventDefault();
+        selectTab(tabs[next]);
+        tabs[next].focus();
+      });
+    });
+  }
+</script>
