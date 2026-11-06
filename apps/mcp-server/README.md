@@ -221,8 +221,10 @@ When MCP Apps support arrives in your client:
 Open access by default. Configure Worker environment variables for private deployments:
 - `MCP_AUTH_TOKEN` (optional): High-entropy secret required via `Authorization: Bearer <token>` only (maximum 8192 characters). Query-string credentials are rejected. Verification uses constant-time comparison of fixed-size SHA-256 digests.
 - `ALLOWED_ORIGINS` (optional): Comma-separated allowed origins list. Defaults to unrestricted access; configure explicitly for private or local deployments. Requests without an Origin header remain supported.
-- `RATE_LIMIT_MAX_REQUESTS` (optional): Fallback limiter requests per window per IP (default: `60`, maximum `1000`).
-- `RATE_LIMIT_WINDOW_SECONDS` (optional): Fallback limiter window (default: `60`, maximum `3600`). Invalid limit settings use the defaults. A native `RATE_LIMITER` binding uses its own configured quota.
+- `RATE_LIMITER`: Cloudflare rate limiting binding (`ratelimits` in `wrangler.json`, namespace `260923101`). Production allows 60 requests per 60 seconds per `CF-Connecting-IP`. That limit is per Cloudflare location and approximate. Requests with no usable `CF-Connecting-IP` share the key `unknown`. `X-Forwarded-For` is ignored. If `limit()` throws, or the binding is missing outside local development and tests, the request fails closed with `503`.
+- `ENVIRONMENT` (optional): Set to `development` or `test` to allow the in-memory fallback when `RATE_LIMITER` is absent. `production`, and any other Workers runtime, does not use that map.
+- `RATE_LIMIT_MAX_REQUESTS` (optional): In-memory fallback requests per window per client (default: `60`, maximum `1000`). Used only for local development and tests.
+- `RATE_LIMIT_WINDOW_SECONDS` (optional): In-memory fallback window (default: `60`, maximum `3600`). Invalid settings use the defaults. The binding quota in `wrangler.json` is the production limit, not these variables.
 - `MCP_REQUEST_TIMEOUT_MS` (optional): Deadline for modern non-subscription requests and public render URL work (default: `30000`).
 - `MCP_MAX_REQUEST_TIMEOUT_MS` (optional): Deployment-specific timeout ceiling, capped at `120000` milliseconds (default: `120000`).
 - `ENABLE_MCP_APPS` (optional): Enable MCP Apps interactive viewer SVG inclusion (default: `false`). Set to `true` when your MCP client supports the MCP Apps extension (SEP-1865). The viewer metadata is always advertised for forward compatibility.
@@ -230,7 +232,7 @@ Open access by default. Configure Worker environment variables for private deplo
 - `RENDER_URL_TTL_SECONDS` (optional): Stateless URL token lifetime in seconds. Defaults to `600`.
 - `RENDER_URL_MAX_LENGTH` (optional): Maximum complete URL length in characters. Defaults to `7500`. URLs exceeding this length fall back to embedded delivery.
 
-POST bodies are limited to 512 KiB of actual bytes, including streamed requests without `Content-Length`. The fallback limiter retains at most 10,000 IP entries per isolate and expires inactive entries; when full, new IPs are rejected without resetting live quotas.
+POST bodies are limited to 512 KiB of actual bytes, including streamed requests without `Content-Length`. The in-memory fallback retains at most 10,000 client entries per isolate and expires inactive entries; when full, new clients are rejected without resetting live quotas. Production does not use that map. Keep the Worker behind Cloudflare: `CF-Connecting-IP` is a trusted client address only when Cloudflare supplies it.
 
 Legacy SSE sessions close on disconnect, cancellation, or after five minutes. Each isolate admits at most 100 active sessions; clients must reconnect after expiry. Public image rendering admits at most four concurrent renders per isolate. Capacity exhaustion returns `503` with `Retry-After`; canceled render work retains its slot until it settles. These local limits supplement the platform's deployment-wide controls.
 

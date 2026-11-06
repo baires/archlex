@@ -19,5 +19,15 @@
     "RENDER_URL_MAX_LENGTH": "7500",
     "SHARE_ORIGIN": "https://share.archlex.dev",
     "PLAYGROUND_ORIGIN": "https://playground.archlex.dev"
-  }
+  },
+  "ratelimits": [
+    {
+      "name": "RATE_LIMITER",
+      "namespace_id": "260923101",
+      "simple": {
+        "limit": 60,
+        "period": 60
+      }
+    }
+  ]
 }
