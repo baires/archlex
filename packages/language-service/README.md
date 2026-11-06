@@ -5,7 +5,6 @@ Editor-neutral language intelligence for ArchLex source code.
 ## Overview
 
 `@archlex/language-service` provides context-aware code completion for ArchLex diagrams. It analyzes ArchLex source, understands the current cursor position, and suggests relevant completions based on:
-
 - **Catalog metadata** - Service names, relationships, and containment rules from provider catalogs
 - **Search terms** - Human-readable names and descriptions for fuzzy matching
 - **Document structure** - Current provider, scope hierarchy, and declared symbols
@@ -24,11 +23,21 @@ pnpm add @archlex/language-service
 ### Basic Example (Non-Monaco)
 
 ```typescript
-import { createCompletionEngine, analyzeLanguageDocument } from "@archlex/language-service";
-import { createArchLex, awsProvider, gcpProvider, k8sProvider } from "@archlex/core";
+import {
+  createCompletionEngine,
+  analyzeLanguageDocument,
+} from "@archlex/language-service";
+import {
+  createArchLex,
+  awsProvider,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
 
 // Create a completion engine with catalog metadata
-const archlex = createArchLex({ providers: [awsProvider(), gcpProvider(), k8sProvider()] });
+const archlex = createArchLex({
+  providers: [awsProvider(), gcpProvider(), k8sProvider()],
+});
 const catalog = archlex.getCatalog();
 const engine = createCompletionEngine(catalog);
 
@@ -56,7 +65,10 @@ const suggestions = engine.complete(document, offset);
 
 ```typescript
 import * as monaco from "monaco-editor";
-import { createCompletionEngine, analyzeLanguageDocument } from "@archlex/language-service";
+import {
+  createCompletionEngine,
+  analyzeLanguageDocument,
+} from "@archlex/language-service";
 import { createArchLex, awsProvider } from "@archlex/core";
 
 // Create engine
@@ -76,19 +88,21 @@ const disposable = monaco.languages.registerCompletionItemProvider("archlex", {
     const completions = engine.complete(document, offset);
 
     return {
-      suggestions: completions.map(c => ({
+      suggestions: completions.map((c) => ({
         label: c.label,
         insertText: c.insertText,
         kind: monaco.languages.CompletionItemKind.Value,
         range: {
-          startLineNumber: model.getPositionAt(c.replacement.startOffset).lineNumber,
+          startLineNumber: model.getPositionAt(c.replacement.startOffset)
+            .lineNumber,
           startColumn: model.getPositionAt(c.replacement.startOffset).column,
-          endLineNumber: model.getPositionAt(c.replacement.endOffset).lineNumber,
+          endLineNumber: model.getPositionAt(c.replacement.endOffset)
+            .lineNumber,
           endColumn: model.getPositionAt(c.replacement.endOffset).column,
-        }
-      }))
+        },
+      })),
     };
-  }
+  },
 });
 
 // Clean up when done
@@ -133,13 +147,13 @@ Generates context-aware completions at the given offset.
 
 ```typescript
 interface LanguageCompletion {
-  label: string;           // Display label (e.g., "Amazon EKS")
-  insertText: string;      // Text to insert (e.g., "eks")
-  kind: CompletionKind;    // "directive" | "resource" | "relationship" | "scope"
-  searchTerms: string[];   // Terms for fuzzy matching
+  label: string; // Display label (e.g., "Amazon EKS")
+  insertText: string; // Text to insert (e.g., "eks")
+  kind: CompletionKind; // "directive" | "resource" | "relationship" | "scope"
+  searchTerms: string[]; // Terms for fuzzy matching
   replacement: {
-    startOffset: number;   // Start of range to replace
-    endOffset: number;     // End of range to replace
+    startOffset: number; // Start of range to replace
+    endOffset: number; // End of range to replace
   };
 }
 ```
@@ -206,14 +220,14 @@ Completions always insert canonical syntax:
 
 The engine understands cursor position in the grammar:
 
-| Context | Example | Completions |
-|---------|---------|-------------|
-| **Directive name** | `prov█` | `provider`, `direction`, `validation` |
-| **Directive value** | `provider █` | `aws`, `cloudflare`, `gcp`, `k8s` |
-| **Resource kind** | `service: █` | AWS, Cloudflare, GCP, and Kubernetes services |
-| **Resource name** | `█: lambda` | Identifier suggestions |
-| **Relationship type** | `a -[█` | `connects`, `writes`, etc. |
-| **Relationship target** | `a -[writes]-> █` | Declared identifiers |
+| Context                 | Example           | Completions                                   |
+| ----------------------- | ----------------- | --------------------------------------------- |
+| **Directive name**      | `prov█`           | `provider`, `direction`, `validation`         |
+| **Directive value**     | `provider █`      | `aws`, `cloudflare`, `gcp`, `k8s`             |
+| **Resource kind**       | `service: █`      | AWS, Cloudflare, GCP, and Kubernetes services |
+| **Resource name**       | `█: lambda`       | Identifier suggestions                        |
+| **Relationship type**   | `a -[█`           | `connects`, `writes`, etc.                    |
+| **Relationship target** | `a -[writes]-> █` | Declared identifiers                          |
 
 ## Performance
 

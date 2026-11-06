@@ -874,10 +874,10 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
   };
 }
 
+export type { CatalogMetadata } from "@archlex/model";
 export { applyIconRegistry, collectIconRequests } from "./icon-registry.js";
-export { awsProvider, cloudflareProvider, gcpProvider, k8sProvider };
 export {
   ARCHLEX_LANGUAGE_METADATA,
   KNOWN_RELATIONSHIPS,
 } from "./language-metadata.js";
-export type { CatalogMetadata } from "@archlex/model";
+export { awsProvider, cloudflareProvider, gcpProvider, k8sProvider };

@@ -21,12 +21,12 @@ validation normal
 theme dark
 ```
 
-| Directive | Values | Default |
-| --- | --- | --- |
-| `provider` | `aws`, `gcp`, `k8s` | Required (unless sole registered provider) |
-| `direction` | `LR`, `RL`, `TB`, `BT` | `LR` |
-| `validation` | `normal`, `strict`, `off` | `normal` |
-| `theme` | `light`, `dark` | `dark` |
+| Directive    | Values                    | Default                                    |
+| ------------ | ------------------------- | ------------------------------------------ |
+| `provider`   | `aws`, `gcp`, `k8s`       | Required (unless sole registered provider) |
+| `direction`  | `LR`, `RL`, `TB`, `BT`    | `LR`                                       |
+| `validation` | `normal`, `strict`, `off` | `normal`                                   |
+| `theme`      | `light`, `dark`           | `dark`                                     |
 
 A colon may follow a directive name. Duplicate or late directives emit a
 structural diagnostic; the first valid value wins.
@@ -91,17 +91,17 @@ placement is valid.
 
 ## Relationships
 
-| Syntax | Meaning |
-| --- | --- |
-| `a > b` | Shorthand forward edge (abbreviates `->`) |
-| `a -> b` | Forward edge |
-| `a <- b` | Reverse edge |
-| `a <-> b` | Bidirectional edge |
-| `a -- b` | Undirected edge |
-| `a -.-> b` | Dotted forward edge |
-| `a -[writes]-> b` | Machine-readable kind |
-| `a ->|PostgreSQL| b` | Display label only |
-| `a -[writes]->|PostgreSQL| b` | Kind + display label |
+| Syntax            | Meaning                                   |
+| ----------------- | ----------------------------------------- |
+| `a > b`           | Shorthand forward edge (abbreviates `->`) |
+| `a -> b`          | Forward edge                              |
+| `a <- b`          | Reverse edge                              |
+| `a <-> b`         | Bidirectional edge                        |
+| `a -- b`          | Undirected edge                           |
+| `a -.-> b`        | Dotted forward edge                       |
+| `a -[writes]-> b` | Machine-readable kind                     |
+| `a ->             | PostgreSQL                                | b`  | Display label only   |
+| `a -[writes]->    | PostgreSQL                                | b`  | Kind + display label |
 
 Chains associate left to right: `a > b > c` creates `a -> b` and `b -> c`.
 Each operator owns the relationship that follows it.
@@ -121,9 +121,9 @@ relationships.
 
 ### Common parse errors and fixes
 
-| Symptom | Cause | Fix |
-| --- | --- | --- |
-| `unexpected character` near `-[` | Free text inside brackets: `-[serves static]->` | Kind is one word; move text to pipes: `-[routes]->\|serves static\|` |
-| `unexpected character` on `/` or `*` | Special characters in an identifier or kind | Use a quoted label: `app: ecs["My App"]` |
-| Conflicting label diagnostic | Two labels for the same instance | Keep the first; remove or unify the second |
-| Unknown resource info diagnostic | Guessed service name | Query `get_cloud_catalog` for the canonical kind |
+| Symptom                              | Cause                                           | Fix                                                                  |
+| ------------------------------------ | ----------------------------------------------- | -------------------------------------------------------------------- |
+| `unexpected character` near `-[`     | Free text inside brackets: `-[serves static]->` | Kind is one word; move text to pipes: `-[routes]->\|serves static\|` |
+| `unexpected character` on `/` or `*` | Special characters in an identifier or kind     | Use a quoted label: `app: ecs["My App"]`                             |
+| Conflicting label diagnostic         | Two labels for the same instance                | Keep the first; remove or unify the second                           |
+| Unknown resource info diagnostic     | Guessed service name                            | Query `get_cloud_catalog` for the canonical kind                     |

@@ -5,7 +5,6 @@
 ## Structure
 
 This repository uses a single-context domain documentation layout:
-
 - **`CONTEXT.md`** at the repo root — the domain glossary. One entry per term, alphabetized, each defining a concept in the project's domain language.
 - **`docs/adr/`** — Architecture Decision Records (ADRs). One file per decision, numbered sequentially (`001-decision-title.md`).
 
@@ -26,7 +25,6 @@ This repository uses a single-context domain documentation layout:
 ## Writing `CONTEXT.md`
 
 The `/domain-modeling` skill maintains `CONTEXT.md`. It runs automatically during `/grill-with-docs` and can be invoked standalone to:
-
 - Add a new term
 - Challenge a fuzzy or overloaded term
 - Resolve naming conflicts

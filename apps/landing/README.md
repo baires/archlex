@@ -11,7 +11,6 @@ src/data/site.ts owns copy, example source, provider coverage and setup paths. @
 ## Development and verification
 
 From the repository root:
-
 - pnpm dev:landing starts Astro.
 - pnpm build:landing builds workspace dependencies and static pages.
 - pnpm --filter @archlex/landing preview --host 127.0.0.1 --port 4400 previews the production build.

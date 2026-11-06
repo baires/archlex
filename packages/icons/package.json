@@ -1,6 +1,6 @@
 {
   "name": "@archlex/icons",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "Icon loading and manipulation utilities for ArchLex (Node.js)",
   "keywords": ["architecture", "diagrams", "icons", "svg", "node"],
   "repository": {
@@ -36,8 +36,8 @@
     "@xmldom/xmldom": "0.9.12"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }

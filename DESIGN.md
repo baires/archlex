@@ -1,28 +1,30 @@
 ---
+
 version: alpha
 colors:
-  ground: '#f8f8f4'
-  ink: '#171814'
-  muted: '#606359'
-  line: '#dedfd8'
-  accent: '#356d12'
-  warning: '#885006'
+ground: '#f8f8f4'
+ink: '#171814'
+muted: '#606359'
+line: '#dedfd8'
+accent: '#356d12'
+warning: '#885006'
 typography:
-  display:
-    fontFamily: 'Bricolage Grotesque Variable, Instrument Sans Variable, sans-serif'
-  body:
-    fontFamily: 'Instrument Sans Variable, sans-serif'
-  code:
-    fontFamily: 'Commit Mono, monospace'
+display:
+fontFamily: 'Bricolage Grotesque Variable, Instrument Sans Variable, sans-serif'
+body:
+fontFamily: 'Instrument Sans Variable, sans-serif'
+code:
+fontFamily: 'Commit Mono, monospace'
 rounded:
-  control: 999px
-  panel: 12px
-  code: 10px
+control: 999px
+panel: 12px
+code: 10px
 omitted:
-  - section: spacing
-    reason: 'Canonical scale is maintained in packages/design/tokens.css.'
-  - section: components
-    reason: 'The shared package owns tokens; each application owns its components.'
+- section: spacing
+  reason: 'Canonical scale is maintained in packages/design/tokens.css.'
+- section: components
+  reason: 'The shared package owns tokens; each application owns its components.'
+
 ---
 
 # ArchLex design direction

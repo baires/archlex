@@ -19,13 +19,13 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { SERVER_INFO } from "./protocol/constants.js";
 import {
-  SERVER_INSTRUCTIONS,
   callTool,
   getPrompt,
   listPrompts,
   listResources,
   listTools,
   readResource,
+  SERVER_INSTRUCTIONS,
 } from "./registry.js";
 import type { Env } from "./security.js";
 import { parseRenderUrlConfig } from "./security.js";

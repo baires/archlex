@@ -1,5 +1,40 @@
 # @archlex/playground
 
+## 0.1.11
+
+### Patch Changes
+
+- 130f4d9: Patch transitive runtime dependencies to DOMPurify 3.4.17 and Zod 4.6.6. Undici 7.30.1 is pinned for the workspace install.
+
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [106cf5e]
+  - @archlex/aws@0.4.3
+  - @archlex/core@0.6.2
+  - @archlex/diagnostics@0.3.3
+  - @archlex/gcp@0.4.3
+  - @archlex/icons-core@0.2.7
+  - @archlex/k8s@0.4.2
+  - @archlex/language-service@0.2.4
+  - @archlex/icons-browser@0.2.7
+
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/core@0.6.1
+  - @archlex/diagnostics@0.3.2
+  - @archlex/gcp@0.4.2
+  - @archlex/icons-browser@0.2.6
+  - @archlex/icons-core@0.2.6
+  - @archlex/k8s@0.4.1
+  - @archlex/language-service@0.2.3
+  - @archlex/model@0.6.1
+
 ## 0.1.8
 
 ### Patch Changes

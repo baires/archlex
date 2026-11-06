@@ -7,13 +7,13 @@ The hosted MCP server and browser playground are free to use, with no API keys o
 ## Start Here
 
 1. Follow [Use with AI agents](guides/agents.md) to install the skill, connect MCP, and ask for a diagram.
-2. Follow the [Getting Started guide](../apps/docs/pages/getting-started.mdx) to embed the TypeScript API.
+2. Follow the [Getting Started guide](../apps/docs/content/getting-started.mdx) to embed the TypeScript API.
 3. Use the [Language Specification](specs/language.md) when you write directives, resources, scopes, and relationships.
 4. Check the provider specification for the resources and semantic rules that ArchLex applies:
-    - [AWS](specs/aws-semantics.md)
-    - [Google Cloud](specs/gcp-semantics.md)
-    - [Kubernetes](specs/k8s-semantics.md)
-    - [Cloudflare Pack](guides/cloudflare-pack.md)
+   - [AWS](specs/aws-semantics.md)
+     - [Google Cloud](specs/gcp-semantics.md)
+       - [Kubernetes](specs/k8s-semantics.md)
+         - [Cloudflare Pack](guides/cloudflare-pack.md)
 5. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
 
 The Cloudflare pack recognizes 92 resources with bundled artwork. Its validation
@@ -39,7 +39,7 @@ Cloudflare-only and mixed-provider examples.
 
 ## Documentation Ownership
 
-The published docs app reads the specifications, guides, architecture pages, and error reference from this directory through links under `apps/docs/pages/`. Edit the source page here instead of copying its content into the app.
+The published docs app reads the specifications, guides, architecture pages, and error reference from this directory through links under `apps/docs/content/`. Edit the source page here instead of copying its content into the app.
 
 Run these checks after a documentation change:
 

@@ -9,27 +9,27 @@ import {
   type DiagnosticFilter,
   DiagnosticsDrawer,
 } from "./components/DiagnosticsDrawer.js";
+import {
+  createRenderIssue,
+  type RenderIssue,
+  summarizeStatusDiagnostics,
+} from "./components/diagnostics-state.js";
 import { Editor, type EditorSelection } from "./components/Editor.js";
 import { Preview } from "./components/Preview.js";
 import { type ShareDialogState, ShareModal } from "./components/ShareModal.js";
 import { StatusBar } from "./components/StatusBar.js";
 import { URLImportModal } from "./components/URLImportModal.js";
-import { Workspace, useWorkspaceFullscreen } from "./components/Workspace.js";
+import { useWorkspaceFullscreen, Workspace } from "./components/Workspace.js";
 import {
-  type RenderIssue,
-  createRenderIssue,
-  summarizeStatusDiagnostics,
-} from "./components/diagnostics-state.js";
-import {
-  DEFAULT_SPLIT_RATIO,
   clampSplitRatio,
+  DEFAULT_SPLIT_RATIO,
   shouldAutoOpenDiagnostics,
 } from "./components/workspace-state.js";
 import { ARCHITECTURE_EXAMPLES, type ArchitectureExample } from "./examples.js";
 import { iconLoader } from "./icon-loader.js";
 import {
-  type RenderWithIconsResult,
   createGuardedOperationHandlers,
+  type RenderWithIconsResult,
   renderProgressively,
 } from "./render-pipeline.js";
 import {

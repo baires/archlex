@@ -1,7 +1,7 @@
 import type { CloudGraph, Diagnostic } from "@archlex/model";
 import { defineRule } from "../builder.js";
 import { K8S_DIAGNOSTIC_CODES } from "../registry.js";
-import { WORKLOAD_KINDS, resolveNodeKind } from "./util.js";
+import { resolveNodeKind, WORKLOAD_KINDS } from "./util.js";
 
 export const pvcUnboundRule = defineRule({
   code: K8S_DIAGNOSTIC_CODES.PVC_UNBOUND,

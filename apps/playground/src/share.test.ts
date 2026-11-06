@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  configuredShareOrigin,
   DEFAULT_LOCAL_SHARE_ORIGIN,
   DEFAULT_SHARE_ORIGIN,
-  configuredShareOrigin,
   loadSharedSource,
   revokeSharedDiagram,
   shareClipboardText,

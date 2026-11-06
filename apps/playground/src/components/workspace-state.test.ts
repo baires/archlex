@@ -1,8 +1,8 @@
 import type { Diagnostic } from "@archlex/model";
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_SPLIT_RATIO,
   clampSplitRatio,
+  DEFAULT_SPLIT_RATIO,
   shouldAutoOpenDiagnostics,
   summarizeDiagnostics,
 } from "./workspace-state.js";

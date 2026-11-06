@@ -1,8 +1,8 @@
 import { awsProvider, createArchLex } from "@archlex/core";
 import type {
   IconDiagnostic,
-  IconLoadResult,
   IconLoader,
+  IconLoadResult,
   SanitizedIcon,
 } from "@archlex/icons-core";
 import type { CloudProvider } from "@archlex/model";
@@ -88,38 +88,36 @@ function deferred<T>(): {
 }
 
 describe("renderProgressively", () => {
-  it(
-    "resolves the base diagram while remote icon loading is pending",
-    { timeout: 15_000 },
-    async () => {
-      const archlex = createArchLex({
-        providers: [createUnresolvedIconProvider()],
-      });
-      const iconLoad = deferred<IconLoadResult>();
-      const iconLoader: IconLoader = {
-        loadIcons() {
-          return iconLoad.promise;
-        },
-      };
+  it("resolves the base diagram while remote icon loading is pending", {
+    timeout: 15_000,
+  }, async () => {
+    const archlex = createArchLex({
+      providers: [createUnresolvedIconProvider()],
+    });
+    const iconLoad = deferred<IconLoadResult>();
+    const iconLoader: IconLoader = {
+      loadIcons() {
+        return iconLoad.promise;
+      },
+    };
 
-      const operation = renderProgressively(
-        archlex,
-        iconLoader,
-        "app: runtime-service",
-      );
-      const base = await operation.base;
+    const operation = renderProgressively(
+      archlex,
+      iconLoader,
+      "app: runtime-service",
+    );
+    const base = await operation.base;
 
-      expect(base.graph.nodes[0]?.icon).toBeUndefined();
-      expect(base.svg).not.toContain("#123456");
-      expect(operation.hydrated).not.toBeNull();
+    expect(base.graph.nodes[0]?.icon).toBeUndefined();
+    expect(base.svg).not.toContain("#123456");
+    expect(operation.hydrated).not.toBeNull();
 
-      iconLoad.resolve({
-        icons: new Map([["test:runtime-service", CDN_ICON]]),
-        diagnostics: [],
-      });
-      await operation.hydrated;
-    },
-  );
+    iconLoad.resolve({
+      icons: new Map([["test:runtime-service", CDN_ICON]]),
+      diagnostics: [],
+    });
+    await operation.hydrated;
+  });
 
   it("hydrates a remote icon after the base diagram", async () => {
     const archlex = createArchLex({

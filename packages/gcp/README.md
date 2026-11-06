@@ -11,12 +11,12 @@ npm install @archlex/gcp
 ## Usage
 
 ```typescript
-import { GcpProvider } from '@archlex/gcp';
+import { GcpProvider } from "@archlex/gcp";
 
 const provider = new GcpProvider();
 
 // Get GCP service icon
-const computeIcon = provider.getIcon('compute-engine');
+const computeIcon = provider.getIcon("compute-engine");
 
 // List all available GCP services
 const services = provider.listServices();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type ThemeTokens, darkTheme, lightTheme } from "./index.js";
+import { darkTheme, lightTheme, type ThemeTokens } from "./index.js";
 
 const legacyTheme = {
   background: "#ffffff",

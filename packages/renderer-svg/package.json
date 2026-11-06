@@ -1,6 +1,6 @@
 {
   "name": "@archlex/renderer-svg",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "SVG renderer for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "svg", "renderer"],
   "repository": {
@@ -32,8 +32,8 @@
     "@archlex/model": "workspace:^"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }

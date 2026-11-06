@@ -6,7 +6,6 @@ The initial selective rule uses only resource identity and explicit scope member
 ## Represented containment
 
 Implementation: [#100](https://github.com/baires/archlex/issues/100).
-
 - Facts: node provider, recognized service kind, node span, and scope childrenNodeIds.
 - Trigger: a recognized Cloudflare node belongs to any region, VPC, subnet, cluster,
   or namespace. Check every ancestor, including ancestors outside an account.

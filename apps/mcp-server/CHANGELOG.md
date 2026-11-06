@@ -1,5 +1,37 @@
 # @archlex/mcp-server
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies [21bd92e]
+  - @archlex/layout-elk@0.2.10
+
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [106cf5e]
+  - @archlex/aws@0.4.3
+  - @archlex/core@0.6.2
+  - @archlex/gcp@0.4.3
+  - @archlex/icons-core@0.2.7
+  - @archlex/k8s@0.4.2
+  - @archlex/layout-elk@0.2.9
+
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/core@0.6.1
+  - @archlex/gcp@0.4.2
+  - @archlex/icons-core@0.2.6
+  - @archlex/k8s@0.4.1
+  - @archlex/layout-elk@0.2.8
+  - @archlex/model@0.6.1
+
 ## 0.2.4
 
 ### Patch Changes
@@ -39,7 +71,6 @@
 ### Minor Changes
 
 - feat(mcp-server): implement MCP specification revision `2026-07-28` compliance.
-
   - Implement modern stateless Streamable HTTP transport on `POST /mcp` with mandatory mirrored header and metadata validation (`MCP-Protocol-Version`, `Mcp-Method`, `Mcp-Name`).
   - Add unified modern result envelopes (`resultType: "complete"` and `resultType: "input_required"`) with server identity metadata.
   - Implement `server/discover` capability discovery, stable opaque cursor pagination, and response cache hints (`ttlMs`, `cacheScope`).
@@ -48,7 +79,6 @@
   - Preserve backward compatibility for legacy clients (`2025-03-26` / HTTP+SSE) behind an isolated legacy boundary.
 
 - feat(mcp-server): add stateless URL delivery for rendered diagrams.
-
   - Add `GET /renders/:token.png` endpoint for public stateless PNG delivery with encrypted tokens.
   - Implement AES-256-GCM encryption with gzip compression for render tokens.
   - Add `RENDER_URL_SECRET`, `RENDER_URL_TTL_SECONDS`, and `RENDER_URL_MAX_LENGTH` environment variables.

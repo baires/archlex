@@ -3,8 +3,8 @@ import {
   CompleteRequestSchema,
   GetPromptRequestSchema,
   ListPromptsRequestSchema,
-  ListResourceTemplatesRequestSchema,
   ListResourcesRequestSchema,
+  ListResourceTemplatesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
   SubscriptionsListenRequestSchema,
@@ -17,6 +17,7 @@ import type {
   Tool,
 } from "@modelcontextprotocol/server";
 import { completeArgument } from "../completion.js";
+import type { RegistryOptions } from "../registry.js";
 import {
   callTool,
   getPrompt,
@@ -25,7 +26,6 @@ import {
   listTools,
   readResource,
 } from "../registry.js";
-import type { RegistryOptions } from "../registry.js";
 import { createRequestAbortScope } from "../request-limits.js";
 import { listResourceTemplates } from "../resource-templates.js";
 import type { Env } from "../security.js";
@@ -42,8 +42,8 @@ import {
 } from "./constants.js";
 import { discover, validateDiscoveryParams } from "./discovery.js";
 import {
-  McpProtocolError,
   acceptedNotificationResponse,
+  McpProtocolError,
   toHttpErrorResponse,
 } from "./errors.js";
 import { validateMcpHeaders } from "./http-headers.js";

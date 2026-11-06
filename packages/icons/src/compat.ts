@@ -1,9 +1,9 @@
 import {
   CacheManager,
   type CdnAttribution,
-  type SanitizedIcon,
   legacyCdnIconsDisabled,
   legacyIconDebugEnabled,
+  type SanitizedIcon,
   sanitizeSvg as sanitizeSvgAsynchronously,
 } from "@archlex/icons-node";
 import { GENERIC_CLOUD_ICON_SVG } from "./fallback.js";

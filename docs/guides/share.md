@@ -1,4 +1,5 @@
 ---
+
 title: Share a diagram
 description: "Create short share.archlex.dev links for an ArchLex diagram: a playground link plus SVG and PNG image URLs you can paste into a README."
 lastModified: 2026-09-23T08:00:00-03:00
@@ -37,11 +38,11 @@ link can view the full source, so do not share confidential diagrams.
 
 Each share id has three URLs:
 
-| URL | Result |
-| --- | --- |
-| `https://share.archlex.dev/s/{id}` | Opens the playground with the shared source loaded |
-| `https://share.archlex.dev/s/{id}.svg` | Rendered diagram as SVG |
-| `https://share.archlex.dev/s/{id}.png` | Rendered diagram as PNG |
+| URL                                    | Result                                             |
+| -------------------------------------- | -------------------------------------------------- |
+| `https://share.archlex.dev/s/{id}`     | Opens the playground with the shared source loaded |
+| `https://share.archlex.dev/s/{id}.svg` | Rendered diagram as SVG                            |
+| `https://share.archlex.dev/s/{id}.png` | Rendered diagram as PNG                            |
 
 Use the SVG (or PNG) URL in a Markdown image tag. Open the plain link to hand
 someone the editable diagram.

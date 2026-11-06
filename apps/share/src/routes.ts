@@ -20,9 +20,6 @@ import {
 } from "./render.js";
 import { isEmptySanitizedSvg, sanitizeDiagramSvg } from "./sanitize-svg.js";
 import {
-  MAX_EDGES,
-  MAX_NODES,
-  SOURCE_MAX_CHARS,
   clientIp,
   corsHeaders,
   createRevokeToken,
@@ -31,7 +28,10 @@ import {
   hashShareSource,
   isServiceClient,
   isShareId,
+  MAX_EDGES,
+  MAX_NODES,
   parseShareSource,
+  SOURCE_MAX_CHARS,
   shareTtlMs,
   verifyRevokeToken,
 } from "./security.js";

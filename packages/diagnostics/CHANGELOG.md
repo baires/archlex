@@ -1,5 +1,19 @@
 # @archlex/diagnostics
 
+## 0.3.3
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+
+## 0.3.2
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/model@0.6.1
+
 ## 0.3.1
 
 ### Patch Changes
@@ -14,7 +28,6 @@
 - f53538f: Add editor-neutral ArchLex language intelligence, catalog search nomenclature, structured grammar metadata, provider relationship semantics, and canonical Monaco completion.
 
   **Language Service Package:**
-
   - Context-aware completion engine with catalog-driven suggestions
   - Human-readable search with fuzzy matching (e.g., "elastic kubernetes" → `eks`)
   - Grammar-aware filtering (directive values, resource kinds, relationships, scope keywords)
@@ -22,20 +35,17 @@
   - DOM-neutral design compatible with Monaco, VSCode, CodeMirror, and other editors
 
   **Catalog Enhancements:**
-
   - Search terms extracted from service names and descriptions for all 441 resources
   - Structured metadata for 194 AWS, 185 GCP, and 62 Kubernetes services
   - Relationship compatibility validation (source/target kind pairs)
   - Containment rules for scope-aware suggestions
 
   **Parser Integration:**
-
   - Document analysis extracting provider, scope hierarchy, and symbol declarations
   - Cursor context detection identifying grammar position for completions
   - Symbol visibility tracking for relationship target suggestions
 
   **Playground Integration:**
-
   - Monaco completion provider backed by language service
   - Browser-tested performance (<50ms p95 on 100+ declaration documents)
   - WeakMap-based document caching for incremental updates
@@ -44,7 +54,6 @@
 ### Patch Changes
 
 - 16b8844: Add language-service package and enhance catalog validation
-
   - Add @archlex/language-service package for editor-neutral language intelligence
   - Retain comment tokens in parser lexer for language analysis
   - Add relationship validation test coverage
@@ -86,7 +95,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -100,7 +108,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export

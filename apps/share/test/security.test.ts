@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
-  MAX_SOURCE_LINES,
-  SOURCE_MAX_CHARS,
   corsHeaders,
   createRevokeToken,
   createShareId,
   encodeShareId,
   hashRevokeToken,
   isShareId,
+  MAX_SOURCE_LINES,
   parseShareSource,
+  SOURCE_MAX_CHARS,
   verifyRevokeToken,
 } from "../src/security.js";
 

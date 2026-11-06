@@ -127,13 +127,6 @@ export function getCursorContext(
     // Cursor on or after directive name
     position = "directive-value";
     directiveName = token.image;
-  } else if (
-    token.kind === "Identifier" &&
-    prevToken?.kind === "DirectiveName"
-  ) {
-    // Already typed directive value, but could be completing it
-    position = "directive-value";
-    directiveName = prevToken.image;
   } else if (token.kind === "RelationshipOperator") {
     // Inside relationship operator: -[kind]->
     // Check if cursor is inside the brackets
@@ -164,28 +157,6 @@ export function getCursorContext(
     }
   } else if (token.kind === "LBracket" || token.kind === "RBracket") {
     // Empty brackets or cursor inside brackets: -[]->
-    position = "relationship-kind";
-
-    // Extract relationship endpoints for semantic filtering
-    const relationshipContext = extractRelationshipEndpoints(
-      document.tokens,
-      tokenIndex,
-    );
-
-    return {
-      position,
-      offset,
-      providerId: document.providerId,
-      scopePath,
-      directiveName,
-      partialToken,
-      relationshipContext,
-    };
-  } else if (
-    token.kind === "LBracket" ||
-    (prevToken?.kind === "LBracket" && token.kind === "Identifier")
-  ) {
-    // Inside relationship kind brackets: -[kind]-> (legacy, if ever tokenized separately)
     position = "relationship-kind";
 
     // Extract relationship endpoints for semantic filtering

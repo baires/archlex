@@ -11,12 +11,12 @@ npm install @archlex/aws
 ## Usage
 
 ```typescript
-import { AwsProvider } from '@archlex/aws';
+import { AwsProvider } from "@archlex/aws";
 
 const provider = new AwsProvider();
 
 // Get AWS service icon
-const ec2Icon = provider.getIcon('ec2');
+const ec2Icon = provider.getIcon("ec2");
 
 // List all available AWS services
 const services = provider.listServices();

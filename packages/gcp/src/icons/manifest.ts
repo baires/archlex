@@ -1,7 +1,7 @@
 import type { CatalogManifest, SanitizedIcon } from "@archlex/model";
 import {
-  GCP_GENERATED_ICONS,
   GCP_GENERATED_ICON_MANIFEST_CHECKSUM,
+  GCP_GENERATED_ICONS,
 } from "./generated.js";
 
 const generatedIcons = Object.values(GCP_GENERATED_ICONS);

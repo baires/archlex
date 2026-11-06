@@ -1,4 +1,5 @@
 ---
+
 title: AWS Semantics
 description: "AWS semantics in ArchLex, covering the 194-service catalog, account, region, VPC, and subnet containment, relationship rules, and AWS diagnostic codes."
 ---
@@ -68,7 +69,6 @@ destinations, storage placement, database placement, IAM attachment, and CI/CD
 stages.
 
 Examples include:
-
 - `AWS-RDS-PROXY-NETWORK-001`
 - `AWS-NETWORKING-SUBNET-CONTAINMENT-001`
 - `AWS-INTEGRATION-EVENTBRIDGE-TARGETS-001`

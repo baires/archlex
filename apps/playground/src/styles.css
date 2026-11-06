@@ -17,7 +17,9 @@ body {
   background: var(--surface-0);
   color: var(--text-1);
   font-family: var(--font-ui);
-  font-feature-settings: "kern" 1, "liga" 1;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -186,9 +188,11 @@ select {
   border: 1px solid var(--line-strong);
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color var(--transition-fast), border-color
-    var(--transition-fast), color var(--transition-fast), transform
-    var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .control-group select {
@@ -423,8 +427,9 @@ select {
   cursor: pointer;
   font-size: 0.75rem;
   text-align: left;
-  transition: background-color var(--transition-fast), color
-    var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .export-menu-popover button:hover,
@@ -513,8 +518,9 @@ select {
   cursor: pointer;
   font-size: 1.25rem;
   line-height: 1;
-  transition: background-color var(--transition-fast), color
-    var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .modal-close:hover {
@@ -558,8 +564,9 @@ select {
   color: var(--text-1);
   font-family: var(--font-code);
   font-size: 0.75rem;
-  transition: border-color var(--transition-fast), box-shadow
-    var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .form-input:focus {
@@ -996,9 +1003,11 @@ select {
   justify-content: center;
   gap: 3px;
   box-shadow: 0 1px 4px rgb(0 0 0 / 12%);
-  transition: transform var(--transition-fast), border-color
-    var(--transition-fast), color var(--transition-fast), box-shadow
-    var(--transition-fast);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
   cursor: col-resize;
   pointer-events: none;
 }
@@ -1009,7 +1018,9 @@ select {
   border-color: var(--accent);
   color: var(--accent);
   transform: translate(-50%, -50%) scale(1.08);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 22%), 0 1px 3px rgb(0 0 0 / 12%);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 22%),
+    0 1px 3px rgb(0 0 0 / 12%);
 }
 
 .splitter-handle .handle-dot {
@@ -1216,8 +1227,9 @@ select {
   font-size: 0.6875rem;
   font-weight: 500;
   text-align: center;
-  transition: background-color var(--transition-fast), color
-    var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
 .preview-controls button {
@@ -1851,8 +1863,9 @@ kbd {
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    transition: background-color var(--transition-fast), color
-      var(--transition-fast);
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
   }
 
   .workspace-tab[aria-selected="true"] {

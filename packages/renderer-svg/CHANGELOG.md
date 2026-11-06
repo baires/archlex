@@ -1,5 +1,19 @@
 # @archlex/renderer-svg
 
+## 0.2.8
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+
+## 0.2.7
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/model@0.6.1
+
 ## 0.2.6
 
 ### Patch Changes
@@ -54,7 +68,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -68,7 +81,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export

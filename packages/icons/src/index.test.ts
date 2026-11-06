@@ -1,13 +1,4 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import * as icons from "./index.js";
-import {
-  BaseCdnProvider,
-  GENERIC_CLOUD_ICON_SVG,
-  IconLoader,
-  createIconLoader,
-  createNodeIconLoader,
-  sanitizeSvg,
-} from "./index.js";
 import type {
   CdnAttribution,
   CdnProviderConfig,
@@ -16,6 +7,15 @@ import type {
   IconStats,
   ProviderAttributionReport,
   SanitizedIcon,
+} from "./index.js";
+import * as icons from "./index.js";
+import {
+  BaseCdnProvider,
+  createIconLoader,
+  createNodeIconLoader,
+  GENERIC_CLOUD_ICON_SVG,
+  IconLoader,
+  sanitizeSvg,
 } from "./index.js";
 
 describe("@archlex/icons package initialization", () => {

@@ -1,4 +1,5 @@
 ---
+
 title: Contribution Guide
 description: "How to contribute to ArchLex, from provider package layout and catalog resources to semantic rules, tests, changesets, and documentation workflows."
 ---
@@ -19,14 +20,14 @@ typecheck, test, and lint pipeline.
 
 All provider packages use the same core structure.
 
-| Concern | AWS | Cloudflare | Google Cloud | Kubernetes |
-| --- | --- | --- | --- | --- |
-| Package | `packages/aws` | `packages/cloudflare` | `packages/gcp` | `packages/k8s` |
-| Provider ID | `aws` | `cloudflare` | `gcp` | `k8s` |
-| Factory | `awsProvider()` | `cloudflareProvider()` | `gcpProvider()` | `k8sProvider()` |
-| Diagnostic prefix | `AWS-` | `CLOUDFLARE-` | `GCP-` | `K8S-` |
-| Example resource | `lambda` | `workers` | `cloud-run` | `deployment` |
-| Main scopes | account, region, VPC, subnet | root, account, group | account, region, VPC, subnet | cluster, namespace |
+| Concern           | AWS                          | Cloudflare             | Google Cloud                 | Kubernetes         |
+| ----------------- | ---------------------------- | ---------------------- | ---------------------------- | ------------------ |
+| Package           | `packages/aws`               | `packages/cloudflare`  | `packages/gcp`               | `packages/k8s`     |
+| Provider ID       | `aws`                        | `cloudflare`           | `gcp`                        | `k8s`              |
+| Factory           | `awsProvider()`              | `cloudflareProvider()` | `gcpProvider()`              | `k8sProvider()`    |
+| Diagnostic prefix | `AWS-`                       | `CLOUDFLARE-`          | `GCP-`                       | `K8S-`             |
+| Example resource  | `lambda`                     | `workers`              | `cloud-run`                  | `deployment`       |
+| Main scopes       | account, region, VPC, subnet | root, account, group   | account, region, VPC, subnet | cluster, namespace |
 
 Each provider keeps catalog definitions in `src/catalog/`, rule modules in
 `src/rules/`, diagnostic constants in `src/registry.ts`, and public exports in
@@ -47,16 +48,16 @@ Use provider-qualified aliases consistently:
 
 ```ts
 // AWS
-aliases: ["aws.lambda", "function"]
+aliases: ["aws.lambda", "function"];
 
 // Google Cloud
-aliases: ["gcp.cloud-run"]
+aliases: ["gcp.cloud-run"];
 
 // Kubernetes
-aliases: ["k8s.deployment", "deploy"]
+aliases: ["k8s.deployment", "deploy"];
 
 // Cloudflare
-aliases: ["cloudflare.workers"]
+aliases: ["cloudflare.workers"];
 ```
 
 Do not reuse an existing canonical ID or alias within one provider. Keep
@@ -149,7 +150,17 @@ public CDN.
 
 Run `pnpm changeset` when you modify a published package under `packages/`.
 Describe the reader-visible effect and choose the release level that matches the
-public contract.
+public contract. Private packages are not published, so changes that only touch
+them do not require a changeset.
+
+Dependabot pull requests that change `dependencies` or `peerDependencies` of a
+published package are handled by `.github/workflows/dependabot-changeset.yml`.
+That workflow commits one patch changeset for those packages. Bumps that only
+touch `devDependencies` do not get a changeset, and the Require changeset check
+ignores those edits. Release pull requests titled `chore: release packages`
+skip that check. `PAT_TOKEN` must be saved as a Dependabot secret, not only as
+an Actions secret, so the workflow can push to the Dependabot branch and CI
+can re-run.
 
 ## Keep documentation current
 

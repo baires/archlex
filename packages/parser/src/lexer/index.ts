@@ -1,4 +1,4 @@
-import { Lexer, createToken } from "chevrotain";
+import { createToken, Lexer } from "chevrotain";
 
 export const LineComment = createToken({
   name: "LineComment",

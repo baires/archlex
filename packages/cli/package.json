@@ -1,6 +1,6 @@
 {
   "name": "@archlex/cli",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "description": "Command-line interface for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "cli", "cloud", "aws", "gcp", "k8s"],
   "repository": {
@@ -38,15 +38,15 @@
     "@archlex/gcp": "workspace:*",
     "@archlex/k8s": "workspace:*",
     "@archlex/model": "workspace:^",
-    "chalk": "^5.3.0",
+    "chalk": "^6.0.1",
     "commander": "^12.1.0",
-    "ora": "^8.1.1",
-    "playwright": "^1.63.0"
+    "ora": "^9.4.1",
+    "playwright": "^1.64.1"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }

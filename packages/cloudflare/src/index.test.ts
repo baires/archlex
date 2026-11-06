@@ -7,8 +7,8 @@ import {
   CLOUDFLARE_ARTWORK_PINS,
   CLOUDFLARE_ICONS,
   CLOUDFLARE_INCLUDED_IDS,
+  cloudflareProvider,
 } from "./index.js";
-import { cloudflareProvider } from "./index.js";
 
 describe("Workers catalog slice", () => {
   it("resolves workers and cloudflare.workers to one canonical resource", () => {
@@ -82,7 +82,9 @@ describe("included Cloudflare resource integration", () => {
       new URL("../README.md", import.meta.url),
       "utf8",
     );
-    const rows = [...readme.matchAll(/^\| `([^`]+)` \| (.+) \| ([^|]+) \|$/gm)];
+    const rows = [
+      ...readme.matchAll(/^\| `([^`]+)`\s+\|\s+(.+?)\s+\|\s+(.+?)\s+\|$/gm),
+    ];
     expect(rows).toHaveLength(92);
     for (const service of services) {
       expect(

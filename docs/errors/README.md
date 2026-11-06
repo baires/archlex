@@ -1,4 +1,5 @@
 ---
+
 title: Diagnostic Reference
 description: "Reference for ArchLex diagnostics, including AL-PARSE and AL-STRUCT families, AWS, Cloudflare, GCP, and K8S codes, severities, and validation modes."
 ---
@@ -18,14 +19,14 @@ for (const diagnostic of result.diagnostics) {
 
 ## Diagnostic Families
 
-| Prefix | Stage | What to check |
-| --- | --- | --- |
-| `AL-PARSE-*` | Parser | Directive syntax, resource declarations, relationship endpoints, and block delimiters |
-| `AL-STRUCT-*` | Structural analysis | Duplicate IDs, missing references, invalid containment, and conflicting declarations |
-| `AWS-*` | AWS semantics | AWS resource names, scopes, containment, and provider relationships |
-| `GCP-*` | Google Cloud semantics | Google Cloud resource names, scopes, containment, and provider relationships |
-| `K8S-*` | Kubernetes semantics | Kubernetes resource names, cluster and namespace placement, and workload relationships |
-| `CLOUDFLARE-*` | Cloudflare semantics | Cloudflare resource placement at root or in a logical account |
+| Prefix         | Stage                  | What to check                                                                          |
+| -------------- | ---------------------- | -------------------------------------------------------------------------------------- |
+| `AL-PARSE-*`   | Parser                 | Directive syntax, resource declarations, relationship endpoints, and block delimiters  |
+| `AL-STRUCT-*`  | Structural analysis    | Duplicate IDs, missing references, invalid containment, and conflicting declarations   |
+| `AWS-*`        | AWS semantics          | AWS resource names, scopes, containment, and provider relationships                    |
+| `GCP-*`        | Google Cloud semantics | Google Cloud resource names, scopes, containment, and provider relationships           |
+| `K8S-*`        | Kubernetes semantics   | Kubernetes resource names, cluster and namespace placement, and workload relationships |
+| `CLOUDFLARE-*` | Cloudflare semantics   | Cloudflare resource placement at root or in a logical account                          |
 
 Icon warnings report unresolved or rejected icon assets. They do not change the provider semantic rules.
 
@@ -45,14 +46,13 @@ Set the mode with the `validation` directive or the matching API option:
 validation normal
 ```
 
-| Mode | Behavior |
-| --- | --- |
-| `normal` | Runs the standard structural and provider checks |
-| `strict` | Promotes supported advisory findings to stricter diagnostics |
-| `off` | Skips provider semantic rules while retaining parsing and graph construction checks |
+| Mode     | Behavior                                                                            |
+| -------- | ----------------------------------------------------------------------------------- |
+| `normal` | Runs the standard structural and provider checks                                    |
+| `strict` | Promotes supported advisory findings to stricter diagnostics                        |
+| `off`    | Skips provider semantic rules while retaining parsing and graph construction checks |
 
 Provider specifications describe the rules that each mode affects:
-
 - [AWS diagnostics](../specs/aws-semantics.md)
 - [Google Cloud diagnostics](../specs/gcp-semantics.md)
 - [Kubernetes diagnostics](../specs/k8s-semantics.md)

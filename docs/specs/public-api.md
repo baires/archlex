@@ -1,4 +1,5 @@
 ---
+
 title: Public API Specification
 description: "ArchLex public API reference for createArchLex(), parse, analyze, prepare, layout, and render methods with TypeScript types and options."
 ---
@@ -21,7 +22,12 @@ import {
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [awsProvider(), cloudflareProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    awsProvider(),
+    cloudflareProvider(),
+    gcpProvider(),
+    k8sProvider(),
+  ],
 });
 ```
 
@@ -145,7 +151,10 @@ for fuzzy matching in editor completions.
 context-aware completions:
 
 ```ts
-import { createCompletionEngine, analyzeLanguageDocument } from "@archlex/language-service";
+import {
+  createCompletionEngine,
+  analyzeLanguageDocument,
+} from "@archlex/language-service";
 
 const catalog = archlex.getCatalog();
 const engine = createCompletionEngine(catalog);
@@ -167,7 +176,6 @@ const completions = engine.complete(document, source.length);
 ### Grammar Context
 
 The completion engine detects cursor position in the grammar:
-
 - **Directive name**: `prov█` → `provider`, `direction`, `validation`
 - **Directive value**: `provider █` → `aws`, `cloudflare`, `gcp`, `k8s`
 - **Resource kind**: `service: █` → provider-specific services

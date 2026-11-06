@@ -5,8 +5,8 @@ import type {
   CdnProvider,
   CreateIconLoaderOptions,
   IconDiagnostic,
-  IconLoadResult,
   IconLoader,
+  IconLoadResult,
   IconRequest,
   SanitizedIcon,
 } from "./types.js";

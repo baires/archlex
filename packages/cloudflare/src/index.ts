@@ -21,11 +21,11 @@ export {
 } from "./catalog/index.js";
 
 import { evaluateCloudflareContainment } from "./rules/containment.js";
-export { CLOUDFLARE_DIAGNOSTIC_CODES } from "./registry.js";
 
 export { CLOUDFLARE_INCLUDED_IDS } from "./catalog/included-ids.js";
-
 export { CLOUDFLARE_ICONS } from "./icons/generated.js";
+export { CLOUDFLARE_DIAGNOSTIC_CODES } from "./registry.js";
+
 import { CLOUDFLARE_ICONS } from "./icons/generated.js";
 
 export function cloudflareProvider(): CloudProvider {

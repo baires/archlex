@@ -13,9 +13,9 @@ import { Command } from "commander";
 import ora from "ora";
 import {
   FileNotFoundError,
+  handleError,
   ParseError,
   ValidationError,
-  handleError,
 } from "../utils/errors.js";
 import {
   formatDiagnostic,

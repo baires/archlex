@@ -1,6 +1,6 @@
 {
   "name": "@archlex/icons-core",
-  "version": "0.2.5",
+  "version": "0.2.7",
   "description": "Core icon utilities for ArchLex architecture diagrams",
   "keywords": ["architecture", "diagrams", "icons", "svg"],
   "repository": {
@@ -32,8 +32,8 @@
     "@xmldom/xmldom": "0.9.12"
   },
   "devDependencies": {
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }

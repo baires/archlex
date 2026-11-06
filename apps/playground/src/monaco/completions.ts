@@ -1,8 +1,8 @@
 import {
-  type CompletionEngine,
-  type LanguageCompletion,
   analyzeLanguageDocument,
+  type CompletionEngine,
   createCompletionEngine,
+  type LanguageCompletion,
 } from "@archlex/language-service";
 import type { CatalogMetadata } from "@archlex/model";
 import type * as Monaco from "monaco-editor";

@@ -1,4 +1,5 @@
 ---
+
 title: Cloudflare Pack
 description: "Use the 92-resource Cloudflare catalog with bundled artwork, containment validation, and Cloudflare, AWS, GCP and Kubernetes examples."
 ---
@@ -26,13 +27,21 @@ import {
 } from "@archlex/core";
 
 const archlex = createArchLex({
-  providers: [cloudflareProvider(), awsProvider(), gcpProvider(), k8sProvider()],
+  providers: [
+    cloudflareProvider(),
+    awsProvider(),
+    gcpProvider(),
+    k8sProvider(),
+  ],
 });
 
-const result = await archlex.render(`provider cloudflare
+const result = await archlex.render(
+  `provider cloudflare
 api: workers["Application entry"]
 objects: r2["Application objects"]
-api -[reads]-> objects`, { validation: "normal", theme: "dark" });
+api -[reads]-> objects`,
+  { validation: "normal", theme: "dark" },
+);
 
 const catalog = archlex.getCatalog("cloudflare");
 const services = catalog.providers.cloudflare.services;
@@ -70,114 +79,114 @@ aliases and metadata.
 
 Additional short aliases are supported when Cloudflare is the selected provider:
 
-| Alias | Canonical ID |
-| --- | --- |
-| `cdn` | `cache` |
-| `magic-wan` | `cloudflare-wan` |
-| `bot-management` | `bots` |
-| `magic-firewall` | `cloudflare-network-firewall` |
-| `ssl-tls` | `ssl` |
-| `cloudflare-one-client` | `warp-client` |
+| Alias                   | Canonical ID                  |
+| ----------------------- | ----------------------------- |
+| `cdn`                   | `cache`                       |
+| `magic-wan`             | `cloudflare-wan`              |
+| `bot-management`        | `bots`                        |
+| `magic-firewall`        | `cloudflare-network-firewall` |
+| `ssl-tls`               | `ssl`                         |
+| `cloudflare-one-client` | `warp-client`                 |
 
 Prefer qualified canonical IDs in mixed-provider diagrams to make ownership clear.
 
 Categories use the shared ArchLex taxonomy: AI uses `ai-ml`, delivery uses
 `networking`, governance uses `management`, and observability uses `monitoring`.
 
-| ID | Display name | Category |
-| --- | --- | --- |
-| `workers` | Workers | compute |
-| `ai-gateway` | AI Gateway | ai-ml |
-| `ai-search` | AI Search | ai-ml |
-| `workers-ai` | Workers AI | ai-ml |
-| `agents` | Agents | compute |
-| `browser-run` | Browser Run | compute |
-| `containers` | Containers | compute |
-| `dynamic-workers` | Dynamic Workers | compute |
-| `pages` | Pages | compute |
-| `sandbox` | Sandbox | compute |
-| `workflows` | Workflows | compute |
+| ID                                | Display name                    | Category   |
+| --------------------------------- | ------------------------------- | ---------- |
+| `workers`                         | Workers                         | compute    |
+| `ai-gateway`                      | AI Gateway                      | ai-ml      |
+| `ai-search`                       | AI Search                       | ai-ml      |
+| `workers-ai`                      | Workers AI                      | ai-ml      |
+| `agents`                          | Agents                          | compute    |
+| `browser-run`                     | Browser Run                     | compute    |
+| `containers`                      | Containers                      | compute    |
+| `dynamic-workers`                 | Dynamic Workers                 | compute    |
+| `pages`                           | Pages                           | compute    |
+| `sandbox`                         | Sandbox                         | compute    |
+| `workflows`                       | Workflows                       | compute    |
 | `automatic-platform-optimization` | Automatic Platform Optimization | networking |
-| `cache` | Cache | networking |
-| `client-ip-geolocation` | Client Ip Geolocation | networking |
-| `client-side-security` | Client-side Security | networking |
-| `google-tag-gateway` | Google Tag Gateway | networking |
-| `images` | Images | networking |
-| `moq` | Media over QUIC | networking |
-| `realtime-kit` | RealtimeKit | networking |
-| `realtime-sfu` | Realtime SFU | networking |
-| `realtime-turn` | Realtime TURN | networking |
-| `stream` | Stream | networking |
-| `zaraz` | Zaraz | networking |
-| `flagship` | Flagship | management |
-| `registrar` | Registrar | management |
-| `rules` | Rules | management |
-| `ruleset-engine` | Ruleset Engine | management |
-| `version-management` | Version Management | management |
-| `email-routing` | Email Routing | messaging |
-| `email-service` | Email Service | messaging |
-| `pipelines` | Pipelines | messaging |
-| `queues` | Queues | messaging |
-| `resolver-1111` | 1.1.1.1 Resolver | networking |
-| `aegis` | Cloudflare Aegis | networking |
-| `argo-smart-routing` | Argo Smart Routing | networking |
-| `byoip` | Bring Your Own IP | networking |
-| `china-network` | China Network | networking |
-| `cloudflare-mesh` | Cloudflare Mesh | networking |
-| `cloudflare-wan` | Cloudflare WAN | networking |
-| `dns` | DNS | networking |
-| `health-checks` | Health Checks | networking |
-| `load-balancing` | Load Balancing | networking |
-| `magic-transit` | Magic Transit | networking |
-| `multi-cloud-networking` | Multi-Cloud Networking | networking |
-| `network-interconnect` | Cloudflare Network Interconnect | networking |
-| `spectrum` | Spectrum | networking |
-| `time-services` | Time Services | networking |
-| `tunnel` | Tunnel | networking |
-| `workers-vpc` | Workers VPC | networking |
-| `analytics` | Analytics | monitoring |
-| `dex` | Digital Experience Monitoring | monitoring |
-| `log-explorer` | Log Explorer | monitoring |
-| `logs` | Logs | monitoring |
-| `network-error-logging` | Network Error Logging | monitoring |
-| `radar` | Radar | monitoring |
-| `web-analytics` | Web Analytics | monitoring |
-| `access` | Access | security |
-| `ai-crawl-control` | Ai Crawl Control | security |
-| `api-shield` | Api Shield | security |
-| `bots` | Bot Management | security |
-| `browser-isolation` | Browser Isolation | security |
-| `casb` | CASB | security |
-| `cloudflare-challenges` | Cloudflare Challenges | security |
-| `cloudflare-network-firewall` | Cloudflare Network Firewall | security |
-| `data-localization` | Data Localization | security |
-| `data-loss-prevention` | Data Loss Prevention | security |
-| `ddos-protection` | DDoS Protection | security |
-| `dmarc-management` | DMARC Management | security |
-| `email-security` | Email Security | security |
-| `firewall` | Firewall | security |
-| `gateway` | Gateway | security |
-| `key-transparency` | Key Transparency | security |
-| `privacy-gateway` | Privacy Gateway | security |
-| `privacy-pass` | Privacy Pass | security |
-| `privacy-proxy` | Privacy Proxy | security |
-| `security-center` | Security Center | security |
-| `ssl` | SSL/TLS | security |
-| `turnstile` | Turnstile | security |
-| `waf` | WAF | security |
-| `waiting-room` | Waiting Room | security |
-| `warp-client` | Cloudflare One Client | security |
-| `agent-memory` | Agent Memory | storage |
-| `artifacts` | Artifacts | storage |
-| `d1` | D1 | storage |
-| `durable-objects` | Durable Objects | storage |
-| `hyperdrive` | Hyperdrive | storage |
-| `kv` | Workers KV | storage |
-| `r2-data-catalog` | R2 Data Catalog | storage |
-| `r2-sql` | R2 SQL | storage |
-| `r2` | R2 | storage |
-| `secrets-store` | Secrets Store | storage |
-| `vectorize` | Vectorize | storage |
+| `cache`                           | Cache                           | networking |
+| `client-ip-geolocation`           | Client Ip Geolocation           | networking |
+| `client-side-security`            | Client-side Security            | networking |
+| `google-tag-gateway`              | Google Tag Gateway              | networking |
+| `images`                          | Images                          | networking |
+| `moq`                             | Media over QUIC                 | networking |
+| `realtime-kit`                    | RealtimeKit                     | networking |
+| `realtime-sfu`                    | Realtime SFU                    | networking |
+| `realtime-turn`                   | Realtime TURN                   | networking |
+| `stream`                          | Stream                          | networking |
+| `zaraz`                           | Zaraz                           | networking |
+| `flagship`                        | Flagship                        | management |
+| `registrar`                       | Registrar                       | management |
+| `rules`                           | Rules                           | management |
+| `ruleset-engine`                  | Ruleset Engine                  | management |
+| `version-management`              | Version Management              | management |
+| `email-routing`                   | Email Routing                   | messaging  |
+| `email-service`                   | Email Service                   | messaging  |
+| `pipelines`                       | Pipelines                       | messaging  |
+| `queues`                          | Queues                          | messaging  |
+| `resolver-1111`                   | 1.1.1.1 Resolver                | networking |
+| `aegis`                           | Cloudflare Aegis                | networking |
+| `argo-smart-routing`              | Argo Smart Routing              | networking |
+| `byoip`                           | Bring Your Own IP               | networking |
+| `china-network`                   | China Network                   | networking |
+| `cloudflare-mesh`                 | Cloudflare Mesh                 | networking |
+| `cloudflare-wan`                  | Cloudflare WAN                  | networking |
+| `dns`                             | DNS                             | networking |
+| `health-checks`                   | Health Checks                   | networking |
+| `load-balancing`                  | Load Balancing                  | networking |
+| `magic-transit`                   | Magic Transit                   | networking |
+| `multi-cloud-networking`          | Multi-Cloud Networking          | networking |
+| `network-interconnect`            | Cloudflare Network Interconnect | networking |
+| `spectrum`                        | Spectrum                        | networking |
+| `time-services`                   | Time Services                   | networking |
+| `tunnel`                          | Tunnel                          | networking |
+| `workers-vpc`                     | Workers VPC                     | networking |
+| `analytics`                       | Analytics                       | monitoring |
+| `dex`                             | Digital Experience Monitoring   | monitoring |
+| `log-explorer`                    | Log Explorer                    | monitoring |
+| `logs`                            | Logs                            | monitoring |
+| `network-error-logging`           | Network Error Logging           | monitoring |
+| `radar`                           | Radar                           | monitoring |
+| `web-analytics`                   | Web Analytics                   | monitoring |
+| `access`                          | Access                          | security   |
+| `ai-crawl-control`                | Ai Crawl Control                | security   |
+| `api-shield`                      | Api Shield                      | security   |
+| `bots`                            | Bot Management                  | security   |
+| `browser-isolation`               | Browser Isolation               | security   |
+| `casb`                            | CASB                            | security   |
+| `cloudflare-challenges`           | Cloudflare Challenges           | security   |
+| `cloudflare-network-firewall`     | Cloudflare Network Firewall     | security   |
+| `data-localization`               | Data Localization               | security   |
+| `data-loss-prevention`            | Data Loss Prevention            | security   |
+| `ddos-protection`                 | DDoS Protection                 | security   |
+| `dmarc-management`                | DMARC Management                | security   |
+| `email-security`                  | Email Security                  | security   |
+| `firewall`                        | Firewall                        | security   |
+| `gateway`                         | Gateway                         | security   |
+| `key-transparency`                | Key Transparency                | security   |
+| `privacy-gateway`                 | Privacy Gateway                 | security   |
+| `privacy-pass`                    | Privacy Pass                    | security   |
+| `privacy-proxy`                   | Privacy Proxy                   | security   |
+| `security-center`                 | Security Center                 | security   |
+| `ssl`                             | SSL/TLS                         | security   |
+| `turnstile`                       | Turnstile                       | security   |
+| `waf`                             | WAF                             | security   |
+| `waiting-room`                    | Waiting Room                    | security   |
+| `warp-client`                     | Cloudflare One Client           | security   |
+| `agent-memory`                    | Agent Memory                    | storage    |
+| `artifacts`                       | Artifacts                       | storage    |
+| `d1`                              | D1                              | storage    |
+| `durable-objects`                 | Durable Objects                 | storage    |
+| `hyperdrive`                      | Hyperdrive                      | storage    |
+| `kv`                              | Workers KV                      | storage    |
+| `r2-data-catalog`                 | R2 Data Catalog                 | storage    |
+| `r2-sql`                          | R2 SQL                          | storage    |
+| `r2`                              | R2                              | storage    |
+| `secrets-store`                   | Secrets Store                   | storage    |
+| `vectorize`                       | Vectorize                       | storage    |
 
 ## Containment and validation depth
 
@@ -193,11 +202,11 @@ memberships, including forbidden ancestors outside a nested account, and emits
 one diagnostic per affected node. It ignores foreign-provider and unknown kinds.
 Move the managed Cloudflare node to root/account and connect it to the origin.
 
-| Mode | Containment result |
-| --- | --- |
-| `normal` | Warning with node location and remediation |
+| Mode     | Containment result                           |
+| -------- | -------------------------------------------- |
+| `normal` | Warning with node location and remediation   |
 | `strict` | Error with the same location and remediation |
-| `off` | Provider containment validation skipped |
+| `off`    | Provider containment validation skipped      |
 
 Core syntax, unresolved-resource and structural diagnostics remain separate;
 `off` does not suppress parser errors. An unrecognized Cloudflare kind produces
@@ -224,15 +233,15 @@ connector, security capability or two origins to be valid.
 AWS/GCP host identity. Client products such as `warp-client` remain logical
 catalog identities; their presence does not establish deployment or connectivity.
 
-| Intent | Diagram representation |
-| --- | --- |
-| DNS mapping | Untyped edge labeled `DNS record selects entry point`; not an HTTP hop |
-| Public origin request | `proxies` with an explicit request label |
-| Tunnel establishment | Connector `connects` to Tunnel, labeled outbound establishment |
-| Request through Tunnel | Tunnel `proxies` to connector, then connector to Service |
-| Security capability | WAF `protects` or Access `authorizes` the entry point |
-| Caching capability | `caches`, labeled with eligible responses |
-| Origin steering | `routes` to native origins, labeled preference/fallback intent |
+| Intent                 | Diagram representation                                                 |
+| ---------------------- | ---------------------------------------------------------------------- |
+| DNS mapping            | Untyped edge labeled `DNS record selects entry point`; not an HTTP hop |
+| Public origin request  | `proxies` with an explicit request label                               |
+| Tunnel establishment   | Connector `connects` to Tunnel, labeled outbound establishment         |
+| Request through Tunnel | Tunnel`proxies` to connector, then connector to Service                |
+| Security capability    | WAF`protects` or Access `authorizes` the entry point                   |
+| Caching capability     | `caches`, labeled with eligible responses                              |
+| Origin steering        | `routes` to native origins, labeled preference/fallback intent         |
 
 WAF, Access and cache are capability associations, not mandatory appliances in a
 physical hop chain. Origin-pool labels express intent without creating synthetic
@@ -250,7 +259,6 @@ The source blocks below are the CF18/CF19 fixtures. Their valid forms render wit
 spurious diagnostics in normal, strict and off modes; containment variants test
 the mode-specific behavior described above. They are architecture intent, not
 Cloudflare configuration exports or connectivity tests.
-
 - [Cloudflare-only application](#cloudflare-only-application)
 - [Public edge to AWS](#public-edge-to-aws)
 - [Tunnel into Kubernetes on GCP](#tunnel-into-kubernetes-on-gcp)

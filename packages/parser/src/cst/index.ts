@@ -1,5 +1,6 @@
 import { CstParser } from "chevrotain";
 import {
+  allTokens,
   Colon,
   DirectiveName,
   Dot,
@@ -13,7 +14,6 @@ import {
   ScopeKind,
   Semicolon,
   StringLiteral,
-  allTokens,
 } from "../lexer/index.js";
 
 export class ArchLexCstParser extends CstParser {

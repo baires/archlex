@@ -1,6 +1,6 @@
 {
   "name": "@archlex/language-service",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "Editor-neutral language intelligence for ArchLex source",
   "keywords": ["architecture", "diagrams", "language-service", "lsp"],
   "repository": {
@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "@archlex/core": "workspace:*",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }

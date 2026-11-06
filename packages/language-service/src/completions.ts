@@ -1,5 +1,5 @@
 import type { CatalogIndex } from "./catalog-index.js";
-import { type TextMatch, scoreBestMatch } from "./matching.js";
+import { scoreBestMatch, type TextMatch } from "./matching.js";
 import type { CursorContext, LanguageDocument, OffsetRange } from "./types.js";
 
 export type CompletionKind =

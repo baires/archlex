@@ -1,5 +1,28 @@
 # @archlex/cloudflare
 
+## 0.1.3
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+- Updated dependencies [106cf5e]
+  - @archlex/icons-core@0.2.7
+
+## 0.1.2
+
+### Patch Changes
+
+- c85cf9b: Serialize bundled icon modules directly instead of formatting them with the Biome CLI. Artwork bytes are unchanged.
+
+## 0.1.1
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/icons-core@0.2.6
+  - @archlex/model@0.6.1
+
 ## 0.1.0
 
 ### Minor Changes

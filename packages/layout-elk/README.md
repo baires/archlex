@@ -11,19 +11,19 @@ npm install @archlex/layout-elk @archlex/model
 ## Usage
 
 ```typescript
-import { ElkLayoutEngine } from '@archlex/layout-elk';
-import type { Diagram } from '@archlex/model';
+import { ElkLayoutEngine } from "@archlex/layout-elk";
+import type { Diagram } from "@archlex/model";
 
 const diagram: Diagram = {
   nodes: [
-    { id: 'web', type: 'ec2', provider: 'aws' },
-    { id: 'api', type: 'lambda', provider: 'aws' },
-    { id: 'db', type: 'rds', provider: 'aws' }
+    { id: "web", type: "ec2", provider: "aws" },
+    { id: "api", type: "lambda", provider: "aws" },
+    { id: "db", type: "rds", provider: "aws" },
   ],
   edges: [
-    { source: 'web', target: 'api' },
-    { source: 'api', target: 'db' }
-  ]
+    { source: "web", target: "api" },
+    { source: "api", target: "db" },
+  ],
 };
 
 const layoutEngine = new ElkLayoutEngine();
@@ -45,14 +45,14 @@ console.log(layoutedDiagram.nodes[0].position); // { x: 0, y: 0 }
 
 ```typescript
 const layoutEngine = new ElkLayoutEngine({
-  direction: 'TB', // Top to Bottom
+  direction: "TB", // Top to Bottom
   spacing: {
     node: 80,
     edge: 20,
-    layer: 60
+    layer: 60,
   },
-  alignment: 'center',
-  separateComponents: true
+  alignment: "center",
+  separateComponents: true,
 });
 
 const result = await layoutEngine.layout(diagram);
@@ -73,11 +73,11 @@ const result = await layoutEngine.layout(diagram);
 // Nodes with children are automatically handled
 const diagram: Diagram = {
   nodes: [
-    { id: 'vpc', type: 'vpc', provider: 'aws', children: ['web', 'db'] },
-    { id: 'web', type: 'ec2', provider: 'aws', parent: 'vpc' },
-    { id: 'db', type: 'rds', provider: 'aws', parent: 'vpc' }
+    { id: "vpc", type: "vpc", provider: "aws", children: ["web", "db"] },
+    { id: "web", type: "ec2", provider: "aws", parent: "vpc" },
+    { id: "db", type: "rds", provider: "aws", parent: "vpc" },
   ],
-  edges: [{ source: 'web', target: 'db' }]
+  edges: [{ source: "web", target: "db" }],
 };
 ```
 

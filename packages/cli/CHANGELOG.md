@@ -1,5 +1,36 @@
 # @archlex/cli
 
+## 0.4.3
+
+### Patch Changes
+
+- ded9ab7: Bump dependencies (Dependabot).
+
+## 0.4.2
+
+### Patch Changes
+
+- 106cf5e: Sort imports and exports for Biome 2. Runtime behavior is unchanged.
+- Updated dependencies [106cf5e]
+  - @archlex/aws@0.4.3
+  - @archlex/core@0.6.2
+  - @archlex/diagnostics@0.3.3
+  - @archlex/gcp@0.4.3
+  - @archlex/k8s@0.4.2
+
+## 0.4.1
+
+### Patch Changes
+
+- c4efbe8: Bump the TypeScript dev dependency to 7.0.2. Published runtime output is unchanged.
+- Updated dependencies [c4efbe8]
+  - @archlex/aws@0.4.2
+  - @archlex/core@0.6.1
+  - @archlex/diagnostics@0.3.2
+  - @archlex/gcp@0.4.2
+  - @archlex/k8s@0.4.1
+  - @archlex/model@0.6.1
+
 ## 0.4.0
 
 ### Minor Changes
@@ -127,7 +158,6 @@
   This is the first public release of ArchLex, a declarative language for cloud architecture diagrams.
 
   ### Core Features
-
   - **@archlex/core**: Complete diagramming engine with parse, compile, and render pipeline
   - **@archlex/aws**: AWS provider with 200+ official service icons
   - **@archlex/gcp**: GCP provider with 100+ official service icons
@@ -141,7 +171,6 @@
   - **@archlex/icons**: Node.js icon loading utilities
 
   ### Key Capabilities
-
   - Declarative DSL for architecture diagrams
   - Automatic layout and positioning
   - SVG and PNG export

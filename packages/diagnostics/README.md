@@ -11,20 +11,22 @@ npm install @archlex/diagnostics @archlex/model
 ## Usage
 
 ```typescript
-import { DiagnosticCollector, Severity } from '@archlex/diagnostics';
+import { DiagnosticCollector, Severity } from "@archlex/diagnostics";
 
 const collector = new DiagnosticCollector();
 
 // Add diagnostics
-collector.error('Invalid service type', { line: 5, column: 10 });
-collector.warning('Unused node', { line: 12, column: 5 });
-collector.info('Consider adding a label', { line: 8, column: 3 });
+collector.error("Invalid service type", { line: 5, column: 10 });
+collector.warning("Unused node", { line: 12, column: 5 });
+collector.info("Consider adding a label", { line: 8, column: 3 });
 
 // Check for errors
 if (collector.hasErrors()) {
-  console.error('Validation failed');
-  collector.getDiagnostics().forEach(d => {
-    console.error(`${d.severity}: ${d.message} at line ${d.location.start.line}`);
+  console.error("Validation failed");
+  collector.getDiagnostics().forEach((d) => {
+    console.error(
+      `${d.severity}: ${d.message} at line ${d.location.start.line}`,
+    );
   });
 }
 
@@ -45,7 +47,7 @@ console.log(formatted);
 
 ```typescript
 interface Diagnostic {
-  severity: 'error' | 'warning' | 'info';
+  severity: "error" | "warning" | "info";
   message: string;
   code?: string;
   location: {

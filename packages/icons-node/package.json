@@ -1,6 +1,6 @@
 {
   "name": "@archlex/icons-node",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "private": true,
   "repository": {
     "type": "git",
@@ -30,9 +30,9 @@
     "@archlex/icons-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.13.1",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.0",
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
     "vitest": "^4.1.11"
   }
 }
