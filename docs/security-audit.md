@@ -10,12 +10,13 @@ One pass does not exhaust the repository. No prior audit ledger was available.
 
 No confirmed vulnerability.
 
-Two source-grounded leads remain. They are ranked by how much they would matter if the missing deployment fact goes the wrong way. They are not confirmed vulnerabilities.
+Three source-grounded leads remain. They are ranked by how much they would matter if the missing deployment fact goes the wrong way. They are not confirmed vulnerabilities.
 
 | Rank | Lead                                           | Location                                          | If the missing fact confirms it                                            |
 | ---- | ---------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------- |
 | 1    | Rate-limit key falls back to `X-Forwarded-For` | `apps/mcp-server/src/security.ts` `getClientIp`   | A caller who can omit `CF-Connecting-IP` chooses the quota key             |
 | 2    | Published MCP config counts limits per isolate | `apps/mcp-server/wrangler.json`, `checkRateLimit` | Cross-isolate traffic is not held to 60 requests per window by this config |
+| 3    | Share quotas trust `CF-Connecting-IP`          | `apps/share/src/security.ts` `clientIp`           | A direct origin request can pick a new per-client quota bucket             |
 
 ## Leads that need a live run
 
@@ -76,11 +77,37 @@ pnpm --filter @archlex/mcp-server exec wrangler delete --name archlex-mcp-audit-
 
 Record whether a `RATE_LIMITER` binding or a zone rate-limit rule exists. Configuration inspection resolves this lead. A missing binding leaves the per-isolate map as the quota in source.
 
+### 3. `share.clientIp.cf-connecting-ip.quota-principal`
+
+`clientIp` returns `CF-Connecting-IP` when the value matches `^[A-Za-z0-9.:]{1,64}$`, and otherwise the single key `unknown` (`apps/share/src/security.ts` lines 136–139). Anonymous create, revoke, and per-client image limits use that string. The global daily ceiling and the global render limiter do not. `apps/share/README.md` line 9 says the header is a trusted client address only when Cloudflare supplies it, and that a direct origin request can spoof it. `apps/share/wrangler.json` does not record a route or header rewrite.
+
+Suggested fix, if a temporary run shows the header is client-controlled: stop using the raw header as the quota principal. Use an address the Cloudflare runtime sets and the client cannot replace, and keep the existing global ceilings.
+
+Local check (function only, no network):
+
+```bash
+node --input-type=module -e "
+import { clientIp } from './apps/share/src/security.ts';
+const chosen = new Request('https://audit.invalid/', { headers: { 'cf-connecting-ip': '203.0.113.10' } });
+const rejected = new Request('https://audit.invalid/', { headers: { 'cf-connecting-ip': 'not valid' } });
+console.log(clientIp(chosen), clientIp(rejected));
+"
+```
+
+Expected: `203.0.113.10` then `unknown`.
+
+Temporary Worker check: deploy `apps/share` under a throwaway name. From the owner network, compare one ordinary request's source address with the `CF-Connecting-IP` the Worker observes. Confirm the temporary hostname is proxied and that no DNS-only listener reaches it. Do not rotate the header across many values, and do not send this to `share.archlex.dev`. Delete the Worker after.
+
+```bash
+pnpm --filter @archlex/share exec wrangler deploy --name archlex-share-audit-temp
+pnpm --filter @archlex/share exec wrangler delete --name archlex-share-audit-temp
+```
+
 ## Reviewed surfaces
 
 - **Docs** (`apps/docs`): Next static export (`output: "export"`) served as Worker assets from `apps/docs/wrangler.jsonc`. No Worker script, middleware, or visitor-controlled HTML. JSON-LD is `JSON.stringify` of repo frontmatter. Committers can already ship MDX. Missing response headers are hardening, not a visitor bug.
 - **MCP** (`apps/mcp-server`): optional bearer, documented open-by-default; AES-GCM render URLs; tool arguments bounded at 100k characters; diagram viewer accepts `postMessage` only from `window.parent` and puts SVG in an `<img>` data URL. CORS defaults to `*` without `Access-Control-Allow-Credentials`.
-- **Share** (`apps/share`): 128-bit ids, hashed revoke tokens, SVG allowlist that fails closed, cache hits re-read D1, body and graph caps, edge and D1 quotas. `clientIp` does not trust `X-Forwarded-For`.
+- **Share** (`apps/share`): 128-bit ids, hashed revoke tokens, SVG allowlist that fails closed, cache hits re-read D1, body and graph caps, and a global daily ceiling. `clientIp` does not trust `X-Forwarded-For`. It does trust a format-checked `CF-Connecting-IP`, which is lead 3 above.
 - **Playground and landing**: preview goes through `mountSvg`. `?s=` loads a share the link already names. Landing is a static Astro build. URL import is a user-started browser fetch.
 - **Packages and CLI**: icon fetch is HTTPS, host-allowlisted, and `redirect: "error"`. CLI file access is the invoking OS user. Parser input on the Workers is capped before render.
 - **CI**: `pull_request` jobs that read the base ref are filtered to `main`. The Dependabot changeset job runs only for `dependabot[bot]` and does not install the pull request. No tracked service-token value or private key was found. `.dev.vars` files contain origins only.
@@ -93,4 +120,4 @@ Record whether a `RATE_LIMITER` binding or a zone rate-limit rule exists. Config
 
 ## Coverage
 
-26 ledger units: 25 covered, 1 candidate (the MCP quota unit above), 0 deferred, 0 blocked. The final coverage critic accepted that set (`stop: true`). This is still a single pass.
+26 ledger units. The MCP quota unit and the share client-IP unit are the candidates behind the leads above. The other units are covered. This is still a single pass.
