@@ -23,7 +23,7 @@ const prettySegment = (segment: string): string =>
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
-const routeFromSegments = (mdxPath?: string[]): string => {
+export const routeFromSegments = (mdxPath?: string[]): string => {
   if (!mdxPath || mdxPath.length === 0) return "/";
   return `/${mdxPath.join("/")}/`;
 };
@@ -31,6 +31,8 @@ const routeFromSegments = (mdxPath?: string[]): string => {
 export function buildPageSeo(
   page: DocsPageMetadata,
   mdxPath?: string[],
+  /** Published routes; folder crumbs without a page are left out. */
+  routes?: ReadonlySet<string>,
 ): PageSeo {
   const path = routeFromSegments(mdxPath);
   const url = `${SITE_ORIGIN}${path}`;
@@ -53,10 +55,16 @@ export function buildPageSeo(
         .split("/")
         .filter(Boolean)
         .map((segment, index, segments) => ({
+          segment,
+          route: `/${segments.slice(0, index + 1).join("/")}/`,
+          last: index === segments.length - 1,
+        }))
+        .filter(({ route, last }) => last || !routes || routes.has(route))
+        .map(({ segment, route, last }, index) => ({
           "@type": "ListItem",
           position: index + 2,
-          name: prettySegment(segment),
-          item: `${SITE_ORIGIN}/${segments.slice(0, index + 1).join("/")}/`,
+          name: last ? page.title : prettySegment(segment),
+          item: `${SITE_ORIGIN}${route}`,
         })),
     ],
   };
