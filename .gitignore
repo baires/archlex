@@ -59,3 +59,4 @@ pnpm-debug.log*
 
 apps/mcp-server/.wrangler/
 apps/share/.wrangler/
+.wrangler/
