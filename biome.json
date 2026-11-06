@@ -21,6 +21,8 @@
   "files": {
     "includes": [
       "**",
+      "!!**/.worktrees",
+      "!!CLAUDE.md",
       "!**/.claude/skills",
       "!**/.gemini",
       "!**/.github/skills",
@@ -67,5 +69,10 @@
         "enabled": false
       }
     }
-  ]
+  ],
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  }
 }

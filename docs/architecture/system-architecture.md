@@ -52,12 +52,14 @@ rules.
 
 ## Applications
 
-| Application | Uses                                                                    |
-| ----------- | ----------------------------------------------------------------------- |
-| Playground  | React, Monaco, core, browser icon loading, SVG export                   |
-| Docs        | Nextra pages sourced from `docs/` through symlinks                      |
-| Landing     | Astro components and generated diagram assets                           |
-| MCP server  | Cloudflare Worker tools, prompts, examples, and embedded docs resources |
+| Application | Uses                                                                           |
+| ----------- | ------------------------------------------------------------------------------ |
+| Playground  | React, Monaco, core, browser icon loading, SVG export                          |
+| Docs        | Nextra pages sourced from `docs/` through symlinks                             |
+| Landing     | Static Astro pages, build-time core validation/rendering, shared design tokens |
+| MCP server  | Cloudflare Worker tools, prompts, examples, and embedded docs resources        |
+
+The landing renders a four-provider LLM prompt example and a bounded AWS relationship-review example at build time. Its primary onboarding path is the free hosted MCP server, with no API keys or account, followed by the skill, playground and SDK options. Its supported and warning states use the same core engine as the playground. The browser synchronizes the rendered diagram, source, diagnostic and source-encoded playground link without loading the compiler or ELK. Landing and playground import fonts, semantic themes, focus, spacing and scrollbar tokens from @archlex/design; application layouts remain separate. See the repository DESIGN.md and apps/landing/README.md for the design direction and local verification workflow.
 
 The MCP build copies hand-written `docs/` Markdown into generated TypeScript
 resources. The docs app reads the same Markdown through `apps/docs/content`

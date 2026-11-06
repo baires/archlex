@@ -11,8 +11,8 @@ interface Props {
 
 const {
   title,
-  description = "Ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes. ArchLex validates semantics and renders official-icon SVG. No API key.",
-  image = "https://archlex.dev/archlex-event-pipeline-dark.png",
+  description = "Multicloud diagrams for LLMs and MCP. Use the free hosted MCP and playground with no API keys or account. Supports AWS, Cloudflare, GCP and Kubernetes.",
+  image = "https://archlex.dev/og-multicloud.png",
   noindex = false,
 } = Astro.props;
 
@@ -54,7 +54,9 @@ const schemaGraph = {
         "Text-to-architecture diagram compiler",
         "AWS, Cloudflare, GCP, and Kubernetes semantic validation",
         "Deterministic, themeable, accessible SVG output",
-        "Model Context Protocol (MCP) server for AI coding assistants",
+        "Free hosted MCP server with no API keys or account required",
+        "MCP tools, prompts, examples and documentation for LLM workflows",
+        "Browser playground for editing agent-generated multicloud source",
         "Official SKILLS.md definition for agent-driven diagramming",
       ],
     },
@@ -102,7 +104,7 @@ const schemaGraph = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={image} />
-    <meta property="og:image:alt" content="ArchLex semantic cloud architecture diagram compiler" />
+    <meta property="og:image:alt" content="ArchLex multicloud diagrams for agents, with free hosted MCP and an editable playground" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />

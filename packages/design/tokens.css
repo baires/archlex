@@ -27,3 +27,38 @@
   --text-xl: 1.25rem;
   --min-tap-target: 44px;
 }
+
+/* All ArchLex-owned overflow regions share visible, theme-aware scrollbars. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--surface-canvas);
+  border-radius: var(--radius-control);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--text-primary);
+}
+
+@media (forced-colors: active) {
+  * {
+    scrollbar-color: auto;
+  }
+}

@@ -2,6 +2,8 @@
 
 ArchLex compiles text architecture definitions into accessible SVG diagrams. You can model AWS, Google Cloud, Kubernetes, and Cloudflare resources with one language. Agents write it. Humans can still read it.
 
+The hosted MCP server and browser playground are free to use, with no API keys or account required. MCP exposes diagram tools, provider catalogs, prompts, examples and documentation for LLM workflows; the playground lets you keep editing the resulting source.
+
 ## Start Here
 
 1. Follow [Use with AI agents](guides/agents.md) to install the skill, connect MCP, and ask for a diagram.

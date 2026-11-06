@@ -1,0 +1,50 @@
+---
+import {
+  awsProvider,
+  cloudflareProvider,
+  createArchLex,
+  gcpProvider,
+  k8sProvider,
+} from "@archlex/core";
+import { exampleUrl, multicloudPrompt, multicloudSource } from "../data/site";
+import { scopeSvg } from "../data/svg";
+
+const engine = createArchLex({
+  providers: [
+    awsProvider(),
+    cloudflareProvider(),
+    gcpProvider(),
+    k8sProvider(),
+  ],
+});
+const prepared = engine.prepare(multicloudSource);
+if (prepared.diagnostics.some((item) => item.severity !== "info"))
+  throw new Error("Multicloud hero must pass provider checks.");
+const variants = await Promise.all(
+  (["light", "dark"] as const).flatMap((theme) =>
+    (["LR", "TB"] as const).map(async (direction) => {
+      const result = await engine.renderPrepared(prepared, {
+        theme,
+        direction,
+      });
+      const svg = scopeSvg(
+        result.svg,
+        `multicloud-${theme}-${direction}-`,
+        "Multicloud architecture: Cloudflare Workers proxies AWS Lambda and publishes to GCP Pub/Sub; both connect to a Kubernetes workload.",
+      );
+      return { theme, direction, svg };
+    }),
+  ),
+);
+---
+<figure class="multicloud-stage" data-copy-scope aria-label="One architecture across four providers">
+  <div class="agent-request" data-copy-container>
+    <div class="agent-request__heading"><span>Try this prompt with your agent</span><button class="copy-button" type="button" data-copy={multicloudPrompt}><span>Copy prompt</span><span aria-hidden="true">⧉</span></button></div>
+    <p data-copy-text>{multicloudPrompt}</p>
+  </div>
+  <div class="multicloud-stage__drawing">
+    {variants.map(({theme,direction,svg}) => <div class:list={["multicloud-svg", "multicloud-svg--" + theme, "multicloud-svg--" + direction]} set:html={svg} />)}
+  </div>
+  <figcaption class="multicloud-stage__caption"><span>Cloudflare + AWS + GCP + Kubernetes. One checked source.</span><a class="text-link" href={exampleUrl(multicloudSource)}>Edit this architecture <span aria-hidden="true">↗</span></a></figcaption>
+  <p class="multicloud-stage__feedback" role="status" aria-live="polite" data-copy-status></p>
+</figure>

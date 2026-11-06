@@ -1,47 +1,19 @@
 ---
 import Button from "../components/Button.astro";
-import CodeBlock from "../components/CodeBlock.astro";
-import Hero from "../components/Hero.astro";
-import HeroCompare from "../components/HeroCompare.astro";
-import McpShowcase from "../components/McpShowcase.astro";
-import PackageQuickStart from "../components/PackageQuickStart.astro";
+import GetStarted from "../components/GetStarted.astro";
+import MulticloudStage from "../components/MulticloudStage.astro";
+import ReviewBench from "../components/ReviewBench.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import { SITE_ROUTES } from "../config";
+import {
+  exampleUrl,
+  faqs,
+  multicloudSource,
+  providers,
+  reviewSources,
+} from "../data/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-const sourceExample = `provider aws
-api: api-gateway
-worker: lambda
-data: dynamodb
-
-api -[invokes]-> worker
-worker -[writes]-> data`;
-
-const skillInstallCmd = "npx skills add baires/archlex";
-
-const faqs = [
-  {
-    q: "What is ArchLex?",
-    a: "ArchLex is an open source language and renderer for cloud architecture diagrams as code. You describe AWS, Cloudflare, GCP, or Kubernetes architecture in plain text, ArchLex validates it, and it renders an SVG with official cloud icons.",
-  },
-  {
-    q: "How do I get Claude, Cursor, or Codex to draw an architecture diagram?",
-    a: "Install the agent skill with npx skills add baires/archlex, or connect the ArchLex MCP server at https://mcp.archlex.dev/mcp. Then ask your agent to diagram your AWS, Cloudflare, GCP, or Kubernetes setup. The agent writes ArchLex source, ArchLex validates it, and you get back an SVG.",
-  },
-  {
-    q: "Which clouds does ArchLex support?",
-    a: "AWS (194 services), GCP (185 services), Cloudflare (92 services), and Kubernetes (62 resources). You can mix providers in one diagram.",
-  },
-  {
-    q: "Do I need an account or API key?",
-    a: "No. ArchLex is MIT licensed and runs locally through the CLI and npm packages, in the browser playground, or through the hosted MCP server, with no account or API key.",
-  },
-  {
-    q: "Can I render diagrams without an AI agent?",
-    a: "Yes. Write ArchLex in the playground at playground.archlex.dev, render it with the CLI, or call @archlex/core from Node.js or the browser.",
-  },
-];
 
 const faqSchema = {
   "@context": "https://schema.org",
@@ -54,198 +26,101 @@ const faqSchema = {
 };
 ---
 
-<BaseLayout
-  title="ArchLex: Cloud Architecture Diagrams as Code for AI Agents"
-  description="Open source architecture diagrams as code. Ask Claude, Cursor, or Codex to diagram AWS, Cloudflare, GCP, or Kubernetes and get validated SVG with official cloud icons."
->
+<BaseLayout title="ArchLex: Multicloud diagrams for LLMs and MCP" description="Free hosted MCP for cloud architecture diagrams. Let your agent draw AWS, Cloudflare, GCP and Kubernetes, then edit in the playground. No API keys or account.">
   <SiteHeader />
   <main id="main-content" tabindex="-1">
-    <Hero />
-    <HeroCompare />
+    <section class="review-hero shell" aria-labelledby="hero-title">
+      <div class="review-hero__copy">
+        <p class="hero-context">Built for LLMs and MCP</p>
+        <h1 id="hero-title">Cloud diagrams.<br /> Built for agents.</h1>
+      </div>
+      <div class="review-hero__intro">
+        <p class="review-hero__lede">Ask Claude, Cursor or Codex to map AWS, Cloudflare, GCP and Kubernetes. Get checked source, a rendered diagram and a link to keep editing in the playground.</p>
+        <div class="hero-actions">
+          <Button href="#get-started">Connect free MCP <span aria-hidden="true">↓</span></Button>
+          <a class="text-link" href={exampleUrl(multicloudSource)}>Open playground <span aria-hidden="true">↗</span></a>
+        </div>
+        <p class="hero-note">Free to use. No API keys or account required.</p>
+      </div>
+      <div class="review-hero__stage"><MulticloudStage /></div>
+      <ol class="agent-workflow" aria-label="From your LLM to your workspace">
+        <li><h2>Ask your LLM.</h2><p>Describe your system. The agent skill supplies the language, provider rules and examples.</p></li>
+        <li><h2>Let MCP do the checking.</h2><p>Cloud catalogs, validation and rendering, with tools, prompts and documentation ready for your agent.</p></li>
+        <li><h2>Make it yours.</h2><p>Open the same source in the playground. Inspect, edit and export your architecture.</p></li>
+      </ol>
+    </section>
 
-    <!-- Feature Family 1: Semantic Verification & Diffability (Asymmetric 2-Column Split Grid) -->
-    <section class="proof-section shell shell--wide" aria-labelledby="proof-section-title">
-      <h2 id="proof-section-title" class="visually-hidden">Semantic Validation and Code Review</h2>
-      <div class="proof-grid">
-        <article class="proof-card proof-card--visual">
-          <div class="proof-card__header">
-            <h3>Not just boxes.</h3>
-            <p>ArchLex understands cloud resources, boundaries, and typed relationships, not just shapes.</p>
-          </div>
-          <figure class="semantic-proof">
-            <img class="diagram-img diagram-img--dark" src="/diagrams/serverless-api-dark.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" loading="lazy" decoding="async" />
-            <img class="diagram-img diagram-img--light" src="/diagrams/serverless-api-light.svg" alt="API Gateway invokes Lambda, which writes to DynamoDB" width="742" height="116" loading="lazy" decoding="async" />
-            <figcaption>
-              <span class="proof-badge" aria-label="Validated AWS architecture">
-                <span class="proof-badge__dot" aria-hidden="true"></span>
-                <span>Architecture valid: AWS Serverless</span>
-              </span>
-            </figcaption>
-          </figure>
-        </article>
+    <GetStarted />
 
-        <article class="proof-card proof-card--diff">
-          <div class="proof-card__header">
-            <h3>Readable in code review.</h3>
-            <p>Concise text source stays clear in diffs. Deterministic, accessible SVG keeps rendered reviews consistent.</p>
-          </div>
-          <div class="source-proof">
-            <div class="source-proof__chrome" aria-hidden="true">
-              <span class="source-proof__tag">serverless-api.archlex</span>
-            </div>
-            <CodeBlock code={sourceExample} lang="archlex" />
-          </div>
-        </article>
+    <section class="validation-section shell" id="architecture-review" aria-labelledby="validation-title">
+      <div class="validation-section__copy">
+        <h2 id="validation-title">Your agent writes it.<br /> ArchLex checks it.</h2>
+        <p>Resources have an identity. Connections have rules. Give your agent a language that understands both.</p>
+        <p>Try this AWS example: change a supported connection, inspect the real provider warning, then correct it.</p>
+        <a class="text-link" href={SITE_ROUTES.agentsDocs}>Explore the agent workflow <span aria-hidden="true">↗</span></a>
+      </div>
+      <ReviewBench />
+    </section>
+
+    <section class="meaning-section shell" aria-labelledby="meaning-title">
+      <div class="meaning-section__statement">
+        <h2 id="meaning-title">Every connection<br />has a meaning.</h2>
+        <p>A line is easy to draw. ArchLex checks what it connects, where resources belong, and what the relationship says.</p>
+      </div>
+      <div class="semantic-list">
+        <article><span class="semantic-symbol" aria-hidden="true">↳</span><div><h3>Resources with an identity</h3><p>Lambda is a function. DynamoDB is a database. Provider catalogs give each node more than a label.</p></div></article>
+        <article><span class="semantic-symbol" aria-hidden="true">⇢</span><div><h3>Relationships with rules</h3><p>“Invokes” and “writes” mean different things. Supported endpoints are checked against provider declarations.</p></div></article>
+        <article><span class="semantic-symbol" aria-hidden="true">⊡</span><div><h3>Boundaries that belong</h3><p>Accounts, regions, VPCs, subnets and namespaces describe structure. ArchLex checks supported placement rules.</p></div></article>
       </div>
     </section>
 
-    <!-- Feature Family 2: Built for AI Agents (Full-Width Interactive MCP Terminal Console) -->
-    <section class="mcp-section shell shell--wide" id="mcp" aria-labelledby="mcp-section-title">
-      <div class="section-heading">
-        <h2 id="mcp-section-title">Built for AI agents.</h2>
-      </div>
-      <McpShowcase />
-    </section>
-
-    <!-- Feature Family 3: Open Agent Skill Matrix (Command Bar + 3-Card Bento Grid) -->
-    <section class="skill-section shell shell--wide" id="skill" aria-labelledby="skill-section-title">
-      <div class="section-heading">
-        <h2 id="skill-section-title">Official agent skill.</h2>
-        <p class="section-lead">Equip Claude Code, Cursor, Codex, and any AI coding assistant supporting the open <code>SKILLS.md</code> standard with deep cloud architecture diagramming and semantic validation.</p>
-      </div>
-
-      <div class="skill-terminal">
-        <div class="skill-terminal__bar">
-          <span class="skill-terminal__dot"></span>
-          <span class="skill-terminal__title">Agent Skill Install (SKILLS.md)</span>
+    <section class="diff-section" aria-labelledby="diff-title">
+      <div class="shell diff-section__grid">
+        <figure class="review-diff">
+          <figcaption><span>orders.archlex</span><span>One relationship changed</span></figcaption>
+          <pre tabindex="0" aria-label="Architecture source diff"><code><span> api: api-gateway</span>
+<span> worker: lambda</span>
+<span> data: dynamodb</span>
+<span> </span>
+<span> api -[invokes]-&gt; worker</span>
+<span class="diff-removed">− worker -[invokes]-&gt; data</span>
+<span class="diff-added">+ worker -[writes]-&gt; data</span></code></pre>
+          <div class="review-diff__result"><span aria-hidden="true">✓</span> A supported connection. A readable change.</div>
+        </figure>
+        <div class="diff-section__copy">
+          <h2 id="diff-title">Small changes.<br />Clear reviews.</h2>
+          <p>Your diagram lives in plain text. Review the relationship that changed, keep the source in Git, and render it as SVG.</p>
+          <a class="text-link" href={exampleUrl(reviewSources.valid)}>Make your first change <span aria-hidden="true">↗</span></a>
         </div>
-        <div class="skill-terminal__content">
-          <code>{skillInstallCmd}</code>
-          <button
-            type="button"
-            class="skill-copy-btn"
-            id="skill-copy-trigger"
-            data-copy-text={skillInstallCmd}
-            aria-label="Copy skill install command"
-          >
-            <span>Copy command</span>
-          </button>
-        </div>
-        <div class="skill-terminal__meta">
-          <span>Compatible with Claude Code, Cursor, Codex, and AGENTS.md / SKILLS.md agents</span>
-        </div>
-      </div>
-
-      <div class="skill-matrix">
-        <div class="skill-card">
-          <div class="skill-card__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
-            </svg>
-          </div>
-          <h3>MCP tool workflows</h3>
-          <p>Step-by-step workflow for <code>render_diagram</code>, <code>validate_diagram</code>, and catalog lookups directly within your coding agent session.</p>
-        </div>
-
-        <div class="skill-card">
-          <div class="skill-card__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-          </div>
-          <h3>DSL reference &amp; rules</h3>
-          <p>Complete syntax rules, relationship kinds, containment scopes (accounts, regions, VPCs, subnets, and Cloudflare root/account placement), and diagnostic resolution.</p>
-        </div>
-
-        <div class="skill-card">
-          <div class="skill-card__icon" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="21" x2="16" y2="21"></line>
-              <line x1="12" y1="17" x2="12" y2="21"></line>
-            </svg>
-          </div>
-          <h3>Working templates</h3>
-          <p>Production-ready AWS, Cloudflare, GCP, and Kubernetes templates that any AI agent can immediately adapt, validate, and extend.</p>
-        </div>
-      </div>
-
-      <div class="skill-action-footer">
-        <span>Open source SKILLS.md definition</span>
-        <a class="text-link" href="https://github.com/baires/archlex/tree/main/.agents/skills/archlex" target="_blank" rel="noopener noreferrer">
-          <span>View skill definition on GitHub</span>
-          <span aria-hidden="true">→</span>
-        </a>
       </div>
     </section>
 
-    <!-- Feature Family 4: Package Ecosystem & Quickstart -->
-    <section class="quickstart-section shell shell--wide" id="quickstart" aria-labelledby="quickstart-section-title">
-      <div class="section-heading">
-        <h2 id="quickstart-section-title">Open source. Embed anywhere.</h2>
-        <p class="section-lead">Lightweight, modular packages for browser and Node.js. Zero native binary dependencies.</p>
-      </div>
-      <PackageQuickStart />
-    </section>
-
-    <!-- FAQ -->
-    <section class="topic-section shell shell--reading" id="faq" aria-labelledby="faq-title">
-      <div class="section-heading">
-        <h2 id="faq-title">Questions.</h2>
-      </div>
-      <dl class="faq-list">
-        {faqs.map(({ q, a }) => (
-          <div class="faq-item">
-            <dt>{q}</dt>
-            <dd>{a}</dd>
-          </div>
+    <section class="coverage-section shell" aria-labelledby="coverage-title">
+      <div class="section-intro"><h2 id="coverage-title">The clouds you work in.</h2><p>Provider-aware resources and official icons.<br />Mix providers in one diagram when your architecture does.</p></div>
+      <div class="provider-list">
+        {providers.map((provider) => (
+          <article class="provider-row">
+            <h3><a href={exampleUrl(provider.source)}>{provider.name}<span aria-hidden="true">↗</span></a></h3>
+            <p>{provider.detail}</p>
+            <span class="provider-count">{provider.count}</span>
+            <a class="provider-reference" href={provider.docs} aria-label={provider.name + " reference"}>Reference <span aria-hidden="true">↗</span></a>
+          </article>
         ))}
-      </dl>
-      <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+      </div>
     </section>
 
-    <!-- Feature Family 5: Final CTA -->
-    <section class="final-cta shell shell--reading" aria-labelledby="final-cta-title">
-      <p class="eyebrow">Open source · MIT licensed · No account required</p>
-      <h2 id="final-cta-title">See your architecture clearly.</h2>
-      <div class="final-cta__actions">
-        <Button href={SITE_ROUTES.playground}>Open playground</Button>
-        <Button href={SITE_ROUTES.docs} variant="text">Read the docs <span aria-hidden="true">→</span></Button>
+    <section class="questions-section shell" aria-labelledby="faq-title">
+      <h2 id="faq-title">A few useful answers.</h2>
+      <div class="questions-list">
+        {faqs.map(({ q, a }) => <details><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}
       </div>
+    </section>
+
+    <section class="closing-section shell" aria-labelledby="closing-title">
+      <div><h2 id="closing-title">Your next diagram<br /> starts with a prompt.</h2><p>Bring your agent. The MCP server and playground are ready.</p></div>
+      <Button href="#get-started">Connect your agent for free <span aria-hidden="true">↗</span></Button>
     </section>
   </main>
   <SiteFooter />
-
-  <script>
-    const skillCopyBtn = document.getElementById("skill-copy-trigger");
-    if (skillCopyBtn) {
-      skillCopyBtn.addEventListener("click", async () => {
-        const text = skillCopyBtn.getAttribute("data-copy-text") || "";
-        const originalText = skillCopyBtn.innerHTML;
-        try {
-          await navigator.clipboard.writeText(text);
-          skillCopyBtn.classList.add("is-copied");
-          skillCopyBtn.innerHTML = "<span>Copied ✓</span>";
-          setTimeout(() => {
-            skillCopyBtn.classList.remove("is-copied");
-            skillCopyBtn.innerHTML = originalText;
-          }, 2000);
-        } catch {
-          const input = document.createElement("input");
-          input.value = text;
-          document.body.appendChild(input);
-          input.select();
-          document.execCommand("copy");
-          document.body.removeChild(input);
-          skillCopyBtn.classList.add("is-copied");
-          skillCopyBtn.innerHTML = "<span>Copied ✓</span>";
-          setTimeout(() => {
-            skillCopyBtn.classList.remove("is-copied");
-            skillCopyBtn.innerHTML = originalText;
-          }, 2000);
-        }
-      });
-    }
-  </script>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 </BaseLayout>

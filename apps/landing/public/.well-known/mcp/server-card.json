@@ -2,7 +2,7 @@
   "serverInfo": {
     "name": "archlex",
     "title": "ArchLex Remote MCP Server",
-    "version": "0.2.4"
+    "version": "0.2.7"
   },
   "description": "Render, validate, and share AWS, Cloudflare, GCP, and Kubernetes architecture diagrams as code.",
   "documentationUrl": "https://docs.archlex.dev/guides/mcp-server/",

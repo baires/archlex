@@ -7,7 +7,8 @@ point loads fonts, structural tokens, and semantic theme colors in that order.
 
 ## Fonts
 
-- **Display and UI**: Instrument Sans Variable
+- **Display**: Bricolage Grotesque Variable (locally hosted)
+- **UI**: Instrument Sans Variable (locally hosted)
 - **Code and monospace**: Commit Mono
 
 Use `--font-display`, `--font-ui`, and `--font-code` to reference the font roles.
@@ -41,3 +42,9 @@ copies of both as its favicons (`apps/*/public/favicon.svg`, `apple-touch-icon.p
 and `apple-touch-icon-precomposed.png`); update those copies when the logo changes.
 App headers render the same artwork inline with `fill="currentColor"` so it follows
 the manual theme toggle — keep those inline copies in sync with this file too.
+
+## Status and overflow
+
+Use --status-warning and --status-warning-surface for semantic warnings in both themes. Always accompany color with readable status text. --text-secondary meets AA on the shared light surfaces. The package provides a visible, theme-aware scrollbar baseline for owned overflow regions using --scrollbar-thumb and --scrollbar-track; forced colors use system scrollbars.
+
+Visual intent and application register are documented in the root DESIGN.md. Runtime values in this package remain canonical. The landing and playground share these values while owning their layout and interaction components.

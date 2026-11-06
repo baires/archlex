@@ -5,16 +5,16 @@ import SiteHeader from "../components/SiteHeader.astro";
 import { SITE_ROUTES } from "../config";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
-
-<BaseLayout title="Page not found | ArchLex" noindex>
+<BaseLayout title="Page not found | ArchLex" description="This ArchLex page could not be found. Return to the architecture review example or open the documentation." noindex>
   <SiteHeader />
   <main id="main-content" tabindex="-1">
     <section class="final-cta shell shell--reading" aria-labelledby="not-found-title">
-      <p class="eyebrow">404</p>
-      <h1 id="not-found-title">Page not found.</h1>
+      <p class="eyebrow">404 / Missing endpoint</p>
+      <h1 id="not-found-title">This connection<br /> leads nowhere.</h1>
+      <p class="hero__lede">The page could not be found. Start with a diagram that connects.</p>
       <div class="final-cta__actions">
-        <Button href="/">Go home</Button>
-        <Button href={SITE_ROUTES.docs} variant="text">Read the docs <span aria-hidden="true">→</span></Button>
+        <Button href="/">Back to the example</Button>
+        <Button href={SITE_ROUTES.docs} variant="text">Read the docs <span aria-hidden="true">↗</span></Button>
       </div>
     </section>
   </main>

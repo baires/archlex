@@ -7,12 +7,16 @@
   --border-subtle: #dedfd8;
   --border-strong: #aeb0a6;
   --text-primary: #171814;
-  --text-secondary: #6e7068;
+  --text-secondary: #606359;
   --text-inverse: #fafbf6;
   --signal: #356d12;
   --signal-hover: #28570e;
   --signal-contrast: #ffffff;
   --focus-ring: #356d12;
+  --status-warning: #885006;
+  --status-warning-surface: #fff3dc;
+  --scrollbar-thumb: #aeb0a6;
+  --scrollbar-track: transparent;
   --diagram-canvas: #f8f8f4;
   --diagram-canvas-line: #d5d7cf;
   --surface-0: var(--surface-canvas);
@@ -48,6 +52,9 @@
   --signal-hover: #baf08d;
   --signal-contrast: #11120f;
   --focus-ring: #a9e876;
+  --status-warning: #f0c477;
+  --status-warning-surface: #352a18;
+  --scrollbar-thumb: #62645b;
   --diagram-canvas: #11120f;
   --diagram-canvas-line: #303129;
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 30%);
@@ -71,6 +78,9 @@
     --signal-hover: #baf08d;
     --signal-contrast: #11120f;
     --focus-ring: #a9e876;
+    --status-warning: #f0c477;
+    --status-warning-surface: #352a18;
+    --scrollbar-thumb: #62645b;
     --diagram-canvas: #11120f;
     --diagram-canvas-line: #303129;
   }
