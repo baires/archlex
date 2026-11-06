@@ -32,6 +32,7 @@
       "!**/.astro",
       "!**/.wrangler",
       "!**/apps/mcp-server/src/generated",
+      "!**/.agents/skills/security-audit",
       "!**/out",
       "!**/dist",
       "!**/node_modules",
