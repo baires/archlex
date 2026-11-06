@@ -1,0 +1,191 @@
+---
+import { SITE_ROUTES } from "../config";
+import {
+  EXAMPLE_PROVIDER_LABELS,
+  type PublishedExample,
+} from "../data/examples";
+import { providerPage, providerPath } from "../data/providers";
+import { breadcrumbJsonLd, faqJsonLd } from "../data/seo";
+import {
+  relatedServiceExamples,
+  renderServiceSnippet,
+  type ServicePage as ServicePageData,
+  serviceDiagramUrl,
+  serviceJsonLd,
+  servicePath,
+  siblingServices,
+} from "../data/services";
+import { exampleUrl } from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import Button from "./Button.astro";
+import CodeBlock from "./CodeBlock.astro";
+import ExampleCards from "./ExampleCards.astro";
+import SiteFooter from "./SiteFooter.astro";
+import SiteHeader from "./SiteHeader.astro";
+
+interface Props {
+  page: ServicePageData;
+}
+
+const { page } = Astro.props;
+const path = servicePath(page);
+const provider = providerPage(page.provider);
+const providerName = EXAMPLE_PROVIDER_LABELS[page.provider];
+const siblings = siblingServices(page);
+const related: PublishedExample[] = relatedServiceExamples(page);
+const crumbs = [
+  { name: "ArchLex", path: "/" },
+  {
+    name: `${provider.name} architecture diagrams`,
+    path: providerPath(provider),
+  },
+  { name: page.name, path },
+];
+
+const rendered = await Promise.all(
+  page.snippets.map(async (snippet, index) => {
+    const { width, height } = await renderServiceSnippet(
+      snippet.source,
+      "light",
+    );
+    return {
+      ...snippet,
+      index,
+      width,
+      height,
+      light: serviceDiagramUrl(page.id, index, "light"),
+      dark: serviceDiagramUrl(page.id, index, "dark"),
+    };
+  }),
+);
+
+const primary = rendered[0];
+const skillInstallCmd = "npx skills add baires/archlex";
+const id = page.id;
+---
+
+<BaseLayout
+  title={page.title}
+  description={page.description}
+  jsonLd={[
+    serviceJsonLd(page),
+    faqJsonLd(page.faqs),
+    breadcrumbJsonLd(crumbs),
+  ]}
+>
+  <SiteHeader />
+  <main id="main-content" tabindex="-1">
+    <Breadcrumbs crumbs={crumbs} />
+    <section class="hero topic-hero shell shell--reading" aria-labelledby={`${id}-title`}>
+      <div class="hero__copy">
+        <p class="eyebrow">{providerName} · {page.name} · Diagram as code</p>
+        <h1 id={`${id}-title`}>{page.h1}</h1>
+        <p class="hero__lede">{page.lede}</p>
+        <div class="hero__actions">
+          <Button href={exampleUrl(primary.source)}>Open in Playground</Button>
+          <Button href={providerPath(provider)} variant="text">{provider.name} diagrams <span aria-hidden="true">→</span></Button>
+        </div>
+      </div>
+    </section>
+
+    {rendered.map((snippet) => (
+      <section class="topic-section shell shell--wide" aria-labelledby={`${id}-snippet-${snippet.index}-title`}>
+        <div class="section-heading">
+          <h2 id={`${id}-snippet-${snippet.index}-title`}>{snippet.title}</h2>
+          <p class="section-lead">{snippet.lead}</p>
+        </div>
+        <div class="topic-stack">
+          <article class="proof-card proof-card--visual">
+            <figure class="semantic-proof">
+              <img class="diagram-img diagram-img--dark" src={snippet.dark} alt={snippet.alt} width={snippet.width} height={snippet.height} loading={snippet.index === 0 ? "eager" : "lazy"} decoding="async" />
+              <img class="diagram-img diagram-img--light" src={snippet.light} alt={snippet.alt} width={snippet.width} height={snippet.height} loading={snippet.index === 0 ? "eager" : "lazy"} decoding="async" />
+            </figure>
+          </article>
+          <article class="proof-card proof-card--diff">
+            <div class="source-proof">
+              <div class="source-proof__chrome" aria-hidden="true">
+                <span class="source-proof__tag">{snippet.file}</span>
+              </div>
+              <CodeBlock code={snippet.source} lang="archlex" />
+            </div>
+          </article>
+        </div>
+        <p class="section-lead">
+          <a class="text-link" href={exampleUrl(snippet.source)}>Open this diagram in the playground <span aria-hidden="true">→</span></a>
+        </p>
+      </section>
+    ))}
+
+    <section class="topic-section shell shell--reading" aria-labelledby={`${id}-pattern-title`}>
+      <div class="section-heading">
+        <h2 id={`${id}-pattern-title`}>Pattern notes for {page.name}.</h2>
+        <p class="section-lead">Placement and relationship rules ArchLex enforces for this service.</p>
+      </div>
+      <ul class="topic-list">
+        {page.pattern.map((item) => <li><strong>{item.title}</strong> {item.body}</li>)}
+      </ul>
+    </section>
+
+    <section class="topic-section shell shell--reading" aria-labelledby={`${id}-agent-title`}>
+      <div class="section-heading">
+        <h2 id={`${id}-agent-title`}>Ask an agent to draw it.</h2>
+        <p class="section-lead">Install the ArchLex skill or connect the free MCP server, then paste this prompt.</p>
+      </div>
+      <div class="skill-terminal">
+        <div class="skill-terminal__bar">
+          <span class="skill-terminal__dot"></span>
+          <span class="skill-terminal__title">Agent skill install</span>
+        </div>
+        <div class="skill-terminal__content">
+          <code>{skillInstallCmd}</code>
+        </div>
+      </div>
+      <div class="source-proof" style="margin-top: 1rem;">
+        <div class="source-proof__chrome" aria-hidden="true">
+          <span class="source-proof__tag">agent-prompt.txt</span>
+        </div>
+        <CodeBlock code={page.agentPrompt} lang="text" />
+      </div>
+      <p class="section-lead">Prefer MCP? Follow the <a class="text-link" href={SITE_ROUTES.mcpDocs}>MCP server guide</a>.</p>
+    </section>
+
+    {related.length > 0 && (
+      <section class="topic-section shell shell--wide" aria-labelledby={`${id}-examples-title`}>
+        <div class="section-heading">
+          <h2 id={`${id}-examples-title`}>Related {providerName} examples.</h2>
+          <p class="section-lead"><a class="text-link" href="/examples/">Browse all examples</a></p>
+        </div>
+        <ExampleCards examples={related} />
+      </section>
+    )}
+
+    <section class="questions-section shell shell--reading" aria-labelledby={`${id}-faq-title`}>
+      <h2 id={`${id}-faq-title`}>{page.name} diagram questions.</h2>
+      <div class="questions-list">
+        {page.faqs.map(({ q, a }) => <details><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}
+      </div>
+    </section>
+
+    <section class="topic-section shell shell--reading" aria-labelledby={`${id}-more-title`}>
+      <div class="section-heading">
+        <h2 id={`${id}-more-title`}>More {provider.name} service diagrams.</h2>
+      </div>
+      <ul class="topic-links">
+        {siblings.map((item) => <li><a class="text-link" href={servicePath(item)}>{item.name} architecture diagram</a></li>)}
+        <li><a class="text-link" href={providerPath(provider)}>All {provider.name} architecture diagrams</a></li>
+        <li><a class="text-link" href="/examples/">Architecture diagram examples</a></li>
+      </ul>
+    </section>
+
+    <section class="final-cta shell shell--reading" aria-labelledby={`${id}-cta-title`}>
+      <p class="eyebrow">Open source · MIT licensed</p>
+      <h2 id={`${id}-cta-title`}>Diagram {page.name} as code.</h2>
+      <div class="final-cta__actions">
+        <Button href={exampleUrl(primary.source)}>Open in Playground</Button>
+        <Button href="https://docs.archlex.dev/getting-started/" variant="text">Get started <span aria-hidden="true">→</span></Button>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+</BaseLayout>
