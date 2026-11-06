@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../src/index.js";
 import {
   checkRateLimit,
+  getClientIp,
   inMemoryRateLimiter,
   parseRenderUrlConfig,
   validateAuthentication,
@@ -73,30 +74,61 @@ describe("MCP Security Middleware", () => {
     });
   });
 
+  describe("getClientIp", () => {
+    it("keys only on CF-Connecting-IP", () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: {
+          "cf-connecting-ip": "2001:db8::1",
+          "x-forwarded-for": "198.51.100.8, 203.0.113.1",
+        },
+      });
+      expect(getClientIp(request)).toBe("2001:db8::1");
+    });
+
+    it("uses unknown when CF-Connecting-IP is absent or unusable", () => {
+      expect(
+        getClientIp(
+          new Request("https://mcp.archlex.dev/health", {
+            headers: { "x-forwarded-for": "198.51.100.8" },
+          }),
+        ),
+      ).toBe("unknown");
+      expect(
+        getClientIp(
+          new Request("https://mcp.archlex.dev/health", {
+            headers: { "cf-connecting-ip": "198.51.100.8, 203.0.113.1" },
+          }),
+        ),
+      ).toBe("unknown");
+      expect(getClientIp(new Request("https://mcp.archlex.dev/health"))).toBe(
+        "unknown",
+      );
+    });
+  });
+
   describe("checkRateLimit", () => {
-    it("allows requests within configured limit", async () => {
+    const localEnv = {
+      ENVIRONMENT: "test",
+      RATE_LIMIT_MAX_REQUESTS: "5",
+      RATE_LIMIT_WINDOW_SECONDS: "60",
+    };
+
+    it("allows requests within the local fallback limit", async () => {
       const request = new Request("https://mcp.archlex.dev/health", {
         headers: { "cf-connecting-ip": "203.0.113.195" },
       });
-      const env = {
-        RATE_LIMIT_MAX_REQUESTS: "5",
-        RATE_LIMIT_WINDOW_SECONDS: "60",
-      };
 
       for (let i = 0; i < 5; i++) {
-        const res = await checkRateLimit(request, env);
+        const res = await checkRateLimit(request, localEnv);
         expect(res.allowed).toBe(true);
       }
     });
 
-    it("blocks request exceeding limit with 429 Too Many Requests", async () => {
+    it("blocks the local fallback with 429 Too Many Requests", async () => {
       const request = new Request("https://mcp.archlex.dev/health", {
         headers: { "cf-connecting-ip": "203.0.113.195" },
       });
-      const env = {
-        RATE_LIMIT_MAX_REQUESTS: "3",
-        RATE_LIMIT_WINDOW_SECONDS: "60",
-      };
+      const env = { ...localEnv, RATE_LIMIT_MAX_REQUESTS: "3" };
 
       for (let i = 0; i < 3; i++) {
         await checkRateLimit(request, env);
@@ -106,6 +138,108 @@ describe("MCP Security Middleware", () => {
       expect(res.allowed).toBe(false);
       expect(res.status).toBe(429);
       expect(res.headers?.["Retry-After"]).toBeDefined();
+    });
+
+    it("shares the unknown key and ignores X-Forwarded-For", async () => {
+      const env = { ...localEnv, RATE_LIMIT_MAX_REQUESTS: "1" };
+      const forwarded = new Request("https://mcp.archlex.dev/health", {
+        headers: { "x-forwarded-for": "198.51.100.8" },
+      });
+      const bare = new Request("https://mcp.archlex.dev/health");
+
+      expect((await checkRateLimit(forwarded, env)).allowed).toBe(true);
+      const blocked = await checkRateLimit(bare, env);
+      expect(blocked.allowed).toBe(false);
+      expect(blocked.status).toBe(429);
+    });
+
+    it("uses the RATE_LIMITER binding key", async () => {
+      const keys: string[] = [];
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: {
+          "cf-connecting-ip": "203.0.113.9",
+          "x-forwarded-for": "198.51.100.8",
+        },
+      });
+      const res = await checkRateLimit(request, {
+        ENVIRONMENT: "production",
+        RATE_LIMITER: {
+          limit: async ({ key }) => {
+            keys.push(key);
+            return { success: true };
+          },
+        },
+      });
+      expect(res).toEqual({ allowed: true, status: 200 });
+      expect(keys).toEqual(["203.0.113.9"]);
+    });
+
+    it("returns 429 when the binding rejects the request", async () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "203.0.113.9" },
+      });
+      const res = await checkRateLimit(request, {
+        ENVIRONMENT: "production",
+        RATE_LIMIT_WINDOW_SECONDS: "60",
+        RATE_LIMITER: {
+          limit: async () => ({ success: false }),
+        },
+      });
+      expect(res.allowed).toBe(false);
+      expect(res.status).toBe(429);
+      expect(res.headers?.["Retry-After"]).toBe("60");
+    });
+
+    it("fails closed when the binding throws", async () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "203.0.113.7" },
+      });
+      const res = await checkRateLimit(request, {
+        ENVIRONMENT: "test",
+        RATE_LIMIT_MAX_REQUESTS: "1",
+        RATE_LIMITER: {
+          limit: async () => {
+            throw new Error("binding down");
+          },
+        },
+      });
+      expect(res.allowed).toBe(false);
+      expect(res.status).toBe(503);
+      expect((await checkRateLimit(request, localEnv)).allowed).toBe(true);
+    });
+
+    it("fails closed in production when the binding is missing", async () => {
+      const request = new Request("https://mcp.archlex.dev/health", {
+        headers: { "cf-connecting-ip": "203.0.113.50" },
+      });
+      const denied = await checkRateLimit(request, {
+        ENVIRONMENT: "production",
+        RATE_LIMIT_MAX_REQUESTS: "1",
+      });
+      expect(denied.allowed).toBe(false);
+      expect(denied.status).toBe(503);
+      expect(denied.message).toContain("Rate limiter is unavailable");
+      expect((await checkRateLimit(request, localEnv)).allowed).toBe(true);
+    });
+
+    it("fails closed on the Workers runtime without an explicit local environment", async () => {
+      const previous = globalThis.navigator;
+      Object.defineProperty(globalThis, "navigator", {
+        configurable: true,
+        value: { userAgent: "Cloudflare-Workers" },
+      });
+      try {
+        const res = await checkRateLimit(
+          new Request("https://mcp.archlex.dev/health"),
+        );
+        expect(res.allowed).toBe(false);
+        expect(res.status).toBe(503);
+      } finally {
+        Object.defineProperty(globalThis, "navigator", {
+          configurable: true,
+          value: previous,
+        });
+      }
     });
   });
 
@@ -130,6 +264,7 @@ describe("MCP Security Middleware", () => {
 
     it("returns 429 Too Many Requests when endpoint rate limit is exceeded", async () => {
       const env = {
+        ENVIRONMENT: "test",
         RATE_LIMIT_MAX_REQUESTS: "2",
         RATE_LIMIT_WINDOW_SECONDS: "60",
       };
@@ -151,6 +286,19 @@ describe("MCP Security Middleware", () => {
       expect(res.status).toBe(429);
       const data = (await res.json()) as { error: string };
       expect(data.error).toContain("Too Many Requests");
+    });
+
+    it("returns 503 when production has no rate limit binding", async () => {
+      const response = await worker.fetch(
+        new Request("https://mcp.archlex.dev/health", {
+          headers: { "cf-connecting-ip": "203.0.113.10" },
+        }),
+        { ENVIRONMENT: "production" },
+      );
+      expect(response.status).toBe(503);
+      expect(response.headers.get("Retry-After")).toBe("60");
+      const data = (await response.json()) as { error: string };
+      expect(data.error).toContain("Rate limiter is unavailable");
     });
   });
 

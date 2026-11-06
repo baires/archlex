@@ -151,12 +151,35 @@ class InMemoryRateLimiter {
 
 export const inMemoryRateLimiter = new InMemoryRateLimiter();
 
+const UNKNOWN_CLIENT_IP = "unknown";
+const CLIENT_IP_PATTERN = /^[A-Za-z0-9.:]{1,64}$/;
+
 export function getClientIp(request: Request): string {
-  return (
-    request.headers.get("cf-connecting-ip") ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    "127.0.0.1"
-  );
+  const connectingIp = request.headers.get("cf-connecting-ip") ?? "";
+  return CLIENT_IP_PATTERN.test(connectingIp)
+    ? connectingIp
+    : UNKNOWN_CLIENT_IP;
+}
+
+function isVitest(): boolean {
+  return typeof process !== "undefined" && process.env.VITEST === "true";
+}
+
+function isCloudflareWorker(): boolean {
+  return globalThis.navigator?.userAgent === "Cloudflare-Workers";
+}
+
+/**
+ * In-memory limits are a local fallback only.
+ * `ENVIRONMENT=development` or `test` opts in. `ENVIRONMENT=production` never
+ * does. The Workers runtime fails closed without that opt-in. Vitest is the
+ * remaining fallback because it has no Workers binding.
+ */
+function allowsInMemoryRateLimit(env?: Env): boolean {
+  const environment = env?.ENVIRONMENT?.trim().toLowerCase();
+  if (environment === "development" || environment === "test") return true;
+  if (environment === "production" || isCloudflareWorker()) return false;
+  return isVitest();
 }
 
 function boundedPositiveInteger(
@@ -171,7 +194,8 @@ function boundedPositiveInteger(
 }
 
 /**
- * Check IP rate limits using Cloudflare binding or in-memory fallback
+ * Check IP rate limits using the Cloudflare RATE_LIMITER binding.
+ * The in-memory map is only a local dev/test fallback.
  */
 export async function checkRateLimit(
   request: Request,
@@ -193,8 +217,13 @@ export async function checkRateLimit(
     60,
     3600,
   );
+  const unavailable = {
+    allowed: false,
+    status: 503,
+    message: "Service Unavailable: Rate limiter is unavailable.",
+    headers: { "Retry-After": String(windowSeconds) },
+  };
 
-  // If Cloudflare Native Rate Limiter binding is available
   if (env?.RATE_LIMITER) {
     try {
       const res = await env.RATE_LIMITER.limit({ key: ip });
@@ -209,9 +238,11 @@ export async function checkRateLimit(
       }
       return { allowed: true, status: 200 };
     } catch {
-      // Fallback to in-memory rate limiter on binding error
+      return unavailable;
     }
   }
+
+  if (!allowsInMemoryRateLimit(env)) return unavailable;
 
   const result = inMemoryRateLimiter.check(
     ip,

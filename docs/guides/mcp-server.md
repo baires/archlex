@@ -185,7 +185,7 @@ The server only accepts ArchLex source and returns diagrams. It does not
 connect to your AWS, Cloudflare, GCP, or Kubernetes accounts, and it does not read your
 git remotes.
 
-The public endpoint rate-limits by IP and caps payload and source size. POST
+The public endpoint rate-limits each `CF-Connecting-IP` to 60 requests per 60 seconds and caps payload and source size. POST
 bodies are bounded to 512 KiB, including streamed bodies. Legacy SSE sessions
 expire after five minutes and are capped at 100 per isolate. Public image
 rendering has a request deadline and a four-render concurrency limit per isolate.

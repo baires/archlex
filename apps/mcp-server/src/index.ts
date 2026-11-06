@@ -140,7 +140,10 @@ export default {
     const rateLimit = await checkRateLimit(request, env);
     if (!rateLimit.allowed) {
       logTelemetry("security_event", {
-        type: "rate_limit_exceeded",
+        type:
+          rateLimit.status === 429
+            ? "rate_limit_exceeded"
+            : "rate_limit_unavailable",
         path: url.pathname,
       });
       return jsonResponse(
