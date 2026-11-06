@@ -18,4 +18,4 @@ Check the service type name. Use fully qualified names (e.g., 'aws.lambda') for 
 
 ---
 
-[← Back to Error Codes](index.md)
+[← Back to Error Codes](/errors/)

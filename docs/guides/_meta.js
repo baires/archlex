@@ -1,4 +1,5 @@
 export default {
+  index: "Overview",
   agents: "Use with AI agents",
   "mcp-server": "Remote MCP Server",
   "cloudflare-pack": "Cloudflare Pack",

@@ -18,4 +18,4 @@ Add at least one resource or relationship to create a diagram.
 
 ---
 
-[← Back to Error Codes](index.md)
+[← Back to Error Codes](/errors/)

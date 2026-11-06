@@ -33,4 +33,4 @@ provider: aws
 
 ---
 
-[← Back to Error Codes](index.md)
+[← Back to Error Codes](/errors/)

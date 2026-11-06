@@ -177,4 +177,4 @@ pnpm build:docs
 pnpm verify:sites
 ```
 
-Review [AGENTS.md](../../AGENTS.md) for repository-wide requirements.
+Review [AGENTS.md](https://github.com/baires/archlex/blob/main/AGENTS.md) for repository-wide requirements.

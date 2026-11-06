@@ -1,11 +1,3 @@
----
-
-title: Diagnostic Reference
-description: "Reference for ArchLex diagnostics, including AL-PARSE and AL-STRUCT families, AWS, Cloudflare, GCP, and K8S codes, severities, and validation modes."
----
-
-# Diagnostic Reference
-
 ArchLex returns structured diagnostics with parse, analysis, and render results. Use each diagnostic's code, severity, source span, and remediation to show a useful correction beside the diagram source.
 
 ```typescript
@@ -53,14 +45,14 @@ validation normal
 | `off`    | Skips provider semantic rules while retaining parsing and graph construction checks |
 
 Provider specifications describe the rules that each mode affects:
-- [AWS diagnostics](../specs/aws-semantics.md)
-- [Google Cloud diagnostics](../specs/gcp-semantics.md)
-- [Kubernetes diagnostics](../specs/k8s-semantics.md)
-- [Cloudflare pack](../guides/cloudflare-pack.md)
+- [AWS diagnostics](/specs/aws-semantics/)
+- [Google Cloud diagnostics](/specs/gcp-semantics/)
+- [Kubernetes diagnostics](/specs/k8s-semantics/)
+- [Cloudflare pack](/guides/cloudflare-pack/)
 
 ## Fix a Diagnostic
 
 1. Find the diagnostic code and source span in the result.
 2. Read its `remediation` field.
-3. Open the code in the [generated index](index.md) when you need its full reference page.
+3. Open the code in the [error code list](#error-codes) when you need its full reference page.
 4. Update the source, then render it again.

@@ -69,6 +69,7 @@ describe("completion/complete", () => {
       "guides/agents",
       "guides/cloudflare-pack",
       "guides/dynamic-cdn-icons",
+      "guides/index",
       "guides/mcp-server",
       "guides/relationship-types",
       "guides/share",

@@ -18,4 +18,4 @@ Use the runtime catalog to choose a known core or provider relationship kind, or
 
 ---
 
-[← Back to Error Codes](index.md)
+[← Back to Error Codes](/errors/)

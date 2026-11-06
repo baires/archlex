@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -47,16 +47,25 @@ async function generateErrorDocs() {
   const sanitize = (message: string): string =>
     message.replace(/\$\{(\w+)\}/g, "<$1>");
 
+  // Hand-written overview (families, severity, validation modes) so /errors/
+  // is the single diagnostic reference page.
+  const overview = await readFile(
+    join(__dirname, "error-docs-overview.md"),
+    "utf8",
+  );
+
   // Generate index page
   let indexContent = "---\n";
   indexContent += "title: Error Codes\n";
   indexContent += `description: ${JSON.stringify("Complete reference of all ArchLex diagnostic codes — parse, structure, and semantic errors with remediation steps and examples.")}\n`;
   indexContent += "---\n\n";
   indexContent += "# ArchLex Error Codes\n\n";
+  indexContent += `${overview.trim()}\n\n`;
+  indexContent += "## Error Codes\n\n";
   indexContent += "Complete reference of all diagnostic codes.\n\n";
 
   for (const [category, items] of byCategory.entries()) {
-    indexContent += `## ${category.charAt(0).toUpperCase() + category.slice(1)}\n\n`;
+    indexContent += `### ${category.charAt(0).toUpperCase() + category.slice(1)}\n\n`;
 
     for (const [code, def] of items) {
       const badge =
@@ -65,7 +74,7 @@ async function generateErrorDocs() {
           : def.severity === "warning"
             ? "🟡"
             : "🔵";
-      indexContent += `- ${badge} [${code}](${code}.md) - ${def.message}\n`;
+      indexContent += `- ${badge} [${code}](/errors/${code}/) - ${def.message}\n`;
     }
 
     indexContent += "\n";
@@ -101,13 +110,13 @@ async function generateErrorDocs() {
     if (def.relatedCodes && def.relatedCodes.length > 0) {
       content += "## Related Codes\n\n";
       for (const related of def.relatedCodes) {
-        content += `- [${related}](${related}.md)\n`;
+        content += `- [${related}](/errors/${related}/)\n`;
       }
       content += "\n";
     }
 
     content += "---\n\n";
-    content += "[← Back to Error Codes](index.md)\n";
+    content += "[← Back to Error Codes](/errors/)\n";
 
     await writeFile(join(docsDir, `${code}.md`), content);
     console.log(`✓ Generated docs/errors/${code}.md`);

@@ -182,7 +182,7 @@ for aliases, connectors, flow labels and mixed-provider examples.
 - [MCP server](docs/guides/mcp-server.md)
 - [AWS](docs/specs/aws-semantics.md) · [GCP](docs/specs/gcp-semantics.md) ·
   [Kubernetes](docs/specs/k8s-semantics.md) · [Cloudflare](docs/guides/cloudflare-pack.md)
-- [Error reference](docs/errors/README.md)
+- [Error reference](docs/errors/index.md)
 
 ## License
 

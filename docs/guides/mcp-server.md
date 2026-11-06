@@ -11,7 +11,7 @@ Use the ArchLex MCP server to render, validate, inspect, and share AWS, Cloudfla
 Cloud, and Kubernetes diagrams from an MCP client.
 
 For the 30-second path (skill + one prompt), see
-[Use with AI agents](/guides/agents).
+[Use with AI agents](/guides/agents/).
 
 The hosted endpoint is free to use. No API keys or account are required. Alongside diagram tools, MCP clients can discover prompts, examples, catalogs and documentation. Render results include source and a playground URL for further editing.
 
@@ -117,7 +117,7 @@ select the intended canonical ID from the response.
 
 Read `archlex://docs/guides/cloudflare-pack` for the public catalog, scope
 semantics, validation limits, and four verified reference architectures. The
-[Cloudflare provider guide](/guides/cloudflare-pack) covers standalone Workers/R2,
+[Cloudflare provider guide](/guides/cloudflare-pack/) covers standalone Workers/R2,
 public AWS origins, GCP/Kubernetes Tunnel connectors, and AWS/GCP origin steering.
 These are guide examples, rather than additional `archlex://examples` resources.
 
@@ -200,7 +200,7 @@ embed the image URL. The one-time `revoke_token` appears only in
 files the same way you would keep them out of any other file you commit. Save
 source as `.arch` (the name to use); `.archlex` files remain valid everywhere
 ArchLex reads a file. For short, expiring links that render the diagram in a
-README, see [Share a diagram](/guides/share).
+README, see [Share a diagram](/guides/share/).
 
 To run a private copy, see the
 [MCP server README](https://github.com/baires/archlex/blob/main/apps/mcp-server/README.md).
