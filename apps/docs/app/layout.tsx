@@ -65,6 +65,7 @@ export default async function RootLayout({
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <Head color={{ hue: 94, saturation: 100 }}>
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1" />
       </Head>

@@ -107,5 +107,5 @@ Try next:
 The skill teaches the DSL, relationship kinds, and how to repair diagnostics.
 The MCP server enforces the catalog so agents cannot invent resource names.
 
-Full protocol details: [Remote MCP Server](/guides/mcp-server).
-Language reference: [Language Specification](/specs/language).
+Full protocol details: [Remote MCP Server](/guides/mcp-server/).
+Language reference: [Language Specification](/specs/language/).

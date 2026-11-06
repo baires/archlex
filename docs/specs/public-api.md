@@ -133,7 +133,7 @@ Cloudflare provides 92 catalog resources with bundled artwork and no required
 CDN adapter. Its root/account containment rule warns in normal mode, errors in
 strict mode and is skipped in off mode; it does not infer runtime networking.
 Use qualified kinds such as `cloudflare.workers` in mixed-provider source. See the
-[Cloudflare pack guide](/guides/cloudflare-pack) for IDs, aliases, validation depth
+[Cloudflare pack guide](/guides/cloudflare-pack/) for IDs, aliases, validation depth
 and connector examples.
 
 Relationship entries carry an `area` grouping, and each provider's

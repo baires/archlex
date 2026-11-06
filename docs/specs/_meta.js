@@ -1,4 +1,5 @@
 export default {
+  index: "Overview",
   language: "Language Specification",
   "public-api": "Public API",
   "aws-semantics": "AWS Semantics",

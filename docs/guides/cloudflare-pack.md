@@ -60,7 +60,7 @@ Provider/core imports and bundled Cloudflare rendering make no network requests
 and register no global icon loader. No Cloudflare CDN adapter is required. The
 playground editor and other application dependencies may still need network
 access during startup; offline diagram rendering does not imply offline startup.
-See the [public API](/specs/public-api) for pipeline and browser mounting APIs.
+See the [public API](/specs/public-api/) for pipeline and browser mounting APIs.
 
 ## IDs, aliases and coverage
 
@@ -246,7 +246,7 @@ catalog identities; their presence does not establish deployment or connectivity
 WAF, Access and cache are capability associations, not mandatory appliances in a
 physical hop chain. Origin-pool labels express intent without creating synthetic
 pool resources or certifying health. Relationship kinds use the existing
-[relationship vocabulary](/guides/relationship-types); no `resolves` kind is introduced.
+[relationship vocabulary](/guides/relationship-types/); no `resolves` kind is introduced.
 
 ## Executable examples
 

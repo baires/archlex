@@ -116,5 +116,5 @@ Implement `CloudProvider` to add a catalog and semantic rules. Implement
 these implementations behind interfaces from `@archlex/model` so applications
 can compose them through `createArchLex`.
 
-Read the [Contribution Guide](contribution-guide.md) for file paths, provider
+Read the [Contribution Guide](/architecture/contribution-guide/) for file paths, provider
 examples, tests, changesets, and documentation requirements.

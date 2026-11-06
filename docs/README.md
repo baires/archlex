@@ -14,7 +14,7 @@ The hosted MCP server and browser playground are free to use, with no API keys o
      - [Google Cloud](specs/gcp-semantics.md)
        - [Kubernetes](specs/k8s-semantics.md)
          - [Cloudflare Pack](guides/cloudflare-pack.md)
-5. Read the [Error Reference](errors/README.md) when a diagnostic needs more context.
+5. Read the [Error Reference](errors/index.md) when a diagnostic needs more context.
 
 The Cloudflare pack recognizes 92 resources with bundled artwork. Its validation
 checks explicit root/account placement, not runtime connectivity, policy

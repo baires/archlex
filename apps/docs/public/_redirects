@@ -1,0 +1,16 @@
+# Folded into /errors/
+/errors/README /errors/ 301
+/errors/README/ /errors/ 301
+# Relative link to the repo AGENTS.md resolved to the docs root
+/AGENTS /guides/agents/ 301
+/AGENTS/ /guides/agents/ 301
+# Removed pages
+/architecture/technology-stack/ /architecture/system-architecture/ 301
+/guides/cloudflare-artwork/ /guides/cloudflare-pack/ 301
+/specs/cloudflare-release-evidence/ /guides/cloudflare-pack/ 301
+/specs/cloudflare-semantics/ /guides/cloudflare-pack/ 301
+# Old root-level error pages (relative links from /errors resolved to the root)
+/AL-* /errors/AL-:splat 301
+# Pre-rename diagnostic prefix
+/CM-* /errors/AL-:splat 301
+/errors/CM-* /errors/AL-:splat 301

@@ -30,6 +30,7 @@ describe("landing static assets", () => {
       "diagrams/hero-light.svg",
       "diagrams/serverless-api-dark.svg",
       "diagrams/serverless-api-light.svg",
+      "favicon.ico",
       "favicon.svg",
       "llms.txt",
       "og-multicloud.png",
