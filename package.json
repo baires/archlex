@@ -42,7 +42,7 @@
     "@archlex/icons": "workspace:*",
     "@archlex/k8s": "workspace:*",
     "@biomejs/biome": "^2.6.2",
-    "@changesets/cli": "^2.27.12",
+    "@changesets/cli": "^3.0.3",
     "@playwright/test": "1.64.1",
     "@types/node": "^26.6.5",
     "@xmldom/xmldom": "0.9.12",
