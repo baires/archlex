@@ -153,6 +153,12 @@ Describe the reader-visible effect and choose the release level that matches the
 public contract. Private packages are not published, so changes that only touch
 them do not require a changeset.
 
+`.changeset/config.json` versions private workspace packages and leaves them
+unpublished and untagged (`privatePackages.version: true`,
+`privatePackages.tag: false`). Published `@archlex/icons` depends on private
+`@archlex/icons-node`. Changesets 3 treats an unversioned private package as
+skipped, and `changeset publish` then rejects that dependency.
+
 Dependabot pull requests that change `dependencies` or `peerDependencies` of a
 published package are handled by `.github/workflows/dependabot-changeset.yml`.
 That workflow commits one patch changeset for those packages. Bumps that only
