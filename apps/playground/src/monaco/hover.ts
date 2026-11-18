@@ -1,6 +1,7 @@
 import { ARCHLEX_LANGUAGE_METADATA } from "@archlex/core";
 import type { DiagnosticCode } from "@archlex/diagnostics";
 import { getDiagnosticDefinition } from "@archlex/diagnostics";
+import { analyzeLanguageDocument } from "@archlex/language-service";
 import type { Diagnostic } from "@archlex/model";
 import type * as Monaco from "monaco-editor";
 
@@ -29,6 +30,12 @@ const KEYWORD_DOCS: Record<string, string> = {
   gcp: "**Google Cloud Platform** - GCP cloud provider",
   k8s: "**Kubernetes** - Kubernetes architecture provider",
 };
+
+const PRESENTATION_DOCS = new Map<string, string>(
+  ARCHLEX_LANGUAGE_METADATA.directives
+    .filter((directive) => "freeText" in directive && directive.freeText)
+    .map(({ name, documentation }) => [name, documentation] as const),
+);
 
 /**
  * Hover documentation for common services
@@ -146,6 +153,32 @@ export function registerHoverProvider(
           ),
           contents: [{ value: KEYWORD_DOCS[wordText] }],
         };
+      }
+
+      const presentationDoc = PRESENTATION_DOCS.get(word.word);
+      if (presentationDoc) {
+        const offset = model.getOffsetAt({
+          lineNumber: position.lineNumber,
+          column: word.startColumn,
+        });
+        const { ast } = analyzeLanguageDocument(model.getValue());
+        if (
+          ast.statements.some(
+            (statement) =>
+              statement.type === "directive" &&
+              statement.span.start.offset === offset,
+          )
+        ) {
+          return {
+            range: new monaco.Range(
+              position.lineNumber,
+              word.startColumn,
+              position.lineNumber,
+              word.endColumn,
+            ),
+            contents: [{ value: presentationDoc }],
+          };
+        }
       }
 
       // Check services

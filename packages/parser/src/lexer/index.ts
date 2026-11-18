@@ -1,4 +1,4 @@
-import { createToken, Lexer } from "chevrotain";
+import { createToken, type IToken, Lexer } from "chevrotain";
 
 export const LineComment = createToken({
   name: "LineComment",
@@ -40,6 +40,43 @@ export const Identifier = createToken({
   pattern: /[a-zA-Z_][a-zA-Z0-9_-]*/,
 });
 
+const presentationLine = /(?:title|sub|footer)[ \t]*:[^\r\n]*/y;
+
+function isHeader(tokens: readonly IToken[]): boolean {
+  for (let index = tokens.length - 1; index >= 0; index--) {
+    const type = tokens[index].tokenType;
+    // A prior presentation token already established that its prefix is a header.
+    if (type === PresentationDirective) return true;
+    if (type === Newline || type === Semicolon) continue;
+
+    if (type !== Identifier && type !== StringLiteral) return false;
+    if (tokens[index - 1]?.tokenType === Colon) index--;
+    if (tokens[--index]?.tokenType !== DirectiveName) return false;
+  }
+  return true;
+}
+
+// A whole presentation line is a token so comments, punctuation, and spaces
+// in its value never enter the graph grammar.
+export const PresentationDirective = createToken({
+  name: "PresentationDirective",
+  pattern: (source, offset, tokens) => {
+    const previous = tokens.at(-1);
+    if (
+      previous &&
+      previous.tokenType !== Newline &&
+      previous.tokenType !== Semicolon
+    ) {
+      return null;
+    }
+    presentationLine.lastIndex = offset;
+    const match = presentationLine.exec(source);
+    return match && isHeader(tokens) ? match : null;
+  },
+  start_chars_hint: ["t", "s", "f"],
+  line_breaks: false,
+});
+
 export const allTokens = [
   LineComment,
   WhiteSpace,
@@ -51,6 +88,7 @@ export const allTokens = [
   RBracket,
   Colon,
   DirectiveName,
+  PresentationDirective,
   ScopeKind,
   RelationshipOperator,
   Dot,

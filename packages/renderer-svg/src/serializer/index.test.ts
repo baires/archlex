@@ -665,3 +665,49 @@ describe("Mermaid-aligned rendering", () => {
     expect(result.svg).toContain("Subnet containment warning");
   });
 });
+
+describe("presentation frame", () => {
+  const graph = { width: 100, height: 100, nodes: [], edges: [] };
+
+  it.each([
+    ["light", "#101828", "#ffffff"],
+    ["dark", "#f8fafc", "#111827"],
+  ] as const)(
+    "composes themed headings and a footer in %s mode",
+    (theme, ink, paper) => {
+      const { svg, metadata } = serializeSvgGraph(graph, [], theme, {
+        title: "Retail <API> & Data",
+        sub: "Producción",
+        footer: "Platform team",
+      });
+      expect(svg).toContain('aria-labelledby="archlex-presentation-heading"');
+      expect(svg).toContain("Retail &lt;API&gt; &amp; Data");
+      expect(svg).toContain(`class="archlex-presentation-title" fill="${ink}"`);
+      expect(svg).toContain(`fill="${paper}"`);
+      expect(svg.indexOf("Producción")).toBeLessThan(svg.indexOf('id="nodes"'));
+      expect(svg.indexOf('id="nodes"')).toBeLessThan(
+        svg.indexOf("archlex-presentation-rule"),
+      );
+      expect(svg.indexOf("archlex-presentation-rule")).toBeLessThan(
+        svg.indexOf("Platform team"),
+      );
+      expect(metadata.width).toBe(360);
+      expect(metadata.height).toBeGreaterThan(graph.height);
+    },
+  );
+
+  it("wraps long unbroken text at grapheme boundaries and omits blank headings", () => {
+    const grapheme = "👩🏽‍💻";
+    const footer = grapheme.repeat(80);
+    const { svg, metadata } = serializeSvgGraph(graph, [], "dark", { footer });
+    const lines = [...svg.matchAll(/<tspan[^>]*>([^<]+)/g)].map(
+      (match) => match[1],
+    );
+    expect(lines.length).toBeGreaterThan(1);
+    expect(lines.join("")).toBe(footer);
+    expect(lines.every((line) => line.endsWith(grapheme))).toBe(true);
+    expect(svg).not.toContain("archlex-presentation-title");
+    expect(svg).not.toContain("archlex-presentation-subtitle");
+    expect(metadata.height).toBeGreaterThan(graph.height);
+  });
+});

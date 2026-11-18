@@ -9,8 +9,8 @@ description: "ArchLex DSL language specification, defining document structure, d
 ## Document structure
 
 ArchLex reads UTF-8 text. Newlines and semicolons separate statements. Spaces
-and tabs do not affect syntax outside quoted labels. `#` and `//` start line
-comments.
+and tabs separate tokens. `#` and `//` start line comments outside quoted labels
+and presentation text.
 
 Identifiers begin with an ASCII letter or `_` and may contain letters, digits,
 `_`, or `-`. Provider-qualified resource names use `provider.resource`, such as
@@ -39,6 +39,37 @@ theme dark
 
 A colon may follow a directive name. Duplicate or late directives emit a
 structural diagnostic. The first valid value wins.
+
+### Presentation text
+
+Add any of these optional lines in the header, before the first resource,
+scope, or relationship:
+
+```archlex
+provider aws
+direction LR
+theme light
+validation normal
+title: My Awesome title
+sub: My Awesome subtitle
+footer: My Awesome footer title
+
+api-gateway > lambda
+```
+
+The colon is required. Each value takes the rest of its line as plain text,
+including punctuation such as `#`, `//`, and `;`. ArchLex trims surrounding
+whitespace and omits empty values. For duplicate fields, ArchLex keeps the
+first occurrence and reports a diagnostic on later ones.
+
+Any non-empty field enables the presentation layout. The title and subtitle
+sit above the diagram, and a decorative rule sits below it. When supplied,
+the footer text goes beneath the rule. The same composition appears in the
+preview and in SVG and PNG output, including shared images.
+
+The names `title`, `sub`, and `footer` are reserved for these fields in the
+header. To use one as a resource name, declare it after another graph
+statement or inside a scope.
 
 ## Resources and identity
 

@@ -1,5 +1,12 @@
 # @archlex/k8s
 
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies [618ba28]
+  - @archlex/model@0.7.0
+
 ## 0.4.2
 
 ### Patch Changes

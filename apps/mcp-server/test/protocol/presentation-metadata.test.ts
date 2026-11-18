@@ -52,16 +52,28 @@ describe("optional presentation metadata", () => {
     const guide = resources.find(
       (resource) => resource.uri === "archlex://docs/specs/language",
     );
-    const expectedLastModified = execFileSync(
+    const source = "docs/specs/language.md";
+    const gitOptions = {
+      cwd: new URL("../../../../", import.meta.url),
+      encoding: "utf8" as const,
+    };
+    const dirty = execFileSync(
       "git",
-      ["log", "-1", "--format=%aI", "--", "docs/specs/language.md"],
-      { cwd: new URL("../../../../", import.meta.url), encoding: "utf8" },
+      ["status", "--porcelain", "--", source],
+      gitOptions,
     ).trim();
+    const lastModified = dirty
+      ? undefined
+      : execFileSync(
+          "git",
+          ["log", "-1", "--format=%aI", "--", source],
+          gitOptions,
+        ).trim();
 
     expect(AnnotationsSchema.safeParse(guide?.annotations).success).toBe(true);
     expect(guide?.annotations).toEqual({
       audience: ["user", "assistant"],
-      lastModified: expectedLastModified,
+      ...(lastModified && { lastModified }),
     });
     expect(
       guide?.icons?.every((icon) => IconSchema.safeParse(icon).success),

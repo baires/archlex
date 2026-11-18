@@ -1,8 +1,10 @@
 import type {
   Diagnostic,
   ElementMapping,
+  GraphRenderer,
   LayoutGraph,
   LayoutNode,
+  PresentationText,
   SvgResult,
 } from "@archlex/model";
 import {
@@ -12,6 +14,7 @@ import {
 } from "@archlex/model";
 import { darkTheme, lightTheme, type ThemeTokens } from "../theme/index.js";
 import { layoutNodeLabel } from "./labels.js";
+import { composePresentation } from "./presentation.js";
 
 const NODE_ICON_SIZE = 48;
 const NODE_ICON_TOP = 10;
@@ -795,6 +798,7 @@ export function serializeSvgGraph(
   layoutGraph: LayoutGraph,
   diagnostics: readonly Diagnostic[] = [],
   themeName: "light" | "dark" = "dark",
+  presentation?: PresentationText,
 ): SvgResult {
   const mappings: ElementMapping[] = [];
   const theme = themeName === "light" ? lightTheme : darkTheme;
@@ -1153,8 +1157,21 @@ export function serializeSvgGraph(
     });
   }
 
-  const width = Math.max(layoutGraph.width, 100);
-  const height = Math.max(layoutGraph.height, 100);
+  const graphWidth = Math.max(layoutGraph.width, 100);
+  const graphHeight = Math.max(layoutGraph.height, 100);
+  const frame = presentation
+    ? composePresentation(
+        presentation,
+        theme,
+        graphWidth,
+        graphHeight,
+        escapeXml,
+      )
+    : undefined;
+  const width = frame?.width ?? graphWidth;
+  const height = frame?.height ?? graphHeight;
+  const accessibleName =
+    frame?.accessibleName ?? 'aria-label="ArchLex Architecture Diagram"';
 
   const iconSymbolSvg = [...iconSymbolDefs.values()]
     .sort((a, b) => a.id.localeCompare(b.id))
@@ -1164,7 +1181,7 @@ export function serializeSvgGraph(
     )
     .join("");
 
-  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" aria-label="ArchLex Architecture Diagram" data-archlex-version="0.1.0" class="archlex-svg">
+  const fullSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width.toFixed(1)} ${height.toFixed(1)}" role="graphics-document" ${accessibleName} data-archlex-version="0.1.0" class="archlex-svg">
   <defs>
     <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M 0 0 L 6 3 L 0 6 Z" fill="${theme.arrowFill}"/>
@@ -1185,7 +1202,7 @@ ${iconSymbolSvg}    <style>
       g.archlex-node:focus-visible > rect.archlex-node-surface { stroke: ${theme.edgeHoverStroke ?? theme.edgeStroke}; stroke-width: 2; }
     </style>
   </defs>
-  <g id="scopes">
+${frame?.beforeGraph ?? ""}  <g id="scopes">
 ${scopeSvgContent}  </g>
   <g id="edges">
 ${edgeSvgContent}  </g>
@@ -1193,7 +1210,7 @@ ${edgeSvgContent}  </g>
 ${nodeSvgContent}  </g>
   <g id="edge-labels">
 ${edgeLabelSvgContent}  </g>
-</svg>`;
+${frame?.afterGraph ?? ""}</svg>`;
 
   return {
     svg: fullSvg,
@@ -1207,22 +1224,21 @@ ${edgeLabelSvgContent}  </g>
   };
 }
 
-export function createSvgRenderer(): {
-  id: string;
-  render(
-    layoutGraph: LayoutGraph,
-    diagnostics?: readonly Diagnostic[],
-    themeName?: "light" | "dark",
-  ): SvgResult;
-} {
+export function createSvgRenderer(): GraphRenderer {
   return {
     id: "renderer-svg",
     render(
       layoutGraph: LayoutGraph,
       diagnostics?: readonly Diagnostic[],
       themeName?: "light" | "dark",
+      presentation?: PresentationText,
     ): SvgResult {
-      return serializeSvgGraph(layoutGraph, diagnostics, themeName);
+      return serializeSvgGraph(
+        layoutGraph,
+        diagnostics,
+        themeName,
+        presentation,
+      );
     },
   };
 }

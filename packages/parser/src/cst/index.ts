@@ -8,6 +8,7 @@ import {
   LBrace,
   LBracket,
   Newline,
+  PresentationDirective,
   RBrace,
   RBracket,
   RelationshipOperator,
@@ -42,6 +43,7 @@ export class ArchLexCstParser extends CstParser {
   public statement = this.RULE("statement", () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.directive) },
+      { ALT: () => this.SUBRULE(this.presentationDirective) },
       { ALT: () => this.SUBRULE(this.scope) },
       { ALT: () => this.SUBRULE(this.namedResource) },
       { ALT: () => this.SUBRULE(this.incompleteRelationship) },
@@ -56,6 +58,10 @@ export class ArchLexCstParser extends CstParser {
       { ALT: () => this.CONSUME(Identifier, { LABEL: "value" }) },
       { ALT: () => this.CONSUME(StringLiteral, { LABEL: "value" }) },
     ]);
+  });
+
+  public presentationDirective = this.RULE("presentationDirective", () => {
+    this.CONSUME(PresentationDirective, { LABEL: "line" });
   });
 
   public scope = this.RULE("scope", () => {

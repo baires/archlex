@@ -32,6 +32,7 @@ export const archlexTokensProvider: Monaco.languages.IMonarchLanguage = {
     "provider",
     "direction",
     "validation",
+    "theme",
     "account",
     "region",
     "vpc",
@@ -51,13 +52,25 @@ export const archlexTokensProvider: Monaco.languages.IMonarchLanguage = {
 
   tokenizer: {
     root: [
+      [/[ \t]+/, "white"],
+      [/(?:#|\/\/).*$/, "comment"],
+      [/;/, "delimiter"],
+      [/(title|sub|footer)([ \t]*:)(.*)$/, ["keyword", "delimiter", "string"]],
+      [
+        /(provider|direction|validation|theme)(\b[ \t]*:?[ \t]*)("(?:\\.|[^"\\])*"|[a-zA-Z_][\w-]*)/,
+        ["keyword", "delimiter", "type"],
+      ],
+      [/./, { token: "@rematch", switchTo: "@body" }],
+    ],
+
+    body: [
       // Comments
-      [/#.*$/, "comment"],
+      [/(?:#|\/\/).*$/, "comment"],
       [/\/\*/, "comment", "@comment"],
 
       // Directives
       [
-        /\b(provider|direction|validation)\b/,
+        /\b(provider|direction|validation|theme)\b/,
         {
           cases: {
             "@keywords": "keyword",

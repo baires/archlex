@@ -4,7 +4,7 @@
 
 - UTF-8 text. Newlines and semicolons separate statements.
 - Spaces and tabs are insignificant outside quoted labels.
-- `#` and `//` start line comments.
+- `#` and `//` start line comments outside quoted labels and presentation text.
 - Identifiers begin with an ASCII letter or `_` and may contain letters,
   digits, `_`, `-`.
 - Reserved words: `provider`, `direction`, `validation`, `theme`, `account`,
@@ -30,6 +30,26 @@ theme dark
 
 A colon may follow a directive name. Duplicate or late directives emit a
 structural diagnostic; the first valid value wins.
+
+### Presentation text
+
+Place any of these optional lines before the first graph statement:
+
+```archlex
+title: Checkout architecture
+sub: Production
+footer: Platform team
+```
+
+The colon is required. Values are plain text through the end of the line,
+including punctuation such as `#`, `//`, and `;`. ArchLex trims surrounding
+whitespace, omits empty values, and reports duplicates while keeping the first
+occurrence.
+
+Any non-empty field enables the presentation layout in the preview and SVG or
+PNG output. The title and subtitle sit above the graph. The footer sits below
+a decorative rule. To use `title`, `sub`, or `footer` as a resource name,
+declare it after another graph statement or inside a scope.
 
 ## Resources and identity
 

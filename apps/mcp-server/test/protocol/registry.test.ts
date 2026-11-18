@@ -94,9 +94,11 @@ describe("shared MCP registry", () => {
     );
     const result = readResource("archlex://docs/dsl-syntax");
     const content = result.contents[0];
-    expect(content && "text" in content ? content.text : undefined).toContain(
-      "ArchLex",
-    );
+    const text = content && "text" in content ? content.text : undefined;
+    expect(text).toContain("ArchLex");
+    for (const directive of ["title:", "sub:", "footer:"]) {
+      expect(text).toContain(directive);
+    }
   });
 
   test("lists and resolves the established prompt", async () => {
@@ -117,6 +119,9 @@ describe("shared MCP registry", () => {
     );
     expect(content?.type === "text" ? content.text : undefined).toContain(
       "share_status",
+    );
+    expect(content?.type === "text" ? content.text : undefined).toContain(
+      "`footer: Platform team`",
     );
     expect(content?.type === "text" ? content.text : undefined).not.toContain(
       "for provider 'aws' first",

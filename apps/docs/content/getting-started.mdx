@@ -130,6 +130,24 @@ flow labels and four complete examples.
 
 Use the [Language Specification](/specs/language/) for declaration forms, six supported scopes, relationship chains, and labels.
 
+## Add presentation text
+
+Put any of these optional lines before the first resource, scope, or relationship:
+
+```archlex
+provider aws
+direction LR
+title: Checkout architecture
+sub: Production
+footer: Platform team
+
+alb -[routes]-> ecs
+```
+
+The title and subtitle appear above the diagram. The footer appears beneath a
+decorative rule. The layout carries through the playground preview, SVG and PNG
+exports, and shared diagrams. [Presentation syntax](/specs/language/#presentation-text)
+
 ## Render and Inspect Diagnostics
 
 ```typescript

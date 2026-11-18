@@ -36,6 +36,7 @@ ArchLex uses a concise text language for declaring cloud infrastructure architec
 - \`provider aws\`, \`provider gcp\`, \`provider k8s\`, or \`provider cloudflare\`
 - \`direction LR\` (Left-to-Right), \`RL\`, \`TB\` (Top-to-Bottom), or \`BT\`
 - \`validation normal\` (default), \`strict\`, or \`off\`
+- Optional presentation text: \`title: Architecture overview\`, \`sub: Production\`, and \`footer: Platform team\`. The colon is required and the rest of the line is plain text. Put these lines before the first graph statement. Any non-empty value enables the presentation layout in SVG and PNG. Use these names for resources only after another graph statement or inside a scope.
 
 ## Resource Node Declarations
 - Shorthand resource node: \`rds-proxy\` or \`lambda\`

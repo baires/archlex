@@ -183,6 +183,37 @@ function getStatementStartCompletions(
     });
   }
 
+  const prefix = context.partialToken ?? "";
+  const prefixStart = context.offset - prefix.length;
+  const firstGraphStatement = document.ast.statements.find(
+    (statement) => statement.type !== "directive",
+  );
+  if (
+    context.scopePath.length === 0 &&
+    (!firstGraphStatement ||
+      firstGraphStatement.span.start.offset >= prefixStart)
+  ) {
+    for (const directive of catalog.language.directives) {
+      if (
+        !directive.freeText ||
+        document.declaredDirectives.has(directive.name) ||
+        !directive.name.startsWith(prefix.toLowerCase())
+      ) {
+        continue;
+      }
+      completions.push({
+        id: `directive:${directive.name}`,
+        label: directive.name,
+        insertText: directive.snippet,
+        filterText: directive.name,
+        kind: "directive",
+        documentation: directive.documentation,
+        replacement: { startOffset: prefixStart, endOffset: context.offset },
+        sortScore: 0,
+      });
+    }
+  }
+
   // Add scope snippets (provider-aware)
   const supportedScopes = document.providerId
     ? index.getSupportedScopes(document.providerId)

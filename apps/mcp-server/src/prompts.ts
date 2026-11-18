@@ -27,7 +27,7 @@ export const SYSTEM_PROMPTS = {
 Requirements: ${args.requirements}
 
 Rules:
-1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons in directives).
+1. Always start with directives: \`direction LR\` and \`provider ${args.provider}\` (no colons on those two lines). If the user asks for presentation text, add optional \`title: Checkout architecture\`, \`sub: Production\`, and \`footer: Platform team\` lines before the first graph statement. Each value is plain text through the end of its line.
 2. Keep Cloudflare resources at the document root or inside \`account\` or generic \`group\` organization; do not nest them in native region/VPC/subnet/cluster/namespace scopes. For native resources, group logically into provider-appropriate scopes such as \`vpc\`/\`subnet\` or \`cluster\`/\`namespace\`.
 3. Use shorthand arrows like \`>\` or typed relationships like \`-[writes]->\`. A kind inside \`-[...]->\` is exactly one lowercase word from the known kinds list (${KNOWN_RELATIONSHIPS.join(", ")}). Put any free-form display text in pipes instead: \`api -[writes]->|PostgreSQL over TLS| database\`. Never put spaces or slashes inside \`-[...]\`.
 4. Return only the valid ArchLex DSL source code inside a code block, then call the \`render_diagram\` tool to preview the SVG.

@@ -169,9 +169,16 @@ export interface ParseResult {
   diagnostics: readonly Diagnostic[];
 }
 
+export interface PresentationText {
+  readonly title?: string;
+  readonly sub?: string;
+  readonly footer?: string;
+}
+
 export interface AnalysisResult {
   graph: CloudGraph;
   diagnostics: readonly Diagnostic[];
+  presentation?: PresentationText;
 }
 
 export interface LayoutOptions {
@@ -246,6 +253,7 @@ export interface RelationshipDefinition {
 
 export interface DirectiveDefinition {
   name: string;
+  freeText?: boolean;
   values: readonly string[];
   documentation: string;
   snippet: string;
@@ -356,6 +364,7 @@ export interface GraphRenderer {
     layoutGraph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
     themeName?: ThemeName,
+    presentation?: PresentationText,
   ): SvgResult;
 }
 
