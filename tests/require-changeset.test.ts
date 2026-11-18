@@ -279,24 +279,29 @@ describe("requiresChangeset", () => {
         PR_LABELS: "",
       };
 
-      const exempt = execFileSync("node", [script], {
-        cwd: process.cwd(),
-        encoding: "utf8",
-        input: "README.md\n",
-        stdio: ["pipe", "pipe", "pipe"],
-        env,
-      });
-      expect(exempt).toContain("No changeset required");
+      const root = mkdtempSync(join(tmpdir(), "changeset-stdin-"));
+      try {
+        mkdirSync(join(root, ".changeset"));
+        const run = (input: string) =>
+          execFileSync("node", [script], {
+            cwd: root,
+            encoding: "utf8",
+            input,
+            stdio: ["pipe", "pipe", "pipe"],
+            env,
+          });
 
-      expect(() =>
-        execFileSync("node", [script], {
-          cwd: process.cwd(),
-          encoding: "utf8",
-          input: "packages/core/package.json\n",
-          stdio: ["pipe", "pipe", "pipe"],
-          env,
-        }),
-      ).toThrow(/Changeset required/);
+        expect(run("README.md\n")).toContain("No changeset required");
+        expect(() => run("packages/core/package.json\n")).toThrow(
+          /Changeset required/,
+        );
+        writeFileSync(join(root, ".changeset", "fixture.md"), "---\n---\n");
+        expect(run("packages/core/package.json\n")).toContain(
+          "Found 1 changeset",
+        );
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
     });
 
     it("exempts this repo's private packages from the CI check", () => {

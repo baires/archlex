@@ -306,6 +306,39 @@ describe("prepared rendering", () => {
   });
 });
 
+describe("presentation rendering", () => {
+  const archlex = createArchLex({ providers: [awsProvider()] });
+
+  it("uses the first occurrence and omits empty presentation fields", async () => {
+    const prepared = archlex.prepare(
+      "title:   \ntitle: Overview\nsub: AWS production\nfooter: Platform team\nrds",
+    );
+    expect(prepared.presentation).toEqual({
+      sub: "AWS production",
+      footer: "Platform team",
+    });
+    expect(prepared.diagnostics).toContainEqual(
+      expect.objectContaining({
+        code: "AL-STRUCT-DUPLICATE-DIRECTIVE",
+        span: expect.objectContaining({
+          start: expect.objectContaining({ line: 2 }),
+        }),
+      }),
+    );
+    const rendered = await archlex.renderPrepared(prepared);
+    expect(rendered.svg).toContain("AWS production");
+    expect(rendered.svg).toContain("Platform team");
+    expect(rendered.svg).not.toContain("Overview");
+  });
+
+  it("leaves the standard SVG unchanged when all fields are blank", async () => {
+    const ordinary = await archlex.render("rds");
+    const blank = await archlex.render("title: \nsub:\nfooter:\nrds");
+    expect(blank.svg).toBe(ordinary.svg);
+    expect(blank.metadata).toEqual(ordinary.metadata);
+  });
+});
+
 describe("catalog language metadata", () => {
   it("returns structured grammar and provider metadata", () => {
     const archlex = createArchLex({
@@ -319,6 +352,9 @@ describe("catalog language metadata", () => {
       "direction",
       "validation",
       "theme",
+      "title",
+      "sub",
+      "footer",
     ]);
     expect(catalog.language.scopes.map(({ kind }) => kind)).toEqual([
       "account",

@@ -2,7 +2,7 @@
 
 title: Remote MCP Server
 description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams."
-lastModified: 2026-10-03T13:00:00-03:00
+lastModified: 2026-11-18T08:42:11-03:00
 ---
 
 # Remote MCP Server
@@ -73,13 +73,18 @@ Pass ArchLex source plus optional `theme`, `direction`, `validation`, and
 `format` values. The server returns the rendered diagram, diagnostics, node and
 edge counts, and a playground URL.
 
+For a presentation layout, put optional `title:`, `sub:`, and `footer:` lines at
+the top of the `source` string before the first graph statement. PNG and SVG
+include the presentation text and decorative rule. The playground link carries
+the same source. [Presentation syntax](/specs/language/#presentation-text)
+
 `format` defaults to `"png"`. Use `"svg"` from text-only or CLI clients that
 save the file themselves. Failed renders set `isError: true` and do not publish
 a playground URL.
 
 ```json
 {
-  "source": "provider k8s\ncluster prod { namespace web { service > deployment } }",
+  "source": "provider k8s\ntitle: Storefront architecture\nsub: Production\nfooter: Platform team\ncluster prod { namespace web { service > deployment } }",
   "theme": "dark",
   "validation": "normal"
 }

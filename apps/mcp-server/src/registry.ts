@@ -88,7 +88,7 @@ export function listTools(options: RegistryOptions): Tool[] {
         source: {
           type: "string",
           description:
-            'ArchLex DSL. Canonical forms: app: ecs["Next.js"]; cdn -[routes]-> app; or rds-proxy > rds > ecs. Start with direction LR and provider aws/gcp/k8s/cloudflare.',
+            'ArchLex DSL. Canonical forms: app: ecs["Next.js"]; cdn -[routes]-> app; or rds-proxy > rds > ecs. Start with direction LR and provider aws/gcp/k8s/cloudflare. For presentation text, add optional title:, sub:, and footer: lines before the first graph statement.',
         },
         theme: {
           type: "string",

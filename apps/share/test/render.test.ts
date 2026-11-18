@@ -73,6 +73,33 @@ describe("image GET", () => {
     expect(text).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
   });
 
+  it("preserves presentation text and the decorative rule in shared and embedded images", async () => {
+    const database = createFakeD1();
+    const source =
+      "provider aws\ntitle: Platform <overview>\nsub: Région A\nfooter: https://example.test/ops\n";
+    const id = await createShare(database, source);
+    const hooks = env({ DB: database, renderSvg: renderDiagramSvg });
+
+    const response = await worker.fetch(
+      new Request(`https://share.archlex.dev/s/${id}.svg`),
+      hooks,
+    );
+    expect(response.status).toBe(200);
+    const svg = await response.text();
+    expect(svg).toContain("Platform &lt;overview&gt;");
+    expect(svg).toContain("Région A");
+    expect(svg).toContain("https://example.test/ops");
+    expect(svg).toContain('class="archlex-presentation-rule"');
+
+    const rasterize = vi.fn(hooks.rasterize);
+    const png = await worker.fetch(
+      new Request(`https://share.archlex.dev/s/${id}.png`),
+      { ...hooks, rasterize },
+    );
+    expect(png.headers.get("content-type")).toBe("image/png");
+    expect(rasterize).toHaveBeenCalledWith(svg);
+  });
+
   it("returns a png from the rasterizer", async () => {
     const database = createFakeD1();
     const id = await createShare(database);

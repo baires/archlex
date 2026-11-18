@@ -2,6 +2,8 @@ import { writeFile } from "node:fs/promises";
 import { chromium } from "playwright";
 
 export interface ExportOptions {
+  width: number;
+  height: number;
   scale?: number;
   backgroundColor?: string;
 }
@@ -12,20 +14,9 @@ export interface ExportOptions {
 export async function svgToPng(
   svgContent: string,
   outputPath: string,
-  options: ExportOptions = {},
+  options: ExportOptions,
 ): Promise<void> {
-  const { scale = 2, backgroundColor = "transparent" } = options;
-
-  // Parse SVG to get dimensions
-  const widthMatch = svgContent.match(/width="(\d+(?:\.\d+)?)"/);
-  const heightMatch = svgContent.match(/height="(\d+(?:\.\d+)?)"/);
-
-  if (!widthMatch || !heightMatch) {
-    throw new Error("Could not determine SVG dimensions");
-  }
-
-  const width = Number.parseFloat(widthMatch[1]);
-  const height = Number.parseFloat(heightMatch[1]);
+  const { width, height, scale = 2, backgroundColor = "transparent" } = options;
 
   // Create HTML page with SVG
   const html = `
@@ -58,8 +49,8 @@ export async function svgToPng(
   try {
     const page = await browser.newPage({
       viewport: {
-        width: Math.ceil(width * scale),
-        height: Math.ceil(height * scale),
+        width: Math.ceil(width),
+        height: Math.ceil(height),
       },
       deviceScaleFactor: scale,
     });

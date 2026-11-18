@@ -5,7 +5,15 @@ describe("ArchLex language metadata", () => {
   it("exports one structured registry for directives, scopes, operators, and relationships", () => {
     expect(
       ARCHLEX_LANGUAGE_METADATA.directives.map(({ name }) => name),
-    ).toEqual(["provider", "direction", "validation", "theme"]);
+    ).toEqual([
+      "provider",
+      "direction",
+      "validation",
+      "theme",
+      "title",
+      "sub",
+      "footer",
+    ]);
     expect(ARCHLEX_LANGUAGE_METADATA.scopes.map(({ kind }) => kind)).toEqual([
       "account",
       "region",

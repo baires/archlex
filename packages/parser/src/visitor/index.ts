@@ -171,6 +171,19 @@ function convertStatement(wrapper: CstNodeLike): StatementAst[] {
     return [ast];
   }
 
+  if (child.name === "presentationDirective") {
+    const line = firstToken(child, "line");
+    if (!line?.image) return [invalid(child, "Incomplete directive")];
+    const colon = line.image.indexOf(":");
+    const ast: DirectiveAst = {
+      type: "directive",
+      name: line.image.slice(0, colon).trimEnd(),
+      value: line.image.slice(colon + 1).trim(),
+      span: tokenToSpan(line),
+    };
+    return [ast];
+  }
+
   if (child.name === "namedResource") {
     const name = firstToken(child, "name");
     const kind = qualifiedName(childNodes(child, "kind")[0]);

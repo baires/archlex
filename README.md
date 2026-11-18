@@ -91,6 +91,8 @@ vpc production {
 
 - **Directives:** `provider aws|cloudflare|gcp|k8s`, `direction LR|RL|TB|BT`,
   `validation normal|strict|off`, `theme light|dark`
+- **Presentation:** Optional `title: Architecture overview`, `sub: Production`,
+  and `footer: Platform team` in the document header
 - **Resources:** `rds`, `primary: rds`, `primary: rds["Primary DB"]`
 - **Edges:** `a > b`, `a -> b`, `a -[writes]-> b`, `a -[writes]->|SQL| b`
 

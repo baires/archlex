@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import {
   installIconFixtureRoutes,
@@ -273,4 +274,108 @@ test("cancels an uncaptured press that leaves the preview", async ({
     "data-pan-y",
     "0",
   );
+});
+
+const PRESENTATION_SOURCE = `provider aws
+direction LR
+theme light
+title: Service overview
+sub: Región norte
+footer: Platform team
+lambda > rds`;
+
+test("renders and exports presentation text with the graph", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await replaceEditorSource(page, PRESENTATION_SOURCE);
+  const titleLine = page
+    .locator(".view-line")
+    .filter({ hasText: "title: Service overview" });
+  const directive = titleLine.getByText("title", { exact: true });
+  const value = titleLine.getByText("Service overview", { exact: true });
+  await expect(directive).toBeVisible();
+  await expect(value).toBeVisible();
+  expect(await directive.getAttribute("class")).not.toBe(
+    await value.getAttribute("class"),
+  );
+  await directive.hover();
+  await expect(
+    page
+      .locator(".monaco-hover-content")
+      .getByText("Add a presentation title above the diagram."),
+  ).toBeVisible();
+
+  const svg = page.locator(".preview-stage svg.archlex-svg");
+  await expect(svg).toHaveAccessibleName("Service overview");
+  await expect(svg.locator(".archlex-presentation-subtitle")).toHaveText(
+    "Región norte",
+  );
+  const footer = svg.locator(".archlex-presentation-footer");
+  await expect(footer).toHaveText("Platform team");
+  await expect(svg.locator(".archlex-presentation-rule")).toHaveAttribute(
+    "aria-hidden",
+    "true",
+  );
+
+  const node = svg.locator(".archlex-node").first();
+  await node.click();
+  await expect(node).toHaveClass(/selected/);
+
+  await page.getByRole("button", { name: "Enter fullscreen preview" }).click();
+  await expect(
+    page.getByRole("button", { name: "Exit fullscreen preview" }),
+  ).toBeVisible();
+  await expect(footer).toBeInViewport();
+  await page.getByRole("button", { name: "Exit fullscreen preview" }).click();
+
+  const exportMenu = page.getByRole("button", { name: "Export menu" });
+  await exportMenu.click();
+  await page.getByRole("menuitem", { name: "Copy SVG" }).click();
+  await expect
+    .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+    .toContain("Platform team");
+
+  await exportMenu.click();
+  const svgDownload = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Download SVG" }).click();
+  const exportedSvg = await readFile(await (await svgDownload).path(), "utf8");
+  expect(exportedSvg).toContain("Service overview");
+  expect(exportedSvg).toContain("archlex-presentation-rule");
+  expect(exportedSvg).toContain("Platform team");
+
+  const dimensions = await svg.evaluate((element) => {
+    const { width, height } = element.viewBox.baseVal;
+    return [Math.round(width * 2), Math.round(height * 2)];
+  });
+  await exportMenu.click();
+  const pngDownload = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Download PNG" }).click();
+  const exportedPng = await readFile(await (await pngDownload).path());
+  expect(exportedPng.subarray(1, 4).toString()).toBe("PNG");
+  expect([exportedPng.readUInt32BE(16), exportedPng.readUInt32BE(20)]).toEqual(
+    dimensions,
+  );
+});
+
+test("fits presentation text from a shared diagram on mobile", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/v1/shares/presentation-fixture", (route) =>
+    route.fulfill({ json: { source: PRESENTATION_SOURCE } }),
+  );
+  await page.goto("/?s=presentation-fixture");
+  await expect(page.locator(".editor-pane")).toHaveAttribute(
+    "data-test-source",
+    PRESENTATION_SOURCE,
+  );
+  await page.getByRole("tab", { name: "Preview" }).click();
+  const svg = page.locator(".preview-stage svg.archlex-svg");
+  await expect(svg.locator(".archlex-presentation-title")).toBeInViewport({
+    ratio: 1,
+  });
+  await expect(svg.locator(".archlex-presentation-footer")).toBeInViewport({
+    ratio: 1,
+  });
 });
