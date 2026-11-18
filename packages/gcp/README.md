@@ -32,6 +32,7 @@ const services = provider.listServices();
 ## Available Services
 
 Includes 100+ GCP services:
+
 - Compute (Compute Engine, Cloud Functions, Cloud Run, GKE)
 - Storage (Cloud Storage, Persistent Disk, Filestore)
 - Database (Cloud SQL, Firestore, Bigtable, Spanner)

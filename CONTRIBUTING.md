@@ -77,6 +77,7 @@ archlex/
 ### 1. Adding an AWS Service
 
 To add a new AWS service to the catalog:
+
 1. **Define the service** in `packages/aws/src/catalog/`:
 
 ```typescript
@@ -104,6 +105,7 @@ See [docs/architecture/contribution-guide.md](docs/architecture/contribution-gui
 ### 2. Adding a Semantic Validation Rule
 
 Validation rules enforce architectural best practices:
+
 1. **Register the diagnostic code** in `packages/aws/src/registry.ts`:
 
 ```typescript
@@ -144,6 +146,7 @@ Cloudflare resources follow the same process in `packages/cloudflare/`; use
 ### 4. Adding a New Cloud Provider
 
 To add Azure or another provider:
+
 1. Create `packages/<provider>/` with the structure from `packages/gcp/` or `packages/k8s/`
 2. Implement the `CloudProvider` interface from `@archlex/model`
 3. Add to `packages/core` dependencies
@@ -245,6 +248,7 @@ git push origin feature/my-feature
 ## 📚 Documentation
 
 When adding features, update:
+
 - **Specs** (`docs/specs/`) for language or API changes
 - **Error docs** (`docs/errors/`) for new diagnostic codes
 - **Guides** (`docs/guides/`) for user-facing features
@@ -253,6 +257,7 @@ When adding features, update:
 ## 🐛 Bug Reports
 
 Found a bug? Please open an issue with:
+
 - Clear description of the problem
 - Minimal reproduction case (ArchLex source code)
 - Expected vs actual behavior
@@ -262,6 +267,7 @@ Found a bug? Please open an issue with:
 ## 💡 Feature Requests
 
 Have an idea? Open an issue with:
+
 - Use case: what problem does it solve?
 - Proposed solution or API design
 - Alternatives you've considered

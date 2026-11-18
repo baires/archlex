@@ -177,6 +177,7 @@ cloud-mer/
 ### 3. Changesets & Versioning
 
 When modifying published packages (`packages/*`), generate a changeset entry:
+
 ```bash
 pnpm changeset
 ```

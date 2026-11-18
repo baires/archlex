@@ -191,6 +191,7 @@ errors return diagnostics instead of throwing.
 ## Editor completions
 
 The language service provides context-aware completions for ArchLex source:
+
 - **Resource kinds**: After `:` in a resource declaration, suggests provider-specific services filtered by current scope
 - **Directive values**: After directive names, suggests valid options (`aws`, `cloudflare`, `gcp`, `k8s` for `provider`)
 - **Relationship types**: After `-[` in a relationship, suggests valid relationship kinds for the source and target resources
@@ -200,6 +201,7 @@ The language service provides context-aware completions for ArchLex source:
 Completions use **human-readable search**: typing "elastic kubernetes" suggests Amazon EKS (`eks`), and "relational" suggests RDS and Aurora. Search terms come from catalog service names and descriptions.
 
 Results are **semantically ranked** by:
+
 1. Exact prefix match (typing `lam` ranks `lambda` higher)
 2. Search term relevance (fuzzy match quality)
 3. Relationship compatibility (valid source/target pairs)

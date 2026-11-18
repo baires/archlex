@@ -7,6 +7,7 @@ description: "ArchLex specifications: the diagram language, public API, AWS, Goo
 # Specifications
 
 Reference specifications for the ArchLex language, API, and provider rules.
+
 - [Language Specification](/specs/language/): ArchLex DSL language specification, defining document structure, directives, resources, scopes, containment, and relationship syntax for cloud diagrams.
 - [Public API Specification](/specs/public-api/): ArchLex public API reference for createArchLex(), parse, analyze, prepare, layout, and render methods with TypeScript types and options.
 - [AWS Semantics](/specs/aws-semantics/): AWS semantics in ArchLex, covering the 194-service catalog, account, region, VPC, and subnet containment, relationship rules, and AWS diagnostic codes.

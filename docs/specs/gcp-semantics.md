@@ -19,6 +19,7 @@ inspect current IDs and aliases. Use `archlex validate --catalog` to validate
 the packaged catalogs.
 
 All 189 GCP services include **search terms** extracted from display names and descriptions for editor completions. For example:
+
 - Searching "serverless container" finds Cloud Run (`cloud-run`)
 - Searching "managed postgres" finds Cloud SQL (`cloud-sql`)
 - Searching "kubernetes engine" finds GKE (`gke`)
@@ -68,6 +69,7 @@ guidance, analytics placement, AI placement, IAP backends, and GKE Autopilot
 configuration.
 
 Examples include:
+
 - `GCP-NETWORKING-SUBNET-CONTAINMENT-001`
 - `GCP-DATA-CLOUD-SQL-NETWORK-001`
 - `GCP-INTEGRATION-WORKFLOWS-TARGETS-001`

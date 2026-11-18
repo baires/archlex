@@ -7,6 +7,7 @@ description: "Task-focused ArchLex guides: connect AI agents and the remote MCP 
 # Guides
 
 Practical guides for getting work done with ArchLex.
+
 - [Use with AI agents](/guides/agents/): Add ArchLex to Claude, Cursor, Codex, or any MCP client and ask your agent to diagram AWS, Cloudflare, GCP, or Kubernetes.
 - [Remote MCP Server](/guides/mcp-server/): Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams.
 - [Cloudflare Pack](/guides/cloudflare-pack/): Use the 92-resource Cloudflare catalog with bundled artwork, containment validation, and Cloudflare, AWS, GCP and Kubernetes examples.

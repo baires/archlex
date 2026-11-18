@@ -165,6 +165,7 @@ to users.
 
 The server publishes a DSL reference, generated documentation resources, and
 three example resources:
+
 - `archlex://examples/aws-microservices`
 - `archlex://examples/gcp-data-pipeline`
 - `archlex://examples/k8s-microservices`

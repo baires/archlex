@@ -259,6 +259,7 @@ The source blocks below are the CF18/CF19 fixtures. Their valid forms render wit
 spurious diagnostics in normal, strict and off modes; containment variants test
 the mode-specific behavior described above. They are architecture intent, not
 Cloudflare configuration exports or connectivity tests.
+
 - [Cloudflare-only application](#cloudflare-only-application)
 - [Public edge to AWS](#public-edge-to-aws)
 - [Tunnel into Kubernetes on GCP](#tunnel-into-kubernetes-on-gcp)

@@ -36,6 +36,7 @@ Monaco highlights directives, scope keywords, relationships, comments, and
 provider resources.
 
 The editor provides **context-aware completions** backed by the language service:
+
 - **Catalog-driven suggestions**: AWS, Cloudflare, Google Cloud, and Kubernetes resources, with relationships and containment rules
 - **Human-readable search**: Type "elastic kubernetes" to find Amazon EKS, or "relational" for RDS and Aurora
 - **Grammar-aware filtering**: Different suggestions after `:` (resource kinds), `[` (relationships), or in directive positions

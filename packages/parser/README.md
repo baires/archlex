@@ -70,6 +70,7 @@ try {
 ## AST Structure
 
 The parser produces an abstract syntax tree with the following node types:
+
 - `Program` - Root node
 - `ProviderBlock` - Cloud provider declaration
 - `ServiceGroup` - Service group (compute, database, etc.)
