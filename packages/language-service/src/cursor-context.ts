@@ -54,6 +54,9 @@ export function getCursorContext(
   if (!token) {
     // At start of document or after all tokens
     position = "statement-start";
+  } else if (token.kind === "PresentationDirective") {
+    position = "directive-value";
+    directiveName = token.image.slice(0, token.image.indexOf(":")).trimEnd();
   } else if (token.kind === "Colon") {
     // Right after colon or cursor after colon
     const beforeColon = findTokenBefore(document.tokens, tokenIndex, [

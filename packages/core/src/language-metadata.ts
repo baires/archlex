@@ -26,6 +26,27 @@ export const ARCHLEX_LANGUAGE_METADATA = {
       documentation: "Set the rendered diagram theme.",
       snippet: "theme ${1|light,dark|}",
     },
+    {
+      name: "title",
+      values: [],
+      freeText: true,
+      documentation: "Add a presentation title above the diagram.",
+      snippet: "title: ",
+    },
+    {
+      name: "sub",
+      values: [],
+      freeText: true,
+      documentation: "Add a presentation subtitle above the diagram.",
+      snippet: "sub: ",
+    },
+    {
+      name: "footer",
+      values: [],
+      freeText: true,
+      documentation: "Add a presentation footer below the diagram.",
+      snippet: "footer: ",
+    },
   ],
   scopes: [
     {

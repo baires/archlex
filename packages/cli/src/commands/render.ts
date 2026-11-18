@@ -178,6 +178,8 @@ async function renderCommand(
 
     try {
       await svgToPng(result.svg, outputPath, {
+        width: result.metadata.width,
+        height: result.metadata.height,
         scale: Number.parseFloat(options.scale || "2"),
         backgroundColor: options.backgroundColor,
       });

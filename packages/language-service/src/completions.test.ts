@@ -127,6 +127,27 @@ describe("createCompletionEngine", () => {
       );
     });
 
+    it("completes presentation directives only in the header", () => {
+      expect(labelsFor("provider aws\n|\nrds")).toEqual(
+        expect.arrayContaining(["title", "sub", "footer"]),
+      );
+      expect(labelsFor("title: Overview\n|")).not.toContain("title");
+      expect(labelsFor("rds\n|")).not.toContain("footer");
+      expect(labelsFor("vpc test {\n  |\n}")).not.toContain("sub");
+      expect(labelsFor("title: Over|")).toEqual([]);
+
+      const { source, offset } = unmark("provider aws\nfo|\nrds");
+      expect(
+        engine.complete(analyzeLanguageDocument(source), offset),
+      ).toContainEqual(
+        expect.objectContaining({
+          label: "footer",
+          insertText: "footer: ",
+          replacement: { startOffset: offset - 2, endOffset: offset },
+        }),
+      );
+    });
+
     it("uses provider-supported scopes", () => {
       const labels = labelsFor("provider k8s\n|");
       expect(labels).toEqual(expect.arrayContaining(["cluster", "namespace"]));

@@ -53,17 +53,19 @@ export function Preview({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
 
-  const hasNodes =
+  const hasDiagram =
     Boolean(svg) &&
-    (svg.includes("data-archlex-id") || svg.includes("archlex-scope"));
+    (svg.includes("data-archlex-id") ||
+      svg.includes("archlex-scope") ||
+      svg.includes('class="archlex-presentation-rule"'));
 
   useEffect(() => {
-    if (!isFullscreen || !hasNodes) return;
+    if (!isFullscreen || !hasDiagram) return;
     const frameId = window.requestAnimationFrame(() => {
       fullscreenExitRef.current?.focus();
     });
     return () => window.cancelAnimationFrame(frameId);
-  }, [isFullscreen, hasNodes]);
+  }, [isFullscreen, hasDiagram]);
 
   const updatePan = useCallback((nextPan: { x: number; y: number }) => {
     panRef.current = nextPan;
@@ -334,7 +336,7 @@ export function Preview({
               Rendering…
             </span>
           ) : null}
-          {hasNodes ? (
+          {hasDiagram ? (
             <>
               {/* biome-ignore lint/a11y/useSemanticElements: labeled control group, not a form fieldset */}
               <div
@@ -400,7 +402,7 @@ export function Preview({
             </>
           ) : null}
         </div>
-        {!hasNodes && !isRendering ? (
+        {!hasDiagram && !isRendering ? (
           <div className="empty-state">
             <div className="empty-icon">
               <Icon name="fit" size={32} />
@@ -415,7 +417,7 @@ export function Preview({
           data-pan-y={Math.round(pan.y)}
           data-scale={scale.toFixed(4)}
           style={{
-            display: hasNodes ? "block" : "none",
+            display: hasDiagram ? "block" : "none",
             transform: `translate(-50%, -50%) translate(${pan.x}px, ${pan.y}px) scale(${scale})`,
           }}
         >

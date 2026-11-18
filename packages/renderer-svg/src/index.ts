@@ -2,6 +2,7 @@ import type {
   Diagnostic,
   GraphRenderer,
   LayoutGraph,
+  PresentationText,
   SvgResult,
 } from "@archlex/model";
 import { serializeSvgGraph } from "./serializer/index.js";
@@ -16,8 +17,14 @@ export function createSvgRenderer(): GraphRenderer {
       layoutGraph: LayoutGraph,
       diagnostics: readonly Diagnostic[] = [],
       themeName?: "light" | "dark",
+      presentation?: PresentationText,
     ): SvgResult {
-      return serializeSvgGraph(layoutGraph, diagnostics, themeName);
+      return serializeSvgGraph(
+        layoutGraph,
+        diagnostics,
+        themeName,
+        presentation,
+      );
     },
   };
 }

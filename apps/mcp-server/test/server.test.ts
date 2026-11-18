@@ -236,6 +236,25 @@ describe("ArchLex MCP Server Tools", () => {
       expect(outcome).toMatchObject({ structuredContent: { success: true } });
     });
 
+    it("renders source presentation text into SVG and PNG", async () => {
+      const source =
+        "provider aws\ntitle: Overview\nsub: Región norte\nfooter: Platform team\napp-runner";
+      const [svgResult, pngResult] = await Promise.all([
+        handleRenderDiagram({ source, format: "svg" }),
+        handleRenderDiagram({ source, format: "png" }),
+      ]);
+      const svg = (svgResult.structuredContent as { svg: string }).svg;
+      expect(svg).toContain("Región norte");
+      expect(svg).toContain("Platform team");
+      expect(svg).toContain('class="archlex-presentation-rule"');
+
+      const image = pngResult.content[0];
+      if (image.type !== "image") throw new Error("Expected PNG output");
+      const png = Buffer.from(image.data, "base64");
+      expect(png.readUInt32BE(16)).toBe(360);
+      expect(png.readUInt32BE(20)).toBeGreaterThan(200);
+    });
+
     it("returns SVG text without rasterizing when format is svg", async () => {
       const source = "direction LR\nprovider aws\n\nrds-proxy > rds > ecs";
       const result = await handleRenderDiagram({ source, format: "svg" });

@@ -92,6 +92,10 @@ vpc production {
 
 - **Directives** (top of file): `provider aws|cloudflare|gcp|k8s`,
   `direction LR|RL|TB|BT`, `validation normal|strict|off`, `theme light|dark`.
+- **Presentation**: Add optional `title: Checkout architecture`, `sub: Production`,
+  and `footer: Platform team` lines before the first resource, scope, or
+  relationship. Each colon introduces plain text through the end of its line.
+  Any non-empty field enables the layout in the preview and rendered output.
 - **Resources**: `rds` (implicit), `primary: rds` (named instance),
   `primary: rds["Primary DB"]` (display label), `aws.rds` (provider-qualified).
 - **Edges**: `a > b` shorthand, `a -> b`, `a <- b`, `a <-> b`, `a -- b`,

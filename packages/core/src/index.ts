@@ -22,6 +22,7 @@ import type {
   LayoutOptions,
   LayoutResult,
   ParseResult,
+  PresentationText,
   RelationshipAst,
   RenderResult,
   ResourceAst,
@@ -71,6 +72,7 @@ export interface PreparedDiagram {
   readonly iconRequests: readonly IconRequest[];
   readonly direction?: LayoutOptions["direction"];
   readonly theme?: ThemeName;
+  readonly presentation?: PresentationText;
 }
 
 export interface ArchLex {
@@ -81,6 +83,7 @@ export interface ArchLex {
     graph: LayoutGraph,
     diagnostics?: readonly Diagnostic[],
     theme?: ThemeName,
+    presentation?: PresentationText,
   ): SvgResult;
   prepare(source: string, options?: PrepareOptions): PreparedDiagram;
   renderPrepared(
@@ -94,13 +97,18 @@ export interface ArchLex {
   getCatalog(providerFilter?: string): CatalogMetadata;
 }
 
+type DirectiveName =
+  | "provider"
+  | "direction"
+  | "validation"
+  | "theme"
+  | keyof PresentationText;
+
 function collectDirectives(
   statements: readonly StatementAst[],
   diagnostics: Diagnostic[],
-): Partial<Record<"provider" | "direction" | "validation" | "theme", string>> {
-  const values: Partial<
-    Record<"provider" | "direction" | "validation" | "theme", string>
-  > = {};
+): Partial<Record<DirectiveName, string>> {
+  const values: Partial<Record<DirectiveName, string>> = {};
   let declarationsStarted = false;
   for (const statement of statements) {
     if (statement.type !== "directive") {
@@ -108,11 +116,7 @@ function collectDirectives(
       continue;
     }
     const directive = statement as DirectiveAst;
-    const name = directive.name as
-      | "provider"
-      | "direction"
-      | "validation"
-      | "theme";
+    const name = directive.name as DirectiveName;
     if (declarationsStarted || values[name] !== undefined) {
       diagnostics.push(
         createDiagnostic(
@@ -724,7 +728,16 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         }
       }
 
-      return { graph, diagnostics };
+      const { title, sub, footer } = directives;
+      const presentation =
+        title || sub || footer
+          ? {
+              ...(title && { title }),
+              ...(sub && { sub }),
+              ...(footer && { footer }),
+            }
+          : undefined;
+      return { graph, diagnostics, ...(presentation && { presentation }) };
     },
 
     async layout(
@@ -737,9 +750,12 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
     renderGraph(
       graph: LayoutGraph,
       diagnostics?: readonly Diagnostic[],
-      theme?: "light" | "dark",
+      theme?: ThemeName,
+      presentation?: PresentationText,
     ): SvgResult {
-      return renderer.render(graph, diagnostics, theme);
+      return presentation
+        ? renderer.render(graph, diagnostics, theme, presentation)
+        : renderer.render(graph, diagnostics, theme);
     },
 
     prepare(source: string, prepareOptions?: PrepareOptions): PreparedDiagram {
@@ -753,6 +769,9 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         iconRequests: collectIconRequests(analysisRes.graph),
         direction: getDirectionDirective(parseRes.ast),
         theme: getThemeDirective(parseRes.ast),
+        ...(analysisRes.presentation && {
+          presentation: analysisRes.presentation,
+        }),
       };
     },
 
@@ -783,6 +802,7 @@ export function createArchLex(options: ArchLexOptions): ArchLex {
         layout,
         combinedDiagnostics,
         renderOptions?.theme ?? prepared.theme,
+        prepared.presentation,
       );
 
       return {

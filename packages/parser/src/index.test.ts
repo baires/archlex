@@ -25,6 +25,66 @@ describe("Phase 1 relationship chains", () => {
   });
 });
 
+describe("presentation directives", () => {
+  it("reads the full value through the end of its line", () => {
+    const result = parse(
+      [
+        "provider aws",
+        "direction LR",
+        "theme light",
+        "validation normal",
+        "  title: My Awesome title  ",
+        "sub: Visión — APAC: 東京 #1; west // east",
+        "footer: Platform",
+        "rds",
+      ].join("\r\n"),
+    );
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements.slice(4)).toMatchObject([
+      {
+        type: "directive",
+        name: "title",
+        value: "My Awesome title",
+        span: { start: { line: 5, column: 3 }, end: { line: 5 } },
+      },
+      {
+        type: "directive",
+        name: "sub",
+        value: "Visión — APAC: 東京 #1; west // east",
+      },
+      { type: "directive", name: "footer", value: "Platform" },
+      { type: "resource", kind: "rds" },
+    ]);
+  });
+
+  it("reserves the names only until the first graph statement", () => {
+    const result = parse(`provider aws; title: rds
+sub:
+# Preserve graph identifiers after the header
+lambda
+title: rds["Primary"]
+sub: s3
+grouping: ecs
+vpc production {
+  footer: rds
+}`);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.ast.statements).toMatchObject([
+      { type: "directive", name: "provider" },
+      { type: "directive", name: "title", value: "rds" },
+      { type: "directive", name: "sub", value: "" },
+      { type: "resource", kind: "lambda" },
+      { type: "resource", name: "title", kind: "rds", displayLabel: "Primary" },
+      { type: "resource", name: "sub", kind: "s3" },
+      { type: "resource", name: "grouping", kind: "ecs" },
+      {
+        type: "scope",
+        statements: [{ type: "resource", name: "footer", kind: "rds" }],
+      },
+    ]);
+  });
+});
+
 describe("Phase 2 language", () => {
   it("parses directives, qualified and named resources, comments, and nested scopes", () => {
     const result = parse(`provider aws
