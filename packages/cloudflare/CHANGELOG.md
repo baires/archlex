@@ -1,5 +1,12 @@
 # @archlex/cloudflare
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [618ba28]
+  - @archlex/model@0.7.0
+
 ## 0.1.3
 
 ### Patch Changes

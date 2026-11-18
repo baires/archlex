@@ -1,5 +1,14 @@
 # @archlex/model
 
+## 0.7.0
+
+### Minor Changes
+
+- 618ba28: Add presentation layouts with optional `title:`, `sub:`, and `footer:`
+  header directives. The layout appears in previews, SVG and PNG exports, and
+  shared diagrams. The language service suggests the new directives, and CLI
+  PNG export includes the full presentation frame.
+
 ## 0.6.1
 
 ### Patch Changes
