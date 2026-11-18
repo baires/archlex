@@ -1,5 +1,12 @@
 # @archlex/layout-elk
 
+## 0.2.11
+
+### Patch Changes
+
+- Updated dependencies [618ba28]
+  - @archlex/model@0.7.0
+
 ## 0.2.10
 
 ### Patch Changes
