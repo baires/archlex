@@ -12,7 +12,7 @@
   "dependencies": {
     "@archlex/core": "workspace:*",
     "@archlex/design": "workspace:*",
-    "astro": "^7.4.7",
+    "astro": "^7.4.12",
     "cookie": "^2.0.2",
     "gsap": "^3.15.1",
     "shiki": "^4.6.0"
