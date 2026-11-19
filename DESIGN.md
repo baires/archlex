@@ -20,6 +20,7 @@ control: 999px
 panel: 12px
 code: 10px
 omitted:
+
 - section: spacing
   reason: 'Canonical scale is maintained in packages/design/tokens.css.'
 - section: components
@@ -36,6 +37,7 @@ Agent-first multicloud architecture. The landing leads with LLM/MCP readiness, a
 Three territories considered (originality / fit / feasibility / portability, 1–5; lower portability is better): architecture review bench 4/5/5/1; cloud atlas 4/4/4/3; annotated language specification 3/4/5/3. The review bench wins because typed relationship validation is a specific, demonstrable ArchLex capability.
 
 Concept card:
+
 - Idea: LLM-ready multicloud diagrams, with a free MCP server and a human editing workspace.
 - Metaphor: an architecture review bench, with a drawing and its source open together.
 - Signature: change Lambda → DynamoDB from writes to invokes, reveal the real provider diagnostic, then correct it.

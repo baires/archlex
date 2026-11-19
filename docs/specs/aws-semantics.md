@@ -19,6 +19,7 @@ canonical IDs and aliases. Use `archlex validate --catalog` to validate the
 packaged catalogs.
 
 All 194 AWS services include **search terms** extracted from display names and descriptions for editor completions. For example:
+
 - Searching "elastic kubernetes" finds Amazon EKS (`eks`)
 - Searching "relational" finds Amazon RDS (`rds`) and Amazon Aurora (`aurora`)
 - Searching "serverless compute" finds AWS Lambda (`lambda`)
@@ -69,6 +70,7 @@ destinations, storage placement, database placement, IAM attachment, and CI/CD
 stages.
 
 Examples include:
+
 - `AWS-RDS-PROXY-NETWORK-001`
 - `AWS-NETWORKING-SUBNET-CONTAINMENT-001`
 - `AWS-INTEGRATION-EVENTBRIDGE-TARGETS-001`

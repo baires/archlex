@@ -176,6 +176,7 @@ const completions = engine.complete(document, source.length);
 ### Grammar Context
 
 The completion engine detects cursor position in the grammar:
+
 - **Directive name**: `prov█` → `provider`, `direction`, `validation`
 - **Directive value**: `provider █` → `aws`, `cloudflare`, `gcp`, `k8s`
 - **Resource kind**: `service: █` → provider-specific services

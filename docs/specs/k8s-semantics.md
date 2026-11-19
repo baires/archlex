@@ -22,6 +22,7 @@ archlex validate --catalog
 ```
 
 All 62 Kubernetes resources include **search terms** and **aliases** for editor completions. For example:
+
 - Searching "pod" finds Pod (`pod`)
 - Using alias `deploy` inserts Deployment (`deployment`)
 - Using alias `svc` inserts Service (`service`)
@@ -66,6 +67,7 @@ subject to The Linux Foundation policy.
 ## Semantic rules
 
 Kubernetes currently reports:
+
 - `K8S-NAMESPACE-WORKLOAD-CONTAINMENT-001` for workloads outside namespaces
 - `K8S-NAMESPACE-CLUSTER-CONTAINMENT-001` for namespaces outside clusters
 - `K8S-WORKLOAD-POD-MANAGED-001` for bare Pods

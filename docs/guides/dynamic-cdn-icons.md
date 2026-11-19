@@ -77,6 +77,7 @@ After TTL expiry, the loader requests fresh artwork. It can use an expired
 sanitized entry when refresh fails.
 
 Node supports these environment variables:
+
 - `ARCHLEX_ICON_CACHE_DIR`
 - `ARCHLEX_ICON_CACHE_TTL`
 - `ARCHLEX_DISABLE_CDN_ICONS=true`

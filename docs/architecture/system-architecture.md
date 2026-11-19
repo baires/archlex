@@ -68,6 +68,7 @@ symlinks. One source edit can update both consumers.
 ## Scopes and providers
 
 The parser recognizes six scope kinds:
+
 - `account`, `region`, `vpc`, and `subnet` model cloud containment.
 - `cluster` and `namespace` model Kubernetes containment.
 

@@ -27,6 +27,7 @@ Rules cover catalog membership, relationship kinds, network placement, subnet
 containment, security group placement, event targets, analytics destinations,
 storage placement, database placement, IAM attachment, and CI/CD stages.
 Notable codes:
+
 - `AWS-RDS-PROXY-NETWORK-001`
 - `AWS-NETWORKING-SUBNET-CONTAINMENT-001`
 - `AWS-INTEGRATION-EVENTBRIDGE-TARGETS-001`
@@ -122,6 +123,7 @@ containment rule, or relationship kind is uncertain, call
 `get_cloud_catalog` once with a focused provider/query rather than guessing.
 Use an unfiltered catalog request only when the user explicitly wants to
 browse the catalog.
+
 - `provider: "aws" | "cloudflare" | "gcp" | "k8s" | "all"`
 - Returns services (canonical IDs and aliases), containment scopes, known
   relationship kinds, and supported directives.

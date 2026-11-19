@@ -43,7 +43,6 @@ and in exported icon descriptions. Sanitization, the white backing, and the
 `#f6821f` ink recolor are technical changes. Cloudflare names and trademarks
 remain with their owners; this community provider is not endorsed by Cloudflare.
 
-
 Inherited SVG presentation settings are carried by an inner group so exported
 symbols preserve fill-none and stroke behavior after removing the SVG viewport.
 Monochrome ink on that group is `#f6821f`.

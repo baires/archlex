@@ -50,6 +50,7 @@ archlex render diagram.arch \
 ```
 
 **Options:**
+
 - `-o, --output <path>` - Output file path (.svg or .png)
 - `-d, --direction <direction>` - Layout direction: LR, RL, TB, BT (default: TB)
 - `-v, --validation <mode>` - Validation mode: normal, strict, off (default: normal)
@@ -74,10 +75,12 @@ cat diagram.arch | archlex validate --stdin
 ```
 
 **Options:**
+
 - `-v, --validation <mode>` - Validation mode: normal, strict, off (default: strict)
 - `--stdin` - Read input from stdin
 
 **Exit Codes:**
+
 - `0` - Success (no errors)
 - `1` - Validation errors (when using strict mode)
 - `2` - Fatal error (parse error, file not found)
@@ -99,6 +102,7 @@ archlex examples get aws-3-tier-web > my-diagram.arch
 ```
 
 **Available Examples:**
+
 - `aws-3-tier-web` - Classic 3-tier web application (ALB + EC2 + RDS)
 - `aws-serverless-api` - Serverless API with Lambda and DynamoDB
 - `simple-lambda-s3` - Event-driven Lambda triggered by S3

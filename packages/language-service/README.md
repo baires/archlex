@@ -5,6 +5,7 @@ Editor-neutral language intelligence for ArchLex source code.
 ## Overview
 
 `@archlex/language-service` provides context-aware code completion for ArchLex diagrams. It analyzes ArchLex source, understands the current cursor position, and suggests relevant completions based on:
+
 - **Catalog metadata** - Service names, relationships, and containment rules from provider catalogs
 - **Search terms** - Human-readable names and descriptions for fuzzy matching
 - **Document structure** - Current provider, scope hierarchy, and declared symbols
@@ -116,6 +117,7 @@ disposable.dispose();
 Parses ArchLex source and extracts structured metadata for completion.
 
 **Returns:** `LanguageDocument`
+
 - `source` - Original source text
 - `providerId` - Current provider (`"aws"`, `"gcp"`, `"k8s"`, or `null`)
 - `scopePath` - Current containment hierarchy (e.g., `["account", "region", "vpc"]`)
@@ -127,6 +129,7 @@ Parses ArchLex source and extracts structured metadata for completion.
 Creates a completion engine backed by catalog metadata.
 
 **Parameters:**
+
 - `catalog` - Catalog metadata from `archlex.getCatalog()`
 
 **Returns:** `CompletionEngine`
@@ -136,6 +139,7 @@ Creates a completion engine backed by catalog metadata.
 Generates context-aware completions at the given offset.
 
 **Parameters:**
+
 - `document` - Analyzed language document
 - `offset` - Cursor position (0-based byte offset)
 - `options` - Optional settings
@@ -163,6 +167,7 @@ interface LanguageCompletion {
 Determines the syntactic position at the cursor for context-aware completions.
 
 **Returns:** `CursorContext`
+
 - `position` - Grammar position (`"directive-name"`, `"resource-kind"`, `"relationship-type"`, etc.)
 - `providerId` - Current provider
 - `scopePath` - Current scope hierarchy
@@ -173,6 +178,7 @@ Determines the syntactic position at the cursor for context-aware completions.
 Creates a fast lookup index for catalog resources and relationships.
 
 **Returns:** `CatalogIndex`
+
 - `resolveResource(provider, kindOrAlias)` - O(1) resource lookup
 - `searchResources(provider, query)` - Fuzzy search by human names
 - `listResources(provider)` - All resources for a provider
@@ -183,6 +189,7 @@ Creates a fast lookup index for catalog resources and relationships.
 ### Catalog-Driven Completions
 
 All service names, relationships, and containment rules come from provider catalogs:
+
 - **194 AWS services** with relationships and containment
 - **185 GCP services** with relationships and containment
 - **62 Kubernetes resources** with relationships and containment
@@ -190,6 +197,7 @@ All service names, relationships, and containment rules come from provider catal
 ### Human-Readable Search
 
 Completions include searchable terms from service descriptions:
+
 - Typing "elastic kubernetes" suggests `eks` (Amazon EKS)
 - Typing "relational" suggests `rds` (Amazon RDS) and `aurora` (Amazon Aurora)
 - Typing "forward" suggests `forwards` relationship
@@ -197,6 +205,7 @@ Completions include searchable terms from service descriptions:
 ### Context-Aware Filtering
 
 The engine filters suggestions based on:
+
 - **Current provider** - Only shows AWS services when `provider aws` is set
 - **Scope hierarchy** - Only shows resources valid in current containment (e.g., `ecs` inside `cluster`)
 - **Symbol visibility** - Suggests declared resource identifiers for relationships
@@ -205,6 +214,7 @@ The engine filters suggestions based on:
 ### Semantic Ranking
 
 Results are ranked by:
+
 1. **Exact prefix match** - `lam` → `lambda` ranks higher
 2. **Search term relevance** - Fuzzy match quality against human names
 3. **Relationship compatibility** - Valid relationships for source/target resources
@@ -212,6 +222,7 @@ Results are ranked by:
 ### Canonical Insertion
 
 Completions always insert canonical syntax:
+
 - Service kinds use lowercase kebab-case: `eks`, `cloud-run`, `statefulset`
 - Relationships use lowercase: `connects`, `writes`, `publishes`
 - Directives preserve required format: `provider aws`, `direction LR`
@@ -245,6 +256,7 @@ The engine understands cursor position in the grammar:
 ## TypeScript Support
 
 Fully typed with exported interfaces:
+
 - `LanguageDocument`
 - `CompletionEngine`
 - `LanguageCompletion`

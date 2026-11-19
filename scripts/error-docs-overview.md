@@ -45,6 +45,7 @@ validation normal
 | `off`    | Skips provider semantic rules while retaining parsing and graph construction checks |
 
 Provider specifications describe the rules that each mode affects:
+
 - [AWS diagnostics](/specs/aws-semantics/)
 - [Google Cloud diagnostics](/specs/gcp-semantics/)
 - [Kubernetes diagnostics](/specs/k8s-semantics/)

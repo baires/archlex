@@ -35,6 +35,7 @@ return an `IconRegistry`. Cloudflare artwork is bundled and does not use this
 CDN path.
 
 `renderPrepared()` resolves icons in this order:
+
 1. A sanitized icon from the supplied registry
 2. Bundled provider artwork already attached to the graph
 3. A generic sanitized fallback

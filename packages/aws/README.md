@@ -32,6 +32,7 @@ const services = provider.listServices();
 ## Available Services
 
 Includes 200+ AWS services:
+
 - Compute (EC2, Lambda, ECS, EKS, Fargate)
 - Storage (S3, EBS, EFS, FSx)
 - Database (RDS, DynamoDB, Aurora, ElastiCache)

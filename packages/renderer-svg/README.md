@@ -59,6 +59,7 @@ const svg = renderer.render(diagram, {
 ## Styling
 
 The renderer supports CSS styling through class names:
+
 - `.archlex-node` - Service nodes
 - `.archlex-edge` - Connections
 - `.archlex-label` - Text labels
