@@ -28,8 +28,9 @@ describe("buildPageSeo", () => {
     );
     const breadcrumb = seo.jsonLd.find(
       (item) => item["@type"] === "BreadcrumbList",
-    ) as { itemListElement: { name: string; item: string }[] };
+    ) as { name: string; itemListElement: { name: string; item: string }[] };
 
+    expect(breadcrumb.name).toBe("Docs › AWS Semantics");
     expect(breadcrumb.itemListElement).toEqual([
       expect.objectContaining({
         position: 1,
