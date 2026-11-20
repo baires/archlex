@@ -6,6 +6,8 @@ export function breadcrumbJsonLd(crumbs: Crumb[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
+    // Search Console labels a list without a name "Unnamed item".
+    name: crumbs.map((crumb) => crumb.name).join(" › "),
     itemListElement: crumbs.map((crumb, index) => ({
       "@type": "ListItem",
       position: index + 1,

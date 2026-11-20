@@ -41,32 +41,35 @@ export function buildPageSeo(
   const isHome = path === "/";
   const fullTitle = isHome ? SITE_NAME : `${page.title} – ${SITE_NAME}`;
 
+  const crumbs = [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Docs",
+      item: `${SITE_ORIGIN}/`,
+    },
+    ...path
+      .split("/")
+      .filter(Boolean)
+      .map((segment, index, segments) => ({
+        segment,
+        route: `/${segments.slice(0, index + 1).join("/")}/`,
+        last: index === segments.length - 1,
+      }))
+      .filter(({ route, last }) => last || !routes || routes.has(route))
+      .map(({ segment, route, last }, index) => ({
+        "@type": "ListItem",
+        position: index + 2,
+        name: last ? page.title : prettySegment(segment),
+        item: `${SITE_ORIGIN}${route}`,
+      })),
+  ];
   const breadcrumb = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Docs",
-        item: `${SITE_ORIGIN}/`,
-      },
-      ...path
-        .split("/")
-        .filter(Boolean)
-        .map((segment, index, segments) => ({
-          segment,
-          route: `/${segments.slice(0, index + 1).join("/")}/`,
-          last: index === segments.length - 1,
-        }))
-        .filter(({ route, last }) => last || !routes || routes.has(route))
-        .map(({ segment, route, last }, index) => ({
-          "@type": "ListItem",
-          position: index + 2,
-          name: last ? page.title : prettySegment(segment),
-          item: `${SITE_ORIGIN}${route}`,
-        })),
-    ],
+    // Search Console labels a list without a name "Unnamed item".
+    name: crumbs.map((crumb) => crumb.name).join(" › "),
+    itemListElement: crumbs,
   };
 
   const jsonLd: Record<string, unknown>[] = isHome
