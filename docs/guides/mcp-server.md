@@ -1,7 +1,7 @@
 ---
 
-title: Remote MCP Server
-description: "Connect MCP clients to the remote ArchLex MCP server to render, validate, inspect, and share AWS, Cloudflare, Google Cloud, and Kubernetes diagrams."
+title: Remote MCP Server (Streamable HTTP)
+description: "Connect Claude Code, Cursor or Codex to the free ArchLex MCP server over Streamable HTTP: endpoints, supported protocol versions, tools and limits."
 lastModified: 2026-11-18T08:42:11-03:00
 ---
 

@@ -181,8 +181,8 @@ export const providerPages: ProviderPage[] = [
     provider: "cloudflare",
     slug: "cloudflare",
     name: "Cloudflare",
-    title: "Cloudflare Architecture Diagrams as Code | ArchLex",
-    description: `Diagram Cloudflare Workers, R2, D1, Tunnel and WAF as code with ${count.cloudflare} Cloudflare resources and bundled artwork. Connect them to AWS, GCP or Kubernetes origins.`,
+    title: "Cloudflare Diagrams as Code: Workers, R2, D1 | ArchLex",
+    description: `Draw Cloudflare diagrams from text: Workers, R2, D1, Tunnel and WAF, with ${count.cloudflare} resources and bundled icons. Connect the edge to AWS, GCP or Kubernetes.`,
     h1: "Cloudflare architecture diagrams as code.",
     lede: `Draw Workers, R2, D1, Durable Objects, Tunnel, Access, WAF and the rest of your Cloudflare setup from plain text. ArchLex recognizes ${count.cloudflare} Cloudflare resources and connects them to origins on AWS, Google Cloud or Kubernetes.`,
     docs: {
