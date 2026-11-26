@@ -1,5 +1,11 @@
 # @archlex/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- f9b4547: Bump dependencies (Dependabot).
+
 ## 0.5.0
 
 ### Minor Changes
